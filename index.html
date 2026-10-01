@@ -235,7 +235,7 @@ function resetDailyData(){
 }
 
 function loadCurrentDateReport(){let rs=JSON.parse(localStorage.getItem('reports')||'[]');let r=rs.find(x=>x.date===$('date').value&&x.site===$('site').value&&x.trade===$('trade').value);if(!r)return alert('해당 날짜/현장/공종의 저장된 작업일보가 없습니다.');$('start').value=r.start||'07:30';$('end').value=r.end||'17:30';$('bpa').value=r.bpa||'';state=JSON.parse(JSON.stringify(r.state));render();autoSave()}
-function saveReport(){let reports=JSON.parse(localStorage.getItem('reports')||'[]');let obj={date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,state:JSON.parse(JSON.stringify(state)),text:reportText()};let ix=reports.findIndex(r=>r.date===obj.date&&r.site===obj.site&&r.trade===obj.trade);if(ix>=0)reports[ix]=obj;else reports.push(obj);localStorage.setItem('reports',JSON.stringify(reports));autoSave();if(driveAccessToken)saveToDrive(true);alert('보고서로 저장했습니다.'+(driveAccessToken?'\nGoogle Drive에도 동기화를 시작했습니다.':''))}
+function saveReport(){let reports=JSON.parse(localStorage.getItem('reports')||'[]');let obj={date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,state:JSON.parse(JSON.stringify(state)),text:reportText()};let ix=reports.findIndex(r=>r.date===obj.date&&r.site===obj.site&&r.trade===obj.trade);if(ix>=0)reports[ix]=obj;else reports.push(obj);localStorage.setItem('reports',JSON.stringify(reports));autoSave();markLocalChanged();if(tokenValid())scheduleAutoSync();alert('보고서로 저장했습니다.'+(tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''))}
 function loadYesterday(){let d=new Date($('date').value+'T00:00:00');d.setDate(d.getDate()-1);let y=d.toISOString().slice(0,10),rs=JSON.parse(localStorage.getItem('reports')||'[]');let r=rs.find(x=>x.date===y&&x.site===$('site').value&&x.trade===$('trade').value);if(!r)return alert('전날 저장된 보고서가 없습니다.');state=JSON.parse(JSON.stringify(r.state));render()}
 async function copyPreview(){await navigator.clipboard.writeText($('preview').innerText);alert('복사했습니다.')}
 function toggleMobileMenu(){document.getElementById('mobileDrawer').classList.toggle('open');document.getElementById('mobileOverlay').classList.toggle('open')}
@@ -248,17 +248,18 @@ function addMasterZone(){D.zones.push({zone:'',loc:''});renderMasterZones()}
 function applyZone(i,v){let z=(D.zones||[]).find(x=>x.zone===v);if(z){state.areas[i].zone=z.zone;state.areas[i].loc=z.loc||'';renderAreas();updatePreview()}}
 function changeJob(i,j,d){let v=Math.max(0,Math.min(999,(+state.companies[i].jobs[j]||0)+d));state.companies[i].jobs[j]=v;renderCompanies();updatePreview()}
 function changeEquip(i,d){state.equipment[i].qty=Math.max(0,Math.min(999,(+state.equipment[i].qty||0)+d));renderEquipment();updatePreview()}
-function saveMasters(){autoSave();let split=id=>$(id).value.split(',').map(x=>x.trim()).filter(Boolean);let managers=$('masterManagers').value.split('\n').map(x=>x.split('|').map(v=>v.trim())).filter(m=>m.some(Boolean));D.zones=(D.zones||[]).map(z=>({zone:(z.zone||'').trim(),loc:(z.loc||'').trim()})).filter(z=>z.zone);let appTitle=($('masterAppTitle').value||'작업일보').trim()||'작업일보';let m={appTitle,sites:split('masterSites'),trades:split('masterTrades'),jobs:split('masterJobs'),equipment:split('masterEquipment'),zones:D.zones,managers};Object.assign(D,m);localStorage.setItem('masters',JSON.stringify(m));applyAppTitle();fillSelects();renderAreas();if(driveAccessToken)saveToDrive(true);alert('기준정보를 저장했습니다. 앱 타이틀도 즉시 반영되었습니다.'+(driveAccessToken?'\nGoogle Drive에도 동기화를 시작했습니다.':''))}
+function saveMasters(){autoSave();let split=id=>$(id).value.split(',').map(x=>x.trim()).filter(Boolean);let managers=$('masterManagers').value.split('\n').map(x=>x.split('|').map(v=>v.trim())).filter(m=>m.some(Boolean));D.zones=(D.zones||[]).map(z=>({zone:(z.zone||'').trim(),loc:(z.loc||'').trim()})).filter(z=>z.zone);let appTitle=($('masterAppTitle').value||'작업일보').trim()||'작업일보';let m={appTitle,sites:split('masterSites'),trades:split('masterTrades'),jobs:split('masterJobs'),equipment:split('masterEquipment'),zones:D.zones,managers};Object.assign(D,m);localStorage.setItem('masters',JSON.stringify(m));applyAppTitle();fillSelects();renderAreas();markLocalChanged();if(tokenValid())scheduleAutoSync();alert('기준정보를 저장했습니다. 앱 타이틀도 즉시 반영되었습니다.'+(tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''))}
 
 
-// ===== Google Drive 동기화 (OAuth Client ID만 사용, Client Secret은 사용하지 않음) =====
+// ===== Google Drive 자동 동기화 v2: 최신자료 비교 + 충돌 방지 =====
 const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
 const DRIVE_FILE_NAME='SK_YONGIN_WORKREPORT_DATA.json';
-let driveAccessToken='';
-let driveTokenClient=null;
-let drivePendingAction=null;
+let driveAccessToken=sessionStorage.getItem('driveAccessToken')||'';
+let driveTokenExpires=+(sessionStorage.getItem('driveTokenExpires')||0);
+let driveTokenClient=null, drivePendingAction=null, syncTimer=null, syncBusy=false, applyingRemote=false;
 function setDriveStatus(msg){let e=$('driveStatus');if(e)e.textContent='상태: '+msg}
 function getGoogleClientId(){return (($('googleClientId')&&$('googleClientId').value)||localStorage.getItem('googleClientId')||'').trim()}
+function tokenValid(){return !!driveAccessToken && Date.now()<driveTokenExpires-60000}
 function initDriveTokenClient(){
   const cid=getGoogleClientId();
   if(!cid){alert('Google OAuth 클라이언트 ID를 입력하세요.');return false}
@@ -266,12 +267,15 @@ function initDriveTokenClient(){
   if(!window.google||!google.accounts||!google.accounts.oauth2){alert('Google 로그인 모듈을 아직 불러오는 중입니다. 잠시 후 다시 눌러주세요.');return false}
   driveTokenClient=google.accounts.oauth2.initTokenClient({client_id:cid,scope:DRIVE_SCOPE,callback:(resp)=>{
     if(resp.error){setDriveStatus('연결 실패: '+resp.error);return}
-    driveAccessToken=resp.access_token;setDriveStatus('Google Drive 연결됨 · 자동 동기화 확인 중...');
-    const a=drivePendingAction;drivePendingAction=null;if(a==='save')saveToDrive();else if(a==='load')loadFromDrive();else autoPullFromDrive();
+    driveAccessToken=resp.access_token; driveTokenExpires=Date.now()+((resp.expires_in||3600)*1000);
+    sessionStorage.setItem('driveAccessToken',driveAccessToken);sessionStorage.setItem('driveTokenExpires',String(driveTokenExpires));
+    setDriveStatus('Google Drive 연결됨 · 최신자료 확인 중...');
+    const a=drivePendingAction;drivePendingAction=null;
+    if(a==='save')saveToDrive(); else if(a==='load')loadFromDrive(); else syncNow('connect');
   }});return true
 }
 function connectGoogleDrive(){drivePendingAction=null;if(initDriveTokenClient())driveTokenClient.requestAccessToken({prompt:''})}
-function requireDrive(action){if(driveAccessToken)return true;drivePendingAction=action;if(initDriveTokenClient())driveTokenClient.requestAccessToken({prompt:''});return false}
+function requireDrive(action){if(tokenValid())return true;driveAccessToken='';sessionStorage.removeItem('driveAccessToken');drivePendingAction=action;if(initDriveTokenClient())driveTokenClient.requestAccessToken({prompt:''});return false}
 function driveHeaders(extra={}){return Object.assign({'Authorization':'Bearer '+driveAccessToken},extra)}
 async function driveFindFile(){
   const q=`name='${DRIVE_FILE_NAME}' and trashed=false`;
@@ -279,55 +283,41 @@ async function driveFindFile(){
   const r=await fetch(u,{headers:driveHeaders()});if(!r.ok)throw new Error('Drive 파일 조회 실패 ('+r.status+')');
   const j=await r.json();return (j.files||[])[0]||null
 }
-function makeDriveSnapshot(){
-  autoSave();
-  return {format:'SK-YONGIN-WORKREPORT',version:1,savedAt:new Date().toISOString(),masters:JSON.parse(localStorage.getItem('masters')||'null'),reports:JSON.parse(localStorage.getItem('reports')||'[]'),currentDraft:JSON.parse(localStorage.getItem('currentDraft')||'null')}
+function localData(){autoSave();return {masters:JSON.parse(localStorage.getItem('masters')||'null'),reports:JSON.parse(localStorage.getItem('reports')||'[]'),currentDraft:JSON.parse(localStorage.getItem('currentDraft')||'null')}}
+function makeDriveSnapshot(){const d=localData();return {format:'SK-YONGIN-WORKREPORT',version:2,savedAt:new Date().toISOString(),deviceId:getDeviceId(),...d}}
+function getDeviceId(){let x=localStorage.getItem('driveDeviceId');if(!x){x='dev-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);localStorage.setItem('driveDeviceId',x)}return x}
+function markLocalChanged(){if(applyingRemote)return;localStorage.setItem('driveLocalDirty','1');localStorage.setItem('driveLocalUpdatedAt',String(Date.now()));scheduleAutoSync()}
+function scheduleAutoSync(){if(!tokenValid())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow('auto'),1200)}
+async function fetchRemote(){const f=await driveFindFile();if(!f)return {file:null,data:null,stamp:0};const r=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id)+'?alt=media',{headers:driveHeaders()});if(!r.ok)throw new Error('Drive 불러오기 실패 ('+r.status+')');const data=await r.json();const stamp=Date.parse(data.savedAt||'')||Date.parse(f.modifiedTime||'')||0;return {file:f,data,stamp}}
+function applyRemoteData(d,stamp){applyingRemote=true;try{if(d.masters)localStorage.setItem('masters',JSON.stringify(d.masters));if(Array.isArray(d.reports))localStorage.setItem('reports',JSON.stringify(d.reports));if(d.currentDraft)localStorage.setItem('currentDraft',JSON.stringify(d.currentDraft));localStorage.setItem('driveLastRemoteStamp',String(stamp||Date.now()));localStorage.setItem('driveLocalDirty','0');localStorage.setItem('driveLocalUpdatedAt',String(stamp||Date.now()))}finally{applyingRemote=false}}
+async function pushLocal(file,silent=true){const snap=makeDriveSnapshot(), data=JSON.stringify(snap,null,2);let r;
+  if(file){r=await fetch('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(file.id)+'?uploadType=media',{method:'PATCH',headers:driveHeaders({'Content-Type':'application/json; charset=UTF-8'}),body:data})}
+  else{const boundary='workreport_'+Date.now(),meta=JSON.stringify({name:DRIVE_FILE_NAME,mimeType:'application/json'}),body='--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+meta+'\r\n--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+data+'\r\n--'+boundary+'--';r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,modifiedTime',{method:'POST',headers:driveHeaders({'Content-Type':'multipart/related; boundary='+boundary}),body})}
+  if(!r.ok)throw new Error('Drive 저장 실패 ('+r.status+')');const stamp=Date.parse(snap.savedAt);localStorage.setItem('driveLastRemoteStamp',String(stamp));localStorage.setItem('driveLocalDirty','0');setDriveStatus('자동 동기화 완료 · '+new Date().toLocaleString());if(!silent)alert('Google Drive에 저장했습니다.')
 }
-async function saveToDrive(silent=false){
-  if(!requireDrive('save'))return;
+async function syncNow(reason='auto'){
+  if(!tokenValid()||syncBusy)return;syncBusy=true;
   try{
-    setDriveStatus('Drive 저장 중...');const data=JSON.stringify(makeDriveSnapshot(),null,2);const f=await driveFindFile();let r;
-    if(f){r=await fetch('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(f.id)+'?uploadType=media',{method:'PATCH',headers:driveHeaders({'Content-Type':'application/json; charset=UTF-8'}),body:data})}
-    else{
-      const boundary='workreport_'+Date.now();const meta=JSON.stringify({name:DRIVE_FILE_NAME,mimeType:'application/json'});
-      const body='--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+meta+'\r\n--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+data+'\r\n--'+boundary+'--';
-      r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,modifiedTime',{method:'POST',headers:driveHeaders({'Content-Type':'multipart/related; boundary='+boundary}),body})
-    }
-    if(!r.ok)throw new Error('Drive 저장 실패 ('+r.status+')');localStorage.setItem('driveLastPullStamp',String(Date.now()));setDriveStatus('Drive 저장 완료 · '+new Date().toLocaleString());if(!silent)alert('Google Drive에 저장했습니다.')
-  }catch(e){console.error(e);setDriveStatus(e.message);if(!silent)alert(e.message)}
+    setDriveStatus('동기화 확인 중...');const remote=await fetchRemote();const last=+(localStorage.getItem('driveLastRemoteStamp')||0);const dirty=localStorage.getItem('driveLocalDirty')==='1';
+    if(!remote.file){await pushLocal(null,true);return}
+    const remoteChanged=remote.stamp>last+500;
+    if(dirty&&remoteChanged){
+      const useLocal=confirm('PC/휴대폰 양쪽에서 자료가 변경되었습니다.\n\n확인 = 이 기기의 자료를 Drive에 저장\n취소 = Drive의 최신 자료를 이 기기에 적용');
+      if(useLocal){await pushLocal(remote.file,true)}else{applyRemoteData(remote.data,remote.stamp);setDriveStatus('Drive 최신자료 적용 완료');alert('Drive의 최신 자료를 적용합니다.');location.reload()}
+    }else if(dirty){await pushLocal(remote.file,true)}
+    else if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('Drive 최신자료 자동 반영');location.reload()}
+    else setDriveStatus('Google Drive 연결됨 · 최신 상태');
+  }catch(e){console.error(e);setDriveStatus('동기화 실패: '+e.message)}finally{syncBusy=false}
 }
-async function autoPullFromDrive(){
-  if(!driveAccessToken)return;
-  try{
-    const f=await driveFindFile();
-    if(!f){setDriveStatus('Google Drive 연결됨 · Drive 자료 없음');return}
-    const r=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id)+'?alt=media',{headers:driveHeaders()});
-    if(!r.ok)throw new Error('자동 불러오기 실패 ('+r.status+')');
-    const data=await r.json();
-    const remoteStamp=Date.parse(data.generatedAt||'')||Date.parse(f.modifiedTime||'')||0;
-    const lastPull=+(localStorage.getItem('driveLastPullStamp')||0);
-    if(remoteStamp<=lastPull){setDriveStatus('Google Drive 연결됨 · 최신 상태');return}
-    if(data.masters)localStorage.setItem('masters',JSON.stringify(data.masters));
-    if(data.reports)localStorage.setItem('reports',JSON.stringify(data.reports));
-    if(data.currentDraft)localStorage.setItem('currentDraft',JSON.stringify(data.currentDraft));
-    localStorage.setItem('driveLastPullStamp',String(remoteStamp||Date.now()));
-    setDriveStatus('자동 동기화 완료 · '+new Date().toLocaleString());
-    alert('Google Drive의 최신 자료를 자동으로 동기화했습니다.');location.reload();
-  }catch(e){console.error(e);setDriveStatus('자동 동기화 실패: '+e.message)}
-}
-async function loadFromDrive(){
-  if(!requireDrive('load'))return;
-  try{
-    setDriveStatus('Drive 불러오는 중...');const f=await driveFindFile();if(!f){setDriveStatus('Drive 백업 파일 없음');return alert('아직 Drive에 저장된 작업일보 데이터가 없습니다.')}
-    const r=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id)+'?alt=media',{headers:driveHeaders()});if(!r.ok)throw new Error('Drive 불러오기 실패 ('+r.status+')');
-    const d=await r.json();if(d.format!=='SK-YONGIN-WORKREPORT')throw new Error('작업일보 백업 파일 형식이 아닙니다.');
-    if(!confirm('Drive의 자료로 이 기기의 작업일보 데이터를 갱신할까요?\n현재 로컬 자료는 Drive 자료로 바뀝니다.')){setDriveStatus('불러오기 취소');return}
-    if(d.masters)localStorage.setItem('masters',JSON.stringify(d.masters));if(Array.isArray(d.reports))localStorage.setItem('reports',JSON.stringify(d.reports));if(d.currentDraft)localStorage.setItem('currentDraft',JSON.stringify(d.currentDraft));
-    setDriveStatus('Drive 불러오기 완료 · '+new Date().toLocaleString());alert('Drive 자료를 불러왔습니다. 화면을 새로고침합니다.');location.reload()
-  }catch(e){console.error(e);setDriveStatus(e.message);alert(e.message)}
-}
-function restoreDriveClientId(){let v=localStorage.getItem('googleClientId');if(v&&$('googleClientId'))$('googleClientId').value=v}
+async function saveToDrive(silent=false){if(!requireDrive('save'))return;localStorage.setItem('driveLocalDirty','1');try{const f=await driveFindFile();await pushLocal(f,silent)}catch(e){console.error(e);setDriveStatus(e.message);if(!silent)alert(e.message)}}
+async function loadFromDrive(){if(!requireDrive('load'))return;try{const remote=await fetchRemote();if(!remote.file)return alert('아직 Drive에 저장된 작업일보 데이터가 없습니다.');if(!confirm('Drive의 자료로 이 기기의 작업일보 데이터를 갱신할까요?\n현재 로컬 자료는 Drive 자료로 바뀝니다.'))return;applyRemoteData(remote.data,remote.stamp);alert('Drive 자료를 불러왔습니다.');location.reload()}catch(e){setDriveStatus(e.message);alert(e.message)}}
+function restoreDriveClientId(){let v=localStorage.getItem('googleClientId');if(v&&$('googleClientId'))$('googleClientId').value=v;if(tokenValid()){setDriveStatus('Google Drive 연결됨 · 자동 동기화 켜짐');setTimeout(()=>syncNow('startup'),500)}}
 setTimeout(restoreDriveClientId,0);
+// 사용자가 실제 입력을 바꾸면 로컬 변경으로 표시하고, 연결 중이면 1.2초 후 자동 동기화
+setTimeout(()=>{document.addEventListener('input',e=>{if(e.target&&e.target.closest&&e.target.closest('main'))markLocalChanged()});document.addEventListener('change',e=>{if(e.target&&e.target.closest&&e.target.closest('main'))markLocalChanged()})},0);
+// 다른 기기의 변경을 받기 위해 연결된 동안 20초마다 최신 상태 확인
+setInterval(()=>{if(tokenValid()&&document.visibilityState==='visible')syncNow('poll')},20000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&tokenValid())syncNow('visible')});
 
 init();
 </script></body></html>
