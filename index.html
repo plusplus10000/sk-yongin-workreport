@@ -151,7 +151,7 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
   .mobile-drawer button:active,.mobile-drawer button.active{background:#0878f9}
   .mobile-drawer .drawer-title{font-weight:800;padding:8px 12px 12px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:6px}
 }
-</style></head>
+</style><script src="https://accounts.google.com/gsi/client" async defer></script></head>
 <body><header><div>⛑ <span id="appTitleDisplay">작업일보</span></div><div id="topDate">작업보고 작성</div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
 <nav id="mobileDrawer" class="mobile-drawer" aria-label="모바일 메뉴">
@@ -171,7 +171,13 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
 <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" onclick="saveReport()">보고서 저장</button><button class="btn primary" onclick="copyPreview()">미리보기 복사</button></div></div>
 <div class="desktop-preview"><div class="card"><div class="title"><span>작업보고 미리보기</span><button class="btn" onclick="copyPreview()">복사하기</button></div><div id="preview" class="preview" contenteditable="true"></div></div></div></div></section>
 <section id="searchPage" class="search-panel"><div class="card"><div class="title">검색 / 이력 조회</div><div class="row"><div class="field"><label>검색 유형</label><select id="searchType"><option value="keyword">작업내용 키워드</option><option value="equipment">장비 사용이력</option></select></div><div class="field"><label>검색어 / 장비명</label><input id="query" placeholder="예: 자재, 입고, T/L"></div><div class="field"><label>시작일</label><input id="from" type="date"></div><div class="field"><label>종료일</label><input id="to" type="date"></div></div><button class="btn primary" style="margin-top:10px" onclick="searchReports()">검색</button><div id="results" class="results"></div></div></section>
-<section id="masterPage" class="search-panel"><div class="card"><div class="title">기준정보 관리</div><p>앱 타이틀과 기준정보를 수정한 뒤 저장하세요. 저장 즉시 PC·모바일 화면에 반영됩니다.</p><div class="field"><label>앱 타이틀</label><input id="masterAppTitle" maxlength="40" placeholder="예: SK 용인 작업일보"></div><div class="field"><label>현장</label><input id="masterSites"></div><div class="field"><label>공종</label><input id="masterTrades"></div><div class="field"><label>직종</label><input id="masterJobs"></div><div class="field"><label>장비</label><input id="masterEquipment"></div><div class="field"><label>구역 / 위치범위</label><div id="masterZones"></div><button class="btn" type="button" onclick="addMasterZone()">+ 구역 추가</button></div><div class="field"><label>담당</label><textarea id="masterManagers" rows="5" placeholder="한 줄에 1명: 이름 | 직책 | 전화번호"></textarea></div><button class="btn primary" style="margin-top:10px" onclick="saveMasters()">기준정보 저장</button></div></section>
+<section id="masterPage" class="search-panel"><div class="card"><div class="title">기준정보 관리</div><p>앱 타이틀과 기준정보를 수정한 뒤 저장하세요. 저장 즉시 PC·모바일 화면에 반영됩니다.</p><div class="field"><label>앱 타이틀</label><input id="masterAppTitle" maxlength="40" placeholder="예: SK 용인 작업일보"></div><div class="field"><label>현장</label><input id="masterSites"></div><div class="field"><label>공종</label><input id="masterTrades"></div><div class="field"><label>직종</label><input id="masterJobs"></div><div class="field"><label>장비</label><input id="masterEquipment"></div><div class="field"><label>구역 / 위치범위</label><div id="masterZones"></div><button class="btn" type="button" onclick="addMasterZone()">+ 구역 추가</button></div><div class="field"><label>담당</label><textarea id="masterManagers" rows="5" placeholder="한 줄에 1명: 이름 | 직책 | 전화번호"></textarea></div><div class="card" style="margin-top:14px;background:#f8fbff">
+<div class="title" style="font-size:16px">☁ Google Drive 자료 공유</div>
+<p style="font-size:13px;line-height:1.6;margin-top:0">같은 Google 계정으로 PC와 휴대폰에서 연결하면 작업일보·기준정보를 하나의 Drive 백업 파일로 공유합니다. 인터넷이 없어도 기존 로컬 저장은 계속 사용할 수 있습니다.</p>
+<div class="field"><label>Google OAuth 클라이언트 ID</label><input id="googleClientId" value="992657911090-e04el1bhbr62a5554g5ikldervq05krc.apps.googleusercontent.com" placeholder="...apps.googleusercontent.com"></div>
+<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><button class="btn primary" type="button" onclick="connectGoogleDrive()">Google Drive 연결</button><button class="btn" type="button" onclick="saveToDrive()">Drive에 저장</button><button class="btn" type="button" onclick="loadFromDrive()">Drive에서 불러오기</button></div>
+<div id="driveStatus" style="font-size:12px;margin-top:8px;color:#53657a">상태: 연결 안 됨</div>
+</div><button class="btn primary" style="margin-top:10px" onclick="saveMasters()">기준정보 저장</button></div></section>
 </main></div>
 <script>
 const D={appTitle:'작업일보',sites:['WWT','RWT'],trades:['기계','전기'],jobs:['관리자','기계공','배관공','용접공','유도 및 화기','전기공','일반공'],equipment:['T/L','지게차','고소작업대'],zones:[{zone:'WWT 1F',loc:'X6~8, Y20~24'},{zone:'WWT B1F',loc:'X3~6, Y21~24'},{zone:'WWT 4F',loc:'X11~17, Y1~6'}],managers:[['지형근','현장소장','010-9349-2141'],['조현기','공사부장','010-4236-3120'],['양희몽','안전부장','010-2702-9467'],['김태연','안전과장','010-6690-5027']]};
@@ -229,7 +235,7 @@ function resetDailyData(){
 }
 
 function loadCurrentDateReport(){let rs=JSON.parse(localStorage.getItem('reports')||'[]');let r=rs.find(x=>x.date===$('date').value&&x.site===$('site').value&&x.trade===$('trade').value);if(!r)return alert('해당 날짜/현장/공종의 저장된 작업일보가 없습니다.');$('start').value=r.start||'07:30';$('end').value=r.end||'17:30';$('bpa').value=r.bpa||'';state=JSON.parse(JSON.stringify(r.state));render();autoSave()}
-function saveReport(){let reports=JSON.parse(localStorage.getItem('reports')||'[]');let obj={date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,state:JSON.parse(JSON.stringify(state)),text:reportText()};let ix=reports.findIndex(r=>r.date===obj.date&&r.site===obj.site&&r.trade===obj.trade);if(ix>=0)reports[ix]=obj;else reports.push(obj);localStorage.setItem('reports',JSON.stringify(reports));autoSave();alert('보고서로 저장했습니다.')}
+function saveReport(){let reports=JSON.parse(localStorage.getItem('reports')||'[]');let obj={date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,state:JSON.parse(JSON.stringify(state)),text:reportText()};let ix=reports.findIndex(r=>r.date===obj.date&&r.site===obj.site&&r.trade===obj.trade);if(ix>=0)reports[ix]=obj;else reports.push(obj);localStorage.setItem('reports',JSON.stringify(reports));autoSave();if(driveAccessToken)saveToDrive(true);alert('보고서로 저장했습니다.'+(driveAccessToken?'\nGoogle Drive에도 동기화를 시작했습니다.':''))}
 function loadYesterday(){let d=new Date($('date').value+'T00:00:00');d.setDate(d.getDate()-1);let y=d.toISOString().slice(0,10),rs=JSON.parse(localStorage.getItem('reports')||'[]');let r=rs.find(x=>x.date===y&&x.site===$('site').value&&x.trade===$('trade').value);if(!r)return alert('전날 저장된 보고서가 없습니다.');state=JSON.parse(JSON.stringify(r.state));render()}
 async function copyPreview(){await navigator.clipboard.writeText($('preview').innerText);alert('복사했습니다.')}
 function toggleMobileMenu(){document.getElementById('mobileDrawer').classList.toggle('open');document.getElementById('mobileOverlay').classList.toggle('open')}
@@ -242,6 +248,67 @@ function addMasterZone(){D.zones.push({zone:'',loc:''});renderMasterZones()}
 function applyZone(i,v){let z=(D.zones||[]).find(x=>x.zone===v);if(z){state.areas[i].zone=z.zone;state.areas[i].loc=z.loc||'';renderAreas();updatePreview()}}
 function changeJob(i,j,d){let v=Math.max(0,Math.min(999,(+state.companies[i].jobs[j]||0)+d));state.companies[i].jobs[j]=v;renderCompanies();updatePreview()}
 function changeEquip(i,d){state.equipment[i].qty=Math.max(0,Math.min(999,(+state.equipment[i].qty||0)+d));renderEquipment();updatePreview()}
-function saveMasters(){autoSave();let split=id=>$(id).value.split(',').map(x=>x.trim()).filter(Boolean);let managers=$('masterManagers').value.split('\n').map(x=>x.split('|').map(v=>v.trim())).filter(m=>m.some(Boolean));D.zones=(D.zones||[]).map(z=>({zone:(z.zone||'').trim(),loc:(z.loc||'').trim()})).filter(z=>z.zone);let appTitle=($('masterAppTitle').value||'작업일보').trim()||'작업일보';let m={appTitle,sites:split('masterSites'),trades:split('masterTrades'),jobs:split('masterJobs'),equipment:split('masterEquipment'),zones:D.zones,managers};Object.assign(D,m);localStorage.setItem('masters',JSON.stringify(m));applyAppTitle();fillSelects();renderAreas();alert('기준정보를 저장했습니다. 앱 타이틀도 즉시 반영되었습니다.')}
+function saveMasters(){autoSave();let split=id=>$(id).value.split(',').map(x=>x.trim()).filter(Boolean);let managers=$('masterManagers').value.split('\n').map(x=>x.split('|').map(v=>v.trim())).filter(m=>m.some(Boolean));D.zones=(D.zones||[]).map(z=>({zone:(z.zone||'').trim(),loc:(z.loc||'').trim()})).filter(z=>z.zone);let appTitle=($('masterAppTitle').value||'작업일보').trim()||'작업일보';let m={appTitle,sites:split('masterSites'),trades:split('masterTrades'),jobs:split('masterJobs'),equipment:split('masterEquipment'),zones:D.zones,managers};Object.assign(D,m);localStorage.setItem('masters',JSON.stringify(m));applyAppTitle();fillSelects();renderAreas();if(driveAccessToken)saveToDrive(true);alert('기준정보를 저장했습니다. 앱 타이틀도 즉시 반영되었습니다.'+(driveAccessToken?'\nGoogle Drive에도 동기화를 시작했습니다.':''))}
+
+
+// ===== Google Drive 동기화 (OAuth Client ID만 사용, Client Secret은 사용하지 않음) =====
+const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
+const DRIVE_FILE_NAME='SK_YONGIN_WORKREPORT_DATA.json';
+let driveAccessToken='';
+let driveTokenClient=null;
+let drivePendingAction=null;
+function setDriveStatus(msg){let e=$('driveStatus');if(e)e.textContent='상태: '+msg}
+function getGoogleClientId(){return (($('googleClientId')&&$('googleClientId').value)||localStorage.getItem('googleClientId')||'').trim()}
+function initDriveTokenClient(){
+  const cid=getGoogleClientId();
+  if(!cid){alert('Google OAuth 클라이언트 ID를 입력하세요.');return false}
+  localStorage.setItem('googleClientId',cid);
+  if(!window.google||!google.accounts||!google.accounts.oauth2){alert('Google 로그인 모듈을 아직 불러오는 중입니다. 잠시 후 다시 눌러주세요.');return false}
+  driveTokenClient=google.accounts.oauth2.initTokenClient({client_id:cid,scope:DRIVE_SCOPE,callback:(resp)=>{
+    if(resp.error){setDriveStatus('연결 실패: '+resp.error);return}
+    driveAccessToken=resp.access_token;setDriveStatus('Google Drive 연결됨');
+    const a=drivePendingAction;drivePendingAction=null;if(a==='save')saveToDrive();else if(a==='load')loadFromDrive();
+  }});return true
+}
+function connectGoogleDrive(){drivePendingAction=null;if(initDriveTokenClient())driveTokenClient.requestAccessToken({prompt:''})}
+function requireDrive(action){if(driveAccessToken)return true;drivePendingAction=action;if(initDriveTokenClient())driveTokenClient.requestAccessToken({prompt:''});return false}
+function driveHeaders(extra={}){return Object.assign({'Authorization':'Bearer '+driveAccessToken},extra)}
+async function driveFindFile(){
+  const q=`name='${DRIVE_FILE_NAME}' and trashed=false`;
+  const u='https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent(q)+'&spaces=drive&fields=files(id,name,modifiedTime)&orderBy=modifiedTime%20desc&pageSize=10';
+  const r=await fetch(u,{headers:driveHeaders()});if(!r.ok)throw new Error('Drive 파일 조회 실패 ('+r.status+')');
+  const j=await r.json();return (j.files||[])[0]||null
+}
+function makeDriveSnapshot(){
+  autoSave();
+  return {format:'SK-YONGIN-WORKREPORT',version:1,savedAt:new Date().toISOString(),masters:JSON.parse(localStorage.getItem('masters')||'null'),reports:JSON.parse(localStorage.getItem('reports')||'[]'),currentDraft:JSON.parse(localStorage.getItem('currentDraft')||'null')}
+}
+async function saveToDrive(silent=false){
+  if(!requireDrive('save'))return;
+  try{
+    setDriveStatus('Drive 저장 중...');const data=JSON.stringify(makeDriveSnapshot(),null,2);const f=await driveFindFile();let r;
+    if(f){r=await fetch('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(f.id)+'?uploadType=media',{method:'PATCH',headers:driveHeaders({'Content-Type':'application/json; charset=UTF-8'}),body:data})}
+    else{
+      const boundary='workreport_'+Date.now();const meta=JSON.stringify({name:DRIVE_FILE_NAME,mimeType:'application/json'});
+      const body='--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+meta+'\r\n--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+data+'\r\n--'+boundary+'--';
+      r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,modifiedTime',{method:'POST',headers:driveHeaders({'Content-Type':'multipart/related; boundary='+boundary}),body})
+    }
+    if(!r.ok)throw new Error('Drive 저장 실패 ('+r.status+')');setDriveStatus('Drive 저장 완료 · '+new Date().toLocaleString());if(!silent)alert('Google Drive에 저장했습니다.')
+  }catch(e){console.error(e);setDriveStatus(e.message);if(!silent)alert(e.message)}
+}
+async function loadFromDrive(){
+  if(!requireDrive('load'))return;
+  try{
+    setDriveStatus('Drive 불러오는 중...');const f=await driveFindFile();if(!f){setDriveStatus('Drive 백업 파일 없음');return alert('아직 Drive에 저장된 작업일보 데이터가 없습니다.')}
+    const r=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id)+'?alt=media',{headers:driveHeaders()});if(!r.ok)throw new Error('Drive 불러오기 실패 ('+r.status+')');
+    const d=await r.json();if(d.format!=='SK-YONGIN-WORKREPORT')throw new Error('작업일보 백업 파일 형식이 아닙니다.');
+    if(!confirm('Drive의 자료로 이 기기의 작업일보 데이터를 갱신할까요?\n현재 로컬 자료는 Drive 자료로 바뀝니다.')){setDriveStatus('불러오기 취소');return}
+    if(d.masters)localStorage.setItem('masters',JSON.stringify(d.masters));if(Array.isArray(d.reports))localStorage.setItem('reports',JSON.stringify(d.reports));if(d.currentDraft)localStorage.setItem('currentDraft',JSON.stringify(d.currentDraft));
+    setDriveStatus('Drive 불러오기 완료 · '+new Date().toLocaleString());alert('Drive 자료를 불러왔습니다. 화면을 새로고침합니다.');location.reload()
+  }catch(e){console.error(e);setDriveStatus(e.message);alert(e.message)}
+}
+function restoreDriveClientId(){let v=localStorage.getItem('googleClientId');if(v&&$('googleClientId'))$('googleClientId').value=v}
+setTimeout(restoreDriveClientId,0);
+
 init();
 </script></body></html>
