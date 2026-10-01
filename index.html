@@ -176,7 +176,7 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
 <p style="font-size:13px;line-height:1.6;margin-top:0">같은 Google 계정으로 PC와 휴대폰에서 연결하면 작업일보·기준정보를 하나의 Drive 백업 파일로 공유합니다. 인터넷이 없어도 기존 로컬 저장은 계속 사용할 수 있습니다.</p>
 <div class="field"><label>Google OAuth 클라이언트 ID</label><input id="googleClientId" value="992657911090-e04el1bhbr62a5554g5ikldervq05krc.apps.googleusercontent.com" placeholder="...apps.googleusercontent.com"></div>
 <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><button class="btn primary" type="button" onclick="connectGoogleDrive()">Google Drive 연결</button><button class="btn" type="button" onclick="saveToDrive()">Drive에 저장</button><button class="btn" type="button" onclick="loadFromDrive()">Drive에서 불러오기</button></div>
-<div id="driveStatus" style="font-size:12px;margin-top:8px;color:#53657a">상태: 연결 안 됨</div>
+<div id="driveStatus" style="font-size:12px;margin-top:8px;color:#53657a">상태: 연결 안 됨</div><div style="font-size:12px;margin-top:5px;color:#0878f9;font-weight:700">자동 동기화: 켜짐 · 연결 시 Drive 최신자료를 받고, 보고서/기준정보 저장 시 자동으로 Drive에 저장합니다.</div>
 </div><button class="btn primary" style="margin-top:10px" onclick="saveMasters()">기준정보 저장</button></div></section>
 </main></div>
 <script>
@@ -266,8 +266,8 @@ function initDriveTokenClient(){
   if(!window.google||!google.accounts||!google.accounts.oauth2){alert('Google 로그인 모듈을 아직 불러오는 중입니다. 잠시 후 다시 눌러주세요.');return false}
   driveTokenClient=google.accounts.oauth2.initTokenClient({client_id:cid,scope:DRIVE_SCOPE,callback:(resp)=>{
     if(resp.error){setDriveStatus('연결 실패: '+resp.error);return}
-    driveAccessToken=resp.access_token;setDriveStatus('Google Drive 연결됨');
-    const a=drivePendingAction;drivePendingAction=null;if(a==='save')saveToDrive();else if(a==='load')loadFromDrive();
+    driveAccessToken=resp.access_token;setDriveStatus('Google Drive 연결됨 · 자동 동기화 확인 중...');
+    const a=drivePendingAction;drivePendingAction=null;if(a==='save')saveToDrive();else if(a==='load')loadFromDrive();else autoPullFromDrive();
   }});return true
 }
 function connectGoogleDrive(){drivePendingAction=null;if(initDriveTokenClient())driveTokenClient.requestAccessToken({prompt:''})}
@@ -293,8 +293,27 @@ async function saveToDrive(silent=false){
       const body='--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+meta+'\r\n--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+data+'\r\n--'+boundary+'--';
       r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,modifiedTime',{method:'POST',headers:driveHeaders({'Content-Type':'multipart/related; boundary='+boundary}),body})
     }
-    if(!r.ok)throw new Error('Drive 저장 실패 ('+r.status+')');setDriveStatus('Drive 저장 완료 · '+new Date().toLocaleString());if(!silent)alert('Google Drive에 저장했습니다.')
+    if(!r.ok)throw new Error('Drive 저장 실패 ('+r.status+')');localStorage.setItem('driveLastPullStamp',String(Date.now()));setDriveStatus('Drive 저장 완료 · '+new Date().toLocaleString());if(!silent)alert('Google Drive에 저장했습니다.')
   }catch(e){console.error(e);setDriveStatus(e.message);if(!silent)alert(e.message)}
+}
+async function autoPullFromDrive(){
+  if(!driveAccessToken)return;
+  try{
+    const f=await driveFindFile();
+    if(!f){setDriveStatus('Google Drive 연결됨 · Drive 자료 없음');return}
+    const r=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id)+'?alt=media',{headers:driveHeaders()});
+    if(!r.ok)throw new Error('자동 불러오기 실패 ('+r.status+')');
+    const data=await r.json();
+    const remoteStamp=Date.parse(data.generatedAt||'')||Date.parse(f.modifiedTime||'')||0;
+    const lastPull=+(localStorage.getItem('driveLastPullStamp')||0);
+    if(remoteStamp<=lastPull){setDriveStatus('Google Drive 연결됨 · 최신 상태');return}
+    if(data.masters)localStorage.setItem('masters',JSON.stringify(data.masters));
+    if(data.reports)localStorage.setItem('reports',JSON.stringify(data.reports));
+    if(data.currentDraft)localStorage.setItem('currentDraft',JSON.stringify(data.currentDraft));
+    localStorage.setItem('driveLastPullStamp',String(remoteStamp||Date.now()));
+    setDriveStatus('자동 동기화 완료 · '+new Date().toLocaleString());
+    alert('Google Drive의 최신 자료를 자동으로 동기화했습니다.');location.reload();
+  }catch(e){console.error(e);setDriveStatus('자동 동기화 실패: '+e.message)}
 }
 async function loadFromDrive(){
   if(!requireDrive('load'))return;
