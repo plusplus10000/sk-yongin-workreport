@@ -152,7 +152,7 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
   .mobile-drawer .drawer-title{font-weight:800;padding:8px 12px 12px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:6px}
 }
 </style><script src="https://accounts.google.com/gsi/client" async defer></script></head>
-<body><header><div>⛑ <span id="appTitleDisplay">작업일보</span></div><div id="topDate">작업보고 작성</div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
+<body><header><div>⛑ <span id="appTitleDisplay">작업일보</span></div><div class="top-drive-controls"><button class="btn top-drive-btn" type="button" onclick="connectGoogleDrive()">☁ Google Drive 연결</button><span id="topDriveStatus" class="top-drive-status">상태: 연결 안 됨</span></div><div id="topDate">작업보고 작성</div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
 <nav id="mobileDrawer" class="mobile-drawer" aria-label="모바일 메뉴">
   <div class="drawer-title"><span id="mobileAppTitle">작업일보</span> · 메뉴</div>
@@ -257,7 +257,7 @@ const DRIVE_FILE_NAME='SK_YONGIN_WORKREPORT_DATA.json';
 let driveAccessToken=sessionStorage.getItem('driveAccessToken')||'';
 let driveTokenExpires=+(sessionStorage.getItem('driveTokenExpires')||0);
 let driveTokenClient=null, drivePendingAction=null, syncTimer=null, syncBusy=false, applyingRemote=false;
-function setDriveStatus(msg){let e=$('driveStatus');if(e)e.textContent='상태: '+msg}
+function setDriveStatus(msg){let e=$('driveStatus');if(e)e.textContent='상태: '+msg;let t=$('topDriveStatus');if(t)t.textContent='상태: '+msg}
 function getGoogleClientId(){return (($('googleClientId')&&$('googleClientId').value)||localStorage.getItem('googleClientId')||'').trim()}
 function tokenValid(){return !!driveAccessToken && Date.now()<driveTokenExpires-60000}
 function initDriveTokenClient(){
