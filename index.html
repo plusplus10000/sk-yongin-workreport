@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>작업일보 시스템</title>
+<style>
+:root{--nav:#12365f;--blue:#0878f9;--line:#dbe6f2;--bg:#f4f8fc;--text:#13233a}*{box-sizing:border-box}body{margin:0;font-family:Arial,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text)}header{height:58px;background:var(--nav);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-weight:700}.app{display:grid;grid-template-columns:180px 1fr;min-height:calc(100vh - 58px)}aside{background:#14385f;color:#fff;padding:14px 10px}aside button{display:block;width:100%;border:0;background:transparent;color:#fff;text-align:left;padding:12px;border-radius:8px;margin:3px 0;font-size:14px}aside button.active,aside button:hover{background:var(--blue)}main{padding:14px}.grid{display:grid;grid-template-columns:minmax(600px,1.5fr) minmax(360px,.9fr);gap:14px}.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:12px;box-shadow:0 1px 2px #00000008}.title{display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:18px;margin-bottom:10px}.n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;margin-right:8px}.row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.field label{font-size:12px;font-weight:700;display:block;margin-bottom:5px}.field input,.field select,textarea{width:100%;padding:9px;border:1px solid #cbd9e8;border-radius:7px;background:#fff}.btn{border:1px solid #9dc5f7;background:#fff;color:#0672e8;border-radius:7px;padding:8px 12px;font-weight:700;cursor:pointer}.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}table{width:100%;border-collapse:collapse;font-size:13px}th,td{border:1px solid var(--line);padding:6px;text-align:center}th{background:#f2f7fc}td input{width:60px;padding:6px;border:1px solid #d4e0ed;border-radius:5px}.company{border:1px solid var(--line);border-radius:8px;padding:8px;margin:8px 0}.company-head{display:flex;align-items:center;gap:6px;font-weight:800}.company-name{width:120px!important;flex:0 0 120px}.company-total{margin-left:auto;white-space:nowrap}.jobs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.jobs label{font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:4px;white-space:nowrap}.jobs input{width:48px;max-width:48px;padding:6px 3px;border:1px solid #d4e0ed;border-radius:5px;text-align:center}.total{font-weight:900;color:#0672e8}.area{border:1px solid var(--line);border-radius:8px;padding:9px;margin:8px 0}.area-head{display:grid;grid-template-columns:1fr 1.5fr auto;gap:7px}.subtask{display:flex;gap:6px;margin:6px 0}.subtask input{flex:1}.preview{white-space:pre-wrap;line-height:1.75;font-size:14px;min-height:660px;border:1px solid var(--line);border-radius:8px;padding:14px;background:#fff}.search-panel{display:none}.search-panel.active{display:block}.results{margin-top:10px}.result{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;margin:6px 0}.manager-scroll{width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding-bottom:5px}.manager-table{table-layout:auto;min-width:650px}.manager-table .manager-name-col{width:1%}.manager-table .manager-role-col{width:1%}.manager-table .manager-phone-col{width:135px}.manager-table .manager-action-col{width:1%}.manager-table th:nth-child(1),.manager-table td:nth-child(1),.manager-table th:nth-child(2),.manager-table td:nth-child(2),.manager-table th:nth-child(4),.manager-table td:nth-child(4){white-space:nowrap}.manager-table td:nth-child(1) input{min-width:72px;width:max-content}.manager-table td:nth-child(2) input{min-width:82px;width:max-content}.manager-table td:nth-child(3) input{width:128px;min-width:128px;max-width:128px}.manager-table td:nth-child(4){white-space:nowrap}
+.mobile-only{display:none}@media(max-width:850px){
+header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-x:hidden}aside{display:none}main{padding:8px;max-width:100%;overflow-x:hidden}.grid{display:block;min-width:0}.card{max-width:100%;overflow:hidden}.row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px}.field{min-width:0}.field input,.field select,textarea{min-width:0;max-width:100%;font-size:16px}.jobs{grid-template-columns:repeat(2,minmax(0,1fr))}.jobs input{width:46px;max-width:46px}.preview{min-height:400px;font-size:13px;overflow-wrap:anywhere}.mobile-only{display:inline-block}.desktop-preview{margin-top:10px}.area-head{grid-template-columns:1fr}.title{font-size:16px;gap:6px;flex-wrap:wrap}.title .btn{margin-left:auto}.btn{white-space:nowrap}table{table-layout:fixed}.manager-scroll{width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding-bottom:5px}.manager-table{table-layout:auto;min-width:650px}th,td{overflow-wrap:anywhere}.manager-table th,.manager-table td{overflow-wrap:normal}.manager-table td:nth-child(1) input{min-width:64px}.manager-table td:nth-child(2) input{min-width:72px}.manager-table td:nth-child(3) input{width:128px;min-width:128px;max-width:128px}td input{max-width:100%;width:100%}
+/* 기본정보의 작업일/조회, 작업시간이 화면 밖으로 나가지 않도록 */
+#date{min-width:0}#start,#end{min-width:0}.field>div[style*="display:flex"]{min-width:0;max-width:100%;flex-wrap:nowrap}.field>div[style*="display:flex"] input{flex:1 1 0;width:0;min-width:0}.field>div[style*="display:flex"] .btn{flex:0 0 auto;padding-left:8px;padding-right:8px}
+}
+@media(max-width:480px){.row{grid-template-columns:1fr}.card{padding:9px}.jobs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* Compact desktop layout: maximize viewport use and reduce vertical scrolling */
+@media(min-width:851px){
+  header{height:46px;padding:0 14px;font-size:14px}
+  .app{grid-template-columns:150px 1fr;height:calc(100vh - 46px);min-height:0}
+  aside{padding:8px 7px;overflow:auto}
+  aside button{padding:9px 8px;margin:2px 0;font-size:13px}
+  main{padding:7px;overflow:auto}
+  .grid{grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr) minmax(340px,.85fr);gap:8px;align-items:start}
+  .card{padding:8px;margin-bottom:7px;border-radius:8px}
+  .title{font-size:15px;margin-bottom:6px}
+  .n{width:23px;height:23px;font-size:12px;margin-right:5px}
+  .row{gap:5px}
+  .field label{font-size:11px;margin-bottom:3px}
+  .field input,.field select,textarea{padding:6px;border-radius:5px;font-size:12px}
+  .btn{padding:5px 8px;font-size:12px;border-radius:5px}
+  .company{padding:5px;margin:5px 0}
+  .company-head{font-size:12px}
+  .company-head input{height:27px;padding:4px}.company-name{width:95px!important;flex-basis:95px}.company-head .btn{padding:5px 8px}
+  .jobs{grid-template-columns:repeat(7,minmax(64px,1fr));gap:4px;margin-top:5px}
+  .jobs label{font-size:10px}
+  .jobs input{padding:4px 2px;height:27px;width:44px;max-width:44px}
+  table{font-size:11px}
+  th,td{padding:4px}
+  td input{padding:4px;height:27px}
+  .area{padding:6px;margin:5px 0}
+  .area-head{gap:4px}
+  .area-head input{height:28px;padding:5px}
+  .subtask{margin:4px 0;gap:4px;align-items:center}
+  .subtask input{height:28px;padding:5px}
+  .desktop-preview{position:sticky;top:0;height:calc(100vh - 60px)}
+  .desktop-preview .card{height:100%;display:flex;flex-direction:column;margin:0}
+  .preview{min-height:0;flex:1;overflow:auto;line-height:1.48;font-size:12px;padding:10px}
+  #writePage>.grid>.input-col{min-width:0;padding-bottom:4px}
+}
+
+.counter{display:inline-flex;align-items:center;gap:2px;white-space:nowrap}.counter input{width:42px!important;text-align:center;padding:5px 2px!important}.counter button{width:24px;height:28px;padding:0!important;border:1px solid #cbd5e1;background:#fff;border-radius:5px;font-weight:800;cursor:pointer}.counter button:active{background:#e8f1ff}
+.zone-master-row{display:grid;grid-template-columns:minmax(120px,1fr) minmax(150px,1.4fr) auto;gap:6px;margin-bottom:6px}.zone-master-row input{width:100%}
+@media(max-width:600px){.zone-master-row{grid-template-columns:1fr 1.2fr auto}.counter input{width:40px!important}.counter button{width:23px}}
+
+/* PC: 숫자 입력은 브라우저 기본 number spinner(위/아래 화살표) 사용 */
+@media(min-width:851px){
+  .counter button{display:none!important}
+  .counter{display:inline-block}
+  .counter input[type=number]{width:48px!important;max-width:48px!important;height:27px!important;padding:3px 2px!important;text-align:center;-moz-appearance:auto;appearance:auto}
+  #equipments .counter input[type=number]{width:52px!important;max-width:52px!important}
+  .manager-table{min-width:520px}
+  .manager-table .manager-phone-col{width:135px}
+  .manager-table td:nth-child(3) input{width:128px!important;min-width:128px!important;max-width:128px!important}
+}
+
+/* PC 담당자: 요청한 4열 표 형태. 모바일 스타일은 변경하지 않음 */
+@media(min-width:851px){
+  .manager-scroll{overflow-x:hidden!important;padding-bottom:0!important}
+  .manager-table{width:100%!important;min-width:0!important;table-layout:fixed!important}
+  .manager-table .manager-name-col{width:28%!important}
+  .manager-table .manager-role-col{width:28%!important}
+  .manager-table .manager-phone-col{width:29%!important}
+  .manager-table .manager-action-col{width:15%!important}
+  .manager-table td:nth-child(1) input,.manager-table td:nth-child(2) input,.manager-table td:nth-child(3) input{width:100%!important;min-width:0!important;max-width:none!important}
+  .manager-table td:nth-child(4){white-space:nowrap!important}
+  .manager-table td:nth-child(4) .btn{padding:6px 8px!important}
+}
+
+/* PC 업체 인원: 직종명을 위, 숫자칸을 아래에 두는 7열 고정 배치 */
+@media(min-width:851px){
+  .jobs{grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:5px!important;align-items:end}
+  .jobs label{display:block!important;min-width:0!important;font-size:10px!important;line-height:1.2!important;white-space:nowrap!important;text-align:left!important}
+  .jobs .counter{display:block!important;width:100%!important;margin-top:2px!important}
+  .jobs .counter input[type=number]{display:block!important;width:100%!important;max-width:none!important;min-width:0!important;height:27px!important;text-align:left!important;padding:3px 5px!important}
+  .company-head{display:flex!important;align-items:center!important}
+  .company-total{margin-left:auto!important}
+}
+
+/* 모바일 전용 보정: PC 레이아웃은 그대로 유지 */
+@media(max-width:850px){
+  /* 담당자: 전화번호를 이름/직책과 비슷한 폭으로 타이트하게 */
+  .manager-table{min-width:500px!important}
+  .manager-table .manager-name-col{width:105px!important}
+  .manager-table .manager-role-col{width:105px!important}
+  .manager-table .manager-phone-col{width:128px!important}
+  .manager-table .manager-action-col{width:150px!important}
+  .manager-table td:nth-child(1) input{width:96px!important;min-width:96px!important;max-width:96px!important}
+  .manager-table td:nth-child(2) input{width:96px!important;min-width:96px!important;max-width:96px!important}
+  .manager-table td:nth-child(3) input{width:118px!important;min-width:118px!important;max-width:118px!important}
+
+  /* 금일 작업내용: 구역/위치/작은 삭제를 같은 줄에 */
+  .area-head{grid-template-columns:minmax(88px,.8fr) minmax(145px,1.35fr) auto!important;gap:4px!important;align-items:center}
+  .area-head input{min-width:0!important;width:100%!important;padding:7px 5px!important;font-size:13px!important}
+  .area-head .btn{padding:6px 7px!important;font-size:11px!important;min-width:42px!important}
+
+  /* 장비: 모바일에서 비고 열 제거, 수량 +/- 공간 확보 */
+  #equipments{table-layout:auto!important}
+  #equipments th:nth-child(3),#equipments td:nth-child(3){display:none!important}
+  #equipments th:nth-child(1){width:38%!important}
+  #equipments th:nth-child(2){width:42%!important}
+  #equipments th:nth-child(4){width:20%!important}
+  #equipments td:nth-child(1) input{width:100%!important;min-width:90px!important}
+  #equipments td:nth-child(2){white-space:nowrap!important;overflow:visible!important}
+  #equipments .counter{display:inline-flex!important;width:auto!important;gap:3px!important}
+  #equipments .counter button{display:inline-block!important;width:27px!important;height:30px!important;flex:0 0 27px!important}
+  #equipments .counter input[type=number]{width:48px!important;min-width:48px!important;max-width:48px!important;height:30px!important;flex:0 0 48px!important}
+  #equipments td:nth-child(4) .btn{padding:6px 7px!important;font-size:11px!important}
+}
+
+
+/* 모바일 장비표 최종 보정: 장비명 | 수량(- 숫자 +) | 삭제 */
+@media(max-width:850px){
+  #equipments{display:block!important;width:100%!important}
+  #equipments tr{display:grid!important;grid-template-columns:minmax(90px,1fr) 116px 48px!important;gap:6px!important;align-items:center!important;width:100%!important}
+  #equipments td{display:block!important;width:auto!important;min-width:0!important;padding:5px 2px!important;border:0!important}
+  #equipments td:nth-child(3){display:none!important}
+  #equipments td:nth-child(1) input{width:100%!important;min-width:0!important;max-width:none!important;height:32px!important}
+  #equipments td:nth-child(2){width:116px!important;min-width:116px!important;overflow:visible!important}
+  #equipments .counter{display:grid!important;grid-template-columns:28px 52px 28px!important;gap:4px!important;width:116px!important;align-items:center!important}
+  #equipments .counter button{display:block!important;width:28px!important;min-width:28px!important;max-width:28px!important;height:32px!important;padding:0!important}
+  #equipments .counter input[type=number]{display:block!important;width:52px!important;min-width:52px!important;max-width:52px!important;height:32px!important;padding:3px 2px!important;text-align:center!important}
+  #equipments td:nth-child(4){width:48px!important;min-width:48px!important;text-align:right!important}
+  #equipments td:nth-child(4) .btn{width:46px!important;min-width:46px!important;padding:6px 3px!important;font-size:11px!important}
+  #equipments{border-collapse:separate!important;border-spacing:0 4px!important}
+  #equipments tr{border:1px solid #d8e3ef!important;border-radius:7px!important;padding:3px!important;background:#fff!important}
+  #equipments + datalist{display:none}
+  #equipments::before{content:"장비명        수량(대)       삭제";display:block!important;white-space:pre!important;font-weight:700!important;font-size:11px!important;text-align:left!important;padding:5px 7px!important;background:#eef4fa!important;border:1px solid #d8e3ef!important;border-radius:5px!important;margin-bottom:3px!important}
+  #equipments{ } 
+  #equipments.parent{} 
+  table:has(#equipments) thead{display:none!important}
+}
+
+
+/* 모바일 햄버거 메뉴 */
+.mobile-menu-btn{display:none;border:1px solid rgba(255,255,255,.45);background:transparent;color:#fff;border-radius:7px;width:38px;height:34px;font-size:22px;line-height:30px;cursor:pointer}
+.mobile-drawer,.mobile-overlay{display:none}
+@media(max-width:850px){
+  header{position:sticky;top:0;z-index:1000}
+  .mobile-menu-btn{display:inline-grid;place-items:center;margin-left:auto}
+  #topDate{display:none}
+  .mobile-overlay.open{display:block;position:fixed;inset:58px 0 0 0;background:rgba(0,0,0,.28);z-index:1090}
+  .mobile-drawer.open{display:block;position:fixed;top:58px;right:0;width:min(82vw,320px);height:calc(100vh - 58px);background:#14385f;color:#fff;z-index:1100;padding:10px;box-shadow:-6px 0 20px rgba(0,0,0,.22);overflow-y:auto}
+  .mobile-drawer button{display:block;width:100%;border:0;background:transparent;color:#fff;text-align:left;padding:14px 12px;border-radius:8px;font-size:15px;margin:2px 0}
+  .mobile-drawer button:active,.mobile-drawer button.active{background:#0878f9}
+  .mobile-drawer .drawer-title{font-weight:800;padding:8px 12px 12px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:6px}
+}
+</style></head>
+<body><header><div>⛑ <span id="appTitleDisplay">작업일보</span></div><div id="topDate">작업보고 작성</div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
+<div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
+<nav id="mobileDrawer" class="mobile-drawer" aria-label="모바일 메뉴">
+  <div class="drawer-title"><span id="mobileAppTitle">작업일보</span> · 메뉴</div>
+  <button onclick="mobileGo('write',this)">✎ 작업일보 작성</button>
+  <button onclick="mobileGo('search',this)">⌕ 검색 / 이력</button>
+  <button onclick="mobileGo('master',this)">⚙ 기준정보 관리</button>
+</nav>
+<div class="app"><aside><button class="active" onclick="showPage('write',this)">✎ 작업보고 작성</button><button onclick="showPage('search',this)">⌕ 검색 / 이력</button><button onclick="showPage('master',this)">⚙ 기준정보 관리</button></aside><main>
+<section id="writePage"><div class="grid"><div class="input-col left-col">
+<div class="card"><div class="title"><span><span class="n">1</span>기본 정보</span><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button></div><div class="row">
+<div class="field"><label>현장</label><select id="site"></select></div><div class="field"><label>공종</label><select id="trade"></select></div><div class="field"><label>작업일</label><div style="display:flex;gap:4px"><input id="date" type="date"><button class="btn" type="button" onclick="loadCurrentDateReport()">조회</button></div></div><div class="field"><label>작업시간</label><div style="display:flex;gap:4px"><input id="start" type="time" value="07:30"><input id="end" type="time" value="17:30"></div></div></div><div class="row" style="margin-top:8px"><div class="field"><label>BP사</label><input id="bpa" value="더오포"></div></div></div>
+<div class="card"><div class="title"><span><span class="n">2</span>업체 입력 (공종별 인원)</span><button class="btn primary" onclick="addCompany()">+ 업체 입력</button></div><div id="companies"></div><div style="text-align:right;font-size:18px">총 투입인원 <span class="total" id="grandTotal">0명</span></div></div>
+<div class="card"><div class="title"><span><span class="n">3</span>장비</span><button class="btn primary" onclick="addEquipment()">+ 장비 추가</button></div><table><thead><tr><th>장비명</th><th>수량(대)</th><th>비고</th><th>삭제</th></tr></thead><tbody id="equipments"></tbody></table></div>
+</div><div class="input-col middle-col"><div class="card"><div class="title"><span><span class="n">4</span>금일 작업 내용</span><button class="btn primary" onclick="addArea()">+ 구역 추가</button></div><div id="areas"></div></div>
+<div class="card"><div class="title"><span><span class="n">5</span>담당자</span><button class="btn" onclick="addManager()">+ 담당자 추가</button></div><div class="manager-scroll"><table class="manager-table"><colgroup><col class="manager-name-col"><col class="manager-role-col"><col class="manager-phone-col"><col class="manager-action-col"></colgroup><thead><tr><th>이름</th><th>직책</th><th>전화번호</th><th>관리</th></tr></thead><tbody id="managers"></tbody></table></div></div>
+<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" onclick="saveReport()">보고서 저장</button><button class="btn primary" onclick="copyPreview()">미리보기 복사</button></div></div>
+<div class="desktop-preview"><div class="card"><div class="title"><span>작업보고 미리보기</span><button class="btn" onclick="copyPreview()">복사하기</button></div><div id="preview" class="preview" contenteditable="true"></div></div></div></div></section>
+<section id="searchPage" class="search-panel"><div class="card"><div class="title">검색 / 이력 조회</div><div class="row"><div class="field"><label>검색 유형</label><select id="searchType"><option value="keyword">작업내용 키워드</option><option value="equipment">장비 사용이력</option></select></div><div class="field"><label>검색어 / 장비명</label><input id="query" placeholder="예: 자재, 입고, T/L"></div><div class="field"><label>시작일</label><input id="from" type="date"></div><div class="field"><label>종료일</label><input id="to" type="date"></div></div><button class="btn primary" style="margin-top:10px" onclick="searchReports()">검색</button><div id="results" class="results"></div></div></section>
+<section id="masterPage" class="search-panel"><div class="card"><div class="title">기준정보 관리</div><p>앱 타이틀과 기준정보를 수정한 뒤 저장하세요. 저장 즉시 PC·모바일 화면에 반영됩니다.</p><div class="field"><label>앱 타이틀</label><input id="masterAppTitle" maxlength="40" placeholder="예: SK 용인 작업일보"></div><div class="field"><label>현장</label><input id="masterSites"></div><div class="field"><label>공종</label><input id="masterTrades"></div><div class="field"><label>직종</label><input id="masterJobs"></div><div class="field"><label>장비</label><input id="masterEquipment"></div><div class="field"><label>구역 / 위치범위</label><div id="masterZones"></div><button class="btn" type="button" onclick="addMasterZone()">+ 구역 추가</button></div><div class="field"><label>담당</label><textarea id="masterManagers" rows="5" placeholder="한 줄에 1명: 이름 | 직책 | 전화번호"></textarea></div><button class="btn primary" style="margin-top:10px" onclick="saveMasters()">기준정보 저장</button></div></section>
+</main></div>
+<script>
+const D={appTitle:'작업일보',sites:['WWT','RWT'],trades:['기계','전기'],jobs:['관리자','기계공','배관공','용접공','유도 및 화기','전기공','일반공'],equipment:['T/L','지게차','고소작업대'],zones:[{zone:'WWT 1F',loc:'X6~8, Y20~24'},{zone:'WWT B1F',loc:'X3~6, Y21~24'},{zone:'WWT 4F',loc:'X11~17, Y1~6'}],managers:[['지형근','현장소장','010-9349-2141'],['조현기','공사부장','010-4236-3120'],['양희몽','안전부장','010-2702-9467'],['김태연','안전과장','010-6690-5027']]};
+let state={companies:[],equipment:[],areas:[],managers:[]};
+const $=id=>document.getElementById(id); const esc=s=>(s??'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function normalizeZones(){D.zones=(D.zones||[]).map(z=>typeof z==='string'?{zone:z,loc:''}:z)}
+function applyAppTitle(){let t=(D.appTitle||'작업일보').trim()||'작업일보';D.appTitle=t;let h=$('appTitleDisplay'),m=$('mobileAppTitle');if(h)h.textContent=t;if(m)m.textContent=t;document.title=t;}
+function init(){let m=JSON.parse(localStorage.getItem('masters')||'null');if(m)Object.assign(D,m);normalizeZones();applyAppTitle();fillSelects();let draft=JSON.parse(localStorage.getItem('currentDraft')||'null');if(draft){$('date').value=draft.date||new Date().toISOString().slice(0,10);$('site').value=draft.site||D.sites[0];$('trade').value=draft.trade||D.trades[0];$('start').value=draft.start||'07:30';$('end').value=draft.end||'17:30';$('bpa').value=draft.bpa||'더오포';state=draft.state||state}else{$('date').value=new Date().toISOString().slice(0,10);state.companies=[mkCompany('하나'),mkCompany('스틸'),mkCompany('고려')];state.equipment=[{name:'T/L',qty:3,note:''}];state.areas=[{zone:'WWT 1F',loc:'X6~8, Y20~24',tasks:['기수압 테스트 준비','케이블 포설 및 결선']}];state.managers=JSON.parse(JSON.stringify(D.managers||[]))}render();['site','trade','start','end','bpa'].forEach(x=>$(x).addEventListener('input',()=>{updatePreview();autoSave()}));$('date').addEventListener('change',loadDateOrBlank);window.addEventListener('beforeunload',autoSave);}
+function mkCompany(name){return{name,jobs:Object.fromEntries(D.jobs.map(j=>[j,0]))}}
+function fillSelects(){ if($('masterAppTitle'))$('masterAppTitle').value=D.appTitle||'작업일보';$('site').innerHTML=D.sites.map(x=>`<option>${esc(x)}</option>`).join('');$('trade').innerHTML=D.trades.map(x=>`<option>${esc(x)}</option>`).join('');$('masterSites').value=D.sites.join(', ');$('masterTrades').value=D.trades.join(', ');$('masterJobs').value=D.jobs.join(', ');$('masterEquipment').value=D.equipment.join(', ');renderMasterZones();$('masterManagers').value=(D.managers||[]).map(m=>m.join(' | ')).join('\n')}
+function render(){renderCompanies();renderEquipment();renderAreas();renderManagers();updatePreview()}
+function renderCompanies(){$('companies').innerHTML=state.companies.map((c,i)=>`<div class="company"><div class="company-head"><input class="company-name" value="${esc(c.name)}" oninput="state.companies[${i}].name=this.value;updatePreview()"><button class="btn" onclick="state.companies.splice(${i},1);render()">삭제</button><span class="company-total">업체합계 <b id="ct${i}"></b></span></div><div class="jobs">${D.jobs.map(j=>`<label>${esc(j)}<span class="counter"><button type="button" onclick="changeJob(${i},'${j}',-1)">−</button><input type="number" min="0" max="999" inputmode="numeric" value="${c.jobs[j]||0}" oninput="if(this.value.length>3)this.value=this.value.slice(0,3);if(+this.value>999)this.value=999;state.companies[${i}].jobs['${j}']=+this.value||0;calcTotals()"><button type="button" onclick="changeJob(${i},'${j}',1)">+</button></span></label>`).join('')}</div></div>`).join('');calcTotals()}
+function calcTotals(){let g=0;state.companies.forEach((c,i)=>{let t=Object.values(c.jobs).reduce((a,b)=>a+(+b||0),0);g+=t;let e=$('ct'+i);if(e)e.textContent=t+'명'});$('grandTotal').textContent=g+'명';updatePreview()}
+function addCompany(){state.companies.push(mkCompany('새 업체'));renderCompanies();updatePreview()}
+function renderEquipment(){$('equipments').innerHTML=state.equipment.map((e,i)=>`<tr><td><input style="width:100%" value="${esc(e.name)}" list="equipList" oninput="state.equipment[${i}].name=this.value;updatePreview()"></td><td><span class="counter"><button type="button" onclick="changeEquip(${i},-1)">−</button><input type="number" min="0" max="999" value="${e.qty}" oninput="state.equipment[${i}].qty=Math.min(999,+this.value||0);updatePreview()"><button type="button" onclick="changeEquip(${i},1)">+</button></span></td><td><input style="width:100%" value="${esc(e.note)}" oninput="state.equipment[${i}].note=this.value"></td><td><button class="btn" onclick="state.equipment.splice(${i},1);renderEquipment();updatePreview()">삭제</button></td></tr>`).join('')+`<datalist id="equipList">${D.equipment.map(x=>`<option value="${esc(x)}">`).join('')}</datalist>`}
+function addEquipment(){state.equipment.push({name:'',qty:1,note:''});renderEquipment()}
+function renderAreas(){$('areas').innerHTML=state.areas.map((a,i)=>`<div class="area"><div class="area-head"><input value="${esc(a.zone)}" list="zoneList" placeholder="구역 선택 또는 입력" oninput="state.areas[${i}].zone=this.value;updatePreview()" onchange="applyZone(${i},this.value)"><input value="${esc(a.loc)}" placeholder="예: X6~8, Y20~24" oninput="state.areas[${i}].loc=this.value;updatePreview()"><button class="btn" onclick="state.areas.splice(${i},1);renderAreas();updatePreview()">삭제</button></div><b>하부 작업</b><div>${a.tasks.map((t,k)=>`<div class="subtask"><span>${k+1}.</span><input value="${esc(t)}" oninput="state.areas[${i}].tasks[${k}]=this.value;updatePreview()"><button class="btn" onclick="removeTask(${i},${k})">−</button><button class="btn" onclick="addTask(${i})">+</button></div>`).join('')}</div></div>`).join('')+`<datalist id="zoneList">${(D.zones||[]).map(x=>`<option value="${esc(x.zone)}">${esc(x.loc||'')}</option>`).join('')}</datalist>`}
+function addArea(){state.areas.push({zone:'',loc:'',tasks:['']});renderAreas()} function addTask(i){state.areas[i].tasks.push('');renderAreas()} function removeTask(i,k){if(state.areas[i].tasks.length>1)state.areas[i].tasks.splice(k,1);else state.areas[i].tasks[0]='';renderAreas();updatePreview()}
+function renderManagers(){
+  state.managers=state.managers.map(m=>Array.isArray(m)?[m[0]||'',m[1]||'',m[2]||'',m.length>3?m[3]:true]:m);
+  $('managers').innerHTML=state.managers.map((m,i)=>`<tr>
+  <td><input style="width:100%" value="${esc(m[0])}" list="managerList" onchange="selectManager(${i},this.value)" oninput="state.managers[${i}][0]=this.value;updatePreview()"></td>
+  <td><input style="width:100%" value="${esc(m[1])}" oninput="state.managers[${i}][1]=this.value;updatePreview()"></td>
+  <td><input style="width:100%" value="${esc(m[2])}" oninput="state.managers[${i}][2]=this.value;updatePreview()"></td>
+  <td style="white-space:nowrap"><button class="btn" onclick="toggleManager(${i})">${m[3]!==false?'표시':'숨김'}</button> <button class="btn" onclick="state.managers.splice(${i},1);renderManagers();updatePreview()">삭제</button></td></tr>`).join('')+`<datalist id="managerList">${(D.managers||[]).map(m=>`<option value="${esc(m[0])}">${esc(m[1]||'')} ${esc(m[2]||'')}</option>`).join('')}</datalist>`
+}
+function selectManager(i,name){let m=(D.managers||[]).find(x=>x[0]===name);if(m){state.managers[i]=[m[0]||'',m[1]||'',m[2]||'',state.managers[i][3]!==false];renderManagers();updatePreview()}}
+function toggleManager(i){state.managers[i][3]=state.managers[i][3]===false?true:false;renderManagers();updatePreview()}
+function addManager(){state.managers.push(['','','',true]);renderManagers()}
+function reportText(){let d=new Date($('date').value+'T00:00:00');let days='일월화수목금토';let ds=isNaN(d)?'':`${String(d.getFullYear()).slice(2)}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}(${days[d.getDay()]})`;let totals=Object.fromEntries(D.jobs.map(j=>[j,0]));state.companies.forEach(c=>D.jobs.forEach(j=>totals[j]+=+c.jobs[j]||0));let total=Object.values(totals).reduce((a,b)=>a+b,0);let lines=[`[${$('trade').value}] ${ds} 주간작업보고 작업시간(${$('start').value}~${$('end').value})`,'',`■ ${$('site').value}`,`1.BP사 : ${$('bpa').value}`,'',`1) 출력인원: ${total}명`];D.jobs.forEach(j=>{if(totals[j]>0)lines.push(`   - ${j} : ${totals[j]}명`)});let eq=state.equipment.filter(e=>e.name&&e.qty>0).map(e=>`${e.name}-${e.qty}대`);lines.push('',`2) 장비 : ${eq.length?eq.join(', '):'-'}`,'','3) 금일 작업 내용');state.areas.forEach(a=>{let tasks=a.tasks.filter(x=>x.trim());if((a.zone||a.loc)&&tasks.length){lines.push(`- ${[a.zone,a.loc].filter(Boolean).join('  ')}`);tasks.forEach((t,i)=>lines.push(`${i+1}. ${t}`));lines.push('')}});lines.push('4) 담당자');state.managers.filter(m=>m[3]!==false&&[m[0],m[1],m[2]].some(x=>(x||'').trim())).forEach(m=>lines.push(`   - ${m[0]} ${m[1]} ${m[2]}`));return lines.join('\n')}
+function updatePreview(){$('preview').textContent=reportText();autoSave()}
+function autoSave(){if(!$('date'))return;localStorage.setItem('currentDraft',JSON.stringify({date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,state:state}))}
+
+function loadDateOrBlank(){
+  const target=$('date').value;
+  const rs=JSON.parse(localStorage.getItem('reports')||'[]');
+  // 해당 날짜에 저장된 보고서가 있으면 우선 불러온다.
+  let r=rs.find(x=>x.date===target&&x.site===$('site').value&&x.trade===$('trade').value);
+  // 없으면 같은 현장/공종의 가장 가까운 이전 날짜 데이터를 그대로 이어받는다.
+  if(!r){r=rs.filter(x=>x.date<target&&x.site===$('site').value&&x.trade===$('trade').value).sort((a,b)=>b.date.localeCompare(a.date))[0]}
+  if(r){
+    $('start').value=r.start||'07:30';$('end').value=r.end||'17:30';$('bpa').value=r.bpa||'';
+    state=JSON.parse(JSON.stringify(r.state));render();autoSave();
+  }else{
+    // 저장 이력이 전혀 없으면 현재 화면은 유지하고 날짜만 변경한다.
+    updatePreview();autoSave();
+  }
+}
+function resetDailyData(){
+  // 업체/직종 구성은 유지하고 인원수만 0으로 초기화한다.
+  state.companies.forEach(c=>{D.jobs.forEach(j=>c.jobs[j]=0)});
+  // 구역/위치와 화면 구성은 유지하고 하부작업 내용만 비운다.
+  state.areas.forEach(a=>{a.tasks=['']});
+  render();autoSave();
+}
+
+function loadCurrentDateReport(){let rs=JSON.parse(localStorage.getItem('reports')||'[]');let r=rs.find(x=>x.date===$('date').value&&x.site===$('site').value&&x.trade===$('trade').value);if(!r)return alert('해당 날짜/현장/공종의 저장된 작업일보가 없습니다.');$('start').value=r.start||'07:30';$('end').value=r.end||'17:30';$('bpa').value=r.bpa||'';state=JSON.parse(JSON.stringify(r.state));render();autoSave()}
+function saveReport(){let reports=JSON.parse(localStorage.getItem('reports')||'[]');let obj={date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,state:JSON.parse(JSON.stringify(state)),text:reportText()};let ix=reports.findIndex(r=>r.date===obj.date&&r.site===obj.site&&r.trade===obj.trade);if(ix>=0)reports[ix]=obj;else reports.push(obj);localStorage.setItem('reports',JSON.stringify(reports));autoSave();alert('보고서로 저장했습니다.')}
+function loadYesterday(){let d=new Date($('date').value+'T00:00:00');d.setDate(d.getDate()-1);let y=d.toISOString().slice(0,10),rs=JSON.parse(localStorage.getItem('reports')||'[]');let r=rs.find(x=>x.date===y&&x.site===$('site').value&&x.trade===$('trade').value);if(!r)return alert('전날 저장된 보고서가 없습니다.');state=JSON.parse(JSON.stringify(r.state));render()}
+async function copyPreview(){await navigator.clipboard.writeText($('preview').innerText);alert('복사했습니다.')}
+function toggleMobileMenu(){document.getElementById('mobileDrawer').classList.toggle('open');document.getElementById('mobileOverlay').classList.toggle('open')}
+function closeMobileMenu(){document.getElementById('mobileDrawer').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('open')}
+function mobileGo(page,btn){showPage(page,null);document.querySelectorAll('#mobileDrawer button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');closeMobileMenu();window.scrollTo({top:0,behavior:'smooth'})}
+function showPage(p,b){autoSave();document.querySelectorAll('aside button').forEach(x=>x.classList.remove('active'));if(b)b.classList.add('active');['write','search','master'].forEach(x=>$(x+'Page').style.display=x===p?'block':'none')}
+function searchReports(){let q=$('query').value.trim().toLowerCase(),type=$('searchType').value,from=$('from').value,to=$('to').value,rs=JSON.parse(localStorage.getItem('reports')||'[]');let out=[];rs.forEach(r=>{if(from&&r.date<from||to&&r.date>to)return;if(type==='keyword'){if(r.text.toLowerCase().includes(q))out.push({r,detail:'작업내용에서 검색어 발견'})}else{let es=r.state.equipment.filter(e=>e.name.toLowerCase().includes(q)&&e.qty>0);es.forEach(e=>out.push({r,detail:`${e.name} ${e.qty}대`}))}});$('results').innerHTML=out.length?out.sort((a,b)=>b.r.date.localeCompare(a.r.date)).map(x=>`<div class="result"><b>${x.r.date} · ${esc(x.r.site)} · ${esc(x.r.trade)}</b><div>${esc(x.detail)}</div><button class="btn" onclick="alert(${JSON.stringify(JSON.stringify(x.r.text))})">전체 보고서 보기</button></div>`).join(''):'검색 결과가 없습니다.'}
+function renderMasterZones(){let el=$('masterZones');if(!el)return;el.innerHTML=(D.zones||[]).map((z,i)=>`<div class="zone-master-row"><input value="${esc(z.zone||'')}" placeholder="예: WWT 4F" oninput="D.zones[${i}].zone=this.value"><input value="${esc(z.loc||'')}" placeholder="예: X11~17, Y1~6" oninput="D.zones[${i}].loc=this.value"><button class="btn" type="button" onclick="D.zones.splice(${i},1);renderMasterZones()">삭제</button></div>`).join('')}
+function addMasterZone(){D.zones.push({zone:'',loc:''});renderMasterZones()}
+function applyZone(i,v){let z=(D.zones||[]).find(x=>x.zone===v);if(z){state.areas[i].zone=z.zone;state.areas[i].loc=z.loc||'';renderAreas();updatePreview()}}
+function changeJob(i,j,d){let v=Math.max(0,Math.min(999,(+state.companies[i].jobs[j]||0)+d));state.companies[i].jobs[j]=v;renderCompanies();updatePreview()}
+function changeEquip(i,d){state.equipment[i].qty=Math.max(0,Math.min(999,(+state.equipment[i].qty||0)+d));renderEquipment();updatePreview()}
+function saveMasters(){autoSave();let split=id=>$(id).value.split(',').map(x=>x.trim()).filter(Boolean);let managers=$('masterManagers').value.split('\n').map(x=>x.split('|').map(v=>v.trim())).filter(m=>m.some(Boolean));D.zones=(D.zones||[]).map(z=>({zone:(z.zone||'').trim(),loc:(z.loc||'').trim()})).filter(z=>z.zone);let appTitle=($('masterAppTitle').value||'작업일보').trim()||'작업일보';let m={appTitle,sites:split('masterSites'),trades:split('masterTrades'),jobs:split('masterJobs'),equipment:split('masterEquipment'),zones:D.zones,managers};Object.assign(D,m);localStorage.setItem('masters',JSON.stringify(m));applyAppTitle();fillSelects();renderAreas();alert('기준정보를 저장했습니다. 앱 타이틀도 즉시 반영되었습니다.')}
+init();
+</script></body></html>
