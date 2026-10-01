@@ -161,7 +161,7 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
   <button onclick="mobileGo('master',this)">⚙ 기준정보 관리</button>
 </nav>
 <div class="app"><aside><button class="active" onclick="showPage('write',this)">✎ 작업보고 작성</button><button onclick="showPage('search',this)">⌕ 검색 / 이력</button><button onclick="showPage('master',this)">⚙ 기준정보 관리</button></aside><main>
-<section id="writePage"><div class="grid"><div class="input-col left-col">
+<section id="writePage"><div id="driveQuickBar" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ Google Drive 연결</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 연결 안 됨</b></div><div class="grid"><div class="input-col left-col">
 <div class="card"><div class="title"><span><span class="n">1</span>기본 정보</span><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button></div><div class="row">
 <div class="field"><label>현장</label><select id="site"></select></div><div class="field"><label>공종</label><select id="trade"></select></div><div class="field"><label>작업일</label><div style="display:flex;gap:4px"><input id="date" type="date"><button class="btn" type="button" onclick="loadCurrentDateReport()">조회</button></div></div><div class="field"><label>작업시간</label><div style="display:flex;gap:4px"><input id="start" type="time" value="07:30"><input id="end" type="time" value="17:30"></div></div></div><div class="row" style="margin-top:8px"><div class="field"><label>BP사</label><input id="bpa" value="더오포"></div></div></div>
 <div class="card"><div class="title"><span><span class="n">2</span>업체 입력 (공종별 인원)</span><button class="btn primary" onclick="addCompany()">+ 업체 입력</button></div><div id="companies"></div><div style="text-align:right;font-size:18px">총 투입인원 <span class="total" id="grandTotal">0명</span></div></div>
@@ -257,7 +257,7 @@ const DRIVE_FILE_NAME='SK_YONGIN_WORKREPORT_DATA.json';
 let driveAccessToken=sessionStorage.getItem('driveAccessToken')||'';
 let driveTokenExpires=+(sessionStorage.getItem('driveTokenExpires')||0);
 let driveTokenClient=null, drivePendingAction=null, syncTimer=null, syncBusy=false, applyingRemote=false;
-function setDriveStatus(msg){let e=$('driveStatus');if(e)e.textContent='상태: '+msg;let t=$('topDriveStatus');if(t)t.textContent='상태: '+msg}
+function setDriveStatus(msg){let e=$('driveStatus');if(e)e.textContent='상태: '+msg;let t=$('topDriveStatus');if(t)t.textContent='상태: '+msg;let q=$('quickDriveStatus');if(q)q.textContent='상태: '+msg}
 function getGoogleClientId(){return (($('googleClientId')&&$('googleClientId').value)||localStorage.getItem('googleClientId')||'').trim()}
 function tokenValid(){return !!driveAccessToken && Date.now()<driveTokenExpires-60000}
 function initDriveTokenClient(){
