@@ -151,6 +151,9 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
   .mobile-drawer button:active,.mobile-drawer button.active{background:#0878f9}
   .mobile-drawer .drawer-title{font-weight:800;padding:8px 12px 12px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:6px}
 }
+
+/* 검색 결과: 엑셀형 데이터 표 */
+.search-toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:10px 0}.result-table-wrap{width:100%;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}.result-table{min-width:1050px;table-layout:auto;font-size:12px}.result-table th{position:sticky;top:0;z-index:1;background:#eaf3fd;white-space:nowrap}.result-table td{text-align:left;vertical-align:top;white-space:nowrap}.result-table .work-cell{white-space:normal;min-width:300px;line-height:1.45}.result-table .num-cell{text-align:right}.result-table tbody tr:hover{background:#f6faff}@media(max-width:850px){.result-table{min-width:980px}.search-toolbar .btn{font-size:12px}}
 </style><script src="https://accounts.google.com/gsi/client" async defer></script></head>
 <body><header><div>⛑ <span id="appTitleDisplay">작업일보</span></div><div id="topDate">작업보고 작성</div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
@@ -170,7 +173,7 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
 <div class="card"><div class="title"><span><span class="n">5</span>담당자</span><button class="btn" onclick="addManager()">+ 담당자 추가</button></div><div class="manager-scroll"><table class="manager-table"><colgroup><col class="manager-name-col"><col class="manager-role-col"><col class="manager-phone-col"><col class="manager-action-col"></colgroup><thead><tr><th>이름</th><th>직책</th><th>전화번호</th><th>관리</th></tr></thead><tbody id="managers"></tbody></table></div></div>
 <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" onclick="saveReport()">보고서 저장</button><button class="btn primary" onclick="copyPreview()">미리보기 복사</button></div></div>
 <div class="desktop-preview"><div class="card"><div class="title"><span>작업보고 미리보기</span><button class="btn" onclick="copyPreview()">복사하기</button></div><div id="preview" class="preview" contenteditable="true"></div></div></div></div></section>
-<section id="searchPage" class="search-panel"><div class="card"><div class="title">검색 / 이력 조회</div><div class="row"><div class="field"><label>검색 유형</label><select id="searchType"><option value="keyword">작업내용 키워드</option><option value="equipment">장비 사용이력</option></select></div><div class="field"><label>검색어 / 장비명</label><input id="query" placeholder="예: 자재, 입고, T/L"></div><div class="field"><label>시작일</label><input id="from" type="date"></div><div class="field"><label>종료일</label><input id="to" type="date"></div></div><button class="btn primary" style="margin-top:10px" onclick="searchReports()">검색</button><div id="results" class="results"></div></div></section>
+<section id="searchPage" class="search-panel"><div class="card"><div class="title"><span>검색 / 이력 조회</span><button class="btn" type="button" onclick="resetSearch()">↻ 새로고침</button></div><div class="row"><div class="field"><label>검색 유형</label><select id="searchType" onchange="updateSearchHint()"><option value="keyword">작업내용</option><option value="equipment">장비</option><option value="trade">공종</option><option value="job">직종</option><option value="area">구역</option></select></div><div class="field"><label id="queryLabel">작업내용 검색어</label><input id="query" placeholder="비워두면 전체 목록"><select id="querySelect" style="display:none"></select></div><div class="field"><label>시작일</label><input id="from" type="date"></div><div class="field"><label>종료일</label><input id="to" type="date"></div></div><button class="btn primary" style="margin-top:10px" onclick="searchReports()">검색</button><div id="results" class="results"></div></div></section>
 <section id="masterPage" class="search-panel"><div class="card"><div class="title">기준정보 관리</div><p>앱 타이틀과 기준정보를 수정한 뒤 저장하세요. 저장 즉시 PC·모바일 화면에 반영됩니다.</p><div class="field"><label>앱 타이틀</label><input id="masterAppTitle" maxlength="40" placeholder="예: SK 용인 작업일보"></div><div class="field"><label>현장</label><input id="masterSites"></div><div class="field"><label>공종</label><input id="masterTrades"></div><div class="field"><label>직종</label><input id="masterJobs"></div><div class="field"><label>장비</label><input id="masterEquipment"></div><div class="field"><label>구역 / 위치범위</label><div id="masterZones"></div><button class="btn" type="button" onclick="addMasterZone()">+ 구역 추가</button></div><div class="field"><label>담당</label><textarea id="masterManagers" rows="5" placeholder="한 줄에 1명: 이름 | 직책 | 전화번호"></textarea></div><div class="card" style="margin-top:14px;background:#f8fbff">
 <div class="title" style="font-size:16px">☁ Google Drive 자료 공유</div>
 <p style="font-size:13px;line-height:1.6;margin-top:0">같은 Google 계정으로 PC와 휴대폰에서 연결하면 작업일보·기준정보를 하나의 Drive 백업 파일로 공유합니다. 인터넷이 없어도 기존 로컬 저장은 계속 사용할 수 있습니다.</p>
@@ -242,7 +245,54 @@ function toggleMobileMenu(){document.getElementById('mobileDrawer').classList.to
 function closeMobileMenu(){document.getElementById('mobileDrawer').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('open')}
 function mobileGo(page,btn){showPage(page,null);document.querySelectorAll('#mobileDrawer button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');closeMobileMenu();window.scrollTo({top:0,behavior:'smooth'})}
 function showPage(p,b){autoSave();document.querySelectorAll('aside button').forEach(x=>x.classList.remove('active'));if(b)b.classList.add('active');['write','search','master'].forEach(x=>$(x+'Page').style.display=x===p?'block':'none')}
-function searchReports(){let q=$('query').value.trim().toLowerCase(),type=$('searchType').value,from=$('from').value,to=$('to').value,rs=JSON.parse(localStorage.getItem('reports')||'[]');let out=[];rs.forEach(r=>{if(from&&r.date<from||to&&r.date>to)return;if(type==='keyword'){if(r.text.toLowerCase().includes(q))out.push({r,detail:'작업내용에서 검색어 발견'})}else{let es=r.state.equipment.filter(e=>e.name.toLowerCase().includes(q)&&e.qty>0);es.forEach(e=>out.push({r,detail:`${e.name} ${e.qty}대`}))}});$('results').innerHTML=out.length?out.sort((a,b)=>b.r.date.localeCompare(a.r.date)).map(x=>`<div class="result"><b>${x.r.date} · ${esc(x.r.site)} · ${esc(x.r.trade)}</b><div>${esc(x.detail)}</div><button class="btn" onclick="alert(${JSON.stringify(JSON.stringify(x.r.text))})">전체 보고서 보기</button></div>`).join(''):'검색 결과가 없습니다.'}
+function goWritePage(){showPage('write',null);document.querySelectorAll('aside button').forEach((b,i)=>b.classList.toggle('active',i===0));window.scrollTo({top:0,behavior:'smooth'})}
+function updateSearchHint(){
+  const type=$('searchType').value, labels={keyword:'작업내용 검색어',equipment:'장비명',trade:'공종',job:'직종',area:'구역'};
+  const input=$('query'), sel=$('querySelect');
+  if($('queryLabel'))$('queryLabel').textContent=labels[type]||'검색어';
+  if(type==='keyword'){
+    input.style.display='block'; sel.style.display='none'; input.placeholder='예: 용접, 배관, 포설 (비워두면 전체)';
+  }else{
+    input.style.display='none'; sel.style.display='block';
+    let items=type==='equipment'?(D.equipment||[]):type==='trade'?(D.trades||[]):type==='job'?(D.jobs||[]):(D.zones||[]).map(z=>typeof z==='string'?z:z.zone).filter(Boolean);
+    sel.innerHTML='<option value="">전체</option>'+items.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
+  }
+}
+function resetSearch(){
+  $('searchType').value='keyword';$('query').value='';$('querySelect').value='';$('from').value='';$('to').value='';$('results').innerHTML='';updateSearchHint();
+}
+function searchReports(){
+  let type=$('searchType').value,q=(type==='keyword'?$('query').value:$('querySelect').value).trim().toLowerCase(),from=$('from').value,to=$('to').value;
+  let rs=JSON.parse(localStorage.getItem('reports')||'[]'),out=[];
+  rs.forEach(r=>{
+    if((from&&r.date<from)||(to&&r.date>to))return;
+    const st=r.state||{}, areas=st.areas||[], equips=st.equipment||[];
+    let matched=false;
+    if(type==='keyword'){
+      const taskText=areas.flatMap(a=>a.tasks||[]).join(' ').toLowerCase(); matched=!q||taskText.includes(q);
+    }else if(type==='equipment'){
+      matched=!q||equips.some(e=>(+e.qty||0)>0&&(e.name||'').toLowerCase().includes(q));
+    }else if(type==='trade'){
+      matched=!q||(r.trade||'').toLowerCase().includes(q);
+    }else if(type==='job'){
+      const companies=st.companies||[];
+      matched=!q||companies.some(c=>Object.entries(c.jobs||{}).some(([job,n])=>(+n||0)>0&&job.toLowerCase()===q));
+    }else if(type==='area'){
+      matched=!q||areas.some(a=>((a.zone||'')+' '+(a.loc||'')).toLowerCase().includes(q));
+    }
+    if(!matched)return;
+    const companies=st.companies||[];
+    const total=companies.reduce((sum,c)=>sum+Object.values(c.jobs||{}).reduce((a,b)=>a+(+b||0),0),0);
+    const companyText=companies.map(c=>{const n=Object.values(c.jobs||{}).reduce((a,b)=>a+(+b||0),0);return `${c.name||'-'} ${n}명`}).join(', ');
+    const equipment=equips.filter(e=>e.name&&(+e.qty||0)>0).map(e=>`${e.name} ${e.qty}대`).join(', ');
+    const work=areas.map(a=>{const tasks=(a.tasks||[]).filter(Boolean).join(' / ');return [a.zone,a.loc,tasks].filter(Boolean).join(' · ')}).filter(Boolean).join(' | ');
+    out.push({r,total,companyText,equipment,work});
+  });
+  out.sort((a,b)=>b.r.date.localeCompare(a.r.date));
+  if(!out.length){$('results').innerHTML='검색 결과가 없습니다.';return}
+  $('results').innerHTML=`<div style="font-size:12px;font-weight:700;margin:8px 0">검색 결과 ${out.length}건</div><div class="result-table-wrap"><table class="result-table"><thead><tr><th>날짜</th><th>현장</th><th>공종</th><th>BP사</th><th>총인원</th><th>업체별 인원</th><th>장비</th><th>작업구역 · 작업내용</th></tr></thead><tbody>${out.map(x=>`<tr><td>${esc(x.r.date)}</td><td>${esc(x.r.site)}</td><td>${esc(x.r.trade)}</td><td>${esc(x.r.bpa||'')}</td><td class="num-cell">${x.total}명</td><td>${esc(x.companyText||'-')}</td><td>${esc(x.equipment||'-')}</td><td class="work-cell">${esc(x.work||'-')}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
 function renderMasterZones(){let el=$('masterZones');if(!el)return;el.innerHTML=(D.zones||[]).map((z,i)=>`<div class="zone-master-row"><input value="${esc(z.zone||'')}" placeholder="예: WWT 4F" oninput="D.zones[${i}].zone=this.value"><input value="${esc(z.loc||'')}" placeholder="예: X11~17, Y1~6" oninput="D.zones[${i}].loc=this.value"><button class="btn" type="button" onclick="D.zones.splice(${i},1);renderMasterZones()">삭제</button></div>`).join('')}
 function addMasterZone(){D.zones.push({zone:'',loc:''});renderMasterZones()}
 function applyZone(i,v){let z=(D.zones||[]).find(x=>x.zone===v);if(z){state.areas[i].zone=z.zone;state.areas[i].loc=z.loc||'';renderAreas();updatePreview()}}
