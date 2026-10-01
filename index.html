@@ -154,6 +154,7 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
 
 /* 검색 결과: 엑셀형 데이터 표 */
 .search-toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:10px 0}.result-table-wrap{width:100%;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}.result-table{min-width:1050px;table-layout:auto;font-size:12px}.result-table th{position:sticky;top:0;z-index:1;background:#eaf3fd;white-space:nowrap}.result-table td{text-align:left;vertical-align:top;white-space:nowrap}.result-table .work-cell{white-space:normal;min-width:300px;line-height:1.45}.result-table .num-cell{text-align:right}.result-table tbody tr:hover{background:#f6faff}@media(max-width:850px){.result-table{min-width:980px}.search-toolbar .btn{font-size:12px}}
+.date-link-btn{border:0;background:transparent;color:#0672e8;text-decoration:underline;font:inherit;font-weight:700;cursor:pointer;padding:0;white-space:nowrap}.date-link-btn:hover{color:#004fa8}
 </style><script src="https://accounts.google.com/gsi/client" async defer></script></head>
 <body><header><div>⛑ <span id="appTitleDisplay">작업일보</span></div><div id="topDate">작업보고 작성</div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
@@ -290,7 +291,19 @@ function searchReports(){
   });
   out.sort((a,b)=>b.r.date.localeCompare(a.r.date));
   if(!out.length){$('results').innerHTML='검색 결과가 없습니다.';return}
-  $('results').innerHTML=`<div style="font-size:12px;font-weight:700;margin:8px 0">검색 결과 ${out.length}건</div><div class="result-table-wrap"><table class="result-table"><thead><tr><th>날짜</th><th>현장</th><th>공종</th><th>BP사</th><th>총인원</th><th>업체별 인원</th><th>장비</th><th>작업구역 · 작업내용</th></tr></thead><tbody>${out.map(x=>`<tr><td>${esc(x.r.date)}</td><td>${esc(x.r.site)}</td><td>${esc(x.r.trade)}</td><td>${esc(x.r.bpa||'')}</td><td class="num-cell">${x.total}명</td><td>${esc(x.companyText||'-')}</td><td>${esc(x.equipment||'-')}</td><td class="work-cell">${esc(x.work||'-')}</td></tr>`).join('')}</tbody></table></div>`;
+  $('results').innerHTML=`<div style="font-size:12px;font-weight:700;margin:8px 0">검색 결과 ${out.length}건</div><div class="result-table-wrap"><table class="result-table"><thead><tr><th>날짜</th><th>현장</th><th>공종</th><th>BP사</th><th>총인원</th><th>업체별 인원</th><th>장비</th><th>작업구역 · 작업내용</th></tr></thead><tbody>${out.map(x=>`<tr><td><button type="button" class="date-link-btn" onclick="openReportFromSearch('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}')">${esc(x.r.date)}</button></td><td>${esc(x.r.site)}</td><td>${esc(x.r.trade)}</td><td>${esc(x.r.bpa||'')}</td><td class="num-cell">${x.total}명</td><td>${esc(x.companyText||'-')}</td><td>${esc(x.equipment||'-')}</td><td class="work-cell">${esc(x.work||'-')}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+function openReportFromSearch(date,site,trade){
+  const rs=JSON.parse(localStorage.getItem('reports')||'[]');
+  const r=rs.find(x=>x.date===date&&x.site===site&&x.trade===trade);
+  if(!r)return alert('해당 작업보고를 찾을 수 없습니다.');
+  $('date').value=r.date;$('site').value=r.site;$('trade').value=r.trade;
+  $('start').value=r.start||'07:30';$('end').value=r.end||'17:30';$('bpa').value=r.bpa||'';
+  state=JSON.parse(JSON.stringify(r.state));render();autoSave();
+  showPage('write',null);
+  document.querySelectorAll('aside button').forEach((b,i)=>b.classList.toggle('active',i===0));
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function renderMasterZones(){let el=$('masterZones');if(!el)return;el.innerHTML=(D.zones||[]).map((z,i)=>`<div class="zone-master-row"><input value="${esc(z.zone||'')}" placeholder="예: WWT 4F" oninput="D.zones[${i}].zone=this.value"><input value="${esc(z.loc||'')}" placeholder="예: X11~17, Y1~6" oninput="D.zones[${i}].loc=this.value"><button class="btn" type="button" onclick="D.zones.splice(${i},1);renderMasterZones()">삭제</button></div>`).join('')}
