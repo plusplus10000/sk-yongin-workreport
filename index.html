@@ -452,7 +452,7 @@ function toggleJobPicker(i,e){
   const m=$('jobPicker'+i); if(m)m.style.display=m.style.display==='none'?'block':'none';
 }
 document.addEventListener('click',()=>document.querySelectorAll('.job-picker-menu').forEach(m=>m.style.display='none'));
-function calcTotals(){{let g=0;state.companies.forEach((c,i)=>{let t=Object.values(c.jobs).reduce((a,b)=>a+(+b||0),0);g+=t;let e=$('ct'+i);if(e)e.textContent=t+'명'});$('grandTotal').textContent=g+'명';updatePreview()}
+function calcTotals(){let g=0;state.companies.forEach((c,i)=>{let t=Object.values(c.jobs).reduce((a,b)=>a+(+b||0),0);g+=t;let e=$('ct'+i);if(e)e.textContent=t+'명'});$('grandTotal').textContent=g+'명';updatePreview()}
 function addCompany(){state.companies.push(mkCompany('새 업체'));renderCompanies();updatePreview()}
 function renderEquipment(){$('equipments').innerHTML=state.equipment.map((e,i)=>`<tr><td><input style="width:100%" value="${esc(e.name)}" list="equipList" oninput="state.equipment[${i}].name=this.value;updatePreview()"></td><td><span class="counter"><button type="button" onclick="changeEquip(${i},-1)">−</button><input type="number" min="0" max="999" value="${e.qty}" oninput="state.equipment[${i}].qty=Math.min(999,+this.value||0);updatePreview()"><button type="button" onclick="changeEquip(${i},1)">+</button></span></td><td><input style="width:100%" value="${esc(e.note)}" oninput="state.equipment[${i}].note=this.value"></td><td><button class="btn" onclick="state.equipment.splice(${i},1);renderEquipment();updatePreview()">삭제</button></td></tr>`).join('')+`<datalist id="equipList">${D.equipment.map(x=>`<option value="${esc(x)}">`).join('')}</datalist>`}
 function addEquipment(){state.equipment.push({name:'',qty:1,note:''});renderEquipment()}
