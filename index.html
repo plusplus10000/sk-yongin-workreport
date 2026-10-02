@@ -1337,16 +1337,296 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
   }
 }
 
+
+/* ===== 현장 선택 홈 ===== */
+#siteHome{display:none;min-height:100vh;background:linear-gradient(180deg,#f9fcff 0%,#eef8ff 48%,#bfe7ff 100%);position:relative;overflow:hidden;padding:5vh 5vw 8vh}
+#siteHome::before,#siteHome::after{content:"";position:absolute;left:-8%;width:116%;height:230px;border-radius:50%;border:3px solid rgba(71,174,238,.22);transform:rotate(-3deg);pointer-events:none}
+#siteHome::before{top:37%;background:rgba(185,228,255,.22)}#siteHome::after{top:43%;background:rgba(98,196,255,.13);transform:rotate(3deg)}
+.site-home-inner{position:relative;z-index:1;max-width:1500px;margin:0 auto}
+.site-brand{text-align:center;margin:2vh auto 8vh;color:#0878c9}.site-drop{width:62px;height:78px;margin:0 auto 5px;border:9px solid #1ca8e6;border-radius:55% 55% 60% 60%;transform:rotate(45deg);opacity:.72}.site-drop::after{content:"";display:block;width:25px;height:25px;background:#f8fcff;border-radius:50%;margin:16px}.site-brand-name{font-size:28px;font-weight:900;letter-spacing:-1px}.site-brand-sub{font-size:10px;font-weight:700;letter-spacing:.4px}
+.site-select-title{text-align:center;margin:-5vh 0 4vh}.site-select-title .line{display:flex;align-items:center;justify-content:center;gap:14px;color:#7b8da6;font-size:11px;letter-spacing:7px}.site-select-title .line::before,.site-select-title .line::after{content:"";width:55px;height:1px;background:#a8bbd2}.site-select-title strong{display:block;margin-top:7px;font-size:30px;letter-spacing:-1px;color:#17345c}.site-select-title p{margin:5px 0 0;color:#778ba5;font-size:13px}
+.site-cards{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:18px;align-items:stretch}.site-card{height:112px;border:1px solid rgba(160,198,232,.65);border-radius:14px;background:rgba(255,255,255,.93);box-shadow:0 8px 24px rgba(34,102,153,.10);display:grid;grid-template-columns:48px 1fr 30px;align-items:center;gap:10px;padding:16px 14px;cursor:pointer;text-align:left;transition:.15s}.site-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(34,102,153,.18);border-color:#5db7ef}.site-factory{width:44px;height:44px;border-radius:50%;background:#e8f3ff;display:grid;place-items:center;font-size:24px}.site-card b{display:block;color:#0769c6;font-size:16px}.site-card small{display:block;color:#7c8da3;margin-top:5px}.site-arrow{width:28px;height:28px;border-radius:50%;background:#edf5ff;color:#0878e8;display:grid;place-items:center;font-size:22px}.site-add{margin-top:18px;width:min(286px,100%);border-style:dashed;background:rgba(255,255,255,.72)}
+.site-home-btn{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.08);color:#fff;border-radius:6px;padding:5px 9px;cursor:pointer;font-weight:700;margin-right:8px}
+body.site-home-mode>header,body.site-home-mode>.app,body.site-home-mode>#mobileOverlay,body.site-home-mode>#mobileDrawer,body.site-home-mode>.mobile-quickbar{display:none!important}body.site-home-mode>#siteHome{display:block!important}
+@media(max-width:850px){#siteHome{padding:24px 14px 45px}.site-brand{margin:10px auto 50px}.site-drop{width:45px;height:57px;border-width:7px}.site-brand-name{font-size:22px}.site-select-title{margin:-28px 0 25px}.site-select-title strong{font-size:24px}.site-cards{grid-template-columns:1fr;gap:10px}.site-card{height:86px}.site-add{margin-top:10px;width:100%}}
+
+
+/* ===== 현장 선택 홈 최종: 로고/WORK DAILY REPORT 제거 ===== */
+#siteHome{
+  padding:8vh 5vw 8vh!important;
+  background:linear-gradient(180deg,#f9fcff 0%,#eef8ff 45%,#c9ebff 100%)!important;
+}
+#siteHome::before{top:34%!important;height:260px!important}
+#siteHome::after{top:41%!important;height:280px!important}
+.site-home-simple{max-width:1500px!important}
+.site-select-title-simple{
+  margin:5vh 0 7vh!important;
+  text-align:center!important;
+}
+.site-select-title-simple strong{
+  display:block!important;
+  margin:0!important;
+  font-size:34px!important;
+  letter-spacing:-1px!important;
+  color:#17345c!important;
+}
+.site-select-title-simple p{
+  margin:8px 0 0!important;
+  color:#778ba5!important;
+  font-size:13px!important;
+}
+@media(max-width:850px){
+  #siteHome{padding:34px 14px 45px!important}
+  .site-select-title-simple{margin:22px 0 28px!important}
+  .site-select-title-simple strong{font-size:27px!important}
+}
+
+/* ===== 왼쪽 현장 트리 ===== */
+.project-tree-wrap{
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px solid rgba(255,255,255,.18);
+}
+.project-tree-node{margin:2px 0}
+.project-tree-head{
+  display:flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  width:100%!important;
+  font-weight:800!important;
+  color:#fff!important;
+}
+.project-tree-head .tree-caret{
+  width:13px;
+  flex:0 0 13px;
+  text-align:center;
+  transition:transform .15s ease;
+}
+.project-tree-node.open>.project-tree-head .tree-caret{transform:rotate(90deg)}
+.project-tree-children{
+  display:none;
+  margin:1px 0 5px 15px;
+  padding-left:7px;
+  border-left:1px solid rgba(255,255,255,.24);
+}
+.project-tree-node.open>.project-tree-children{display:block}
+.project-tree-children button{
+  padding:7px 7px!important;
+  margin:1px 0!important;
+  font-size:11px!important;
+  color:#dcecff!important;
+}
+.project-tree-children button.active{
+  background:#0878f9!important;
+  color:#fff!important;
+}
+.project-tree-node.current>.project-tree-head{
+  background:rgba(8,120,249,.26)!important;
+}
+.app.sidebar-collapsed .project-tree-wrap{display:none!important}
+
+/* 모바일 트리 */
+.mobile-project-tree{
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px solid rgba(255,255,255,.18);
+}
+.mobile-project-tree .project-tree-head{
+  padding:12px!important;
+  font-size:14px!important;
+}
+.mobile-project-tree .project-tree-children{
+  margin-left:18px;
+}
+.mobile-project-tree .project-tree-children button{
+  font-size:13px!important;
+  padding:10px!important;
+}
+
+
+.project-accent{display:inline-block;margin-left:6px;color:#f28b16;font-weight:900;font-size:calc(1em + 2px);letter-spacing:-.2px}
+.project-tree-node.current>.project-tree-head .nav-label{color:#ff9b1f!important;font-size:16px!important;font-weight:900!important}
+.project-tree-node.current>.project-tree-head .tree-caret{color:#ffb357!important}
+
+
+/* 현재 선택 현장 강조: 헤더 + 왼쪽 트리 */
+#projectAccent.project-accent{
+  display:inline-block!important;
+  margin-left:5px!important;
+  color:#f07d00!important;
+  font-weight:900!important;
+  font-size:16px!important; /* 기본 14px보다 +2px */
+  letter-spacing:-.2px!important;
+}
+.project-tree-node.current>.project-tree-head .nav-label{
+  color:#f07d00!important;
+  font-size:15px!important; /* 기본 13px보다 +2px */
+  font-weight:900!important;
+}
+.project-tree-node.current>.project-tree-head .tree-caret{
+  color:#f6a23a!important;
+}
+.mobile-project-tree .project-tree-node.current>.project-tree-head .nav-label{
+  color:#f07d00!important;
+  font-size:16px!important;
+}
+
 </style><script src="https://accounts.google.com/gsi/client" async defer></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
-<body class="locked"><div id="passwordGate"><div class="password-box"><h2>🔒 작업일보 로그인</h2><p>비밀번호를 입력하세요.</p><input id="appPassword" type="password" inputmode="text" autocomplete="current-password" placeholder="비밀번호"><button class="btn primary" type="button" style="width:100%;padding:11px" onclick="unlockApp()">확인</button><div id="passwordError" class="password-error"></div></div></div><header><div>⛑ <span id="appTitleDisplay">작업일보</span></div><div class="header-right"><div id="topDate">작업보고 작성</div></div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
+<body class="locked site-home-mode"><section id="siteHome" aria-label="현장 선택">
+  <div class="site-home-inner site-home-simple">
+    <div class="site-select-title site-select-title-simple">
+      <strong>Select Site</strong>
+      <p>작업일보를 작성할 현장을 선택해주세요.</p>
+    </div>
+
+    <div class="site-cards">
+      <button class="site-card" onclick="enterProjectPage('Y1 IECO','write')">
+        <span class="site-factory">🏭</span>
+        <span><b>Y1 IECO</b><small>작업일보</small></span>
+        <span class="site-arrow">›</span>
+      </button>
+      <button class="site-card" onclick="enterProjectPage('EPI','write')">
+        <span class="site-factory">🏭</span>
+        <span><b>EPI</b><small>작업일보</small></span>
+        <span class="site-arrow">›</span>
+      </button>
+      <button class="site-card" onclick="enterProjectPage('Indiana','write')">
+        <span class="site-factory">🏭</span>
+        <span><b>Indiana</b><small>작업일보</small></span>
+        <span class="site-arrow">›</span>
+      </button>
+      <button class="site-card" onclick="enterProjectPage('청주Ph4','write')">
+        <span class="site-factory">🏭</span>
+        <span><b>청주Ph4</b><small>작업일보</small></span>
+        <span class="site-arrow">›</span>
+      </button>
+      <button class="site-card" onclick="enterProjectPage('이천TMAH','write')">
+        <span class="site-factory">🏭</span>
+        <span><b>이천TMAH</b><small>작업일보</small></span>
+        <span class="site-arrow">›</span>
+      </button>
+    </div>
+
+    <button class="site-card site-add" onclick="alert('현장 추가 기능은 다음 단계에서 연결할게요.')">
+      <span class="site-factory">＋</span>
+      <span><b>현장 추가</b><small>새 현장</small></span>
+      <span class="site-arrow">›</span>
+    </button>
+  </div>
+</section><div id="passwordGate"><div class="password-box"><h2>🔒 작업일보 로그인</h2><p>비밀번호를 입력하세요.</p><input id="appPassword" type="password" inputmode="text" autocomplete="current-password" placeholder="비밀번호"><button class="btn primary" type="button" style="width:100%;padding:11px" onclick="unlockApp()">확인</button><div id="passwordError" class="password-error"></div></div></div><header><div><button class="site-home-btn" type="button" onclick="goSiteHome()">⌂ 현장선택 홈가기</button>⛑ <span id="appTitleDisplay">작업일보</span><span id="projectAccent" class="project-accent"></span></div><div class="header-right"><div id="topDate">작업보고 작성</div></div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
 <nav id="mobileDrawer" class="mobile-drawer" aria-label="모바일 메뉴">
   <div class="drawer-title"><span id="mobileAppTitle">작업일보</span> · 메뉴</div>
-  <button onclick="mobileGo('write',this)">✎ 작업일보 작성</button>
-  <button onclick="mobileGo('search',this)">⌕ 검색 / 이력</button>
-  <button onclick="mobileGo('master',this)">⚙ 기준정보 관리</button>
+  <button onclick="goSiteHome()">⌂ 현장선택 홈가기</button>
+  <div class="mobile-project-tree">
+    <div class="project-tree-node" data-project-node="Y1 IECO">
+  <button class="project-tree-head" type="button" onclick="toggleProjectTree('Y1 IECO',this)">
+    <span class="tree-caret">›</span><span class="nav-label">Y1 IECO</span>
+  </button>
+  <div class="project-tree-children">
+    <button type="button" data-project="Y1 IECO" data-page="write" onclick="enterProjectPage('Y1 IECO','write')">✎ 작업보고 작성</button>
+    <button type="button" data-project="Y1 IECO" data-page="search" onclick="enterProjectPage('Y1 IECO','search')">⌕ 검색 / 이력</button>
+    <button type="button" data-project="Y1 IECO" data-page="master" onclick="enterProjectPage('Y1 IECO','master')">⚙ 설정</button>
+  </div>
+</div>
+<div class="project-tree-node" data-project-node="EPI">
+  <button class="project-tree-head" type="button" onclick="toggleProjectTree('EPI',this)">
+    <span class="tree-caret">›</span><span class="nav-label">EPI</span>
+  </button>
+  <div class="project-tree-children">
+    <button type="button" data-project="EPI" data-page="write" onclick="enterProjectPage('EPI','write')">✎ 작업보고 작성</button>
+    <button type="button" data-project="EPI" data-page="search" onclick="enterProjectPage('EPI','search')">⌕ 검색 / 이력</button>
+    <button type="button" data-project="EPI" data-page="master" onclick="enterProjectPage('EPI','master')">⚙ 설정</button>
+  </div>
+</div>
+<div class="project-tree-node" data-project-node="Indiana">
+  <button class="project-tree-head" type="button" onclick="toggleProjectTree('Indiana',this)">
+    <span class="tree-caret">›</span><span class="nav-label">Indiana</span>
+  </button>
+  <div class="project-tree-children">
+    <button type="button" data-project="Indiana" data-page="write" onclick="enterProjectPage('Indiana','write')">✎ 작업보고 작성</button>
+    <button type="button" data-project="Indiana" data-page="search" onclick="enterProjectPage('Indiana','search')">⌕ 검색 / 이력</button>
+    <button type="button" data-project="Indiana" data-page="master" onclick="enterProjectPage('Indiana','master')">⚙ 설정</button>
+  </div>
+</div>
+<div class="project-tree-node" data-project-node="청주Ph4">
+  <button class="project-tree-head" type="button" onclick="toggleProjectTree('청주Ph4',this)">
+    <span class="tree-caret">›</span><span class="nav-label">청주Ph4</span>
+  </button>
+  <div class="project-tree-children">
+    <button type="button" data-project="청주Ph4" data-page="write" onclick="enterProjectPage('청주Ph4','write')">✎ 작업보고 작성</button>
+    <button type="button" data-project="청주Ph4" data-page="search" onclick="enterProjectPage('청주Ph4','search')">⌕ 검색 / 이력</button>
+    <button type="button" data-project="청주Ph4" data-page="master" onclick="enterProjectPage('청주Ph4','master')">⚙ 설정</button>
+  </div>
+</div>
+<div class="project-tree-node" data-project-node="이천TMAH">
+  <button class="project-tree-head" type="button" onclick="toggleProjectTree('이천TMAH',this)">
+    <span class="tree-caret">›</span><span class="nav-label">이천TMAH</span>
+  </button>
+  <div class="project-tree-children">
+    <button type="button" data-project="이천TMAH" data-page="write" onclick="enterProjectPage('이천TMAH','write')">✎ 작업보고 작성</button>
+    <button type="button" data-project="이천TMAH" data-page="search" onclick="enterProjectPage('이천TMAH','search')">⌕ 검색 / 이력</button>
+    <button type="button" data-project="이천TMAH" data-page="master" onclick="enterProjectPage('이천TMAH','master')">⚙ 설정</button>
+  </div>
+</div>
+  </div>
 </nav>
-<div class="app" id="appShell"><aside><button class="sidebar-toggle" type="button" title="메뉴 접기/펼치기" onclick="toggleSidebar()">☰</button><button class="active" onclick="showPage('write',this)">✎ <span class="nav-label">작업보고 작성</span></button><button onclick="showPage('search',this)">⌕ <span class="nav-label">검색 / 이력</span></button><button onclick="showPage('master',this)">⚙ <span class="nav-label">기준정보 관리</span></button></aside><main>
+<div class="app" id="appShell"><aside>
+<button class="sidebar-toggle" type="button" title="메뉴 접기/펼치기" onclick="toggleSidebar()">☰</button>
+<button type="button" onclick="goSiteHome()">⌂ <span class="nav-label">현장선택</span></button>
+<div class="project-tree-wrap">
+<div class="project-tree-node" data-project-node="Y1 IECO">
+  <button class="project-tree-head" type="button" onclick="toggleProjectTree('Y1 IECO',this)">
+    <span class="tree-caret">›</span><span class="nav-label">Y1 IECO</span>
+  </button>
+  <div class="project-tree-children">
+    <button type="button" data-project="Y1 IECO" data-page="write" onclick="enterProjectPage('Y1 IECO','write')">✎ 작업보고 작성</button>
+    <button type="button" data-project="Y1 IECO" data-page="search" onclick="enterProjectPage('Y1 IECO','search')">⌕ 검색 / 이력</button>
+    <button type="button" data-project="Y1 IECO" data-page="master" onclick="enterProjectPage('Y1 IECO','master')">⚙ 설정</button>
+  </div>
+</div>
+<div class="project-tree-node" data-project-node="EPI">
+  <button class="project-tree-head" type="button" onclick="toggleProjectTree('EPI',this)">
+    <span class="tree-caret">›</span><span class="nav-label">EPI</span>
+  </button>
+  <div class="project-tree-children">
+    <button type="button" data-project="EPI" data-page="write" onclick="enterProjectPage('EPI','write')">✎ 작업보고 작성</button>
+    <button type="button" data-project="EPI" data-page="search" onclick="enterProjectPage('EPI','search')">⌕ 검색 / 이력</button>
+    <button type="button" data-project="EPI" data-page="master" onclick="enterProjectPage('EPI','master')">⚙ 설정</button>
+  </div>
+</div>
+<div class="project-tree-node" data-project-node="Indiana">
+  <button class="project-tree-head" type="button" onclick="toggleProjectTree('Indiana',this)">
+    <span class="tree-caret">›</span><span class="nav-label">Indiana</span>
+  </button>
+  <div class="project-tree-children">
+    <button type="button" data-project="Indiana" data-page="write" onclick="enterProjectPage('Indiana','write')">✎ 작업보고 작성</button>
+    <button type="button" data-project="Indiana" data-page="search" onclick="enterProjectPage('Indiana','search')">⌕ 검색 / 이력</button>
+    <button type="button" data-project="Indiana" data-page="master" onclick="enterProjectPage('Indiana','master')">⚙ 설정</button>
+  </div>
+</div>
+<div class="project-tree-node" data-project-node="청주Ph4">
+  <button class="project-tree-head" type="button" onclick="toggleProjectTree('청주Ph4',this)">
+    <span class="tree-caret">›</span><span class="nav-label">청주Ph4</span>
+  </button>
+  <div class="project-tree-children">
+    <button type="button" data-project="청주Ph4" data-page="write" onclick="enterProjectPage('청주Ph4','write')">✎ 작업보고 작성</button>
+    <button type="button" data-project="청주Ph4" data-page="search" onclick="enterProjectPage('청주Ph4','search')">⌕ 검색 / 이력</button>
+    <button type="button" data-project="청주Ph4" data-page="master" onclick="enterProjectPage('청주Ph4','master')">⚙ 설정</button>
+  </div>
+</div>
+<div class="project-tree-node" data-project-node="이천TMAH">
+  <button class="project-tree-head" type="button" onclick="toggleProjectTree('이천TMAH',this)">
+    <span class="tree-caret">›</span><span class="nav-label">이천TMAH</span>
+  </button>
+  <div class="project-tree-children">
+    <button type="button" data-project="이천TMAH" data-page="write" onclick="enterProjectPage('이천TMAH','write')">✎ 작업보고 작성</button>
+    <button type="button" data-project="이천TMAH" data-page="search" onclick="enterProjectPage('이천TMAH','search')">⌕ 검색 / 이력</button>
+    <button type="button" data-project="이천TMAH" data-page="master" onclick="enterProjectPage('이천TMAH','master')">⚙ 설정</button>
+  </div>
+</div>
+</div>
+</aside><main>
 <section id="writePage"><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ Google Drive 연결</button><button class="btn" type="button" onclick="saveToDrive()">Drive에 저장</button><button class="btn" type="button" onclick="loadFromDrive()">Drive에서 불러오기</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 연결 안 됨</b><div class="header-action-buttons"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div class="grid"><div class="input-col left-col">
 <div class="card basic-info-card"><div class="title"><span><span class="n">1</span>기본 정보</span><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><span class="basic-action-buttons mobile-basic-actions"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></span></div><div class="basic-info-grid">
 <div class="field basic-site"><label>현장</label><select id="site"></select></div>
@@ -1375,12 +1655,546 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
 </div><button class="btn primary" style="margin-top:10px" onclick="saveMasters()">기준정보 저장</button></div></section>
 </main></div>
 <script>
+
+// ===== 현장 선택 / 현장별 로컬 데이터 분리 =====
+const PROJECTS=['Y1 IECO','EPI','Indiana','청주Ph4','이천TMAH'];
+function safeParseJSON(v,fallback){
+  try{return v===null||v===undefined?fallback:JSON.parse(v)}catch(e){return fallback}
+}
+const PROJECT_KEYS=['masters','reports','currentDraft'];
+function projectKey(name,key){
+  return name==='Y1 IECO'
+    ? 'project::Y1 IECO::'+key
+    : 'projectV2::'+name+'::'+key;
+}
+function seedY1Project(){
+  const seeded=localStorage.getItem('projectSeededY1')==='1';
+  const hasY1=PROJECT_KEYS.some(k=>localStorage.getItem(projectKey('Y1 IECO',k))!==null);
+  if(seeded && hasY1)return;
+
+  // 구버전 단일현장 자료가 WWT/RWT 기반일 때만 Y1 초기자료로 복사한다.
+  const m=safeParseJSON(localStorage.getItem('masters'),null);
+  const d=safeParseJSON(localStorage.getItem('currentDraft'),null);
+  const r=safeParseJSON(localStorage.getItem('reports'),[])||[];
+  const looksY1=(m?.sites||[]).some(x=>/^(WWT|RWT)$/i.test(String(x).trim()))
+    || /^(WWT|RWT)$/i.test(String(d?.site||'').trim())
+    || r.some(x=>/^(WWT|RWT)$/i.test(String(x?.site||'').trim()));
+
+  if(looksY1){
+    PROJECT_KEYS.forEach(k=>{
+      const v=localStorage.getItem(k);
+      if(v!==null)localStorage.setItem(projectKey('Y1 IECO',k),v);
+    });
+  }
+  localStorage.setItem('projectSeededY1','1');
+}
+function saveActiveProject(){
+  if(sessionStorage.getItem('projectSwitching')==='1')return;
+  const name=sessionStorage.getItem('activeProject'); if(!name)return;
+  try{if(typeof autoSave==='function' && document.getElementById('date'))autoSave()}catch(e){}
+  PROJECT_KEYS.forEach(k=>{
+    const v=localStorage.getItem(k);
+    if(v===null)localStorage.removeItem(projectKey(name,k));
+    else localStorage.setItem(projectKey(name,k),v);
+  });
+}
+function loadProjectStore(name){
+  PROJECT_KEYS.forEach(k=>{const v=localStorage.getItem(projectKey(name,k));if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)});
+}
+function enterProject(name){enterProjectPage(name,'write')}
+function enterProjectPage(name,page){
+  seedY1Project();
+  const old=sessionStorage.getItem('activeProject');
+
+  if(old===name){
+    sessionStorage.setItem('activeProjectPage',page||'write');
+    document.body.classList.remove('site-home-mode');
+    showPage(page||'write',null);
+    if((page||'write')==='write')setWorkDateToday();
+    refreshProjectTree();
+    if(typeof closeMobileMenu==='function')closeMobileMenu();
+    window.scrollTo(0,0);
+    return;
+  }
+
+  // 현재 현장 자료를 먼저 저장한 뒤 전환한다.
+  if(old)saveActiveProject();
+
+  // 중요: reload 순간의 beforeunload autoSave가
+  // 현재(Y1) 자료를 새 현장(EPI 등)에 덮어쓰지 못하게 막는다.
+  sessionStorage.setItem('projectSwitching','1');
+  sessionStorage.setItem('activeProject',name);
+  sessionStorage.setItem('activeProjectPage',page||'write');
+  sessionStorage.setItem('openProjectAfterReload','1');
+  location.reload();
+}
+function goSiteHome(){saveActiveProject();sessionStorage.removeItem('activeProject');sessionStorage.removeItem('openProjectAfterReload');document.body.classList.add('site-home-mode');window.scrollTo(0,0)}
+
+function cloneData(v){return JSON.parse(JSON.stringify(v));}
+function sampleProjectJobs(){return ['관리자','기계공','배관공','용접공','유도 및 화기','전기공','일반공','신호수','장비기사'];}
+function makeSampleProject(name){
+  const jobs=sampleProjectJobs();
+  const zones=[
+    {zone:`${name} 1F`,loc:'X6~8, Y20~24'},
+    {zone:`${name} 2F`,loc:'X1~6, Y10~20'}
+  ];
+  const managers=[['홍길동','안전과장','010-000-0000'],['김길동','안전부장','010-000-0000']];
+  const currentDate=new Date().toISOString().slice(0,10);
+  const company={name:'새 업체',jobs:Object.fromEntries(jobs.map(j=>[j,0])),visibleJobs:['관리자','기계공','배관공','용접공','유도 및 화기','전기공','일반공','신호수','장비기사']};
+  company.jobs['기계공']=1;
+
+  const sampleState={
+    companies:[company],
+    equipment:[
+      {name:'T/L',qty:1,note:''},
+      {name:'지게차',qty:1,note:''},
+      {name:'고소작업대',qty:1,note:''}
+    ],
+    areas:[
+      {zone:`${name} 1F`,loc:'X6~8, Y20~24',tasks:['배관공사','전기공사']},
+      {zone:`${name} 2F`,loc:'X1~6, Y10~20',tasks:['작업내용']}
+    ],
+    managers:[
+      ['홍길동','안전과장','010-000-0000',true],
+      ['김길동','안전부장','010-000-0000',false]
+    ]
+  };
+
+  const currentDraft={
+    date:currentDate,
+    site:name,
+    trade:'기계',
+    start:'07:30',
+    end:'17:30',
+    bpa:'',
+    state:cloneData(sampleState)
+  };
+
+  const sampleReport={
+    date:currentDate,
+    site:name,
+    trade:'기계',
+    start:'07:30',
+    end:'17:30',
+    bpa:'',
+    state:cloneData(sampleState),
+    text:''
+  };
+
+  return {
+    masters:{
+      appTitle:'우리공 일보 - '+name,
+      sites:[name],
+      trades:['기계'],
+      jobs:jobs,
+      equipment:['T/L','지게차','고소작업대'],
+      zones:zones,
+      managers:cloneData(managers)
+    },
+    currentDraft:currentDraft,
+    reports:[sampleReport]
+  };
+}
+function seedNonY1SampleProjects(){
+  ['EPI','Indiana','청주Ph4','이천TMAH'].forEach(name=>{
+    const mark='projectSampleSeedV1::'+name;
+    if(localStorage.getItem(mark)==='1')return;
+    const preset=makeSampleProject(name);
+    localStorage.setItem(projectKey(name,'masters'),JSON.stringify(preset.masters));
+    localStorage.setItem(projectKey(name,'currentDraft'),JSON.stringify(preset.currentDraft));
+    localStorage.setItem(projectKey(name,'reports'),JSON.stringify(preset.reports));
+    localStorage.setItem(mark,'1');
+  });
+}
+
+function makeProjectMasterSample(name){
+  return {
+    appTitle:'우리공 일보 - '+name,
+    sites:[name],
+    trades:['기계'],
+    jobs:['관리자','기계공','배관공','용접공','유도 및 화기','전기공','일반공','신호수','장비기사'],
+    equipment:['T/L','지게차','고소작업대'],
+    zones:[
+      {zone:name+' 1F',loc:'X6~8, Y20~24'},
+      {zone:name+' 2F',loc:'X1~6, Y10~20'}
+    ],
+    managers:[
+      ['홍길동','안전과장','010-000-0000'],
+      ['김길동','안전부장','010-000-0000']
+    ]
+  };
+}
+function seedNonY1MasterSamplesV2(){
+  ['EPI','Indiana','청주Ph4','이천TMAH'].forEach(name=>{
+    const mark='projectMasterSampleSeedV2::'+name;
+    if(localStorage.getItem(mark)==='1')return;
+    localStorage.setItem(projectKey(name,'masters'),JSON.stringify(makeProjectMasterSample(name)));
+    localStorage.setItem(mark,'1');
+  });
+}
+
+
+function ensureNonY1SampleReportsV2(){
+  ['EPI','Indiana','청주Ph4','이천TMAH'].forEach(name=>{
+    const reportKey=projectKey(name,'reports');
+    const draftKey=projectKey(name,'currentDraft');
+    let reports=safeParseJSON(localStorage.getItem(reportKey),[])||[];
+    const draft=safeParseJSON(localStorage.getItem(draftKey),null);
+
+    // 기존에 사용자가 저장한 보고서가 있으면 절대 건드리지 않음.
+    if(reports.length)return;
+
+    // 화면에 남아 있는 샘플 currentDraft를 실제 검색 가능한 보고서 1건으로 등록.
+    const hasSampleWork=!!draft &&
+      Array.isArray(draft.state?.areas) &&
+      draft.state.areas.some(a=>(a.tasks||[]).some(t=>(t||'').trim()));
+
+    if(hasSampleWork){
+      reports=[{
+        date:draft.date||new Date().toISOString().slice(0,10),
+        site:draft.site||name,
+        trade:draft.trade||'기계',
+        start:draft.start||'07:30',
+        end:draft.end||'17:30',
+        bpa:draft.bpa||'',
+        state:cloneData(draft.state),
+        text:''
+      }];
+      localStorage.setItem(reportKey,JSON.stringify(reports));
+    }
+  });
+}
+
+function projectDataScore(getter){
+  const reports=safeParseJSON(getter('reports'),[])||[];
+  const draft=safeParseJSON(getter('currentDraft'),null);
+  const masters=safeParseJSON(getter('masters'),null);
+  let score=reports.length*1000;
+
+  reports.forEach(r=>{
+    const st=r?.state||{};
+    score+=(st.companies||[]).length*5;
+    score+=(st.equipment||[]).filter(e=>(+e.qty||0)>0).length*4;
+    score+=(st.areas||[]).reduce((n,a)=>n+(a.tasks||[]).filter(x=>(x||'').trim()).length,0)*10;
+  });
+
+  if(draft){
+    const st=draft.state||{};
+    score+=100;
+    score+=(st.companies||[]).length*5;
+    score+=(st.equipment||[]).length*3;
+    score+=(st.areas||[]).reduce((n,a)=>n+(a.tasks||[]).filter(x=>(x||'').trim()).length,0)*10;
+  }
+  if(masters)score+=20;
+  return score;
+}
+function looksLikeLegacyY1Store(){
+  const m=safeParseJSON(localStorage.getItem('masters'),null);
+  const d=safeParseJSON(localStorage.getItem('currentDraft'),null);
+  const r=safeParseJSON(localStorage.getItem('reports'),[])||[];
+
+  const masterSites=(m?.sites||[]).map(String);
+  if(masterSites.some(x=>/^(WWT|RWT)$/i.test(x.trim())))return true;
+  if(/^(WWT|RWT)$/i.test(String(d?.site||'').trim()))return true;
+  if(r.some(x=>/^(WWT|RWT)$/i.test(String(x?.site||'').trim())))return true;
+  return false;
+}
+
+function makeY1LiveReferenceData(){
+  const jobs=['관리자','기계공','배관공','용접공','유도 및 화기','전기공','일반공'];
+
+  const masters={
+    appTitle:'우리공 일보',
+    sites:['WWT','RWT'],
+    trades:['기계','전기'],
+    jobs:jobs,
+    equipment:['T/L','지게차','고소작업대'],
+    zones:[
+      {zone:'WWT 1F',loc:'X6~8, Y20~24'},
+      {zone:'WWT B1F',loc:'X3~6, Y21~24'},
+      {zone:'WWT 4F',loc:'X11~17, Y1~6'}
+    ],
+    managers:[
+      ['지형근','현장소장','010-9349-2141'],
+      ['조현기','공사부장','010-4236-3120'],
+      ['양희몽','안전부장','010-2702-9467'],
+      ['김태연','안전과장','010-6690-5027']
+    ]
+  };
+
+  const mkJobs=()=>Object.fromEntries(jobs.map(j=>[j,0]));
+  const state={
+    companies:[
+      {name:'하나',jobs:mkJobs(),visibleJobs:[...jobs]},
+      {name:'스틸',jobs:mkJobs(),visibleJobs:[...jobs]},
+      {name:'고려',jobs:mkJobs(),visibleJobs:[...jobs]}
+    ],
+    equipment:[
+      {name:'T/L',qty:3,note:''}
+    ],
+    areas:[
+      {
+        zone:'WWT 1F',
+        loc:'X6~8, Y20~24',
+        tasks:['기수압 테스트 준비','케이블 포설 및 결선']
+      }
+    ],
+    managers:[
+      ['지형근','현장소장','010-9349-2141',true],
+      ['조현기','공사부장','010-4236-3120',true],
+      ['양희몽','안전부장','010-2702-9467',true],
+      ['김태연','안전과장','010-6690-5027',true]
+    ]
+  };
+
+  const date='2026-10-02';
+  const currentDraft={
+    date:date,
+    site:'WWT',
+    trade:'기계',
+    start:'07:30',
+    end:'17:30',
+    bpa:'더오포',
+    state:cloneData(state)
+  };
+
+  const report={
+    date:date,
+    site:'WWT',
+    trade:'기계',
+    start:'07:30',
+    end:'17:30',
+    bpa:'더오포',
+    state:cloneData(state),
+    text:''
+  };
+
+  return {masters,currentDraft,reports:[report]};
+}
+
+function seedY1FromLiveReferenceV1(){
+  const mark='y1LiveReferenceRestoreV1';
+  if(localStorage.getItem(mark)==='1')return;
+
+  const preset=makeY1LiveReferenceData();
+
+  localStorage.setItem(projectKey('Y1 IECO','masters'),JSON.stringify(preset.masters));
+  localStorage.setItem(projectKey('Y1 IECO','currentDraft'),JSON.stringify(preset.currentDraft));
+  localStorage.setItem(projectKey('Y1 IECO','reports'),JSON.stringify(preset.reports));
+
+  localStorage.setItem('projectSeededY1','1');
+  localStorage.setItem(mark,'1');
+}
+
+
+function y1MasterFromUserImage(){
+  return {
+    appTitle:'우리공 일보 Y1 IECO',
+    sites:['WWT'],
+    trades:['기계','전기'],
+    jobs:[
+      '관리자','기계공','배관공','용접공','유도 및 화기',
+      '전기공','일반공','신호수','장비기사'
+    ],
+    equipment:['T/L','지게차','고소작업대'],
+    zones:[
+      {zone:'WWT 1F',loc:'X6~8, Y20~24'},
+      {zone:'WWT B1F',loc:'X3~6, Y21~24'},
+      {zone:'WWT 4F',loc:'X11~17, Y1~6'}
+    ],
+    managers:[
+      ['지형근','현장소장','010-9349-2141'],
+      ['조현기','공사부장','010-4236-3120'],
+      ['김춘수','품질부장','010-5411-0639'],
+      ['양희몽','안전부장','010-2702-9467'],
+      ['김태연','안전과장','010-6690-5027'],
+      ['최은정','공무차장','010-9981-7949']
+    ]
+  };
+}
+
+function applyY1MasterFromUserImageV1(){
+  const masters=y1MasterFromUserImage();
+
+  // Y1 전용 기준정보만 교정. 보고서/현재 작업 데이터는 보존한다.
+  localStorage.setItem(projectKey('Y1 IECO','masters'),JSON.stringify(masters));
+
+  // 현재 Y1이 열린 상태라면 generic masters에도 즉시 반영
+  if((sessionStorage.getItem('activeProject')||'')==='Y1 IECO'){
+    localStorage.setItem('masters',JSON.stringify(masters));
+  }
+}
+
+function recoverY1LegacyData(){
+  const active=sessionStorage.getItem('activeProject')||'';
+  const legacyLooksY1=looksLikeLegacyY1Store();
+
+  const genericScore=projectDataScore(k=>localStorage.getItem(k));
+  const y1Score=projectDataScore(k=>localStorage.getItem(projectKey('Y1 IECO',k)));
+
+  // 예전 단일현장 버전의 WWT/RWT 자료가 generic localStorage에 남아 있고
+  // Y1 전용 저장소보다 내용이 많으면 Y1 전용 저장소로 복구한다.
+  if(legacyLooksY1 && genericScore>y1Score){
+    PROJECT_KEYS.forEach(k=>{
+      const v=localStorage.getItem(k);
+      if(v!==null)localStorage.setItem(projectKey('Y1 IECO',k),v);
+    });
+    localStorage.setItem('projectSeededY1','1');
+  }
+
+  // Y1으로 들어갈 때에는 항상 Y1 전용 저장소를 작업영역에 장착.
+  // 단, Y1 전용 데이터가 전혀 없고 현재 generic이 Y1 자료라면 generic을 유지한다.
+  const finalY1Score=projectDataScore(k=>localStorage.getItem(projectKey('Y1 IECO',k)));
+  if(active==='Y1 IECO' && finalY1Score>0){
+    loadProjectStore('Y1 IECO');
+  }
+}
+function prepareActiveProjectStore(){
+  seedY1Project();
+  seedNonY1SampleProjects();
+  seedNonY1MasterSamplesV2();
+  ensureNonY1SampleReportsV2();
+
+  const name=sessionStorage.getItem('activeProject');
+
+  // 기존 Y1 작업/검색 데이터는 보존하고,
+  // 기준정보만 사용자가 준 이미지 값으로 맞춘다.
+  recoverY1LegacyData();
+  applyY1MasterFromUserImageV1();
+
+  if(name && sessionStorage.getItem('openProjectAfterReload')==='1'){
+    if(name!=='Y1 IECO')loadProjectStore(name);
+    else{
+      const y1Score=projectDataScore(k=>localStorage.getItem(projectKey('Y1 IECO',k)));
+      if(y1Score>0)loadProjectStore('Y1 IECO');
+    }
+  }
+  sessionStorage.removeItem('projectSwitching');
+}
+
+function applyProjectStartup(){
+  seedY1Project();
+  const name=sessionStorage.getItem('activeProject');
+  if(name && sessionStorage.getItem('openProjectAfterReload')==='1'){
+    document.body.classList.remove('site-home-mode');
+    const page=sessionStorage.getItem('activeProjectPage')||'write';
+    const pageName=page==='search'?'검색 / 이력':page==='master'?'설정':'작업보고 작성';
+    const top=document.getElementById('topDate');if(top)top.textContent=name+' · '+pageName;
+    showPage(page,null);
+    if(page==='write')setWorkDateToday();
+    refreshProjectTree();
+  }else{
+    document.body.classList.add('site-home-mode');
+  }
+}
+function toggleProjectTree(name,btn){
+  const node=btn?.closest('.project-tree-node');
+  if(!node)return;
+  const open=!node.classList.contains('open');
+  const container=btn.closest('.project-tree-wrap,.mobile-project-tree');
+  if(container){
+    container.querySelectorAll('.project-tree-node').forEach(n=>n.classList.remove('open'));
+  }
+  if(open)node.classList.add('open');
+}
+function refreshProjectTree(){
+  const active=sessionStorage.getItem('activeProject')||'';
+  const page=sessionStorage.getItem('activeProjectPage')||'write';
+  document.querySelectorAll('.project-tree-node').forEach(node=>{
+    const same=node.getAttribute('data-project-node')===active;
+    node.classList.toggle('current',same);
+    if(same)node.classList.add('open');
+  });
+  document.querySelectorAll('.project-tree-children button[data-project]').forEach(btn=>{
+    btn.classList.toggle('active',
+      btn.getAttribute('data-project')===active &&
+      btn.getAttribute('data-page')===page);
+  });
+}
+
+window.addEventListener('beforeunload',saveActiveProject);
+
 const D={appTitle:'우리공 일보',sites:['WWT','RWT'],trades:['기계','전기'],jobs:['관리자','기계공','배관공','용접공','유도 및 화기','전기공','일반공'],equipment:['T/L','지게차','고소작업대'],zones:[{zone:'WWT 1F',loc:'X6~8, Y20~24'},{zone:'WWT B1F',loc:'X3~6, Y21~24'},{zone:'WWT 4F',loc:'X11~17, Y1~6'}],managers:[['지형근','현장소장','010-9349-2141'],['조현기','공사부장','010-4236-3120'],['양희몽','안전부장','010-2702-9467'],['김태연','안전과장','010-6690-5027']]};
 let state={companies:[],equipment:[],areas:[],managers:[]};
 const $=id=>document.getElementById(id); const esc=s=>(s??'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 function normalizeZones(){D.zones=(D.zones||[]).map(z=>typeof z==='string'?{zone:z,loc:''}:z)}
-function applyAppTitle(){let t=(D.appTitle||'우리공 일보').trim()||'우리공 일보';D.appTitle=t;let h=$('appTitleDisplay'),m=$('mobileAppTitle');if(h)h.textContent=t;if(m)m.textContent=t;document.title=t;}
-function init(){let m=JSON.parse(localStorage.getItem('masters')||'null');if(m)Object.assign(D,m);normalizeZones();applyAppTitle();fillSelects();let draft=JSON.parse(localStorage.getItem('currentDraft')||'null');if(draft){$('date').value=draft.date||new Date().toISOString().slice(0,10);$('site').value=draft.site||D.sites[0];$('trade').value=draft.trade||D.trades[0];$('start').value=draft.start||'07:30';$('end').value=draft.end||'17:30';$('bpa').value=draft.bpa||'더오포';state=draft.state||state}else{$('date').value=new Date().toISOString().slice(0,10);state.companies=[mkCompany('하나'),mkCompany('스틸'),mkCompany('고려')];state.equipment=[{name:'T/L',qty:3,note:''}];state.areas=[{zone:'WWT 1F',loc:'X6~8, Y20~24',tasks:['기수압 테스트 준비','케이블 포설 및 결선']}];state.managers=JSON.parse(JSON.stringify(D.managers||[]))}render();['site','trade','start','end','bpa'].forEach(x=>$(x).addEventListener('input',()=>{updatePreview();autoSave()}));$('date').addEventListener('change',loadDateOrBlank);window.addEventListener('beforeunload',autoSave);}
+function applyAppTitle(){
+  let t=(D.appTitle||'우리공 일보').trim()||'우리공 일보';
+  D.appTitle=t;
+  const active=sessionStorage.getItem('activeProject')||'Y1 IECO';
+  const baseTitle='우리공 일보 -';
+  let h=$('appTitleDisplay'),m=$('mobileAppTitle'),a=$('projectAccent');
+  if(h)h.textContent=baseTitle;
+  if(a)a.textContent=' '+active;
+  if(m)m.textContent='우리공 일보 - '+active;
+  document.title='우리공 일보 - '+active;
+}
+
+function getTodayLocalDate(){
+  const d=new Date();
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function setWorkDateToday(){
+  const el=$('date');
+  if(!el)return;
+  el.value=getTodayLocalDate();
+  updatePreview();
+}
+
+function init(){
+  const activeProject=sessionStorage.getItem('activeProject')||'Y1 IECO';
+  let m=JSON.parse(localStorage.getItem('masters')||'null');
+
+  if(m){
+    Object.assign(D,m);
+  }else if(activeProject!=='Y1 IECO'){
+    D.appTitle='우리공 일보 - '+activeProject;
+    D.sites=[''];
+    D.trades=[''];
+    D.jobs=[];
+    D.equipment=[];
+    D.zones=[];
+    D.managers=[];
+  }
+
+  normalizeZones();applyAppTitle();fillSelects();
+
+  let draft=JSON.parse(localStorage.getItem('currentDraft')||'null');
+  if(draft){
+    $('date').value=draft.date||new Date().toISOString().slice(0,10);
+    $('site').value=draft.site||D.sites[0]||'';
+    $('trade').value=draft.trade||D.trades[0]||'';
+    $('start').value=draft.start||'07:30';
+    $('end').value=draft.end||'17:30';
+    $('bpa').value=draft.bpa||'';
+    state=draft.state||state;
+  }else{
+    $('date').value=new Date().toISOString().slice(0,10);
+
+    if(activeProject==='Y1 IECO'){
+      state.companies=[mkCompany('하나'),mkCompany('스틸'),mkCompany('고려')];
+      state.equipment=[{name:'T/L',qty:3,note:''}];
+      state.areas=[{zone:'WWT 1F',loc:'X6~8, Y20~24',tasks:['기수압 테스트 준비','케이블 포설 및 결선']}];
+      state.managers=JSON.parse(JSON.stringify(D.managers||[]));
+    }else{
+      $('start').value='07:30';
+      $('end').value='17:30';
+      $('bpa').value='';
+      state={companies:[],equipment:[],areas:[],managers:[]};
+    }
+  }
+
+  // 앱/현장을 열었을 때 작업일은 항상 오늘 날짜로 표시
+  $('date').value=getTodayLocalDate();
+
+  render();
+  ['site','trade','start','end','bpa'].forEach(x=>$(x).addEventListener('input',()=>{updatePreview();autoSave()}));
+  $('date').addEventListener('change',loadDateOrBlank);
+  window.addEventListener('beforeunload',autoSave);
+}
 function mkCompany(name){return{name,jobs:Object.fromEntries(D.jobs.map(j=>[j,0])),visibleJobs:[...D.jobs]}}
 function fillSelects(){ if($('masterAppTitle'))$('masterAppTitle').value=D.appTitle||'우리공 일보';$('site').innerHTML=D.sites.map(x=>`<option>${esc(x)}</option>`).join('');$('trade').innerHTML=D.trades.map(x=>`<option>${esc(x)}</option>`).join('');$('masterSites').value=D.sites.join(', ');$('masterTrades').value=D.trades.join(', ');$('masterJobs').value=D.jobs.join(', ');$('masterEquipment').value=D.equipment.join(', ');renderMasterZones();$('masterManagers').value=(D.managers||[]).map(m=>m.join(' | ')).join('\n')}
 function render(){renderCompanies();renderEquipment();renderAreas();renderManagers();updatePreview()}
@@ -1551,7 +2365,18 @@ function moveWorkDate(days){
   }
 }
 function updatePreview(){$('preview').textContent=reportText();autoSave()}
-function autoSave(){if(!$('date'))return;localStorage.setItem('currentDraft',JSON.stringify({date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,state:state}))}
+
+function autoSave(){
+  if(sessionStorage.getItem('projectSwitching')==='1')return;
+  if(!$('date'))return;
+
+  // 현재 화면 임시저장만 수행.
+  // 검색/이력에는 '보고서 저장'을 눌러 reports에 저장된 자료만 나타난다.
+  localStorage.setItem('currentDraft',JSON.stringify({
+    date:$('date').value,site:$('site').value,trade:$('trade').value,
+    start:$('start').value,end:$('end').value,bpa:$('bpa').value,state:state
+  }));
+}
 
 function loadDateOrBlank(){
   const target=$('date').value;
@@ -1618,8 +2443,15 @@ function restorePanelStates(){
 function toggleMobileMenu(){document.getElementById('mobileDrawer').classList.toggle('open');document.getElementById('mobileOverlay').classList.toggle('open')}
 function closeMobileMenu(){document.getElementById('mobileDrawer').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('open')}
 function mobileGo(page,btn){showPage(page,null);document.querySelectorAll('#mobileDrawer button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');closeMobileMenu();window.scrollTo({top:0,behavior:'smooth'})}
-function showPage(p,b){autoSave();document.querySelectorAll('aside button').forEach(x=>x.classList.remove('active'));if(b)b.classList.add('active');['write','search','master'].forEach(x=>$(x+'Page').style.display=x===p?'block':'none')}
-function goWritePage(){showPage('write',null);document.querySelectorAll('aside button').forEach((b,i)=>b.classList.toggle('active',i===0));window.scrollTo({top:0,behavior:'smooth'})}
+function showPage(p,b){
+  autoSave();
+  if(sessionStorage.getItem('activeProject'))sessionStorage.setItem('activeProjectPage',p);
+  document.querySelectorAll('aside button').forEach(x=>x.classList.remove('active'));
+  if(b)b.classList.add('active');
+  ['write','search','master'].forEach(x=>$(x+'Page').style.display=x===p?'block':'none');
+  refreshProjectTree();
+}
+function goWritePage(){showPage('write',null);setWorkDateToday();document.querySelectorAll('aside button').forEach((b,i)=>b.classList.toggle('active',i===0));window.scrollTo({top:0,behavior:'smooth'})}
 function updateSearchHint(){
   const type=$('searchType').value, labels={keyword:'작업내용 검색어',equipment:'장비명',trade:'공종',job:'직종',area:'구역'};
   const input=$('query'), sel=$('querySelect');
@@ -1641,10 +2473,12 @@ function searchReports(){
   let rs=JSON.parse(localStorage.getItem('reports')||'[]'),out=[];
   rs.forEach(r=>{
     if((from&&r.date<from)||(to&&r.date>to))return;
-    const st=r.state||{}, areas=st.areas||[], equips=st.equipment||[];
-    // 인원·하부작업 초기화 등으로 실제 작업내용이 비어 있는 보고서는 검색 결과에서 제외
+    const st=r.state||{}, areas=st.areas||[], equips=st.equipment||[], companies=st.companies||[];
+    // 인원 / 작업내용 / 장비 중 하나라도 실제 값이 있으면 검색 대상
+    const hasPersonnel=companies.some(c=>Object.values(c.jobs||{}).some(n=>(+n||0)>0));
     const hasWork=areas.some(a=>(a.tasks||[]).some(t=>(t||'').trim()));
-    if(!hasWork)return;
+    const hasEquipment=equips.some(e=>(+e.qty||0)>0 && (e.name||'').trim());
+    if(!(hasPersonnel||hasWork||hasEquipment))return;
     let matched=false;
     if(type==='keyword'){
       const taskText=areas.flatMap(a=>a.tasks||[]).join(' ').toLowerCase(); matched=!q||taskText.includes(q);
@@ -1659,7 +2493,6 @@ function searchReports(){
       matched=!q||areas.some(a=>((a.zone||'')+' '+(a.loc||'')).toLowerCase().includes(q));
     }
     if(!matched)return;
-    const companies=st.companies||[];
     const total=companies.reduce((sum,c)=>sum+Object.values(c.jobs||{}).reduce((a,b)=>a+(+b||0),0),0);
     const companyText=companies.map(c=>{const n=Object.values(c.jobs||{}).reduce((a,b)=>a+(+b||0),0);return `${c.name||'-'} ${n}명`}).join(', ');
     const equipment=equips.filter(e=>e.name&&(+e.qty||0)>0).map(e=>`${e.name} ${e.qty}대`).join(', ');
@@ -1879,8 +2712,19 @@ function saveMasters(){autoSave();let split=id=>$(id).value.split(',').map(x=>x.
 
 
 // ===== Google Drive 자동 동기화 v2: 최신자료 비교 + 충돌 방지 =====
+
+function driveMetaKey(k){
+  const p=sessionStorage.getItem('activeProject')||'Y1 IECO';
+  return 'driveProject::'+p+'::'+k;
+}
+function getDriveMeta(k){return localStorage.getItem(driveMetaKey(k))}
+function setDriveMeta(k,v){localStorage.setItem(driveMetaKey(k),v)}
+
 const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
-const DRIVE_FILE_NAME='SK_YONGIN_WORKREPORT_DATA.json';
+const DRIVE_PROJECT=sessionStorage.getItem('activeProject')||'Y1 IECO';
+const DRIVE_FILE_NAME=DRIVE_PROJECT==='Y1 IECO'
+  ? 'SK_YONGIN_WORKREPORT_DATA.json'
+  : 'SK_'+DRIVE_PROJECT.replace(/[^0-9A-Za-z가-힣_-]/g,'_')+'_WORKREPORT_DATA.json';
 let driveAccessToken=sessionStorage.getItem('driveAccessToken')||'';
 let driveTokenExpires=+(sessionStorage.getItem('driveTokenExpires')||0);
 let driveTokenClient=null, drivePendingAction=null, syncTimer=null, syncBusy=false, applyingRemote=false;
@@ -1913,19 +2757,19 @@ async function driveFindFile(){
 function localData(){autoSave();return {masters:JSON.parse(localStorage.getItem('masters')||'null'),reports:JSON.parse(localStorage.getItem('reports')||'[]'),currentDraft:JSON.parse(localStorage.getItem('currentDraft')||'null')}}
 function makeDriveSnapshot(){const d=localData();return {format:'SK-YONGIN-WORKREPORT',version:2,savedAt:new Date().toISOString(),deviceId:getDeviceId(),...d}}
 function getDeviceId(){let x=localStorage.getItem('driveDeviceId');if(!x){x='dev-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);localStorage.setItem('driveDeviceId',x)}return x}
-function markLocalChanged(){if(applyingRemote)return;localStorage.setItem('driveLocalDirty','1');localStorage.setItem('driveLocalUpdatedAt',String(Date.now()));scheduleAutoSync()}
+function markLocalChanged(){if(applyingRemote)return;setDriveMeta('driveLocalDirty','1');setDriveMeta('driveLocalUpdatedAt',String(Date.now()));scheduleAutoSync()}
 function scheduleAutoSync(){if(!tokenValid())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow('auto'),1200)}
 async function fetchRemote(){const f=await driveFindFile();if(!f)return {file:null,data:null,stamp:0};const r=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id)+'?alt=media',{headers:driveHeaders()});if(!r.ok)throw new Error('Drive 불러오기 실패 ('+r.status+')');const data=await r.json();const stamp=Date.parse(data.savedAt||'')||Date.parse(f.modifiedTime||'')||0;return {file:f,data,stamp}}
-function applyRemoteData(d,stamp){applyingRemote=true;try{if(d.masters)localStorage.setItem('masters',JSON.stringify(d.masters));if(Array.isArray(d.reports))localStorage.setItem('reports',JSON.stringify(d.reports));if(d.currentDraft)localStorage.setItem('currentDraft',JSON.stringify(d.currentDraft));localStorage.setItem('driveLastRemoteStamp',String(stamp||Date.now()));localStorage.setItem('driveLocalDirty','0');localStorage.setItem('driveLocalUpdatedAt',String(stamp||Date.now()))}finally{applyingRemote=false}}
+function applyRemoteData(d,stamp){applyingRemote=true;try{if(d.masters)localStorage.setItem('masters',JSON.stringify(d.masters));if(Array.isArray(d.reports))localStorage.setItem('reports',JSON.stringify(d.reports));if(d.currentDraft)localStorage.setItem('currentDraft',JSON.stringify(d.currentDraft));setDriveMeta('driveLastRemoteStamp',String(stamp||Date.now()));setDriveMeta('driveLocalDirty','0');setDriveMeta('driveLocalUpdatedAt',String(stamp||Date.now()))}finally{applyingRemote=false}}
 async function pushLocal(file,silent=true){const snap=makeDriveSnapshot(), data=JSON.stringify(snap,null,2);let r;
   if(file){r=await fetch('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(file.id)+'?uploadType=media',{method:'PATCH',headers:driveHeaders({'Content-Type':'application/json; charset=UTF-8'}),body:data})}
   else{const boundary='workreport_'+Date.now(),meta=JSON.stringify({name:DRIVE_FILE_NAME,mimeType:'application/json'}),body='--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+meta+'\r\n--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+data+'\r\n--'+boundary+'--';r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,modifiedTime',{method:'POST',headers:driveHeaders({'Content-Type':'multipart/related; boundary='+boundary}),body})}
-  if(!r.ok)throw new Error('Drive 저장 실패 ('+r.status+')');const stamp=Date.parse(snap.savedAt);localStorage.setItem('driveLastRemoteStamp',String(stamp));localStorage.setItem('driveLocalDirty','0');setDriveStatus('자동 동기화 완료 · '+new Date().toLocaleString());if(!silent)alert('Google Drive에 저장했습니다.')
+  if(!r.ok)throw new Error('Drive 저장 실패 ('+r.status+')');const stamp=Date.parse(snap.savedAt);setDriveMeta('driveLastRemoteStamp',String(stamp));setDriveMeta('driveLocalDirty','0');setDriveStatus('자동 동기화 완료 · '+new Date().toLocaleString());if(!silent)alert('Google Drive에 저장했습니다.')
 }
 async function syncNow(reason='auto'){
   if(!tokenValid()||syncBusy)return;syncBusy=true;
   try{
-    setDriveStatus('동기화 확인 중...');const remote=await fetchRemote();const last=+(localStorage.getItem('driveLastRemoteStamp')||0);const dirty=localStorage.getItem('driveLocalDirty')==='1';
+    setDriveStatus('동기화 확인 중...');const remote=await fetchRemote();const last=+(getDriveMeta('driveLastRemoteStamp')||0);const dirty=getDriveMeta('driveLocalDirty')==='1';
     if(!remote.file){await pushLocal(null,true);return}
     const remoteChanged=remote.stamp>last+500;
     if(dirty&&remoteChanged){
@@ -1936,7 +2780,7 @@ async function syncNow(reason='auto'){
     else setDriveStatus('Google Drive 연결됨 · 최신 상태');
   }catch(e){console.error(e);setDriveStatus('동기화 실패: '+e.message)}finally{syncBusy=false}
 }
-async function saveToDrive(silent=false){if(!requireDrive('save'))return;localStorage.setItem('driveLocalDirty','1');try{const f=await driveFindFile();await pushLocal(f,silent)}catch(e){console.error(e);setDriveStatus(e.message);if(!silent)alert(e.message)}}
+async function saveToDrive(silent=false){if(!requireDrive('save'))return;setDriveMeta('driveLocalDirty','1');try{const f=await driveFindFile();await pushLocal(f,silent)}catch(e){console.error(e);setDriveStatus(e.message);if(!silent)alert(e.message)}}
 async function loadFromDrive(){if(!requireDrive('load'))return;try{const remote=await fetchRemote();if(!remote.file)return alert('아직 Drive에 저장된 작업일보 데이터가 없습니다.');if(!confirm('Drive의 자료로 이 기기의 작업일보 데이터를 갱신할까요?\n현재 로컬 자료는 Drive 자료로 바뀝니다.'))return;applyRemoteData(remote.data,remote.stamp);alert('Drive 자료를 불러왔습니다.');location.reload()}catch(e){setDriveStatus(e.message);alert(e.message)}}
 function restoreDriveClientId(){let v=localStorage.getItem('googleClientId');if(v&&$('googleClientId'))$('googleClientId').value=v;if(tokenValid()){setDriveStatus('Google Drive 연결됨 · 자동 동기화 켜짐');setTimeout(()=>syncNow('startup'),500)}}
 setTimeout(restoreDriveClientId,0);
@@ -1949,14 +2793,20 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 // ===== 간단 비밀번호 잠금 =====
 const APP_PASSWORD='12123';
 function unlockApp(){
-  const v=document.getElementById('appPassword').value;
+  const input=document.getElementById('appPassword');
+  const gate=document.getElementById('passwordGate');
+  const v=(input?.value||'').trim();
   if(v===APP_PASSWORD){
     sessionStorage.setItem('workreportUnlocked','1');
     document.body.classList.remove('locked');
-    document.getElementById('passwordGate').style.display='none';
+    if(gate)gate.style.display='none';
+    const hasActive=sessionStorage.getItem('activeProject') && sessionStorage.getItem('openProjectAfterReload')==='1';
+    if(hasActive)document.body.classList.remove('site-home-mode');
+    else document.body.classList.add('site-home-mode');
   }else{
-    document.getElementById('passwordError').textContent='비밀번호가 맞지 않습니다.';
-    document.getElementById('appPassword').select();
+    const err=document.getElementById('passwordError');
+    if(err)err.textContent='비밀번호가 맞지 않습니다.';
+    if(input){input.focus();input.select();}
   }
 }
 function initPasswordGate(){
@@ -1985,8 +2835,10 @@ window.addEventListener('storage',e=>{
   }
 });
 
+prepareActiveProjectStore();
 init();
 restorePanelStates();
+applyProjectStartup();
 </script>
 <div class="mobile-quickbar" aria-label="모바일 빠른 작업">
   <button type="button" class="quick-save" title="보고서 저장" onclick="saveReport()">💾</button>
