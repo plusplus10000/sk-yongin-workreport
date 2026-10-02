@@ -1256,36 +1256,40 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
   #equipments td:nth-child(4) .btn{width:100%!important;min-width:0!important;padding-left:4px!important;padding-right:4px!important}
 }
 
-</style><script src="https://accounts.google.com/gsi/client" async defer></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<style id="mobile-equipment-final-fix">
-/* 모바일 장비표 전용 최종 수정 - PC 영향 없음 */
-@media (max-width:850px){
-  /* 이전 grid/display:block 장비 보정을 무효화하고 정상 table 3열로 복구 */
-  table:has(#equipments){width:100%!important;table-layout:fixed!important;border-collapse:collapse!important;}
-  table:has(#equipments) thead{display:table-header-group!important;}
-  table:has(#equipments) thead tr{display:table-row!important;}
-  table:has(#equipments) thead th{display:table-cell!important;}
-  table:has(#equipments) thead th:nth-child(3){display:none!important;}
-  table:has(#equipments) thead th:nth-child(1){width:34%!important;}
-  table:has(#equipments) thead th:nth-child(2){width:46%!important;}
-  table:has(#equipments) thead th:nth-child(4){width:20%!important;}
 
-  #equipments{display:table-row-group!important;width:auto!important;border-spacing:0!important;}
-  #equipments::before{content:none!important;display:none!important;}
-  #equipments tr{display:table-row!important;width:auto!important;border:0!important;padding:0!important;background:transparent!important;}
-  #equipments td{display:table-cell!important;width:auto!important;min-width:0!important;padding:6px 4px!important;border:1px solid var(--line)!important;vertical-align:middle!important;}
-  #equipments td:nth-child(3){display:none!important;}
-  #equipments td:nth-child(1){width:34%!important;}
-  #equipments td:nth-child(2){width:46%!important;text-align:center!important;white-space:nowrap!important;overflow:visible!important;}
-  #equipments td:nth-child(4){width:20%!important;text-align:center!important;}
-  #equipments td:nth-child(1) input{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;height:38px!important;padding:6px!important;}
-  #equipments .counter{display:inline-grid!important;grid-template-columns:28px minmax(42px,52px) 28px!important;gap:4px!important;align-items:center!important;justify-content:center!important;width:auto!important;max-width:100%!important;}
-  #equipments .counter button{display:block!important;transform:none!important;width:28px!important;min-width:28px!important;max-width:28px!important;height:34px!important;padding:0!important;}
-  #equipments .counter input[type=number]{display:block!important;width:48px!important;min-width:42px!important;max-width:48px!important;height:34px!important;padding:3px 2px!important;text-align:center!important;}
-  #equipments td:nth-child(4) .btn{width:auto!important;min-width:44px!important;max-width:100%!important;padding:6px 5px!important;font-size:11px!important;}
+/* 모바일 장비 선택: datalist 대신 터치 선택 가능한 select 사용 / PC는 기존 입력 유지 */
+.equip-mobile-select{display:none}
+@media(max-width:850px){
+  #equipments .equip-name-input{display:none!important}
+  #equipments .equip-mobile-select{display:block!important;width:100%!important;min-width:0!important;height:38px!important;padding:6px 24px 6px 7px!important;border:1px solid #cbd9e8!important;border-radius:7px!important;background:#fff!important;color:#13233a!important;font-size:14px!important}
 }
-</style>
-</head>
+/* 모바일 장비 최종 정렬 수정: 3열 유지 + 선택 가능 */
+@media(max-width:850px){
+  #equipments::before{content:none!important;display:none!important}
+  #equipments{display:table-row-group!important;width:auto!important;border-spacing:0!important}
+  #equipments tr,#equipments tr:hover{display:table-row!important;border:0!important;padding:0!important;background:transparent!important}
+  #equipments td{display:table-cell!important;min-width:0!important;padding:5px!important;border:1px solid var(--line)!important;vertical-align:middle!important}
+  #equipments td:nth-child(1){display:table-cell!important;width:42%!important}
+  #equipments td:nth-child(2){display:table-cell!important;width:42%!important;min-width:0!important;text-align:center!important;overflow:visible!important}
+  #equipments td:nth-child(3){display:none!important}
+  #equipments td:nth-child(4){display:table-cell!important;width:16%!important;min-width:0!important;text-align:center!important}
+  table:has(#equipments){width:100%!important;table-layout:fixed!important;border-collapse:collapse!important;border-spacing:0!important}
+  table:has(#equipments) thead{display:table-header-group!important}
+  table:has(#equipments) thead tr{display:table-row!important}
+  table:has(#equipments) thead th{display:table-cell!important}
+  table:has(#equipments) thead th:nth-child(1){display:table-cell!important;width:42%!important}
+  table:has(#equipments) thead th:nth-child(2){display:table-cell!important;width:42%!important}
+  table:has(#equipments) thead th:nth-child(3){display:none!important}
+  table:has(#equipments) thead th:nth-child(4){display:table-cell!important;width:16%!important}
+  #equipments .equip-name-input{display:none!important}
+  #equipments .equip-mobile-select{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;height:36px!important;box-sizing:border-box!important}
+  #equipments .counter{display:grid!important;grid-template-columns:30px minmax(38px,1fr) 30px!important;gap:4px!important;width:100%!important;align-items:center!important}
+  #equipments .counter button{display:block!important;width:30px!important;min-width:30px!important;max-width:30px!important;height:34px!important;padding:0!important}
+  #equipments .counter input[type=number]{display:block!important;width:100%!important;min-width:38px!important;max-width:none!important;height:34px!important;padding:2px!important;text-align:center!important}
+  #equipments td:nth-child(4) .btn{width:100%!important;min-width:0!important;padding:6px 2px!important;font-size:11px!important}
+}
+
+</style><script src="https://accounts.google.com/gsi/client" async defer></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
 <body class="locked"><div id="passwordGate"><div class="password-box"><h2>🔒 작업일보 로그인</h2><p>비밀번호를 입력하세요.</p><input id="appPassword" type="password" inputmode="text" autocomplete="current-password" placeholder="비밀번호"><button class="btn primary" type="button" style="width:100%;padding:11px" onclick="unlockApp()">확인</button><div id="passwordError" class="password-error"></div></div></div><header><div>⛑ <span id="appTitleDisplay">작업일보</span></div><div class="header-right"><div id="topDate">작업보고 작성</div></div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
 <nav id="mobileDrawer" class="mobile-drawer" aria-label="모바일 메뉴">
@@ -1400,7 +1404,7 @@ function toggleJobPicker(i,e){
 document.addEventListener('click',()=>document.querySelectorAll('.job-picker-menu').forEach(m=>m.style.display='none'));
 function calcTotals(){let g=0;state.companies.forEach((c,i)=>{let t=Object.values(c.jobs).reduce((a,b)=>a+(+b||0),0);g+=t;let e=$('ct'+i);if(e)e.textContent=t+'명'});$('grandTotal').textContent=g+'명';updatePreview();document.querySelectorAll('#companies>.company').forEach((el,i)=>{const c=state.companies[i];if(!c)return;const t=Object.values(c.jobs||{}).reduce((a,v)=>a+(+v||0),0);el.classList.toggle('company-zero',t===0)})}
 function addCompany(){state.companies.push(mkCompany('새 업체'));renderCompanies();updatePreview()}
-function renderEquipment(){$('equipments').innerHTML=state.equipment.map((e,i)=>`<tr><td><input style="width:100%" value="${esc(e.name)}" list="equipList" oninput="state.equipment[${i}].name=this.value;updatePreview()"></td><td><span class="counter"><button type="button" onclick="changeEquip(${i},-1)">−</button><input type="number" min="0" max="999" value="${e.qty}" oninput="state.equipment[${i}].qty=Math.min(999,+this.value||0);updatePreview()"><button type="button" onclick="changeEquip(${i},1)">+</button></span></td><td><input style="width:100%" value="${esc(e.note)}" oninput="state.equipment[${i}].note=this.value"></td><td><button class="btn" onclick="state.equipment.splice(${i},1);renderEquipment();updatePreview()">삭제</button></td></tr>`).join('')+`<datalist id="equipList">${D.equipment.map(x=>`<option value="${esc(x)}">`).join('')}</datalist>`}
+function renderEquipment(){$('equipments').innerHTML=state.equipment.map((e,i)=>`<tr><td><input class="equip-name-input" style="width:100%" value="${esc(e.name)}" list="equipList" oninput="state.equipment[${i}].name=this.value;updatePreview()"><select class="equip-mobile-select" onchange="if(this.value){state.equipment[${i}].name=this.value;renderEquipment();updatePreview()}"><option value="">장비 선택</option>${D.equipment.map(x=>`<option value="${esc(x)}" ${x===e.name?'selected':''}>${esc(x)}</option>`).join('')}</select></td><td><span class="counter"><button type="button" onclick="changeEquip(${i},-1)">−</button><input type="number" min="0" max="999" value="${e.qty}" oninput="state.equipment[${i}].qty=Math.min(999,+this.value||0);updatePreview()"><button type="button" onclick="changeEquip(${i},1)">+</button></span></td><td><input style="width:100%" value="${esc(e.note)}" oninput="state.equipment[${i}].note=this.value"></td><td><button class="btn" onclick="state.equipment.splice(${i},1);renderEquipment();updatePreview()">삭제</button></td></tr>`).join('')+`<datalist id="equipList">${D.equipment.map(x=>`<option value="${esc(x)}">`).join('')}</datalist>`}
 function addEquipment(){state.equipment.push({name:'',qty:1,note:''});renderEquipment()}
 function updateAreaEmptyStyle(i){
  const a=state.areas[i],el=$('areas')?.children?.[i];
