@@ -2134,6 +2134,18 @@ function prepareActiveProjectStore(){
   ensureNonY1SampleReportsV2();
   applyY1MasterFromUserImageV1();
 
+  // Y1의 예전 저장보고서가 남아 있다면 Y1 단일 저장소로 병합 복구
+  // (임시 currentDraft는 포함하지 않음)
+  // 함수 선언은 아래 런타임에 있으므로 DOM 준비 후 setTimeout으로 실행
+  setTimeout(()=>{
+    try{
+      if((sessionStorage.getItem('activeProject')||'')==='Y1 IECO' &&
+         typeof recoverSavedReportsForSearch==='function'){
+        recoverSavedReportsForSearch('Y1 IECO');
+      }
+    }catch(e){}
+  },0);
+
   sessionStorage.removeItem('projectSwitching');
 }
 
@@ -2692,6 +2704,7 @@ function closeMobileMenu(){document.getElementById('mobileDrawer').classList.rem
 function mobileGo(page,btn){showPage(page,null);document.querySelectorAll('#mobileDrawer button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');closeMobileMenu();window.scrollTo({top:0,behavior:'smooth'})}
 function showPage(p,b){
   autoSave();
+  if(p==='search')recoverSavedReportsForSearch(activeProjectName());
   if(sessionStorage.getItem('activeProject'))sessionStorage.setItem('activeProjectPage',p);
   document.querySelectorAll('aside button').forEach(x=>x.classList.remove('active'));
   if(b)b.classList.add('active');
@@ -2714,10 +2727,111 @@ function updateSearchHint(){
 function resetSearch(){
   $('searchType').value='keyword';$('query').value='';$('querySelect').value='';$('from').value='';$('to').value='';$('results').innerHTML='';updateSearchHint();
 }
+
+function reportDataScoreForRecovery(r){
+  const st=r?.state||{};
+  const companies=st.companies||[];
+  const areas=st.areas||[];
+  const equips=st.equipment||[];
+  const personnel=companies.reduce((s,c)=>s+Object.values(c.jobs||{}).reduce((a,b)=>a+(+b||0),0),0);
+  const tasks=areas.reduce((s,a)=>s+(a.tasks||[]).filter(t=>(t||'').trim()).length,0);
+  const equipment=equips.filter(e=>(e.name||'').trim()&&(+e.qty||0)>0).length;
+  return (personnel>0?1000:0)+(tasks>0?500:0)+(equipment>0?200:0)+personnel+tasks*10+equipment*5+(r?.closed?1:0);
+}
+
+function mergeSavedReportsForProject(name, lists){
+  const map=new Map();
+
+  (lists||[]).forEach((list,listIndex)=>{
+    (Array.isArray(list)?list:[]).forEach((r,rowIndex)=>{
+      if(!r || !r.date || !r.state)return;
+
+      // Y1은 WWT/RWT 저장보고서만 복구 대상.
+      if(name==='Y1 IECO' && !/^(WWT|RWT)$/i.test(String(r.site||'').trim()))return;
+
+      const key=[r.date||'',r.site||'',r.trade||''].join('||');
+      const score=reportDataScoreForRecovery(r);
+      const prev=map.get(key);
+
+      // 더 내용이 충실한 보고서를 우선하고, 동점이면 뒤쪽 저장소/뒤쪽 항목을 우선
+      if(!prev || score>prev.score ||
+         (score===prev.score && (listIndex>prev.listIndex ||
+          (listIndex===prev.listIndex && rowIndex>prev.rowIndex)))){
+        map.set(key,{r,score,listIndex,rowIndex});
+      }
+    });
+  });
+
+  return [...map.values()].map(x=>x.r)
+    .sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+}
+
+function recoverSavedReportsForSearch(name=activeProjectName()){
+  const primary=safeParseJSON(projectGet('reports',name),[])||[];
+  const lists=[primary];
+
+  // Y1만 구버전 저장위치까지 안전하게 조사한다.
+  if(name==='Y1 IECO'){
+    const candidateKeys=[
+      'reports',
+      'projectV2::Y1 IECO::reports',
+      'project::Y1 IECO::reports'
+    ];
+
+    // 이전 수정본에서 만들어졌을 수 있는 report 계열 키도 확인
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i)||'';
+      if(/report/i.test(k) && /Y1|YONGIN|용인/i.test(k) && !candidateKeys.includes(k)){
+        candidateKeys.push(k);
+      }
+    }
+
+    candidateKeys.forEach(k=>{
+      const v=safeParseJSON(localStorage.getItem(k),null);
+      if(Array.isArray(v))lists.push(v);
+      else if(v && Array.isArray(v.reports))lists.push(v.reports);
+    });
+  }
+
+  const merged=mergeSavedReportsForProject(name,lists);
+
+  // 복구된 저장보고서는 해당 현장의 단일 reports 저장소에 확정
+  if(JSON.stringify(merged)!==JSON.stringify(primary)){
+    projectSet('reports',JSON.stringify(merged),name);
+  }
+  return merged;
+}
+
+async function getSavedReportsForSearch(){
+  const name=activeProjectName();
+  let rs=recoverSavedReportsForSearch(name);
+
+  // Y1 로컬 저장보고서가 전혀 없어진 경우에만,
+  // 연결되어 있는 Y1 Drive 백업에서 reports만 복구한다.
+  // 기준정보/currentDraft는 건드리지 않는다.
+  if(name==='Y1 IECO' && rs.length===0 && tokenValid()){
+    try{
+      const remote=await fetchRemote();
+      if(remote?.data && Array.isArray(remote.data.reports) && remote.data.reports.length){
+        const recovered=mergeSavedReportsForProject(name,[remote.data.reports]);
+        if(recovered.length){
+          projectSet('reports',JSON.stringify(recovered),name);
+          rs=recovered;
+          setDriveStatus('Y1 저장보고서 검색자료 복구 완료');
+        }
+      }
+    }catch(e){
+      console.warn('Y1 검색자료 Drive 복구 실패',e);
+    }
+  }
+
+  return rs;
+}
+
 let lastSearchResults=[];
-function searchReports(){
+async function searchReports(){
   let type=$('searchType').value,q=(type==='keyword'?$('query').value:$('querySelect').value).trim().toLowerCase(),from=$('from').value,to=$('to').value;
-  let rs=JSON.parse(projectGet('reports')||'[]'),out=[];
+  let rs=await getSavedReportsForSearch(),out=[];
   rs.forEach(r=>{
     if((from&&r.date<from)||(to&&r.date>to))return;
     const st=r.state||{}, areas=st.areas||[], equips=st.equipment||[], companies=st.companies||[];
