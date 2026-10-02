@@ -1289,6 +1289,54 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
   #equipments td:nth-child(4) .btn{width:100%!important;min-width:0!important;padding:6px 2px!important;font-size:11px!important}
 }
 
+
+/* 담당자 표 최종 보정: 표시/숨김 칸 축소 + 삭제 칸 확보 */
+@media(min-width:851px){
+  .manager-table{
+    width:100%!important;
+    min-width:0!important;
+    table-layout:fixed!important;
+  }
+  .manager-table .manager-visibility-col{width:64px!important}
+  .manager-table .manager-name-col{width:25%!important}
+  .manager-table .manager-role-col{width:25%!important}
+  .manager-table .manager-phone-col{width:27%!important}
+  .manager-table .manager-action-col{width:76px!important}
+
+  #managers td:nth-child(1){
+    width:64px!important;
+    min-width:64px!important;
+    padding:4px!important;
+    white-space:nowrap!important;
+  }
+  #managers td:nth-child(1) .manager-visibility-btn{
+    width:48px!important;
+    min-width:48px!important;
+    padding:5px 3px!important;
+    font-size:11px!important;
+  }
+  #managers td:nth-child(2) input,
+  #managers td:nth-child(3) input,
+  #managers td:nth-child(4) input{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+  }
+  #managers td:nth-child(5){
+    width:76px!important;
+    min-width:76px!important;
+    padding:4px!important;
+    white-space:nowrap!important;
+  }
+  #managers td:nth-child(5) .btn{
+    width:56px!important;
+    min-width:56px!important;
+    padding:5px 4px!important;
+    font-size:11px!important;
+    white-space:nowrap!important;
+  }
+}
+
 </style><script src="https://accounts.google.com/gsi/client" async defer></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
 <body class="locked"><div id="passwordGate"><div class="password-box"><h2>🔒 작업일보 로그인</h2><p>비밀번호를 입력하세요.</p><input id="appPassword" type="password" inputmode="text" autocomplete="current-password" placeholder="비밀번호"><button class="btn primary" type="button" style="width:100%;padding:11px" onclick="unlockApp()">확인</button><div id="passwordError" class="password-error"></div></div></div><header><div>⛑ <span id="appTitleDisplay">작업일보</span></div><div class="header-right"><div id="topDate">작업보고 작성</div></div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
@@ -1314,10 +1362,10 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
 <div class="card"><div class="title"><span><span class="n">2</span>업체 입력 (공종별 인원)</span><span class="total-inline">총 투입인원 <span class="total" id="grandTotal">0명</span></span><button class="btn primary" onclick="addCompany()">+ 업체 입력</button></div><div id="companies"></div></div>
 <div class="card"><div class="title"><span><span class="n">3</span>장비</span><button class="btn primary" onclick="addEquipment()">+ 장비 추가</button></div><table><thead><tr><th>장비명</th><th>수량(대)</th><th>비고</th><th>삭제</th></tr></thead><tbody id="equipments"></tbody></table></div>
 </div><div class="input-col middle-col"><div class="card"><div class="title"><span><span class="n">4</span>금일 작업 내용</span><button class="btn primary" onclick="addArea()">+ 구역 추가</button></div><div id="areas"></div></div>
-<div class="card"><div class="title"><span><span class="n">5</span>담당자</span><button class="btn" onclick="addManager()">+ 담당자 추가</button></div><div class="manager-scroll"><table class="manager-table"><colgroup><col class="manager-name-col"><col class="manager-role-col"><col class="manager-phone-col"><col class="manager-action-col"></colgroup><thead><tr><th>이름</th><th>직책</th><th>전화번호</th><th>관리</th></tr></thead><tbody id="managers"></tbody></table></div></div>
+<div class="card"><div class="title"><span><span class="n">5</span>담당자</span><button class="btn" onclick="addManager()">+ 담당자 추가</button></div><div class="manager-scroll"><table class="manager-table"><colgroup><col class="manager-visibility-col"><col class="manager-name-col"><col class="manager-role-col"><col class="manager-phone-col"><col class="manager-action-col"></colgroup><thead><tr><th></th><th>이름</th><th>직책</th><th>전화번호</th><th>관리</th></tr></thead><tbody id="managers"></tbody></table></div></div>
 </div>
 <div class="desktop-preview"><div class="card"><div class="title preview-title-row"><span class="preview-title-text">작업보고 미리보기</span><button class="btn preview-copy-btn" onclick="copyPreview()">복사하기</button><button class="btn preview-toggle" type="button" title="미리보기 접기/펼치기" onclick="togglePreview()">◀</button></span></div><div id="preview" class="preview" contenteditable="true"></div></div></div></div></section>
-<section id="searchPage" class="search-panel"><div class="card"><div class="title"><span>검색 / 이력 조회</span></div><div class="row"><div class="field"><label>검색 유형</label><select id="searchType" onchange="updateSearchHint()"><option value="keyword">작업내용</option><option value="equipment">장비</option><option value="trade">공종</option><option value="job">직종</option><option value="area">구역</option></select></div><div class="field"><label id="queryLabel">작업내용 검색어</label><input id="query" placeholder="비워두면 전체 목록"><select id="querySelect" style="display:none"></select></div><div class="field"><label>시작일</label><input id="from" type="date"></div><div class="field"><label>종료일</label><input id="to" type="date"></div></div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px"><button class="btn primary" onclick="searchReports()">검색</button><button class="btn" type="button" onclick="downloadSearchExcel()">📥 엑셀 다운로드</button><button class="btn" type="button" onclick="resetSearch()">↻ 새로고침</button></div><div id="results" class="results"></div></div></section>
+<section id="searchPage" class="search-panel"><div class="card"><div class="title"><span>검색 / 이력 조회</span></div><div class="row"><div class="field"><label>검색 유형</label><select id="searchType" onchange="updateSearchHint()"><option value="keyword">작업내용</option><option value="equipment">장비</option><option value="trade">공종</option><option value="job">직종</option><option value="area">구역</option></select></div><div class="field"><label id="queryLabel">작업내용 검색어</label><input id="query" placeholder="비워두면 전체 목록"><select id="querySelect" style="display:none"></select></div><div class="field"><label>시작일</label><input id="from" type="date"></div><div class="field"><label>종료일</label><input id="to" type="date"></div></div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px"><button class="btn primary" onclick="searchReports()">검색</button><button class="btn" type="button" onclick="downloadSearchExcel()">📥 엑셀 다운로드(상세)</button><button class="btn" type="button" onclick="downloadSearchScreenExcel()">📥 엑셀 다운로드(검색화면)</button><button class="btn" type="button" onclick="resetSearch()">↻ 새로고침</button></div><div id="results" class="results"></div></div></section>
 <section id="masterPage" class="search-panel"><div class="card"><div class="title">기준정보 관리</div><p>앱 타이틀과 기준정보를 수정한 뒤 저장하세요. 저장 즉시 PC·모바일 화면에 반영됩니다.</p><div class="field"><label>앱 타이틀</label><input id="masterAppTitle" maxlength="40" placeholder="예: SK 용인 작업일보"></div><div class="field"><label>현장</label><input id="masterSites"></div><div class="field"><label>공종</label><input id="masterTrades"></div><div class="field"><label>직종</label><input id="masterJobs"></div><div class="field"><label>장비</label><input id="masterEquipment"></div><div class="field"><label>구역 / 위치범위</label><div id="masterZones"></div><button class="btn" type="button" onclick="addMasterZone()">+ 구역 추가</button></div><div class="field"><label>담당</label><textarea id="masterManagers" rows="5" placeholder="한 줄에 1명: 이름 | 직책 | 전화번호"></textarea></div><div class="card" style="margin-top:14px;background:#f8fbff">
 <div class="title" style="font-size:16px">☁ Google Drive 자료 공유</div>
 <p style="font-size:13px;line-height:1.6;margin-top:0">같은 Google 계정으로 PC와 휴대폰에서 연결하면 작업일보·기준정보를 하나의 Drive 백업 파일로 공유합니다. 인터넷이 없어도 기존 로컬 저장은 계속 사용할 수 있습니다.</p>
@@ -1638,36 +1686,184 @@ function searchReports(){
   $('results').innerHTML=`<div style="font-size:12px;font-weight:700;margin:8px 0">검색 결과 ${out.length}건</div><div class="result-table-wrap"><table class="result-table"><thead><tr><th>날짜</th><th>현장</th><th>공종</th><th>BP사</th><th>총인원</th><th>업체별 인원</th><th>장비</th><th>작업구역 · 작업내용</th></tr></thead><tbody>${out.map(x=>`<tr><td><button type="button" class="date-link-btn" onclick="openReportFromSearch('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}')">${esc(x.r.date)}</button></td><td>${esc(x.r.site)}</td><td>${esc(x.r.trade)}</td><td>${esc(x.r.bpa||'')}</td><td class="num-cell">${x.total}명</td><td>${esc(x.companyText||'-')}</td><td>${esc(x.equipment||'-')}</td><td class="work-cell">${esc(x.work||'-')}</td></tr>`).join('')}</tbody></table></div>`;
 }
 
-function downloadSearchExcel(){
+function downloadSearchScreenExcel(){
   if(!lastSearchResults.length){alert('먼저 검색을 실행하세요.');return}
   if(typeof XLSX==='undefined'){alert('엑셀 모듈을 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 다시 시도하세요.');return}
-  const rows=[['날짜','현장','공종','BP사','총인원','업체별 인원','장비','작업구역','작업내용']];
+  // 현재 검색 화면에 보이는 표 그대로 다운로드
+  const rows=[['날짜','현장','공종','BP사','총인원','업체별 인원','장비','작업구역 · 작업내용']];
   lastSearchResults.forEach(x=>{
-    const areas=(x.r.state&&x.r.state.areas)||[];
-    const activeAreas=areas.filter(a=>(a.tasks||[]).some(t=>(t||'').trim()));
-    const zones=activeAreas.map(a=>[a.zone,a.loc].filter(Boolean).join(' ')).join('\n');
-    const tasks=activeAreas.map(a=>{
-      const head=[a.zone,a.loc].filter(Boolean).join(' ');
-      const lines=(a.tasks||[]).filter(t=>(t||'').trim());
-      return (head?head+'\n':'')+lines.map((t,i)=>(i+1)+'. '+t.trim()).join('\n');
-    }).filter(Boolean).join('\n');
-    rows.push([x.r.date||'',x.r.site||'',x.r.trade||'',x.r.bpa||'',x.total,x.companyText||'',x.equipment||'',zones,tasks]);
+    rows.push([
+      x.r.date||'', x.r.site||'', x.r.trade||'', x.r.bpa||'',
+      `${x.total||0}명`, x.companyText||'-', x.equipment||'-', x.work||'-'
+    ]);
   });
   const ws=XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols']=[{wch:12},{wch:10},{wch:10},{wch:14},{wch:9},{wch:30},{wch:24},{wch:28},{wch:55}];
-  ws['!rows']=rows.map((_,i)=>({hpt:i===0?22:42}));
+  ws['!autofilter']={ref:`A1:H${rows.length}`};
+  ws['!freeze']={xSplit:0,ySplit:1};
+  ws['!cols']=[{wch:12},{wch:11},{wch:11},{wch:14},{wch:10},{wch:32},{wch:24},{wch:60}];
+  ws['!rows']=rows.map(()=>({hpt:28}));
   const range=XLSX.utils.decode_range(ws['!ref']);
   for(let R=range.s.r;R<=range.e.r;R++){
     for(let C=range.s.c;C<=range.e.c;C++){
       const cell=ws[XLSX.utils.encode_cell({r:R,c:C})];
-      if(cell) cell.s={alignment:{vertical:'top',wrapText:true},font:R===0?{bold:true}:undefined};
+      if(!cell)continue;
+      cell.s={
+        alignment:{vertical:'center',horizontal:R===0?'center':'left',wrapText:true},
+        font:R===0?{bold:true}:undefined,
+        border:{top:{style:'thin',color:{rgb:'B7C3D0'}},bottom:{style:'thin',color:{rgb:'B7C3D0'}},left:{style:'thin',color:{rgb:'B7C3D0'}},right:{style:'thin',color:{rgb:'B7C3D0'}}}
+      };
     }
   }
-  ws['!autofilter']={ref:XLSX.utils.encode_range({r:0,c:0},{r:range.e.r,c:range.e.c})};
   const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'검색결과');
+  XLSX.utils.book_append_sheet(wb,ws,'검색화면');
   const from=$('from').value||'전체',to=$('to').value||'전체';
-  XLSX.writeFile(wb,`작업일보_검색결과_${from}_${to}.xlsx`);
+  XLSX.writeFile(wb,`작업일보_검색화면_${from}_${to}.xlsx`);
+}
+
+function downloadSearchExcel(){
+  if(!lastSearchResults.length){alert('먼저 검색을 실행하세요.');return}
+  if(typeof XLSX==='undefined'){alert('엑셀 모듈을 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 다시 시도하세요.');return}
+
+  // 날짜(검색결과) 1건 = 엑셀 1행. 업체/직종/작업구역은 오른쪽 열로 계속 펼침.
+  const jobNames=[...(D.jobs||[])];
+  const companyNames=[];
+  const zoneNames=[];
+  const equipmentNames=[];
+
+  // 현재 검색결과에 실제 존재하는 업체/구역을 열 목록으로 수집
+  lastSearchResults.forEach(x=>{
+    const st=x.r.state||{};
+    (st.companies||[]).forEach(c=>{
+      const n=(c.name||'').trim(); if(n&&!companyNames.includes(n))companyNames.push(n);
+    });
+    (st.areas||[]).forEach(a=>{
+      const z=(a.zone||'').trim(); if(z&&!zoneNames.includes(z))zoneNames.push(z);
+    });
+    (st.equipment||[]).forEach(e=>{
+      const n=(e&&e.name||'').trim(); if(n&&!equipmentNames.includes(n))equipmentNames.push(n);
+    });
+  });
+  // 기준정보의 구역 순서를 우선 적용하고, 검색결과에만 있는 구역은 뒤에 유지
+  const masterZones=(D.zones||[]).map(z=>(z.zone||'').trim()).filter(Boolean);
+  zoneNames.sort((a,b)=>{
+    const ia=masterZones.indexOf(a), ib=masterZones.indexOf(b);
+    if(ia<0&&ib<0)return a.localeCompare(b,'ko');
+    if(ia<0)return 1; if(ib<0)return -1; return ia-ib;
+  });
+  const masterEquipment=(D.equipment||[]).map(x=>(x||'').trim()).filter(Boolean);
+  equipmentNames.sort((a,b)=>{
+    const ia=masterEquipment.indexOf(a), ib=masterEquipment.indexOf(b);
+    if(ia<0&&ib<0)return a.localeCompare(b,'ko');
+    if(ia<0)return 1; if(ib<0)return -1; return ia-ib;
+  });
+
+  const header1=['날짜','현장','공종','BP사','총인원'];
+  const header2=['','','','',''];
+  const merges=[];
+  // 기본정보는 헤더 2행을 세로 병합
+  for(let c=0;c<5;c++)merges.push({s:{r:0,c},e:{r:1,c}});
+
+  let col=5;
+  companyNames.forEach(name=>{
+    const span=jobNames.length+1; // 직종 + 소계
+    header1.push(name,...Array(Math.max(0,span-1)).fill(''));
+    header2.push(...jobNames,'소계');
+    if(span>1)merges.push({s:{r:0,c:col},e:{r:0,c:col+span-1}});
+    col+=span;
+  });
+
+  // 장비도 장비명별로 각각 열을 분리 (한 날짜는 여전히 한 행)
+  if(equipmentNames.length){
+    header1.push('장비',...Array(equipmentNames.length-1).fill(''));
+    header2.push(...equipmentNames);
+    if(equipmentNames.length>1)merges.push({s:{r:0,c:col},e:{r:0,c:col+equipmentNames.length-1}});
+    col+=equipmentNames.length;
+  }else{
+    header1.push('장비'); header2.push('');
+    merges.push({s:{r:0,c:col},e:{r:1,c:col}}); col++;
+  }
+
+  // 작업구역: 상단 '작업구역' 아래 WWT 1F / WWT B1F ... 각 1열
+  if(zoneNames.length){
+    header1.push('작업구역',...Array(zoneNames.length-1).fill(''));
+    header2.push(...zoneNames);
+    if(zoneNames.length>1)merges.push({s:{r:0,c:col},e:{r:0,c:col+zoneNames.length-1}});
+    col+=zoneNames.length;
+  }else{
+    header1.push('작업구역'); header2.push('');
+    merges.push({s:{r:0,c:col},e:{r:1,c:col}}); col++;
+  }
+
+  // 담당자도 한 열에 유지
+  header1.push('담당자'); header2.push('');
+  merges.push({s:{r:0,c:col},e:{r:1,c:col}});
+
+  const rows=[header1,header2];
+  lastSearchResults.forEach(x=>{
+    const st=x.r.state||{};
+    const companies=st.companies||[];
+    const areas=st.areas||[];
+    const equips=st.equipment||[];
+    const managers=st.managers||[];
+    const row=[x.r.date||'',x.r.site||'',x.r.trade||'',x.r.bpa||'',x.total||0];
+
+    companyNames.forEach(name=>{
+      const same=companies.filter(c=>(c.name||'').trim()===name);
+      const vals=jobNames.map(j=>same.reduce((sum,c)=>sum+(+(c.jobs&&c.jobs[j]||0)),0));
+      row.push(...vals,vals.reduce((a,b)=>a+b,0));
+    });
+
+    equipmentNames.forEach(name=>{
+      const qty=equips.filter(e=>e&&(e.name||'').trim()===name).reduce((sum,e)=>sum+(+e.qty||0),0);
+      row.push(qty||'');
+    });
+    if(!equipmentNames.length)row.push('');
+
+    zoneNames.forEach(zone=>{
+      const parts=[];
+      areas.filter(a=>(a.zone||'').trim()===zone).forEach(a=>{
+        const loc=(a.loc||'').trim();
+        const tasks=(a.tasks||[]).filter(t=>(t||'').trim()).map((t,i)=>`${i+1}. ${t.trim()}`);
+        if(loc||tasks.length)parts.push([loc,...tasks].filter(Boolean).join(' / '));
+      });
+      row.push(parts.join(' | '));
+    });
+    if(!zoneNames.length)row.push('');
+
+    const managerText=managers.filter(m=>m&&m[3]!==false&&[m[0],m[1],m[2]].some(v=>(v||'').trim()))
+      .map(m=>[m[0],m[1],m[2]].filter(Boolean).join(' ')).join(', ');
+    row.push(managerText);
+    rows.push(row);
+  });
+
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!merges']=merges;
+  ws['!freeze']={xSplit:5,ySplit:2};
+  ws['!autofilter']={ref:`A2:${XLSX.utils.encode_col(header1.length-1)}${rows.length}`};
+  ws['!cols']=header1.map((_,i)=>{
+    if(i===0)return {wch:12};
+    if(i>=1&&i<=4)return {wch:11};
+    return {wch:16};
+  });
+  ws['!rows']=rows.map(()=>({hpt:28}));
+
+  const range=XLSX.utils.decode_range(ws['!ref']);
+  for(let R=range.s.r;R<=range.e.r;R++){
+    for(let C=range.s.c;C<=range.e.c;C++){
+      const cell=ws[XLSX.utils.encode_cell({r:R,c:C})];
+      if(!cell)continue;
+      cell.s={
+        alignment:{vertical:'center',horizontal:R<2?'center':'left',wrapText:true},
+        font:R<2?{bold:true}:undefined,
+        border:{top:{style:'thin',color:{rgb:'B7C3D0'}},bottom:{style:'thin',color:{rgb:'B7C3D0'}},left:{style:'thin',color:{rgb:'B7C3D0'}},right:{style:'thin',color:{rgb:'B7C3D0'}}}
+      };
+    }
+  }
+
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'상세');
+  const from=$('from').value||'전체',to=$('to').value||'전체';
+  XLSX.writeFile(wb,`작업일보_상세_${from}_${to}.xlsx`);
 }
 
 function openReportFromSearch(date,site,trade){
