@@ -378,7 +378,14 @@ function renderEquipment(){$('equipments').innerHTML=state.equipment.map((e,i)=>
 function addEquipment(){state.equipment.push({name:'',qty:1,note:''});renderEquipment()}
 function renderAreas(){$('areas').innerHTML=state.areas.map((a,i)=>`<div class="area"><div class="area-head"><input value="${esc(a.zone)}" list="zoneList" placeholder="구역 선택 또는 입력" oninput="state.areas[${i}].zone=this.value;updatePreview()" onchange="applyZone(${i},this.value)"><input value="${esc(a.loc)}" placeholder="예: X6~8, Y20~24" oninput="state.areas[${i}].loc=this.value;updatePreview()"><button class="btn" onclick="state.areas.splice(${i},1);renderAreas();updatePreview()">삭제</button></div><b>하부 작업</b><div>${a.tasks.map((t,k)=>`<div class="subtask"><span>${k+1}.</span><input value="${esc(t)}" oninput="state.areas[${i}].tasks[${k}]=this.value;updatePreview()"><button class="btn" onclick="removeTask(${i},${k})">−</button><button class="btn" onclick="addTask(${i})">+</button></div>`).join('')}</div></div>`).join('')+`<datalist id="zoneList">${(D.zones||[]).map(x=>`<option value="${esc(x.zone)}">${esc(x.loc||'')}</option>`).join('')}</datalist>`}
 function addArea(){state.areas.push({zone:'',loc:'',tasks:['']});renderAreas()} function addTask(i){state.areas[i].tasks.push('');renderAreas()} function removeTask(i,k){if(state.areas[i].tasks.length>1)state.areas[i].tasks.splice(k,1);else state.areas[i].tasks[0]='';renderAreas();updatePreview()}
+function refreshManagerMasters(){
+  try{
+    const m=JSON.parse(localStorage.getItem('masters')||'null');
+    if(m&&Array.isArray(m.managers))D.managers=m.managers;
+  }catch(e){}
+}
 function renderManagers(){
+  refreshManagerMasters();
   state.managers=state.managers.map(m=>Array.isArray(m)?[m[0]||'',m[1]||'',m[2]||'',m.length>3?m[3]:true]:m);
   $('managers').innerHTML=state.managers.map((m,i)=>`<tr>
   <td><input style="width:100%" value="${esc(m[0])}" list="managerList" onchange="selectManager(${i},this.value)" oninput="state.managers[${i}][0]=this.value;updatePreview()"></td>
@@ -555,7 +562,7 @@ function addMasterZone(){D.zones.push({zone:'',loc:''});renderMasterZones()}
 function applyZone(i,v){let z=(D.zones||[]).find(x=>x.zone===v);if(z){state.areas[i].zone=z.zone;state.areas[i].loc=z.loc||'';renderAreas();updatePreview()}}
 function changeJob(i,j,d){let v=Math.max(0,Math.min(999,(+state.companies[i].jobs[j]||0)+d));state.companies[i].jobs[j]=v;renderCompanies();updatePreview()}
 function changeEquip(i,d){state.equipment[i].qty=Math.max(0,Math.min(999,(+state.equipment[i].qty||0)+d));renderEquipment();updatePreview()}
-function saveMasters(){autoSave();let split=id=>$(id).value.split(',').map(x=>x.trim()).filter(Boolean);let managers=$('masterManagers').value.split('\n').map(x=>x.split('|').map(v=>v.trim())).filter(m=>m.some(Boolean));D.zones=(D.zones||[]).map(z=>({zone:(z.zone||'').trim(),loc:(z.loc||'').trim()})).filter(z=>z.zone);let appTitle=($('masterAppTitle').value||'우리공 일보').trim()||'우리공 일보';let m={appTitle,sites:split('masterSites'),trades:split('masterTrades'),jobs:split('masterJobs'),equipment:split('masterEquipment'),zones:D.zones,managers};Object.assign(D,m);localStorage.setItem('masters',JSON.stringify(m));applyAppTitle();fillSelects();renderAreas();markLocalChanged();if(tokenValid())scheduleAutoSync();alert('기준정보를 저장했습니다. 앱 타이틀도 즉시 반영되었습니다.'+(tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''))}
+function saveMasters(){autoSave();let split=id=>$(id).value.split(',').map(x=>x.trim()).filter(Boolean);let managers=$('masterManagers').value.split('\n').map(x=>x.split('|').map(v=>v.trim())).filter(m=>m.some(Boolean));D.zones=(D.zones||[]).map(z=>({zone:(z.zone||'').trim(),loc:(z.loc||'').trim()})).filter(z=>z.zone);let appTitle=($('masterAppTitle').value||'우리공 일보').trim()||'우리공 일보';let m={appTitle,sites:split('masterSites'),trades:split('masterTrades'),jobs:split('masterJobs'),equipment:split('masterEquipment'),zones:D.zones,managers};Object.assign(D,m);localStorage.setItem('masters',JSON.stringify(m));applyAppTitle();fillSelects();renderAreas();renderManagers();markLocalChanged();if(tokenValid())scheduleAutoSync();alert('기준정보를 저장했습니다. 앱 타이틀도 즉시 반영되었습니다.'+(tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''))}
 
 
 // ===== Google Drive 자동 동기화 v2: 최신자료 비교 + 충돌 방지 =====
@@ -647,6 +654,14 @@ function initPasswordGate(){
   if(gate.style.display!=='none')setTimeout(()=>input.focus(),50);
 }
 initPasswordGate();
+window.addEventListener('storage',e=>{
+  if(e.key==='masters'){
+    try{
+      const m=JSON.parse(e.newValue||'null');
+      if(m){Object.assign(D,m);applyAppTitle();fillSelects();renderAreas();renderManagers();}
+    }catch(err){}
+  }
+});
 
 init();
 restorePanelStates();
