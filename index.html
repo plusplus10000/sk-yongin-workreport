@@ -1207,6 +1207,55 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
   border-color:#c4c9cf!important;
 }
 
+
+/* 모바일 전용: 장비 표 제목과 입력칸 정렬 */
+@media(max-width:850px){
+  #equipments{display:table-row-group!important}
+  #equipments tr,
+  #equipments tr:hover{display:table-row!important}
+
+  /* 비고는 모바일에서만 숨김 */
+  #equipments td:nth-child(3),
+  #equipments~* td:nth-child(3){display:none!important}
+  table:has(#equipments) thead th:nth-child(3){display:none!important}
+
+  table:has(#equipments){
+    width:100%!important;
+    table-layout:fixed!important;
+    border-collapse:separate!important;
+    border-spacing:0 5px!important;
+  }
+  table:has(#equipments) thead{display:table-header-group!important}
+  table:has(#equipments) thead tr{display:table-row!important}
+  table:has(#equipments) thead th{display:table-cell!important;box-sizing:border-box!important}
+  table:has(#equipments) thead th:nth-child(3){display:none!important}
+
+  table:has(#equipments) thead th:nth-child(1),
+  #equipments td:nth-child(1){width:46%!important}
+  table:has(#equipments) thead th:nth-child(2),
+  #equipments td:nth-child(2){width:38%!important}
+  table:has(#equipments) thead th:nth-child(4),
+  #equipments td:nth-child(4){width:16%!important}
+
+  table:has(#equipments) thead th:nth-child(1){text-align:left!important}
+  table:has(#equipments) thead th:nth-child(2),
+  table:has(#equipments) thead th:nth-child(4){text-align:center!important}
+
+  #equipments td{box-sizing:border-box!important;vertical-align:middle!important}
+  #equipments td:nth-child(2){text-align:center!important}
+  #equipments td:nth-child(4){text-align:center!important}
+  #equipments .counter{
+    width:100%!important;
+    display:grid!important;
+    grid-template-columns:40px minmax(44px,1fr) 40px!important;
+    gap:5px!important;
+    align-items:center!important;
+  }
+  #equipments .counter button,
+  #equipments .counter input{width:100%!important;min-width:0!important;box-sizing:border-box!important}
+  #equipments td:nth-child(4) .btn{width:100%!important;min-width:0!important;padding-left:4px!important;padding-right:4px!important}
+}
+
 </style><script src="https://accounts.google.com/gsi/client" async defer></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
 <body class="locked"><div id="passwordGate"><div class="password-box"><h2>🔒 작업일보 로그인</h2><p>비밀번호를 입력하세요.</p><input id="appPassword" type="password" inputmode="text" autocomplete="current-password" placeholder="비밀번호"><button class="btn primary" type="button" style="width:100%;padding:11px" onclick="unlockApp()">확인</button><div id="passwordError" class="password-error"></div></div></div><header><div>⛑ <span id="appTitleDisplay">작업일보</span></div><div class="header-right"><div id="topDate">작업보고 작성</div></div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
