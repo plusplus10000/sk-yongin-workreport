@@ -187,6 +187,147 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
 }
 @media(max-width:850px){.sidebar-toggle{display:none!important}.preview-toggle{margin-left:auto}}
 
+
+/* PC 기본정보 작업시간: 오후 시간이 잘리거나 접히지 않도록 폭만 보정 */
+@media(min-width:851px){
+  #writePage .input-col > .card:first-child .row:first-of-type{
+    grid-template-columns:minmax(90px,.85fr) minmax(90px,.85fr) minmax(150px,1.2fr) minmax(205px,1.65fr);
+  }
+  #writePage .input-col > .card:first-child #start,
+  #writePage .input-col > .card:first-child #end{
+    min-width:92px!important;
+    width:100%!important;
+    font-size:12px!important;
+  }
+  #writePage .input-col > .card:first-child .field>div[style*="display:flex"]{
+    min-width:0;
+    flex-wrap:nowrap!important;
+  }
+}
+
+
+/* 기본정보 반응형 정리: 기존 디자인 유지 */
+.basic-info-grid{display:grid;grid-template-columns:minmax(90px,1fr) minmax(90px,1fr) minmax(150px,1.35fr);gap:7px;align-items:end}
+.basic-info-grid .field{min-width:0}.basic-info-grid label{white-space:nowrap}
+.basic-info-grid input,.basic-info-grid select{min-width:0;width:100%}
+.date-with-query{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px;min-width:0}
+.time-pair{display:grid;grid-template-columns:minmax(105px,1fr) minmax(105px,1fr);gap:5px;min-width:0}
+.basic-time{grid-column:span 2}.basic-bpa{min-width:0}
+#start,#end{min-width:105px!important;width:100%!important;white-space:nowrap}
+@media(min-width:1450px){
+  .basic-info-grid{grid-template-columns:minmax(90px,.9fr) minmax(90px,.9fr) minmax(150px,1.25fr) minmax(220px,1.7fr) minmax(105px,1fr)}
+  .basic-time{grid-column:auto}
+}
+@media(min-width:851px) and (max-width:1150px){
+  .basic-info-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .basic-date,.basic-time{grid-column:1/-1}
+  .basic-bpa{grid-column:1/2}
+}
+@media(max-width:850px){
+  .basic-info-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .basic-date,.basic-time{grid-column:1/-1}
+  .basic-bpa{grid-column:1/2}
+  .time-pair{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #start,#end{min-width:0!important}
+}
+@media(max-width:480px){
+  .basic-info-grid{grid-template-columns:1fr}
+  .basic-date,.basic-time,.basic-bpa{grid-column:auto}
+  .time-pair{grid-template-columns:1fr 1fr}
+}
+
+
+/* 2026-10-02 최종 반응형 안정화
+   - 기존 블루 디자인 유지
+   - 기본정보: 3칸 + 2칸으로 안정적으로 정렬
+   - 작업시간 오전/오후 최소폭 확보
+   - BP사/삭제/관리 버튼이 카드 밖으로 튀어나가지 않도록 고정
+   - 중간 폭 PC에서는 미리보기 + 입력영역 2열로 자연스럽게 재배치 */
+@media(min-width:851px){
+  .basic-info-grid{
+    grid-template-columns:minmax(90px,1fr) minmax(90px,1fr) minmax(170px,1.35fr)!important;
+    gap:7px!important;
+    align-items:end!important;
+  }
+  .basic-site,.basic-trade,.basic-date{grid-column:auto!important}
+  .basic-time{grid-column:1 / span 2!important}
+  .basic-bpa{grid-column:3!important;min-width:0!important}
+  .time-pair{
+    display:grid!important;
+    grid-template-columns:minmax(118px,1fr) minmax(118px,1fr)!important;
+    gap:6px!important;
+    min-width:0!important;
+  }
+  #start,#end{
+    width:100%!important;
+    min-width:118px!important;
+    max-width:none!important;
+    white-space:nowrap!important;
+  }
+  .date-with-query{
+    display:grid!important;
+    grid-template-columns:minmax(115px,1fr) auto!important;
+    gap:4px!important;
+    min-width:0!important;
+  }
+  .basic-info-card .title{gap:8px!important}
+  .basic-info-card .title>span:last-child{
+    flex:0 0 auto!important;
+    flex-wrap:nowrap!important;
+    white-space:nowrap!important;
+  }
+
+  .area-head{
+    grid-template-columns:minmax(110px,1fr) minmax(150px,1.5fr) 46px!important;
+    gap:5px!important;
+    align-items:center!important;
+  }
+  .area-head input{min-width:0!important;width:100%!important}
+  .area-head .btn{
+    width:46px!important;min-width:46px!important;
+    padding:5px 3px!important;white-space:nowrap!important
+  }
+  .subtask{min-width:0!important}
+  .subtask input{min-width:0!important;width:100%!important}
+  .subtask .btn{flex:0 0 auto!important}
+
+  .manager-table .manager-action-col{width:96px!important}
+  .manager-table td:nth-child(4){width:96px!important;min-width:96px!important}
+  .manager-table td:nth-child(4) .btn{
+    padding:5px 5px!important;
+    font-size:11px!important;
+    white-space:nowrap!important
+  }
+}
+
+/* 일반 노트북/작게 줄인 PC: 미리보기 왼쪽 + 입력영역 오른쪽 한 열 */
+@media(min-width:851px) and (max-width:1350px){
+  #writePage>.grid{
+    grid-template-columns:minmax(280px,.72fr) minmax(560px,1.45fr)!important;
+    gap:8px!important;
+  }
+  #writePage>.grid.preview-collapsed{
+    grid-template-columns:42px minmax(560px,1fr)!important;
+  }
+  .desktop-preview{grid-column:1!important;grid-row:1 / span 2!important}
+  .left-col{grid-column:2!important;grid-row:1!important}
+  .middle-col{grid-column:2!important;grid-row:2!important}
+}
+
+/* 아주 좁은 PC에서는 가로 스크롤 대신 입력영역 최소폭을 유지 */
+@media(min-width:851px) and (max-width:1020px){
+  main{overflow:auto!important}
+  #writePage>.grid{grid-template-columns:270px minmax(540px,1fr)!important}
+  #writePage>.grid.preview-collapsed{grid-template-columns:42px minmax(540px,1fr)!important}
+}
+
+/* 모바일은 기존 모바일 배치 유지 */
+@media(max-width:850px){
+  .basic-time,.basic-date{grid-column:1/-1!important}
+  .basic-bpa{grid-column:1/2!important}
+  #start,#end{min-width:0!important}
+}
+
 </style><script src="https://accounts.google.com/gsi/client" async defer></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
 <body class="locked"><div id="passwordGate"><div class="password-box"><h2>🔒 작업일보 로그인</h2><p>비밀번호를 입력하세요.</p><input id="appPassword" type="password" inputmode="text" autocomplete="current-password" placeholder="비밀번호"><button class="btn primary" type="button" style="width:100%;padding:11px" onclick="unlockApp()">확인</button><div id="passwordError" class="password-error"></div></div></div><header><div>⛑ <span id="appTitleDisplay">작업일보</span></div><div id="topDate">작업보고 작성</div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
@@ -198,8 +339,13 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
 </nav>
 <div class="app" id="appShell"><aside><button class="sidebar-toggle" type="button" title="메뉴 접기/펼치기" onclick="toggleSidebar()">☰</button><button class="active" onclick="showPage('write',this)">✎ <span class="nav-label">작업보고 작성</span></button><button onclick="showPage('search',this)">⌕ <span class="nav-label">검색 / 이력</span></button><button onclick="showPage('master',this)">⚙ <span class="nav-label">기준정보 관리</span></button></aside><main>
 <section id="writePage"><div id="driveQuickBar" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ Google Drive 연결</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 연결 안 됨</b></div><div class="grid"><div class="input-col left-col">
-<div class="card"><div class="title"><span><span class="n">1</span>기본 정보</span><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn" type="button" id="undoBtn" onclick="undoLastChange()" disabled>↶ 되돌리기</button><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button></span></div><div class="row">
-<div class="field"><label>현장</label><select id="site"></select></div><div class="field"><label>공종</label><select id="trade"></select></div><div class="field"><label>작업일</label><div style="display:flex;gap:4px"><input id="date" type="date"><button class="btn" type="button" onclick="loadCurrentDateReport()">조회</button></div></div><div class="field"><label>작업시간</label><div style="display:flex;gap:4px"><input id="start" type="time" value="07:30"><input id="end" type="time" value="17:30"></div></div></div><div class="row" style="margin-top:8px"><div class="field"><label>BP사</label><input id="bpa" value="더오포"></div></div></div>
+<div class="card basic-info-card"><div class="title"><span><span class="n">1</span>기본 정보</span><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn" type="button" id="undoBtn" onclick="undoLastChange()" disabled>↶ 되돌리기</button><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button></span></div><div class="basic-info-grid">
+<div class="field basic-site"><label>현장</label><select id="site"></select></div>
+<div class="field basic-trade"><label>공종</label><select id="trade"></select></div>
+<div class="field basic-date"><label>작업일</label><div class="date-with-query"><input id="date" type="date"><button class="btn" type="button" onclick="loadCurrentDateReport()">조회</button></div></div>
+<div class="field basic-time"><label>작업시간</label><div class="time-pair"><input id="start" type="time" value="07:30"><input id="end" type="time" value="17:30"></div></div>
+<div class="field basic-bpa"><label>BP사</label><input id="bpa" value="더오포"></div>
+</div></div>
 <div class="card"><div class="title"><span><span class="n">2</span>업체 입력 (공종별 인원)</span><button class="btn primary" onclick="addCompany()">+ 업체 입력</button></div><div id="companies"></div><div style="text-align:right;font-size:18px">총 투입인원 <span class="total" id="grandTotal">0명</span></div></div>
 <div class="card"><div class="title"><span><span class="n">3</span>장비</span><button class="btn primary" onclick="addEquipment()">+ 장비 추가</button></div><table><thead><tr><th>장비명</th><th>수량(대)</th><th>비고</th><th>삭제</th></tr></thead><tbody id="equipments"></tbody></table></div>
 </div><div class="input-col middle-col"><div class="card"><div class="title"><span><span class="n">4</span>금일 작업 내용</span><button class="btn primary" onclick="addArea()">+ 구역 추가</button></div><div id="areas"></div></div>
