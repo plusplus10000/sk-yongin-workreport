@@ -328,6 +328,30 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
   #start,#end{min-width:0!important}
 }
 
+
+/* 업체별 사용 직종 관리 */
+.company-head .job-add-btn{margin-left:0}
+.job-item{position:relative}
+.job-label-row{display:flex;align-items:center;justify-content:space-between;gap:3px;min-width:0}
+.job-label-row .job-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.job-remove-btn{border:1px solid #b9d6fa;background:#fff;color:#0672e8;border-radius:4px;width:20px;height:20px;padding:0;font-weight:900;line-height:18px;cursor:pointer;flex:0 0 20px}
+.job-picker{position:relative;display:inline-block}
+.job-picker-menu{position:absolute;z-index:30;top:100%;left:0;margin-top:3px;background:#fff;border:1px solid var(--line);border-radius:7px;box-shadow:0 5px 16px #0002;padding:5px;min-width:145px;max-height:220px;overflow:auto}
+.job-picker-menu button{display:block;width:100%;text-align:left;border:0;background:#fff;padding:6px 8px;border-radius:4px;cursor:pointer;white-space:nowrap}
+.job-picker-menu button:hover{background:#f2f7fc}
+#bpa,#start,#end{height:27px!important}
+@media(max-width:850px){
+  #bpa,#start,#end{height:auto!important;min-height:38px}
+  .job-remove-btn{width:24px;height:24px;line-height:22px;flex-basis:24px}
+}
+
+
+.company-move-btn{width:27px;min-width:27px;padding:4px 2px!important;font-weight:900}
+.company-move-btn:disabled{opacity:.3;cursor:default}
+@media(max-width:850px){
+  .company-move-btn{width:30px;min-width:30px}
+}
+
 </style><script src="https://accounts.google.com/gsi/client" async defer></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
 <body class="locked"><div id="passwordGate"><div class="password-box"><h2>🔒 작업일보 로그인</h2><p>비밀번호를 입력하세요.</p><input id="appPassword" type="password" inputmode="text" autocomplete="current-password" placeholder="비밀번호"><button class="btn primary" type="button" style="width:100%;padding:11px" onclick="unlockApp()">확인</button><div id="passwordError" class="password-error"></div></div></div><header><div>⛑ <span id="appTitleDisplay">작업일보</span></div><div id="topDate">작업보고 작성</div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
@@ -368,11 +392,67 @@ const $=id=>document.getElementById(id); const esc=s=>(s??'').toString().replace
 function normalizeZones(){D.zones=(D.zones||[]).map(z=>typeof z==='string'?{zone:z,loc:''}:z)}
 function applyAppTitle(){let t=(D.appTitle||'우리공 일보').trim()||'우리공 일보';D.appTitle=t;let h=$('appTitleDisplay'),m=$('mobileAppTitle');if(h)h.textContent=t;if(m)m.textContent=t;document.title=t;}
 function init(){let m=JSON.parse(localStorage.getItem('masters')||'null');if(m)Object.assign(D,m);normalizeZones();applyAppTitle();fillSelects();let draft=JSON.parse(localStorage.getItem('currentDraft')||'null');if(draft){$('date').value=draft.date||new Date().toISOString().slice(0,10);$('site').value=draft.site||D.sites[0];$('trade').value=draft.trade||D.trades[0];$('start').value=draft.start||'07:30';$('end').value=draft.end||'17:30';$('bpa').value=draft.bpa||'더오포';state=draft.state||state}else{$('date').value=new Date().toISOString().slice(0,10);state.companies=[mkCompany('하나'),mkCompany('스틸'),mkCompany('고려')];state.equipment=[{name:'T/L',qty:3,note:''}];state.areas=[{zone:'WWT 1F',loc:'X6~8, Y20~24',tasks:['기수압 테스트 준비','케이블 포설 및 결선']}];state.managers=JSON.parse(JSON.stringify(D.managers||[]))}render();['site','trade','start','end','bpa'].forEach(x=>$(x).addEventListener('input',()=>{updatePreview();autoSave()}));$('date').addEventListener('change',loadDateOrBlank);window.addEventListener('beforeunload',autoSave);}
-function mkCompany(name){return{name,jobs:Object.fromEntries(D.jobs.map(j=>[j,0]))}}
+function mkCompany(name){return{name,jobs:Object.fromEntries(D.jobs.map(j=>[j,0])),visibleJobs:[...D.jobs]}}
 function fillSelects(){ if($('masterAppTitle'))$('masterAppTitle').value=D.appTitle||'우리공 일보';$('site').innerHTML=D.sites.map(x=>`<option>${esc(x)}</option>`).join('');$('trade').innerHTML=D.trades.map(x=>`<option>${esc(x)}</option>`).join('');$('masterSites').value=D.sites.join(', ');$('masterTrades').value=D.trades.join(', ');$('masterJobs').value=D.jobs.join(', ');$('masterEquipment').value=D.equipment.join(', ');renderMasterZones();$('masterManagers').value=(D.managers||[]).map(m=>m.join(' | ')).join('\n')}
 function render(){renderCompanies();renderEquipment();renderAreas();renderManagers();updatePreview()}
-function renderCompanies(){$('companies').innerHTML=state.companies.map((c,i)=>`<div class="company"><div class="company-head"><input class="company-name" value="${esc(c.name)}" oninput="state.companies[${i}].name=this.value;updatePreview()"><button class="btn" onclick="state.companies.splice(${i},1);render()">삭제</button><span class="company-total">업체합계 <b id="ct${i}"></b></span></div><div class="jobs">${D.jobs.map(j=>`<label>${esc(j)}<span class="counter"><button type="button" onclick="changeJob(${i},'${j}',-1)">−</button><input type="number" min="0" max="999" inputmode="numeric" value="${c.jobs[j]||0}" oninput="if(this.value.length>3)this.value=this.value.slice(0,3);if(+this.value>999)this.value=999;state.companies[${i}].jobs['${j}']=+this.value||0;calcTotals()"><button type="button" onclick="changeJob(${i},'${j}',1)">+</button></span></label>`).join('')}</div></div>`).join('');calcTotals()}
-function calcTotals(){let g=0;state.companies.forEach((c,i)=>{let t=Object.values(c.jobs).reduce((a,b)=>a+(+b||0),0);g+=t;let e=$('ct'+i);if(e)e.textContent=t+'명'});$('grandTotal').textContent=g+'명';updatePreview()}
+function normalizeCompanyJobs(c){
+  c.jobs=c.jobs||{};
+  D.jobs.forEach(j=>{if(c.jobs[j]===undefined)c.jobs[j]=0});
+  if(!Array.isArray(c.visibleJobs))c.visibleJobs=[...D.jobs];
+  c.visibleJobs=c.visibleJobs.filter(j=>D.jobs.includes(j));
+  if(!c.visibleJobs.length)c.visibleJobs=[...D.jobs];
+}
+function renderCompanies(){
+  state.companies.forEach(normalizeCompanyJobs);
+  $('companies').innerHTML=state.companies.map((c,i)=>`<div class="company">
+    <div class="company-head">
+      <input class="company-name" value="${esc(c.name)}" oninput="state.companies[${i}].name=this.value;updatePreview()">
+      <button class="btn company-move-btn" type="button" title="위로 이동" onclick="moveCompany(${i},-1)" ${i===0?'disabled':''}>↑</button>
+      <button class="btn company-move-btn" type="button" title="아래로 이동" onclick="moveCompany(${i},1)" ${i===state.companies.length-1?'disabled':''}>↓</button>
+      <button class="btn" onclick="state.companies.splice(${i},1);render()">삭제</button>
+      <span class="job-picker">
+        <button class="btn job-add-btn" type="button" onclick="toggleJobPicker(${i},event)">+ 직종추가</button>
+        <span class="job-picker-menu" id="jobPicker${i}" style="display:none">
+          ${D.jobs.filter(j=>!c.visibleJobs.includes(j)).map(j=>`<button type="button" onclick="addCompanyJob(${i},'${esc(j)}');event.stopPropagation()">${esc(j)}</button>`).join('')||'<button type="button" disabled>추가할 직종 없음</button>'}
+        </span>
+      </span>
+      <span class="company-total">업체합계 <b id="ct${i}"></b></span>
+    </div>
+    <div class="jobs">${c.visibleJobs.map(j=>`<label class="job-item">
+      <span class="job-label-row"><span class="job-name">${esc(j)}</span><button class="job-remove-btn" type="button" title="이 업체에서 직종 숨기기" onclick="removeCompanyJob(${i},'${esc(j)}');event.preventDefault()">−</button></span>
+      <span class="counter"><button type="button" onclick="changeJob(${i},'${j}',-1)">−</button><input type="number" min="0" max="999" inputmode="numeric" value="${c.jobs[j]||0}" oninput="if(this.value.length>3)this.value=this.value.slice(0,3);if(+this.value>999)this.value=999;state.companies[${i}].jobs['${j}']=+this.value||0;calcTotals()"><button type="button" onclick="changeJob(${i},'${j}',1)">+</button></span>
+    </label>`).join('')}</div>
+  </div>`).join('');
+  calcTotals();
+}
+function moveCompany(i,dir){
+  const ni=i+dir;
+  if(ni<0||ni>=state.companies.length)return;
+  const tmp=state.companies[i];
+  state.companies[i]=state.companies[ni];
+  state.companies[ni]=tmp;
+  renderCompanies();
+  updatePreview();
+  autoSave();
+}
+function removeCompanyJob(i,j){
+  normalizeCompanyJobs(state.companies[i]);
+  state.companies[i].visibleJobs=state.companies[i].visibleJobs.filter(x=>x!==j);
+  state.companies[i].jobs[j]=0;
+  renderCompanies();updatePreview();autoSave();
+}
+function addCompanyJob(i,j){
+  normalizeCompanyJobs(state.companies[i]);
+  if(!state.companies[i].visibleJobs.includes(j))state.companies[i].visibleJobs.push(j);
+  renderCompanies();updatePreview();autoSave();
+}
+function toggleJobPicker(i,e){
+  if(e)e.stopPropagation();
+  document.querySelectorAll('.job-picker-menu').forEach((m,k)=>{if(m.id!=='jobPicker'+i)m.style.display='none'});
+  const m=$('jobPicker'+i); if(m)m.style.display=m.style.display==='none'?'block':'none';
+}
+document.addEventListener('click',()=>document.querySelectorAll('.job-picker-menu').forEach(m=>m.style.display='none'));
+function calcTotals(){{let g=0;state.companies.forEach((c,i)=>{let t=Object.values(c.jobs).reduce((a,b)=>a+(+b||0),0);g+=t;let e=$('ct'+i);if(e)e.textContent=t+'명'});$('grandTotal').textContent=g+'명';updatePreview()}
 function addCompany(){state.companies.push(mkCompany('새 업체'));renderCompanies();updatePreview()}
 function renderEquipment(){$('equipments').innerHTML=state.equipment.map((e,i)=>`<tr><td><input style="width:100%" value="${esc(e.name)}" list="equipList" oninput="state.equipment[${i}].name=this.value;updatePreview()"></td><td><span class="counter"><button type="button" onclick="changeEquip(${i},-1)">−</button><input type="number" min="0" max="999" value="${e.qty}" oninput="state.equipment[${i}].qty=Math.min(999,+this.value||0);updatePreview()"><button type="button" onclick="changeEquip(${i},1)">+</button></span></td><td><input style="width:100%" value="${esc(e.note)}" oninput="state.equipment[${i}].note=this.value"></td><td><button class="btn" onclick="state.equipment.splice(${i},1);renderEquipment();updatePreview()">삭제</button></td></tr>`).join('')+`<datalist id="equipList">${D.equipment.map(x=>`<option value="${esc(x)}">`).join('')}</datalist>`}
 function addEquipment(){state.equipment.push({name:'',qty:1,note:''});renderEquipment()}
