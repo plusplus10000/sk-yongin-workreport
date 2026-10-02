@@ -1471,6 +1471,54 @@ body.site-home-mode>header,body.site-home-mode>.app,body.site-home-mode>#mobileO
   font-size:16px!important;
 }
 
+
+/* ===== 보고서 마감 잠금 ===== */
+.report-close-btn{
+  border:1px solid #8fbff5;background:#fff;color:#0672e8;
+  border-radius:5px;padding:3px 7px;font-size:11px;font-weight:800;
+  cursor:pointer;white-space:nowrap;margin-right:6px;
+}
+.report-close-btn.closed{
+  background:#8a929c!important;border-color:#8a929c!important;color:#fff!important;
+}
+.report-closed-banner{
+  display:none;
+  background:#e3e6ea;border:1px solid #b8bec6;color:#4b5563;
+  border-radius:7px;padding:8px 10px;margin-bottom:8px;
+  font-size:12px;font-weight:800;
+}
+body.report-is-closed .report-closed-banner{display:block}
+body.report-is-closed #writePage .locked-data-area{
+  opacity:.78;
+}
+body.report-is-closed #writePage input:disabled,
+body.report-is-closed #writePage select:disabled,
+body.report-is-closed #writePage textarea:disabled{
+  background:#e5e7eb!important;color:#6b7280!important;
+}
+@media(max-width:850px){
+  .report-close-btn{padding:4px 6px;font-size:10.5px;margin-right:4px}
+}
+
+
+/* 기본정보 제목줄: 마감 상태 + 마감 버튼 */
+.basic-close-wrap{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-left:auto;
+  margin-right:6px;
+  white-space:nowrap;
+}
+.basic-report-close-btn{
+  margin:0!important;
+}
+@media(max-width:850px){
+  .basic-info-card>.title{display:flex!important;align-items:center!important;flex-wrap:wrap!important}
+  .basic-close-wrap{margin-left:auto;margin-right:4px;gap:4px}
+  .basic-close-status{font-size:10.5px}
+}
+
 </style><script src="https://accounts.google.com/gsi/client" async defer></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
 <body class="locked site-home-mode"><section id="siteHome" aria-label="현장 선택">
   <div class="site-home-inner site-home-simple">
@@ -1627,8 +1675,8 @@ body.site-home-mode>header,body.site-home-mode>.app,body.site-home-mode>#mobileO
 </div>
 </div>
 </aside><main>
-<section id="writePage"><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ Google Drive 연결</button><button class="btn" type="button" onclick="saveToDrive()">Drive에 저장</button><button class="btn" type="button" onclick="loadFromDrive()">Drive에서 불러오기</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 연결 안 됨</b><div class="header-action-buttons"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div class="grid"><div class="input-col left-col">
-<div class="card basic-info-card"><div class="title"><span><span class="n">1</span>기본 정보</span><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><span class="basic-action-buttons mobile-basic-actions"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></span></div><div class="basic-info-grid">
+<section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 검색 / 이력에서 회색 [마감] 버튼을 눌러 마스터 비밀번호로 마감을 해제하세요.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ Google Drive 연결</button><button class="btn" type="button" onclick="saveToDrive()">Drive에 저장</button><button class="btn" type="button" onclick="loadFromDrive()">Drive에서 불러오기</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 연결 안 됨</b><div class="header-action-buttons"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div class="grid"><div class="input-col left-col">
+<div class="card basic-info-card"><div class="title"><span><span class="n">1</span>기본 정보</span><span class="basic-close-wrap"><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><span class="basic-action-buttons mobile-basic-actions"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></span></div><div class="basic-info-grid">
 <div class="field basic-site"><label>현장</label><select id="site"></select></div>
 <div class="field basic-trade"><label>공종</label><select id="trade"></select></div>
 <div class="field basic-date"><label>작업일</label><div class="date-with-query"><div class="date-nav">
@@ -1667,6 +1715,35 @@ function projectKey(name,key){
     ? 'project::Y1 IECO::'+key
     : 'projectV2::'+name+'::'+key;
 }
+function activeProjectName(){
+  return sessionStorage.getItem('activeProject')||'Y1 IECO';
+}
+function projectGet(key,name=activeProjectName()){
+  return localStorage.getItem(projectKey(name,key));
+}
+function projectSet(key,value,name=activeProjectName()){
+  localStorage.setItem(projectKey(name,key),value);
+}
+function projectRemove(key,name=activeProjectName()){
+  localStorage.removeItem(projectKey(name,key));
+}
+function migrateLegacyProjectStorageOnce(){
+  const mark='singleProjectStorageMigratedV1';
+  if(localStorage.getItem(mark)==='1')return;
+
+  // 예전 공용 저장값은 Y1 전용 저장소가 비어 있을 때만 1회 이전
+  PROJECT_KEYS.forEach(k=>{
+    const legacy=localStorage.getItem(k);
+    const y1Key=projectKey('Y1 IECO',k);
+    if(localStorage.getItem(y1Key)===null && legacy!==null){
+      localStorage.setItem(y1Key,legacy);
+    }
+  });
+
+  // 앞으로는 공용 masters/reports/currentDraft를 사용하지 않는다.
+  PROJECT_KEYS.forEach(k=>localStorage.removeItem(k));
+  localStorage.setItem(mark,'1');
+}
 function seedY1Project(){
   const seeded=localStorage.getItem('projectSeededY1')==='1';
   const hasY1=PROJECT_KEYS.some(k=>localStorage.getItem(projectKey('Y1 IECO',k))!==null);
@@ -1690,16 +1767,11 @@ function seedY1Project(){
 }
 function saveActiveProject(){
   if(sessionStorage.getItem('projectSwitching')==='1')return;
-  const name=sessionStorage.getItem('activeProject'); if(!name)return;
   try{if(typeof autoSave==='function' && document.getElementById('date'))autoSave()}catch(e){}
-  PROJECT_KEYS.forEach(k=>{
-    const v=localStorage.getItem(k);
-    if(v===null)localStorage.removeItem(projectKey(name,k));
-    else localStorage.setItem(projectKey(name,k),v);
-  });
 }
 function loadProjectStore(name){
-  PROJECT_KEYS.forEach(k=>{const v=localStorage.getItem(projectKey(name,k));if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)});
+  // 단일 저장소 방식: 현장 데이터를 다른 저장칸으로 복사하지 않는다.
+  return name;
 }
 function enterProject(name){enterProjectPage(name,'write')}
 function enterProjectPage(name,page){
@@ -2014,15 +2086,17 @@ function y1MasterFromUserImage(){
 }
 
 function applyY1MasterFromUserImageV1(){
+  const key=projectKey('Y1 IECO','masters');
+
+  // 이미 저장된 Y1 기준정보가 있으면 절대 덮어쓰지 않는다.
+  // Drive에서 동기화된 기준정보와 사용자가 수정한 기준정보를 그대로 유지.
+  if(localStorage.getItem(key)!==null)return;
+
   const masters=y1MasterFromUserImage();
+  const v=JSON.stringify(masters);
+  localStorage.setItem(key,v);
 
-  // Y1 전용 기준정보만 교정. 보고서/현재 작업 데이터는 보존한다.
-  localStorage.setItem(projectKey('Y1 IECO','masters'),JSON.stringify(masters));
-
-  // 현재 Y1이 열린 상태라면 generic masters에도 즉시 반영
-  if((sessionStorage.getItem('activeProject')||'')==='Y1 IECO'){
-    localStorage.setItem('masters',JSON.stringify(masters));
-  }
+  // 단일 저장소 방식에서는 Y1 전용 저장소에만 보관한다.
 }
 
 function recoverY1LegacyData(){
@@ -2050,25 +2124,16 @@ function recoverY1LegacyData(){
   }
 }
 function prepareActiveProjectStore(){
+  // 구버전 자료를 현장별 저장소로 1회 이전
   seedY1Project();
+  migrateLegacyProjectStorageOnce();
+
+  // 각 현장의 초기/샘플 데이터도 각 현장 저장소에만 보관
   seedNonY1SampleProjects();
   seedNonY1MasterSamplesV2();
   ensureNonY1SampleReportsV2();
-
-  const name=sessionStorage.getItem('activeProject');
-
-  // 기존 Y1 작업/검색 데이터는 보존하고,
-  // 기준정보만 사용자가 준 이미지 값으로 맞춘다.
-  recoverY1LegacyData();
   applyY1MasterFromUserImageV1();
 
-  if(name && sessionStorage.getItem('openProjectAfterReload')==='1'){
-    if(name!=='Y1 IECO')loadProjectStore(name);
-    else{
-      const y1Score=projectDataScore(k=>localStorage.getItem(projectKey('Y1 IECO',k)));
-      if(y1Score>0)loadProjectStore('Y1 IECO');
-    }
-  }
   sessionStorage.removeItem('projectSwitching');
 }
 
@@ -2116,6 +2181,149 @@ window.addEventListener('beforeunload',saveActiveProject);
 
 const D={appTitle:'우리공 일보',sites:['WWT','RWT'],trades:['기계','전기'],jobs:['관리자','기계공','배관공','용접공','유도 및 화기','전기공','일반공'],equipment:['T/L','지게차','고소작업대'],zones:[{zone:'WWT 1F',loc:'X6~8, Y20~24'},{zone:'WWT B1F',loc:'X3~6, Y21~24'},{zone:'WWT 4F',loc:'X11~17, Y1~6'}],managers:[['지형근','현장소장','010-9349-2141'],['조현기','공사부장','010-4236-3120'],['양희몽','안전부장','010-2702-9467'],['김태연','안전과장','010-6690-5027']]};
 let state={companies:[],equipment:[],areas:[],managers:[]};
+
+const MASTER_CLOSE_PASSWORD='12312';
+let currentReportLocked=false;
+
+function getStoredReport(date,site,trade){
+  const rs=JSON.parse(projectGet('reports')||'[]');
+  return rs.find(r=>r.date===date&&r.site===site&&r.trade===trade)||null;
+}
+function isStoredReportClosed(date,site,trade){
+  const r=getStoredReport(date,site,trade);
+  return !!(r&&r.closed===true);
+}
+function isCurrentStoredReportClosed(){
+  if(!$('date')||!$('site')||!$('trade'))return false;
+  return isStoredReportClosed($('date').value,$('site').value,$('trade').value);
+}
+function applyReportLockUI(locked){
+  currentReportLocked=!!locked;
+  document.body.classList.toggle('report-is-closed',currentReportLocked);
+
+  const page=$('writePage');
+  if(page){
+    page.querySelectorAll('input,select,textarea,button').forEach(el=>{
+      // 읽기 기능, 마감 해제, 날짜 이동/조회는 잠금 중에도 허용
+      if(el.classList.contains('preview-copy-btn')||
+         el.classList.contains('preview-toggle')||
+         el.classList.contains('basic-report-close-btn')||
+         el.classList.contains('date-nav-btn')||
+         el.classList.contains('date-query-btn')||
+         el.id==='date')return;
+
+      if(currentReportLocked){
+        if(!el.disabled){
+          el.dataset.reportLockDisabled='1';
+          el.disabled=true;
+        }
+      }else if(el.dataset.reportLockDisabled==='1'){
+        el.disabled=false;
+        delete el.dataset.reportLockDisabled;
+      }
+    });
+  }
+
+  // 날짜는 마감 상태에서도 전일/후일 이동 및 직접 조회 가능
+  const dateEl=$('date');
+  if(dateEl){
+    dateEl.disabled=false;
+    delete dateEl.dataset.reportLockDisabled;
+  }
+  document.querySelectorAll('.date-nav-btn,.date-query-btn').forEach(el=>{
+    el.disabled=false;
+    delete el.dataset.reportLockDisabled;
+  });
+
+  // 모바일 하단 저장 버튼은 writePage 밖에 있음
+  document.querySelectorAll('.mobile-quickbar .quick-save').forEach(el=>{
+    if(currentReportLocked){
+      if(!el.disabled){
+        el.dataset.reportLockDisabled='1';
+        el.disabled=true;
+      }
+    }else if(el.dataset.reportLockDisabled==='1'){
+      el.disabled=false;
+      delete el.dataset.reportLockDisabled;
+    }
+  });
+
+  const preview=$('preview');
+  if(preview)preview.contentEditable=currentReportLocked?'false':'true';
+
+  // 기본정보 제목줄의 마감 상태/버튼도 즉시 갱신
+  const closeBtn=$('basicReportCloseBtn');
+  if(closeBtn){
+    closeBtn.classList.toggle('closed',currentReportLocked);
+    closeBtn.title=currentReportLocked?'마감 해제':'보고서 마감';
+    closeBtn.disabled=false;
+  }
+}
+function syncReportLockForCurrentDate(){
+  applyReportLockUI(isCurrentStoredReportClosed());
+}
+function requireReportEditable(){
+  if(isCurrentStoredReportClosed()){
+    applyReportLockUI(true);
+    alert('마감된 보고서입니다.\n검색 / 이력에서 [마감] 버튼을 눌러 마감을 해제한 뒤 수정해 주세요.');
+    return false;
+  }
+  return true;
+}
+
+function toggleCurrentReportClosed(){
+  if(!$('date')||!$('site')||!$('trade'))return;
+  const date=$('date').value, site=$('site').value, trade=$('trade').value;
+  const r=getStoredReport(date,site,trade);
+  if(!r){
+    alert('먼저 보고서를 저장한 뒤 마감해 주세요.');
+    return;
+  }
+  toggleReportClosed(date,site,trade);
+}
+
+function toggleReportClosed(date,site,trade){
+  let reports=JSON.parse(projectGet('reports')||'[]');
+  const ix=reports.findIndex(r=>r.date===date&&r.site===site&&r.trade===trade);
+  if(ix<0)return alert('해당 보고서를 찾을 수 없습니다.');
+
+  const r=reports[ix];
+
+  if(r.closed===true){
+    const pw=prompt('마스터 비밀번호를 입력하세요.');
+    if(pw===null)return;
+    if(pw!==MASTER_CLOSE_PASSWORD){
+      alert('마스터 비밀번호가 맞지 않습니다.');
+      return;
+    }
+    r.closed=false;
+    delete r.closedAt;
+    reports[ix]=r;
+    projectSet('reports',JSON.stringify(reports));
+    markLocalChanged();
+    if(tokenValid())scheduleAutoSync();
+    alert('마감이 해제되었습니다. 이제 수정할 수 있습니다.');
+  }else{
+    if(!confirm('이 보고서를 마감할까요?\n마감 후에는 수정·삭제·저장할 수 없습니다.'))return;
+    r.closed=true;
+    r.closedAt=new Date().toISOString();
+    reports[ix]=r;
+    projectSet('reports',JSON.stringify(reports));
+    markLocalChanged();
+    if(tokenValid())scheduleAutoSync();
+  }
+
+  // 현재 열려 있는 보고서와 같은 건이면 잠금 상태도 즉시 반영
+  if($('date')&&$('site')&&$('trade') &&
+     $('date').value===date&&$('site').value===site&&$('trade').value===trade){
+    syncReportLockForCurrentDate();
+  }
+
+  // 검색/이력 화면은 .active 클래스가 아니라 style.display로 표시된다.
+  // 따라서 마감/해제 직후 검색 결과를 즉시 다시 그려 버튼 색상을 실시간 반영한다.
+  if($('searchPage') && $('searchPage').style.display!=='none')searchReports();
+}
+
 const $=id=>document.getElementById(id); const esc=s=>(s??'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 function normalizeZones(){D.zones=(D.zones||[]).map(z=>typeof z==='string'?{zone:z,loc:''}:z)}
 function applyAppTitle(){
@@ -2141,12 +2349,14 @@ function setWorkDateToday(){
   const el=$('date');
   if(!el)return;
   el.value=getTodayLocalDate();
+  currentReportLocked=isCurrentStoredReportClosed();
   updatePreview();
+  applyReportLockUI(currentReportLocked);
 }
 
 function init(){
   const activeProject=sessionStorage.getItem('activeProject')||'Y1 IECO';
-  let m=JSON.parse(localStorage.getItem('masters')||'null');
+  let m=JSON.parse(projectGet('masters')||'null');
 
   if(m){
     Object.assign(D,m);
@@ -2162,7 +2372,7 @@ function init(){
 
   normalizeZones();applyAppTitle();fillSelects();
 
-  let draft=JSON.parse(localStorage.getItem('currentDraft')||'null');
+  let draft=JSON.parse(projectGet('currentDraft')||'null');
   if(draft){
     $('date').value=draft.date||new Date().toISOString().slice(0,10);
     $('site').value=draft.site||D.sites[0]||'';
@@ -2190,14 +2400,17 @@ function init(){
   // 앱/현장을 열었을 때 작업일은 항상 오늘 날짜로 표시
   $('date').value=getTodayLocalDate();
 
+  currentReportLocked=isCurrentStoredReportClosed();
   render();
-  ['site','trade','start','end','bpa'].forEach(x=>$(x).addEventListener('input',()=>{updatePreview();autoSave()}));
+  applyReportLockUI(currentReportLocked);
+  ['site','trade'].forEach(x=>$(x).addEventListener('input',()=>{syncReportLockForCurrentDate();updatePreview();autoSave()}));
+  ['start','end','bpa'].forEach(x=>$(x).addEventListener('input',()=>{updatePreview();autoSave()}));
   $('date').addEventListener('change',loadDateOrBlank);
   window.addEventListener('beforeunload',autoSave);
 }
 function mkCompany(name){return{name,jobs:Object.fromEntries(D.jobs.map(j=>[j,0])),visibleJobs:[...D.jobs]}}
 function fillSelects(){ if($('masterAppTitle'))$('masterAppTitle').value=D.appTitle||'우리공 일보';$('site').innerHTML=D.sites.map(x=>`<option>${esc(x)}</option>`).join('');$('trade').innerHTML=D.trades.map(x=>`<option>${esc(x)}</option>`).join('');$('masterSites').value=D.sites.join(', ');$('masterTrades').value=D.trades.join(', ');$('masterJobs').value=D.jobs.join(', ');$('masterEquipment').value=D.equipment.join(', ');renderMasterZones();$('masterManagers').value=(D.managers||[]).map(m=>m.join(' | ')).join('\n')}
-function render(){renderCompanies();renderEquipment();renderAreas();renderManagers();updatePreview()}
+function render(){renderCompanies();renderEquipment();renderAreas();renderManagers();updatePreview();applyReportLockUI(currentReportLocked)}
 function normalizeCompanyJobs(c){
   c.jobs=c.jobs||{};
   D.jobs.forEach(j=>{if(c.jobs[j]===undefined)c.jobs[j]=0});
@@ -2303,7 +2516,7 @@ function renderAreas(){
 function addArea(){state.areas.push({zone:'',loc:'',tasks:['']});renderAreas()} function addTask(i){state.areas[i].tasks.push('');renderAreas()} function removeTask(i,k){if(state.areas[i].tasks.length>1)state.areas[i].tasks.splice(k,1);else state.areas[i].tasks[0]='';renderAreas();updatePreview()}
 function refreshManagerMasters(){
   try{
-    const m=JSON.parse(localStorage.getItem('masters')||'null');
+    const m=JSON.parse(projectGet('masters')||'null');
     if(m&&Array.isArray(m.managers))D.managers=m.managers;
   }catch(e){}
 }
@@ -2349,16 +2562,18 @@ function moveWorkDate(days){
   const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
   el.value=`${y}-${mo}-${day}`;
 
-  const rs=JSON.parse(localStorage.getItem('reports')||'[]');
+  const rs=JSON.parse(projectGet('reports')||'[]');
   const r=rs.find(x=>x.date===el.value&&x.site===$('site').value&&x.trade===$('trade').value);
   if(r){
     $('start').value=r.start||'07:30';
     $('end').value=r.end||'17:30';
     $('bpa').value=r.bpa||'';
     state=JSON.parse(JSON.stringify(r.state));
+    currentReportLocked=!!r.closed;
     render();
     autoSave();
   }else{
+    currentReportLocked=false;
     clearDailyValuesForDateMove();
     render();
     autoSave();
@@ -2370,9 +2585,12 @@ function autoSave(){
   if(sessionStorage.getItem('projectSwitching')==='1')return;
   if(!$('date'))return;
 
+  // 마감된 저장보고서를 열어둔 상태에서는 임시저장도 변경하지 않음
+  if(isCurrentStoredReportClosed())return;
+
   // 현재 화면 임시저장만 수행.
   // 검색/이력에는 '보고서 저장'을 눌러 reports에 저장된 자료만 나타난다.
-  localStorage.setItem('currentDraft',JSON.stringify({
+  projectSet('currentDraft',JSON.stringify({
     date:$('date').value,site:$('site').value,trade:$('trade').value,
     start:$('start').value,end:$('end').value,bpa:$('bpa').value,state:state
   }));
@@ -2380,20 +2598,34 @@ function autoSave(){
 
 function loadDateOrBlank(){
   const target=$('date').value;
-  const rs=JSON.parse(localStorage.getItem('reports')||'[]');
-  // 해당 날짜에 저장된 보고서가 있으면 우선 불러온다.
-  let r=rs.find(x=>x.date===target&&x.site===$('site').value&&x.trade===$('trade').value);
-  // 없으면 같은 현장/공종의 가장 가까운 이전 날짜 데이터를 그대로 이어받는다.
-  if(!r){r=rs.filter(x=>x.date<target&&x.site===$('site').value&&x.trade===$('trade').value).sort((a,b)=>b.date.localeCompare(a.date))[0]}
+  const rs=JSON.parse(projectGet('reports')||'[]');
+
+  // 정확히 그 날짜에 저장된 보고서
+  const exact=rs.find(x=>x.date===target&&x.site===$('site').value&&x.trade===$('trade').value);
+  let r=exact;
+
+  // 저장본이 없으면 이전 날짜 자료를 템플릿으로 이어받되 '마감'은 승계하지 않음
+  if(!r){
+    r=rs.filter(x=>x.date<target&&x.site===$('site').value&&x.trade===$('trade').value)
+        .sort((a,b)=>b.date.localeCompare(a.date))[0];
+  }
+
   if(r){
-    $('start').value=r.start||'07:30';$('end').value=r.end||'17:30';$('bpa').value=r.bpa||'';
-    state=JSON.parse(JSON.stringify(r.state));render();autoSave();
+    $('start').value=r.start||'07:30';
+    $('end').value=r.end||'17:30';
+    $('bpa').value=r.bpa||'';
+    state=JSON.parse(JSON.stringify(r.state));
+    currentReportLocked=!!(exact&&exact.closed===true);
+    render();
+    autoSave();
   }else{
+    currentReportLocked=false;
+    applyReportLockUI(false);
     // 저장 이력이 전혀 없으면 현재 화면은 유지하고 날짜만 변경한다.
     updatePreview();autoSave();
   }
 }
-function resetDailyData(){
+function resetDailyData(){if(!requireReportEditable())return;
   // 업체/직종 구성은 유지하고 인원수만 0으로 초기화한다.
   state.companies.forEach(c=>{D.jobs.forEach(j=>c.jobs[j]=0)});
   // 구역/위치와 화면 구성은 유지하고 하부작업 내용만 비운다.
@@ -2401,9 +2633,24 @@ function resetDailyData(){
   render();autoSave();
 }
 
-function loadCurrentDateReport(){let rs=JSON.parse(localStorage.getItem('reports')||'[]');let r=rs.find(x=>x.date===$('date').value&&x.site===$('site').value&&x.trade===$('trade').value);if(!r)return alert('해당 날짜/현장/공종의 저장된 작업일보가 없습니다.');$('start').value=r.start||'07:30';$('end').value=r.end||'17:30';$('bpa').value=r.bpa||'';state=JSON.parse(JSON.stringify(r.state));render();autoSave()}
-function saveReport(){let reports=JSON.parse(localStorage.getItem('reports')||'[]');let obj={date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,state:JSON.parse(JSON.stringify(state)),text:reportText()};let ix=reports.findIndex(r=>r.date===obj.date&&r.site===obj.site&&r.trade===obj.trade);if(ix>=0)reports[ix]=obj;else reports.push(obj);localStorage.setItem('reports',JSON.stringify(reports));autoSave();markLocalChanged();if(tokenValid())scheduleAutoSync();alert('보고서로 저장했습니다.'+(tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''))}
+function loadCurrentDateReport(){let rs=JSON.parse(projectGet('reports')||'[]');let r=rs.find(x=>x.date===$('date').value&&x.site===$('site').value&&x.trade===$('trade').value);if(!r)return alert('해당 날짜/현장/공종의 저장된 작업일보가 없습니다.');$('start').value=r.start||'07:30';$('end').value=r.end||'17:30';$('bpa').value=r.bpa||'';state=JSON.parse(JSON.stringify(r.state));currentReportLocked=!!r.closed;render();autoSave()}
+function saveReport(){
+  if(!requireReportEditable())return;
+  let reports=JSON.parse(projectGet('reports')||'[]');
+  let obj={
+    date:$('date').value,site:$('site').value,trade:$('trade').value,
+    start:$('start').value,end:$('end').value,bpa:$('bpa').value,
+    state:JSON.parse(JSON.stringify(state)),text:reportText(),closed:false
+  };
+  let ix=reports.findIndex(r=>r.date===obj.date&&r.site===obj.site&&r.trade===obj.trade);
+  if(ix>=0)reports[ix]=obj;else reports.push(obj);
+  projectSet('reports',JSON.stringify(reports));
+  autoSave();markLocalChanged();
+  if(tokenValid())scheduleAutoSync();
+  alert('보고서로 저장했습니다.'+(tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''));
+}
 function copyPreviousDay(){
+  if(!requireReportEditable())return;
   if(!$('date'))return;
   let currentDate=$('date').value;
   let d=new Date(currentDate+'T00:00:00');
@@ -2411,7 +2658,7 @@ function copyPreviousDay(){
   d.setDate(d.getDate()-1);
   const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
   const prev=`${y}-${m}-${day}`;
-  const rs=JSON.parse(localStorage.getItem('reports')||'[]');
+  const rs=JSON.parse(projectGet('reports')||'[]');
   const r=rs.find(x=>x.date===prev&&x.site===$('site').value&&x.trade===$('trade').value);
   if(!r)return alert('전일 저장된 보고서가 없습니다.');
 
@@ -2421,7 +2668,7 @@ function copyPreviousDay(){
   render();
   autoSave();
 }
-function loadYesterday(){let d=new Date($('date').value+'T00:00:00');d.setDate(d.getDate()-1);let y=d.toISOString().slice(0,10),rs=JSON.parse(localStorage.getItem('reports')||'[]');let r=rs.find(x=>x.date===y&&x.site===$('site').value&&x.trade===$('trade').value);if(!r)return alert('전날 저장된 보고서가 없습니다.');state=JSON.parse(JSON.stringify(r.state));render()}
+function loadYesterday(){let d=new Date($('date').value+'T00:00:00');d.setDate(d.getDate()-1);let y=d.toISOString().slice(0,10),rs=JSON.parse(projectGet('reports')||'[]');let r=rs.find(x=>x.date===y&&x.site===$('site').value&&x.trade===$('trade').value);if(!r)return alert('전날 저장된 보고서가 없습니다.');state=JSON.parse(JSON.stringify(r.state));render()}
 async function copyPreview(){await navigator.clipboard.writeText($('preview').innerText);alert('복사했습니다.')}
 function toggleSidebar(){
   const app=$('appShell');if(!app)return;
@@ -2470,7 +2717,7 @@ function resetSearch(){
 let lastSearchResults=[];
 function searchReports(){
   let type=$('searchType').value,q=(type==='keyword'?$('query').value:$('querySelect').value).trim().toLowerCase(),from=$('from').value,to=$('to').value;
-  let rs=JSON.parse(localStorage.getItem('reports')||'[]'),out=[];
+  let rs=JSON.parse(projectGet('reports')||'[]'),out=[];
   rs.forEach(r=>{
     if((from&&r.date<from)||(to&&r.date>to))return;
     const st=r.state||{}, areas=st.areas||[], equips=st.equipment||[], companies=st.companies||[];
@@ -2502,7 +2749,7 @@ function searchReports(){
   out.sort((a,b)=>b.r.date.localeCompare(a.r.date));
   lastSearchResults=out;
   if(!out.length){$('results').innerHTML='검색 결과가 없습니다.';return}
-  $('results').innerHTML=`<div style="font-size:12px;font-weight:700;margin:8px 0">검색 결과 ${out.length}건</div><div class="result-table-wrap"><table class="result-table"><thead><tr><th>날짜</th><th>현장</th><th>공종</th><th>BP사</th><th>총인원</th><th>업체별 인원</th><th>장비</th><th>작업구역 · 작업내용</th></tr></thead><tbody>${out.map(x=>`<tr><td><button type="button" class="date-link-btn" onclick="openReportFromSearch('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}')">${esc(x.r.date)}</button></td><td>${esc(x.r.site)}</td><td>${esc(x.r.trade)}</td><td>${esc(x.r.bpa||'')}</td><td class="num-cell">${x.total}명</td><td>${esc(x.companyText||'-')}</td><td>${esc(x.equipment||'-')}</td><td class="work-cell">${esc(x.work||'-')}</td></tr>`).join('')}</tbody></table></div>`;
+  $('results').innerHTML=`<div style="font-size:12px;font-weight:700;margin:8px 0">검색 결과 ${out.length}건</div><div class="result-table-wrap"><table class="result-table"><thead><tr><th>날짜</th><th>현장</th><th>공종</th><th>BP사</th><th>총인원</th><th>업체별 인원</th><th>장비</th><th>작업구역 · 작업내용</th></tr></thead><tbody>${out.map(x=>`<tr><td style="white-space:nowrap"><button type="button" class="report-close-btn ${x.r.closed?'closed':''}" title="${x.r.closed?'마감 해제':'보고서 마감'}" onclick="event.stopPropagation();toggleReportClosed('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}')">마감</button><button type="button" class="date-link-btn" onclick="openReportFromSearch('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}')">${esc(x.r.date)}</button></td><td>${esc(x.r.site)}</td><td>${esc(x.r.trade)}</td><td>${esc(x.r.bpa||'')}</td><td class="num-cell">${x.total}명</td><td>${esc(x.companyText||'-')}</td><td>${esc(x.equipment||'-')}</td><td class="work-cell">${esc(x.work||'-')}</td></tr>`).join('')}</tbody></table></div>`;
 }
 
 function downloadSearchScreenExcel(){
@@ -2714,13 +2961,16 @@ function downloadSearchExcel(){
 }
 
 function openReportFromSearch(date,site,trade){
-  const rs=JSON.parse(localStorage.getItem('reports')||'[]');
+  const rs=JSON.parse(projectGet('reports')||'[]');
   const r=rs.find(x=>x.date===date&&x.site===site&&x.trade===trade);
   if(!r)return alert('해당 작업보고를 찾을 수 없습니다.');
   $('date').value=r.date;$('site').value=r.site;$('trade').value=r.trade;
   $('start').value=r.start||'07:30';$('end').value=r.end||'17:30';$('bpa').value=r.bpa||'';
-  state=JSON.parse(JSON.stringify(r.state));render();autoSave();
+  state=JSON.parse(JSON.stringify(r.state));
+  currentReportLocked=!!r.closed;
+  render();autoSave();
   showPage('write',null);
+  applyReportLockUI(currentReportLocked);
   document.querySelectorAll('aside button').forEach((b,i)=>b.classList.toggle('active',i===0));
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -2736,7 +2986,38 @@ function updateMobileZeroJobStyles(){
 }
 function changeJob(i,j,d){let v=Math.max(0,Math.min(999,(+state.companies[i].jobs[j]||0)+d));state.companies[i].jobs[j]=v;renderCompanies();updatePreview()}
 function changeEquip(i,d){state.equipment[i].qty=Math.max(0,Math.min(999,(+state.equipment[i].qty||0)+d));renderEquipment();updatePreview()}
-function saveMasters(){autoSave();let split=id=>$(id).value.split(',').map(x=>x.trim()).filter(Boolean);let managers=$('masterManagers').value.split('\n').map(x=>x.split('|').map(v=>v.trim())).filter(m=>m.some(Boolean));D.zones=(D.zones||[]).map(z=>({zone:(z.zone||'').trim(),loc:(z.loc||'').trim()})).filter(z=>z.zone);let appTitle=($('masterAppTitle').value||'우리공 일보').trim()||'우리공 일보';let m={appTitle,sites:split('masterSites'),trades:split('masterTrades'),jobs:split('masterJobs'),equipment:split('masterEquipment'),zones:D.zones,managers};Object.assign(D,m);localStorage.setItem('masters',JSON.stringify(m));applyAppTitle();fillSelects();renderAreas();renderManagers();markLocalChanged();if(tokenValid())scheduleAutoSync();alert('기준정보를 저장했습니다. 앱 타이틀도 즉시 반영되었습니다.'+(tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''))}
+function saveMasters(){
+  autoSave();
+  let split=id=>$(id).value.split(',').map(x=>x.trim()).filter(Boolean);
+  let managers=$('masterManagers').value.split('\n').map(x=>x.split('|').map(v=>v.trim())).filter(m=>m.some(Boolean));
+  D.zones=(D.zones||[]).map(z=>({zone:(z.zone||'').trim(),loc:(z.loc||'').trim()})).filter(z=>z.zone);
+  let appTitle=($('masterAppTitle').value||'우리공 일보').trim()||'우리공 일보';
+  let m={
+    appTitle,
+    sites:split('masterSites'),
+    trades:split('masterTrades'),
+    jobs:split('masterJobs'),
+    equipment:split('masterEquipment'),
+    zones:D.zones,
+    managers
+  };
+
+  Object.assign(D,m);
+
+  // 현재 선택 현장의 기준정보 저장소 한 곳에만 저장
+  projectSet('masters',JSON.stringify(m));
+
+  applyAppTitle();
+  fillSelects();
+  renderAreas();
+  renderManagers();
+
+  markLocalChanged();
+  if(tokenValid())scheduleAutoSync();
+
+  alert('기준정보를 저장했습니다. 앱 타이틀도 즉시 반영되었습니다.'+
+    (tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''));
+}
 
 
 // ===== Google Drive 자동 동기화 v2: 최신자료 비교 + 충돌 방지 =====
@@ -2782,13 +3063,35 @@ async function driveFindFile(){
   const r=await fetch(u,{headers:driveHeaders()});if(!r.ok)throw new Error('Drive 파일 조회 실패 ('+r.status+')');
   const j=await r.json();return (j.files||[])[0]||null
 }
-function localData(){autoSave();return {masters:JSON.parse(localStorage.getItem('masters')||'null'),reports:JSON.parse(localStorage.getItem('reports')||'[]'),currentDraft:JSON.parse(localStorage.getItem('currentDraft')||'null')}}
+function localData(){
+  autoSave();
+  return {
+    masters:JSON.parse(projectGet('masters',DRIVE_PROJECT)||'null'),
+    reports:JSON.parse(projectGet('reports',DRIVE_PROJECT)||'[]'),
+    currentDraft:JSON.parse(projectGet('currentDraft',DRIVE_PROJECT)||'null')
+  };
+}
 function makeDriveSnapshot(){const d=localData();return {format:'SK-YONGIN-WORKREPORT',version:2,savedAt:new Date().toISOString(),deviceId:getDeviceId(),...d}}
 function getDeviceId(){let x=localStorage.getItem('driveDeviceId');if(!x){x='dev-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);localStorage.setItem('driveDeviceId',x)}return x}
 function markLocalChanged(){if(applyingRemote)return;setDriveMeta('driveLocalDirty','1');setDriveMeta('driveLocalUpdatedAt',String(Date.now()));scheduleAutoSync()}
 function scheduleAutoSync(){if(!tokenValid())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow('auto'),1200)}
 async function fetchRemote(){const f=await driveFindFile();if(!f)return {file:null,data:null,stamp:0};const r=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id)+'?alt=media',{headers:driveHeaders()});if(!r.ok)throw new Error('Drive 불러오기 실패 ('+r.status+')');const data=await r.json();const stamp=Date.parse(data.savedAt||'')||Date.parse(f.modifiedTime||'')||0;return {file:f,data,stamp}}
-function applyRemoteData(d,stamp){applyingRemote=true;try{if(d.masters)localStorage.setItem('masters',JSON.stringify(d.masters));if(Array.isArray(d.reports))localStorage.setItem('reports',JSON.stringify(d.reports));if(d.currentDraft)localStorage.setItem('currentDraft',JSON.stringify(d.currentDraft));setDriveMeta('driveLastRemoteStamp',String(stamp||Date.now()));setDriveMeta('driveLocalDirty','0');setDriveMeta('driveLocalUpdatedAt',String(stamp||Date.now()))}finally{applyingRemote=false}}
+function applyRemoteData(d,stamp){
+  applyingRemote=true;
+  try{
+    const activeProject=sessionStorage.getItem('activeProject')||DRIVE_PROJECT||'Y1 IECO';
+
+    if(d.masters)projectSet('masters',JSON.stringify(d.masters),activeProject);
+    if(Array.isArray(d.reports))projectSet('reports',JSON.stringify(d.reports),activeProject);
+    if(d.currentDraft)projectSet('currentDraft',JSON.stringify(d.currentDraft),activeProject);
+
+    setDriveMeta('driveLastRemoteStamp',String(stamp||Date.now()));
+    setDriveMeta('driveLocalDirty','0');
+    setDriveMeta('driveLocalUpdatedAt',String(stamp||Date.now()));
+  }finally{
+    applyingRemote=false;
+  }
+}
 async function pushLocal(file,silent=true){const snap=makeDriveSnapshot(), data=JSON.stringify(snap,null,2);let r;
   if(file){r=await fetch('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(file.id)+'?uploadType=media',{method:'PATCH',headers:driveHeaders({'Content-Type':'application/json; charset=UTF-8'}),body:data})}
   else{const boundary='workreport_'+Date.now(),meta=JSON.stringify({name:DRIVE_FILE_NAME,mimeType:'application/json'}),body='--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+meta+'\r\n--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+data+'\r\n--'+boundary+'--';r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,modifiedTime',{method:'POST',headers:driveHeaders({'Content-Type':'multipart/related; boundary='+boundary}),body})}
@@ -2855,7 +3158,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(input) input.addEventListener('keydown',e=>{if(e.key==='Enter')unlockApp()});
 });
 window.addEventListener('storage',e=>{
-  if(e.key==='masters'){
+  const currentMasterKey=projectKey(activeProjectName(),'masters');
+  if(e.key===currentMasterKey){
     try{
       const m=JSON.parse(e.newValue||'null');
       if(m){Object.assign(D,m);applyAppTitle();fillSelects();renderAreas();renderManagers();}
