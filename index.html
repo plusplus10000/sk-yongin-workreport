@@ -1054,6 +1054,159 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
   .basic-date .date-query-btn{width:36px!important;min-width:36px!important;font-size:10px!important}
 }
 
+
+/* 창이 줄어도 조회 버튼이 가려지지 않도록 기본정보 카드 내부에서 유지 */
+.basic-info-card{min-width:0!important;overflow:visible!important}
+.basic-info-grid{min-width:0!important}
+.basic-date{min-width:0!important;overflow:visible!important}
+.basic-date .date-with-query{
+  display:grid!important;
+  grid-template-columns:minmax(178px,1fr) 38px!important;
+  gap:4px!important;
+  width:100%!important;
+  min-width:220px!important;
+}
+.basic-date .date-nav{
+  display:grid!important;
+  grid-template-columns:28px minmax(112px,1fr) 28px!important;
+  gap:3px!important;
+  min-width:174px!important;
+}
+.basic-date .date-nav #date{min-width:112px!important}
+.basic-date .date-query-btn{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  position:relative!important;
+  z-index:5!important;
+  width:38px!important;
+  min-width:38px!important;
+}
+@media(min-width:851px) and (max-width:1150px){
+  .basic-info-grid{
+    grid-template-columns:minmax(90px,.72fr) minmax(90px,.72fr) minmax(220px,1.6fr)!important;
+  }
+}
+@media(max-width:850px){
+  .basic-date .date-with-query{min-width:220px!important}
+}
+
+/* 금일 작업내용 +/- : 버튼 크기는 유지하고 글자만 더 크게 */
+#areas .area-tasks .subtask .btn{
+  font-size:14px!important;
+  font-weight:800!important;
+  line-height:1!important;
+}
+
+
+/* ===== 모바일 전용: 직종 X / 0명 회색 / 고정 퀵바 ===== */
+.mobile-quickbar{display:none}
+@media(max-width:850px){
+  /* 직종 숨김 X는 직종명 앞쪽 */
+  #companies .job-label-row{
+    display:flex!important;
+    flex-direction:row-reverse!important;
+    justify-content:flex-end!important;
+    align-items:center!important;
+    gap:4px!important;
+  }
+  #companies .job-remove-btn{
+    transform:none!important;
+    width:18px!important;
+    height:18px!important;
+    min-width:18px!important;
+    flex:0 0 18px!important;
+    padding:0!important;
+    font-size:13px!important;
+    font-weight:800!important;
+    line-height:16px!important;
+  }
+
+  /* 인원이 0인 개별 직종은 회색 */
+  #companies .job-item:has(.counter input[value="0"]),
+  #companies .job-item:has(.counter input[value=""]){
+    color:#7a8189!important;
+  }
+  #companies .job-item:has(.counter input[value="0"]) .counter input,
+  #companies .job-item:has(.counter input[value=""]) .counter input{
+    background:#e2e5e9!important;
+    color:#6b7280!important;
+    border-color:#c4c9cf!important;
+  }
+
+  /* 스크롤해도 항상 보이는 모바일 퀵바 */
+  .mobile-quickbar{
+    position:fixed!important;
+    right:8px!important;
+    bottom:14px!important;
+    z-index:9999!important;
+    display:flex!important;
+    gap:4px!important;
+    padding:4px!important;
+    background:rgba(255,255,255,.94)!important;
+    border:1px solid #c8d8ea!important;
+    border-radius:9px!important;
+    box-shadow:0 2px 9px rgba(0,0,0,.16)!important;
+  }
+  .mobile-quickbar button{
+    width:34px!important;
+    height:34px!important;
+    padding:0!important;
+    border:1px solid #a9c8e8!important;
+    border-radius:6px!important;
+    background:#fff!important;
+    color:#0672e8!important;
+    font-size:18px!important;
+    font-weight:800!important;
+    line-height:1!important;
+  }
+  .mobile-quickbar .quick-save{
+    background:#f28c18!important;
+    border-color:#f28c18!important;
+    color:#fff!important;
+    font-size:16px!important;
+  }
+}
+
+
+@media(max-width:850px){
+ #companies .job-item.mobile-job-zero{color:#7a8189!important}
+ #companies .job-item.mobile-job-zero .counter input{background:#e2e5e9!important;color:#6b7280!important;border-color:#c4c9cf!important}
+}
+
+
+/* PC + 모바일 공통: 인원 0명인 개별 직종 회색, 1명 이상이면 자동 원복 */
+#companies .job-item.mobile-job-zero{
+  color:#7a8189!important;
+}
+#companies .job-item.mobile-job-zero .job-name{
+  color:#7a8189!important;
+}
+#companies .job-item.mobile-job-zero .counter input{
+  background:#e2e5e9!important;
+  color:#6b7280!important;
+  border-color:#c4c9cf!important;
+}
+
+/* PC + 모바일 공통: 담당자 표시/숨김 버튼을 담당자명 앞쪽에 배치 */
+#managers .manager-visibility-cell{
+  width:1%!important;
+  white-space:nowrap!important;
+  text-align:center!important;
+}
+#managers .manager-visibility-btn{
+  white-space:nowrap!important;
+}
+
+
+#managers tr.manager-hidden td:nth-child(2) input,
+#managers tr.manager-hidden td:nth-child(3) input,
+#managers tr.manager-hidden td:nth-child(4) input{
+  background:#e2e5e9!important;
+  color:#6b7280!important;
+  border-color:#c4c9cf!important;
+}
+
 </style><script src="https://accounts.google.com/gsi/client" async defer></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
 <body class="locked"><div id="passwordGate"><div class="password-box"><h2>🔒 작업일보 로그인</h2><p>비밀번호를 입력하세요.</p><input id="appPassword" type="password" inputmode="text" autocomplete="current-password" placeholder="비밀번호"><button class="btn primary" type="button" style="width:100%;padding:11px" onclick="unlockApp()">확인</button><div id="passwordError" class="password-error"></div></div></div><header><div>⛑ <span id="appTitleDisplay">작업일보</span></div><div class="header-right"><div id="topDate">작업보고 작성</div></div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
@@ -1127,11 +1280,11 @@ function renderCompanies(){
       </span>
     </div>
     <div class="jobs">${c.visibleJobs.map(j=>`<label class="job-item">
-      <span class="job-label-row"><span class="job-name">${esc(j)}</span><button class="job-remove-btn" type="button" title="이 업체에서 직종 숨기기" onclick="removeCompanyJob(${i},'${esc(j)}');event.preventDefault()">−</button></span>
-      <span class="counter"><button type="button" onclick="changeJob(${i},'${j}',-1)">−</button><input type="number" min="0" max="999" inputmode="numeric" value="${c.jobs[j]||0}" oninput="if(this.value.length>3)this.value=this.value.slice(0,3);if(+this.value>999)this.value=999;state.companies[${i}].jobs['${j}']=+this.value||0;calcTotals()"><button type="button" onclick="changeJob(${i},'${j}',1)">+</button></span>
+      <span class="job-label-row"><span class="job-name">${esc(j)}</span><button class="job-remove-btn" type="button" title="이 업체에서 직종 숨기기" onclick="removeCompanyJobMobileAware(${i},'${esc(j)}',event)">×</button></span>
+      <span class="counter"><button type="button" onclick="changeJob(${i},'${j}',-1)">−</button><input type="number" min="0" max="999" inputmode="numeric" value="${c.jobs[j]||0}" oninput="if(this.value.length>3)this.value=this.value.slice(0,3);if(+this.value>999)this.value=999;state.companies[${i}].jobs['${j}']=+this.value||0;calcTotals();updateMobileZeroJobStyles()"><button type="button" onclick="changeJob(${i},'${j}',1)">+</button></span>
     </label>`).join('')}</div>
   </div>`}).join('');
-  calcTotals();
+  calcTotals();updateMobileZeroJobStyles();
 }
 function moveCompany(i,dir){
   const ni=i+dir;
@@ -1142,6 +1295,13 @@ function moveCompany(i,dir){
   renderCompanies();
   updatePreview();
   autoSave();
+}
+function removeCompanyJobMobileAware(i,j,event){
+  if(event)event.preventDefault();
+  if(window.matchMedia('(max-width:850px)').matches){
+    if(!confirm(j+' 직종을 삭제하시겠습니까?'))return;
+  }
+  removeCompanyJob(i,j);
 }
 function removeCompanyJob(i,j){
   normalizeCompanyJobs(state.companies[i]);
@@ -1207,10 +1367,11 @@ function renderManagers(){
   refreshManagerMasters();
   state.managers=state.managers.map(m=>Array.isArray(m)?[m[0]||'',m[1]||'',m[2]||'',m.length>3?m[3]:true]:m);
   $('managers').innerHTML=state.managers.map((m,i)=>`<tr class="${m[3]===false?'manager-hidden':''}">
+  <td class="manager-visibility-cell"><button class="btn manager-visibility-btn ${m[3]===false?'manager-hidden-btn':''}" onclick="toggleManager(${i})">${m[3]!==false?'표시':'숨김'}</button></td>
   <td><input style="width:100%" value="${esc(m[0])}" list="managerList" onchange="selectManager(${i},this.value)" oninput="state.managers[${i}][0]=this.value;updatePreview()"></td>
   <td><input style="width:100%" value="${esc(m[1])}" oninput="state.managers[${i}][1]=this.value;updatePreview()"></td>
   <td><input style="width:100%" value="${esc(m[2])}" oninput="state.managers[${i}][2]=this.value;updatePreview()"></td>
-  <td style="white-space:nowrap"><button class="btn ${m[3]===false?'manager-hidden-btn':''}" onclick="toggleManager(${i})">${m[3]!==false?'표시':'숨김'}</button> <button class="btn" onclick="state.managers.splice(${i},1);renderManagers();updatePreview()">삭제</button></td></tr>`).join('')+`<datalist id="managerList">${(D.managers||[]).map(m=>`<option value="${esc(m[0])}">${esc(m[1]||'')} ${esc(m[2]||'')}</option>`).join('')}</datalist>`
+  <td style="white-space:nowrap"><button class="btn" onclick="state.managers.splice(${i},1);renderManagers();updatePreview()">삭제</button></td></tr>`).join('')+`<datalist id="managerList">${(D.managers||[]).map(m=>`<option value="${esc(m[0])}">${esc(m[1]||'')} ${esc(m[2]||'')}</option>`).join('')}</datalist>`
 }
 function selectManager(i,name){let m=(D.managers||[]).find(x=>x[0]===name);if(m){state.managers[i]=[m[0]||'',m[1]||'',m[2]||'',state.managers[i][3]!==false];renderManagers();updatePreview()}}
 function toggleManager(i){state.managers[i][3]=state.managers[i][3]===false?true:false;renderManagers();updatePreview()}
@@ -1442,6 +1603,12 @@ function openReportFromSearch(date,site,trade){
 function renderMasterZones(){let el=$('masterZones');if(!el)return;el.innerHTML=(D.zones||[]).map((z,i)=>`<div class="zone-master-row"><input value="${esc(z.zone||'')}" placeholder="예: WWT 4F" oninput="D.zones[${i}].zone=this.value"><input value="${esc(z.loc||'')}" placeholder="예: X11~17, Y1~6" oninput="D.zones[${i}].loc=this.value"><button class="btn" type="button" onclick="D.zones.splice(${i},1);renderMasterZones()">삭제</button></div>`).join('')}
 function addMasterZone(){D.zones.push({zone:'',loc:''});renderMasterZones()}
 function applyZone(i,v){let z=(D.zones||[]).find(x=>x.zone===v);if(z){state.areas[i].zone=z.zone;state.areas[i].loc=z.loc||'';renderAreas();updatePreview()}}
+function updateMobileZeroJobStyles(){
+  document.querySelectorAll('#companies .job-item').forEach(el=>{
+    const inp=el.querySelector('.counter input');
+    el.classList.toggle('mobile-job-zero',!inp||(+inp.value||0)===0);
+  });
+}
 function changeJob(i,j,d){let v=Math.max(0,Math.min(999,(+state.companies[i].jobs[j]||0)+d));state.companies[i].jobs[j]=v;renderCompanies();updatePreview()}
 function changeEquip(i,d){state.equipment[i].qty=Math.max(0,Math.min(999,(+state.equipment[i].qty||0)+d));renderEquipment();updatePreview()}
 function saveMasters(){autoSave();let split=id=>$(id).value.split(',').map(x=>x.trim()).filter(Boolean);let managers=$('masterManagers').value.split('\n').map(x=>x.split('|').map(v=>v.trim())).filter(m=>m.some(Boolean));D.zones=(D.zones||[]).map(z=>({zone:(z.zone||'').trim(),loc:(z.loc||'').trim()})).filter(z=>z.zone);let appTitle=($('masterAppTitle').value||'우리공 일보').trim()||'우리공 일보';let m={appTitle,sites:split('masterSites'),trades:split('masterTrades'),jobs:split('masterJobs'),equipment:split('masterEquipment'),zones:D.zones,managers};Object.assign(D,m);localStorage.setItem('masters',JSON.stringify(m));applyAppTitle();fillSelects();renderAreas();renderManagers();markLocalChanged();if(tokenValid())scheduleAutoSync();alert('기준정보를 저장했습니다. 앱 타이틀도 즉시 반영되었습니다.'+(tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''))}
@@ -1556,4 +1723,11 @@ window.addEventListener('storage',e=>{
 
 init();
 restorePanelStates();
-</script></body></html>
+</script>
+<div class="mobile-quickbar" aria-label="모바일 빠른 작업">
+  <button type="button" title="되돌리기" onclick="undoLastChange()">↶</button>
+  <button type="button" title="다시하기" onclick="redoLastChange()">↷</button>
+  <button type="button" class="quick-save" title="보고서 저장" onclick="saveReport()">💾</button>
+</div>
+
+</body></html>
