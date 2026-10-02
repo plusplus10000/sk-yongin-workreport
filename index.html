@@ -2250,7 +2250,6 @@ function prepareActiveProjectStore(){
 }
 
 function applyProjectStartup(){
-  seedY1Project();
   const name=sessionStorage.getItem('activeProject');
   if(name && sessionStorage.getItem('openProjectAfterReload')==='1'){
     document.body.classList.remove('site-home-mode');
@@ -2431,8 +2430,18 @@ function toggleReportClosed(date,site,trade){
     syncReportLockForCurrentDate();
   }
 
-  // 검색/이력 화면은 .active 클래스가 아니라 style.display로 표시된다.
-  // 따라서 마감/해제 직후 검색 결과를 즉시 다시 그려 버튼 색상을 실시간 반영한다.
+  // 메모리에 남아 있는 검색결과도 즉시 최신 closed 값으로 맞춤
+  if(Array.isArray(lastSearchResults)){
+    lastSearchResults.forEach(x=>{
+      if(x?.r && x.r.date===date && x.r.site===site && x.r.trade===trade){
+        x.r.closed=reports[ix].closed===true;
+        if(x.r.closed)x.r.closedAt=reports[ix].closedAt;
+        else delete x.r.closedAt;
+      }
+    });
+  }
+
+  // 검색 화면이 보이는 중이면 즉시 다시 렌더링
   if($('searchPage') && $('searchPage').style.display!=='none')searchReports();
 }
 
@@ -2457,13 +2466,46 @@ function getTodayLocalDate(){
   const day=String(d.getDate()).padStart(2,'0');
   return `${y}-${m}-${day}`;
 }
+function loadExactSavedReportForDate(targetDate){
+  const reports=JSON.parse(projectGet('reports')||'[]');
+  const sameDate=reports.filter(r=>r.date===targetDate);
+
+  if(!sameDate.length)return false;
+
+  // 현재 현장/공종과 정확히 맞는 보고서를 우선
+  let r=sameDate.find(x=>x.site===$('site').value&&x.trade===$('trade').value);
+
+  // 해당 날짜 저장보고서가 딱 1건이면 현장/공종 선택값과 상관없이 자동 로드
+  if(!r && sameDate.length===1)r=sameDate[0];
+  if(!r)return false;
+
+  if(r.site!==undefined)$('site').value=r.site;
+  if(r.trade!==undefined)$('trade').value=r.trade;
+  $('start').value=r.start||'07:30';
+  $('end').value=r.end||'17:30';
+  $('bpa').value=r.bpa||'';
+  state=JSON.parse(JSON.stringify(r.state||state));
+  currentReportLocked=!!r.closed;
+
+  render();
+  applyReportLockUI(currentReportLocked);
+  return true;
+}
+
 function setWorkDateToday(){
   const el=$('date');
   if(!el)return;
-  el.value=getTodayLocalDate();
-  currentReportLocked=isCurrentStoredReportClosed();
+
+  const today=getTodayLocalDate();
+  el.value=today;
+
+  // 대문에서 현장으로 들어오거나 작업보고 작성으로 들어왔을 때
+  // 오늘 날짜에 저장된 보고서가 있으면 '조회'를 누르지 않아도 즉시 표시
+  if(loadExactSavedReportForDate(today))return;
+
+  currentReportLocked=false;
   updatePreview();
-  applyReportLockUI(currentReportLocked);
+  applyReportLockUI(false);
 }
 
 function init(){
@@ -2809,6 +2851,12 @@ function showPage(p,b){
   if(b)b.classList.add('active');
   ['write','search','master'].forEach(x=>$(x+'Page').style.display=x===p?'block':'none');
   refreshProjectTree();
+
+  // 검색 화면은 들어갈 때마다 reports 저장소를 다시 읽어 즉시 갱신
+  // 작업화면에서 마감을 풀고 이동해도 예전 회색 버튼이 남지 않게 한다.
+  if(p==='search'){
+    Promise.resolve().then(()=>searchReports());
+  }
 }
 function goWritePage(){showPage('write',null);setWorkDateToday();document.querySelectorAll('aside button').forEach((b,i)=>b.classList.toggle('active',i===0));window.scrollTo({top:0,behavior:'smooth'})}
 function updateSearchHint(){
