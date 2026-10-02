@@ -2543,17 +2543,32 @@ function downloadSearchExcel(){
   if(!lastSearchResults.length){alert('먼저 검색을 실행하세요.');return}
   if(typeof XLSX==='undefined'){alert('엑셀 모듈을 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 다시 시도하세요.');return}
 
-  // 날짜(검색결과) 1건 = 엑셀 1행. 업체/직종/작업구역은 오른쪽 열로 계속 펼침.
-  const jobNames=[...(D.jobs||[])];
+  // 날짜(검색결과) 1건 = 엑셀 1행.
+  // 업체별로 실제 사용하도록 설정된 직종만 상세엑셀 열로 만든다.
+  const masterJobs=[...(D.jobs||[])];
   const companyNames=[];
+  const companyJobs={};
   const zoneNames=[];
   const equipmentNames=[];
 
-  // 현재 검색결과에 실제 존재하는 업체/구역을 열 목록으로 수집
+  // 현재 검색결과에 실제 존재하는 업체/업체별 사용직종/구역을 열 목록으로 수집
   lastSearchResults.forEach(x=>{
     const st=x.r.state||{};
     (st.companies||[]).forEach(c=>{
-      const n=(c.name||'').trim(); if(n&&!companyNames.includes(n))companyNames.push(n);
+      const n=(c.name||'').trim();
+      if(!n)return;
+      if(!companyNames.includes(n))companyNames.push(n);
+      if(!companyJobs[n])companyJobs[n]=[];
+
+      // visibleJobs = 해당 업체 화면에서 실제 사용 중인 직종
+      // 구버전 자료처럼 visibleJobs가 없으면 인원이 있었던 직종만 사용
+      const usedJobs=(Array.isArray(c.visibleJobs)&&c.visibleJobs.length)
+        ? c.visibleJobs
+        : Object.keys(c.jobs||{}).filter(j=>(+(c.jobs||{})[j]||0)>0);
+
+      usedJobs.forEach(j=>{
+        if(j&&!companyJobs[n].includes(j))companyJobs[n].push(j);
+      });
     });
     (st.areas||[]).forEach(a=>{
       const z=(a.zone||'').trim(); if(z&&!zoneNames.includes(z))zoneNames.push(z);
@@ -2569,6 +2584,17 @@ function downloadSearchExcel(){
     if(ia<0&&ib<0)return a.localeCompare(b,'ko');
     if(ia<0)return 1; if(ib<0)return -1; return ia-ib;
   });
+  // 업체별 직종은 기준정보의 직종 순서를 우선 적용
+  companyNames.forEach(name=>{
+    (companyJobs[name]||[]).sort((a,b)=>{
+      const ia=masterJobs.indexOf(a), ib=masterJobs.indexOf(b);
+      if(ia<0&&ib<0)return a.localeCompare(b,'ko');
+      if(ia<0)return 1;
+      if(ib<0)return -1;
+      return ia-ib;
+    });
+  });
+
   const masterEquipment=(D.equipment||[]).map(x=>(x||'').trim()).filter(Boolean);
   equipmentNames.sort((a,b)=>{
     const ia=masterEquipment.indexOf(a), ib=masterEquipment.indexOf(b);
@@ -2584,9 +2610,10 @@ function downloadSearchExcel(){
 
   let col=5;
   companyNames.forEach(name=>{
-    const span=jobNames.length+1; // 직종 + 소계
+    const jobs=companyJobs[name]||[];
+    const span=jobs.length+1; // 이 업체에서 사용하는 직종 + 소계
     header1.push(name,...Array(Math.max(0,span-1)).fill(''));
-    header2.push(...jobNames,'소계');
+    header2.push(...jobs,'소계');
     if(span>1)merges.push({s:{r:0,c:col},e:{r:0,c:col+span-1}});
     col+=span;
   });
@@ -2628,7 +2655,8 @@ function downloadSearchExcel(){
 
     companyNames.forEach(name=>{
       const same=companies.filter(c=>(c.name||'').trim()===name);
-      const vals=jobNames.map(j=>same.reduce((sum,c)=>sum+(+(c.jobs&&c.jobs[j]||0)),0));
+      const jobs=companyJobs[name]||[];
+      const vals=jobs.map(j=>same.reduce((sum,c)=>sum+(+(c.jobs&&c.jobs[j]||0)),0));
       row.push(...vals,vals.reduce((a,b)=>a+b,0));
     });
 
