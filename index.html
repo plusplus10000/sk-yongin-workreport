@@ -161,6 +161,32 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
 .password-box{width:min(92vw,360px);background:#fff;border:1px solid #dbe6f2;border-radius:14px;padding:24px;box-shadow:0 10px 30px #0002;text-align:center}
 .password-box h2{margin:0 0 8px;color:#12365f}.password-box p{font-size:13px;color:#66788c;margin:0 0 16px}.password-box input{width:100%;padding:12px;border:1px solid #cbd9e8;border-radius:8px;font-size:18px;margin-bottom:10px}.password-error{min-height:20px;color:#d22;font-size:13px;margin-top:8px}
 body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobileDrawer{visibility:hidden}
+
+
+/* 2026-10-02: PC 왼쪽 메뉴 / 작업보고 미리보기 접기·펼치기 */
+@media(min-width:851px){
+  .app{transition:grid-template-columns .2s ease}
+  .app.sidebar-collapsed{grid-template-columns:42px 1fr}
+  .app.sidebar-collapsed aside{padding:8px 4px;overflow:hidden}
+  .app.sidebar-collapsed aside .nav-label{display:none}
+  .app.sidebar-collapsed aside button{padding:9px 7px;text-align:center;white-space:nowrap}
+  .sidebar-toggle{font-weight:900;text-align:center!important;border:1px solid rgba(255,255,255,.28)!important;margin-bottom:7px!important}
+
+  #writePage>.grid{grid-template-columns:minmax(300px,.72fr) minmax(0,.95fr) minmax(0,1.05fr)!important}
+  #writePage>.grid.preview-collapsed{grid-template-columns:42px minmax(0,.95fr) minmax(0,1.05fr)!important}
+  .desktop-preview{grid-column:1;grid-row:1;position:sticky;top:0;height:calc(100vh - 60px);min-width:0}
+  .left-col{grid-column:2;grid-row:1}.middle-col{grid-column:3;grid-row:1}
+  .desktop-preview .card{overflow:hidden}
+  .preview-toggle{margin-left:auto}
+  #writePage>.grid.preview-collapsed .desktop-preview .card{padding:5px;align-items:center}
+  #writePage>.grid.preview-collapsed .desktop-preview .title{width:100%;justify-content:center;margin:0}
+  #writePage>.grid.preview-collapsed .desktop-preview .preview-title-text,
+  #writePage>.grid.preview-collapsed .desktop-preview .preview-copy-btn,
+  #writePage>.grid.preview-collapsed #preview{display:none!important}
+  #writePage>.grid.preview-collapsed .desktop-preview .preview-toggle{margin:0;width:30px;padding:5px 2px}
+}
+@media(max-width:850px){.sidebar-toggle{display:none!important}.preview-toggle{margin-left:auto}}
+
 </style><script src="https://accounts.google.com/gsi/client" async defer></script></head>
 <body class="locked"><div id="passwordGate"><div class="password-box"><h2>🔒 작업일보 로그인</h2><p>비밀번호를 입력하세요.</p><input id="appPassword" type="password" inputmode="text" autocomplete="current-password" placeholder="비밀번호"><button class="btn primary" type="button" style="width:100%;padding:11px" onclick="unlockApp()">확인</button><div id="passwordError" class="password-error"></div></div></div><header><div>⛑ <span id="appTitleDisplay">작업일보</span></div><div id="topDate">작업보고 작성</div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
@@ -170,7 +196,7 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
   <button onclick="mobileGo('search',this)">⌕ 검색 / 이력</button>
   <button onclick="mobileGo('master',this)">⚙ 기준정보 관리</button>
 </nav>
-<div class="app"><aside><button class="active" onclick="showPage('write',this)">✎ 작업보고 작성</button><button onclick="showPage('search',this)">⌕ 검색 / 이력</button><button onclick="showPage('master',this)">⚙ 기준정보 관리</button></aside><main>
+<div class="app" id="appShell"><aside><button class="sidebar-toggle" type="button" title="메뉴 접기/펼치기" onclick="toggleSidebar()">☰</button><button class="active" onclick="showPage('write',this)">✎ <span class="nav-label">작업보고 작성</span></button><button onclick="showPage('search',this)">⌕ <span class="nav-label">검색 / 이력</span></button><button onclick="showPage('master',this)">⚙ <span class="nav-label">기준정보 관리</span></button></aside><main>
 <section id="writePage"><div id="driveQuickBar" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ Google Drive 연결</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 연결 안 됨</b></div><div class="grid"><div class="input-col left-col">
 <div class="card"><div class="title"><span><span class="n">1</span>기본 정보</span><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button></div><div class="row">
 <div class="field"><label>현장</label><select id="site"></select></div><div class="field"><label>공종</label><select id="trade"></select></div><div class="field"><label>작업일</label><div style="display:flex;gap:4px"><input id="date" type="date"><button class="btn" type="button" onclick="loadCurrentDateReport()">조회</button></div></div><div class="field"><label>작업시간</label><div style="display:flex;gap:4px"><input id="start" type="time" value="07:30"><input id="end" type="time" value="17:30"></div></div></div><div class="row" style="margin-top:8px"><div class="field"><label>BP사</label><input id="bpa" value="더오포"></div></div></div>
@@ -179,7 +205,7 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
 </div><div class="input-col middle-col"><div class="card"><div class="title"><span><span class="n">4</span>금일 작업 내용</span><button class="btn primary" onclick="addArea()">+ 구역 추가</button></div><div id="areas"></div></div>
 <div class="card"><div class="title"><span><span class="n">5</span>담당자</span><button class="btn" onclick="addManager()">+ 담당자 추가</button></div><div class="manager-scroll"><table class="manager-table"><colgroup><col class="manager-name-col"><col class="manager-role-col"><col class="manager-phone-col"><col class="manager-action-col"></colgroup><thead><tr><th>이름</th><th>직책</th><th>전화번호</th><th>관리</th></tr></thead><tbody id="managers"></tbody></table></div></div>
 <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" onclick="saveReport()">보고서 저장</button><button class="btn primary" onclick="copyPreview()">미리보기 복사</button></div></div>
-<div class="desktop-preview"><div class="card"><div class="title"><span>작업보고 미리보기</span><button class="btn" onclick="copyPreview()">복사하기</button></div><div id="preview" class="preview" contenteditable="true"></div></div></div></div></section>
+<div class="desktop-preview"><div class="card"><div class="title"><span class="preview-title-text">작업보고 미리보기</span><button class="btn preview-copy-btn" onclick="copyPreview()">복사하기</button><button class="btn preview-toggle" type="button" title="미리보기 접기/펼치기" onclick="togglePreview()">◀</button></div><div id="preview" class="preview" contenteditable="true"></div></div></div></div></section>
 <section id="searchPage" class="search-panel"><div class="card"><div class="title"><span>검색 / 이력 조회</span><button class="btn" type="button" onclick="resetSearch()">↻ 새로고침</button></div><div class="row"><div class="field"><label>검색 유형</label><select id="searchType" onchange="updateSearchHint()"><option value="keyword">작업내용</option><option value="equipment">장비</option><option value="trade">공종</option><option value="job">직종</option><option value="area">구역</option></select></div><div class="field"><label id="queryLabel">작업내용 검색어</label><input id="query" placeholder="비워두면 전체 목록"><select id="querySelect" style="display:none"></select></div><div class="field"><label>시작일</label><input id="from" type="date"></div><div class="field"><label>종료일</label><input id="to" type="date"></div></div><button class="btn primary" style="margin-top:10px" onclick="searchReports()">검색</button><div id="results" class="results"></div></div></section>
 <section id="masterPage" class="search-panel"><div class="card"><div class="title">기준정보 관리</div><p>앱 타이틀과 기준정보를 수정한 뒤 저장하세요. 저장 즉시 PC·모바일 화면에 반영됩니다.</p><div class="field"><label>앱 타이틀</label><input id="masterAppTitle" maxlength="40" placeholder="예: SK 용인 작업일보"></div><div class="field"><label>현장</label><input id="masterSites"></div><div class="field"><label>공종</label><input id="masterTrades"></div><div class="field"><label>직종</label><input id="masterJobs"></div><div class="field"><label>장비</label><input id="masterEquipment"></div><div class="field"><label>구역 / 위치범위</label><div id="masterZones"></div><button class="btn" type="button" onclick="addMasterZone()">+ 구역 추가</button></div><div class="field"><label>담당</label><textarea id="masterManagers" rows="5" placeholder="한 줄에 1명: 이름 | 직책 | 전화번호"></textarea></div><div class="card" style="margin-top:14px;background:#f8fbff">
 <div class="title" style="font-size:16px">☁ Google Drive 자료 공유</div>
@@ -248,6 +274,23 @@ function loadCurrentDateReport(){let rs=JSON.parse(localStorage.getItem('reports
 function saveReport(){let reports=JSON.parse(localStorage.getItem('reports')||'[]');let obj={date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,state:JSON.parse(JSON.stringify(state)),text:reportText()};let ix=reports.findIndex(r=>r.date===obj.date&&r.site===obj.site&&r.trade===obj.trade);if(ix>=0)reports[ix]=obj;else reports.push(obj);localStorage.setItem('reports',JSON.stringify(reports));autoSave();markLocalChanged();if(tokenValid())scheduleAutoSync();alert('보고서로 저장했습니다.'+(tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''))}
 function loadYesterday(){let d=new Date($('date').value+'T00:00:00');d.setDate(d.getDate()-1);let y=d.toISOString().slice(0,10),rs=JSON.parse(localStorage.getItem('reports')||'[]');let r=rs.find(x=>x.date===y&&x.site===$('site').value&&x.trade===$('trade').value);if(!r)return alert('전날 저장된 보고서가 없습니다.');state=JSON.parse(JSON.stringify(r.state));render()}
 async function copyPreview(){await navigator.clipboard.writeText($('preview').innerText);alert('복사했습니다.')}
+function toggleSidebar(){
+  const app=$('appShell');if(!app)return;
+  app.classList.toggle('sidebar-collapsed');
+  localStorage.setItem('sidebarCollapsed',app.classList.contains('sidebar-collapsed')?'1':'0');
+}
+function togglePreview(){
+  const grid=document.querySelector('#writePage>.grid');if(!grid)return;
+  grid.classList.toggle('preview-collapsed');
+  const collapsed=grid.classList.contains('preview-collapsed');
+  const btn=document.querySelector('.preview-toggle');if(btn){btn.textContent=collapsed?'▶':'◀';btn.title=collapsed?'미리보기 펼치기':'미리보기 접기'}
+  localStorage.setItem('previewCollapsed',collapsed?'1':'0');
+}
+function restorePanelStates(){
+  const app=$('appShell');if(app&&localStorage.getItem('sidebarCollapsed')==='1')app.classList.add('sidebar-collapsed');
+  const grid=document.querySelector('#writePage>.grid');
+  if(grid&&localStorage.getItem('previewCollapsed')==='1'){grid.classList.add('preview-collapsed');const btn=document.querySelector('.preview-toggle');if(btn){btn.textContent='▶';btn.title='미리보기 펼치기'}}
+}
 function toggleMobileMenu(){document.getElementById('mobileDrawer').classList.toggle('open');document.getElementById('mobileOverlay').classList.toggle('open')}
 function closeMobileMenu(){document.getElementById('mobileDrawer').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('open')}
 function mobileGo(page,btn){showPage(page,null);document.querySelectorAll('#mobileDrawer button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');closeMobileMenu();window.scrollTo({top:0,behavior:'smooth'})}
@@ -274,6 +317,9 @@ function searchReports(){
   rs.forEach(r=>{
     if((from&&r.date<from)||(to&&r.date>to))return;
     const st=r.state||{}, areas=st.areas||[], equips=st.equipment||[];
+    // 인원·하부작업 초기화 등으로 실제 작업내용이 비어 있는 보고서는 검색 결과에서 제외
+    const hasWork=areas.some(a=>(a.tasks||[]).some(t=>(t||'').trim()));
+    if(!hasWork)return;
     let matched=false;
     if(type==='keyword'){
       const taskText=areas.flatMap(a=>a.tasks||[]).join(' ').toLowerCase(); matched=!q||taskText.includes(q);
@@ -411,4 +457,5 @@ function initPasswordGate(){
 initPasswordGate();
 
 init();
+restorePanelStates();
 </script></body></html>
