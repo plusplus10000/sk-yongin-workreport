@@ -814,6 +814,246 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
   font-weight:700!important;
 }
 
+
+/* 금일 작업내용: 넓은 창에서도 작업내용 글씨가 충분히 보이도록 원래형 반응 배치 */
+@media(min-width:851px){
+ #areas .area .area-layout{display:grid!important;grid-template-columns:minmax(230px,32%) minmax(360px,1fr)!important;gap:8px!important;align-items:start!important;width:100%!important}
+ #areas .area .area-meta{grid-column:1!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:auto auto!important;gap:4px!important}
+ #areas .area .area-name-input{grid-column:1!important;grid-row:1!important;width:100%!important}
+ #areas .area .area-location-input{grid-column:1!important;grid-row:2!important;width:100%!important}
+ #areas .area .area-delete-btn{grid-column:2!important;grid-row:1 / span 2!important}
+ #areas .area .area-tasks{grid-column:2!important;width:100%!important;min-width:0!important}
+}
+@media(min-width:851px) and (max-width:1150px){
+ #areas .area .area-layout{grid-template-columns:minmax(210px,36%) minmax(300px,1fr)!important}
+}
+/* 숨김 담당자: 이름·직책·연락처 회색 + 숨김 버튼 중회색 */
+#managers tr.manager-hidden td:nth-child(-n+3) input{background:#e2e5e9!important;color:#6b7280!important;border-color:#c4c9cf!important}
+#managers .manager-hidden-btn{background:#777f89!important;border-color:#777f89!important;color:#fff!important;font-weight:700!important}
+
+
+/* 금일 작업 내용 최종 배치
+   1행: WWT + 위치 + 삭제
+   2행: 작업내용 */
+#areas .area .area-layout{
+  display:block!important;
+  width:100%!important;
+}
+#areas .area .area-meta{
+  display:grid!important;
+  grid-template-columns:minmax(90px,.85fr) minmax(150px,1.45fr) auto!important;
+  grid-template-rows:auto!important;
+  gap:5px!important;
+  align-items:center!important;
+  width:100%!important;
+}
+#areas .area .area-name-input{
+  grid-column:1!important;
+  grid-row:1!important;
+  width:100%!important;
+  min-width:0!important;
+}
+#areas .area .area-location-input{
+  grid-column:2!important;
+  grid-row:1!important;
+  width:100%!important;
+  min-width:0!important;
+}
+#areas .area .area-delete-btn{
+  grid-column:3!important;
+  grid-row:1!important;
+  align-self:center!important;
+  width:auto!important;
+  min-width:38px!important;
+}
+#areas .area .area-tasks{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  margin-top:5px!important;
+}
+#areas .area .area-tasks .subtask{
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) auto auto!important;
+  gap:5px!important;
+  align-items:center!important;
+  width:100%!important;
+  margin:0 0 5px!important;
+}
+#areas .area .area-tasks .subtask input{
+  width:100%!important;
+  min-width:0!important;
+}
+@media(max-width:520px){
+  #areas .area .area-meta{
+    grid-template-columns:minmax(82px,.8fr) minmax(125px,1.35fr) auto!important;
+    gap:4px!important;
+  }
+  #areas .area .area-tasks{margin-top:5px!important}
+}
+
+
+/* 작업일 날짜는 YYYY-MM-DD 전체가 항상 보이도록 최소 폭 확보 */
+.basic-date .date-nav{
+  display:grid!important;
+  grid-template-columns:auto minmax(132px,1fr) auto!important;
+  gap:4px!important;
+  align-items:center!important;
+  width:100%!important;
+  min-width:205px!important;
+}
+.basic-date .date-nav #date{
+  width:100%!important;
+  min-width:132px!important;
+  box-sizing:border-box!important;
+  font-size:12px!important;
+  padding-left:8px!important;
+  padding-right:5px!important;
+}
+@media(max-width:850px){
+  .basic-date{min-width:0!important}
+  .basic-date .date-nav{
+    grid-template-columns:32px minmax(132px,1fr) 32px!important;
+    min-width:204px!important;
+  }
+  .basic-date .date-nav #date{
+    min-width:132px!important;
+    font-size:12px!important;
+  }
+}
+
+
+/* 작업일 조회 버튼: 하늘색 */
+.date-query-btn{
+  background:#d9f0ff!important;
+  border-color:#8fcdf5!important;
+  color:#075f9c!important;
+  font-weight:700!important;
+}
+.date-query-btn:hover{
+  background:#c7e9ff!important;
+}
+
+
+/* 업체 인원소계 0명: 담당자 숨김처럼 회색, 인원 입력 시 자동 원복 */
+#companies .company.company-zero{
+  background:#eef0f2!important;
+  border-color:#c9ced4!important;
+}
+#companies .company.company-zero .company-name,
+#companies .company.company-zero .counter input{
+  background:#e2e5e9!important;
+  color:#6b7280!important;
+  border-color:#c4c9cf!important;
+}
+#companies .company.company-zero .job-name,
+#companies .company.company-zero .personnel-subtotal{
+  color:#6b7280!important;
+}
+
+
+/* 날짜 버튼 겹침 방지 */
+.basic-date .date-with-query{display:grid!important;grid-template-columns:minmax(200px,1fr) auto!important;gap:5px!important;align-items:center!important;width:100%!important;min-width:250px!important}
+.basic-date .date-nav{display:grid!important;grid-template-columns:28px minmax(132px,1fr) 28px!important;gap:4px!important;align-items:center!important;width:100%!important;min-width:200px!important}
+.basic-date .date-nav #date{width:100%!important;min-width:132px!important;box-sizing:border-box!important}
+.basic-date .date-nav-btn{width:28px!important;min-width:28px!important;padding:2px!important}
+.basic-date .date-query-btn{position:static!important;min-width:38px!important;white-space:nowrap!important;margin:0!important}
+@media(max-width:850px){.basic-date .date-nav{grid-template-columns:30px minmax(132px,1fr) 30px!important}}
+/* 작업내용 없는 구역 회색 */
+#areas .area.area-empty{background:#eef0f2!important;border-color:#c9ced4!important}
+#areas .area.area-empty .area-name-input,#areas .area.area-empty .area-location-input,#areas .area.area-empty .subtask input{background:#e2e5e9!important;color:#6b7280!important;border-color:#c4c9cf!important}
+#areas .area.area-empty .subtask>span{color:#6b7280!important}
+
+
+/* 기본정보 작업일 영역 폭 확보 + 날짜 버튼 반응형 최종 */
+@media(min-width:851px){
+  .basic-info-grid{
+    grid-template-columns:minmax(105px,.85fr) minmax(105px,.85fr) minmax(245px,1.55fr)!important;
+    gap:7px!important;
+  }
+  .basic-date{min-width:245px!important;overflow:visible!important}
+}
+.basic-date .date-with-query{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 38px!important;
+  column-gap:5px!important;
+  align-items:center!important;
+  width:100%!important;
+  min-width:0!important;
+  overflow:visible!important;
+}
+.basic-date .date-nav{
+  display:grid!important;
+  grid-template-columns:28px minmax(118px,1fr) 28px!important;
+  gap:4px!important;
+  align-items:center!important;
+  width:100%!important;
+  min-width:0!important;
+  overflow:visible!important;
+}
+.basic-date .date-nav #date{
+  width:100%!important;
+  min-width:118px!important;
+  box-sizing:border-box!important;
+  padding-left:7px!important;
+  padding-right:4px!important;
+  font-size:12px!important;
+}
+.basic-date .date-nav-btn{
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  position:static!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:28px!important;
+  min-width:28px!important;
+  max-width:28px!important;
+  height:27px!important;
+  padding:0!important;
+  flex:none!important;
+}
+.basic-date .date-query-btn{
+  display:inline-flex!important;
+  position:static!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:38px!important;
+  min-width:38px!important;
+  height:27px!important;
+  padding:0 4px!important;
+  margin:0!important;
+  white-space:nowrap!important;
+}
+@media(max-width:850px){
+  .basic-date{min-width:0!important;width:100%!important}
+  .basic-date .date-with-query{
+    grid-template-columns:minmax(0,1fr) 38px!important;
+    min-width:0!important;
+  }
+  .basic-date .date-nav{
+    grid-template-columns:28px minmax(118px,1fr) 28px!important;
+    min-width:0!important;
+  }
+}
+@media(max-width:520px){
+  .basic-date .date-with-query{
+    grid-template-columns:minmax(0,1fr) 36px!important;
+    gap:3px!important;
+  }
+  .basic-date .date-nav{
+    grid-template-columns:26px minmax(112px,1fr) 26px!important;
+    gap:3px!important;
+  }
+  .basic-date .date-nav-btn{
+    width:26px!important;min-width:26px!important;max-width:26px!important;
+  }
+  .basic-date .date-nav #date{
+    min-width:112px!important;font-size:11px!important;padding-left:5px!important;
+  }
+  .basic-date .date-query-btn{width:36px!important;min-width:36px!important;font-size:10px!important}
+}
+
 </style><script src="https://accounts.google.com/gsi/client" async defer></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
 <body class="locked"><div id="passwordGate"><div class="password-box"><h2>🔒 작업일보 로그인</h2><p>비밀번호를 입력하세요.</p><input id="appPassword" type="password" inputmode="text" autocomplete="current-password" placeholder="비밀번호"><button class="btn primary" type="button" style="width:100%;padding:11px" onclick="unlockApp()">확인</button><div id="passwordError" class="password-error"></div></div></div><header><div>⛑ <span id="appTitleDisplay">작업일보</span></div><div class="header-right"><div id="topDate">작업보고 작성</div></div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
@@ -832,7 +1072,7 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
 <button class="btn date-nav-btn" type="button" onclick="moveWorkDate(-1)" title="전날">◀</button>
 <input id="date" type="date">
 <button class="btn date-nav-btn" type="button" onclick="moveWorkDate(1)" title="다음날">▶</button>
-</div><button class="btn" type="button" onclick="loadCurrentDateReport()">조회</button></div></div>
+</div><button class="btn date-query-btn" type="button" onclick="loadCurrentDateReport()">조회</button></div></div>
 <div class="field basic-time"><label>작업시간</label><div class="time-pair"><input id="start" type="time" value="07:30"><input id="end" type="time" value="17:30"></div></div>
 <div class="field basic-bpa"><label>BP사</label><input id="bpa" value="더오포"></div>
 </div></div>
@@ -870,7 +1110,7 @@ function normalizeCompanyJobs(c){
 }
 function renderCompanies(){
   state.companies.forEach(normalizeCompanyJobs);
-  $('companies').innerHTML=state.companies.map((c,i)=>`<div class="company">
+  $('companies').innerHTML=state.companies.map((c,i)=>{const companyTotal=Object.values(c.jobs||{}).reduce((sum,v)=>sum+(+v||0),0);return `<div class="company ${companyTotal===0?'company-zero':''}">
     <div class="company-head">
       <input class="company-name" value="${esc(c.name)}" oninput="state.companies[${i}].name=this.value;updatePreview()">
       <span class="company-total personnel-subtotal">인원소계 <b id="ct${i}"></b></span>
@@ -890,7 +1130,7 @@ function renderCompanies(){
       <span class="job-label-row"><span class="job-name">${esc(j)}</span><button class="job-remove-btn" type="button" title="이 업체에서 직종 숨기기" onclick="removeCompanyJob(${i},'${esc(j)}');event.preventDefault()">−</button></span>
       <span class="counter"><button type="button" onclick="changeJob(${i},'${j}',-1)">−</button><input type="number" min="0" max="999" inputmode="numeric" value="${c.jobs[j]||0}" oninput="if(this.value.length>3)this.value=this.value.slice(0,3);if(+this.value>999)this.value=999;state.companies[${i}].jobs['${j}']=+this.value||0;calcTotals()"><button type="button" onclick="changeJob(${i},'${j}',1)">+</button></span>
     </label>`).join('')}</div>
-  </div>`).join('');
+  </div>`}).join('');
   calcTotals();
 }
 function moveCompany(i,dir){
@@ -920,10 +1160,15 @@ function toggleJobPicker(i,e){
   const m=$('jobPicker'+i); if(m)m.style.display=m.style.display==='none'?'block':'none';
 }
 document.addEventListener('click',()=>document.querySelectorAll('.job-picker-menu').forEach(m=>m.style.display='none'));
-function calcTotals(){let g=0;state.companies.forEach((c,i)=>{let t=Object.values(c.jobs).reduce((a,b)=>a+(+b||0),0);g+=t;let e=$('ct'+i);if(e)e.textContent=t+'명'});$('grandTotal').textContent=g+'명';updatePreview()}
+function calcTotals(){let g=0;state.companies.forEach((c,i)=>{let t=Object.values(c.jobs).reduce((a,b)=>a+(+b||0),0);g+=t;let e=$('ct'+i);if(e)e.textContent=t+'명'});$('grandTotal').textContent=g+'명';updatePreview();document.querySelectorAll('#companies>.company').forEach((el,i)=>{const c=state.companies[i];if(!c)return;const t=Object.values(c.jobs||{}).reduce((a,v)=>a+(+v||0),0);el.classList.toggle('company-zero',t===0)})}
 function addCompany(){state.companies.push(mkCompany('새 업체'));renderCompanies();updatePreview()}
 function renderEquipment(){$('equipments').innerHTML=state.equipment.map((e,i)=>`<tr><td><input style="width:100%" value="${esc(e.name)}" list="equipList" oninput="state.equipment[${i}].name=this.value;updatePreview()"></td><td><span class="counter"><button type="button" onclick="changeEquip(${i},-1)">−</button><input type="number" min="0" max="999" value="${e.qty}" oninput="state.equipment[${i}].qty=Math.min(999,+this.value||0);updatePreview()"><button type="button" onclick="changeEquip(${i},1)">+</button></span></td><td><input style="width:100%" value="${esc(e.note)}" oninput="state.equipment[${i}].note=this.value"></td><td><button class="btn" onclick="state.equipment.splice(${i},1);renderEquipment();updatePreview()">삭제</button></td></tr>`).join('')+`<datalist id="equipList">${D.equipment.map(x=>`<option value="${esc(x)}">`).join('')}</datalist>`}
 function addEquipment(){state.equipment.push({name:'',qty:1,note:''});renderEquipment()}
+function updateAreaEmptyStyle(i){
+ const a=state.areas[i],el=$('areas')?.children?.[i];
+ if(!a||!el)return;
+ el.classList.toggle('area-empty',!(a.tasks||[]).some(t=>(t||'').trim()));
+}
 function renderAreas(){
   normalizeZones();
   const zones=(D.zones||[]).filter(z=>z&&z.zone);
@@ -935,7 +1180,7 @@ function renderAreas(){
     const master=zones.find(z=>z.zone===a.zone);
     if(master && !a.loc)a.loc=master.loc||'';
     const options=zones.map(z=>`<option value="${esc(z.zone)}" ${z.zone===a.zone?'selected':''}>${esc(z.zone)}</option>`).join('');
-    return `<div class="area">
+    return `<div class="area ${!(a.tasks||[]).some(t=>(t||'').trim())?'area-empty':''}">
       <div class="area-layout">
         <div class="area-meta">
           <select class="area-name-input" onchange="applyZone(${i},this.value)">
@@ -945,7 +1190,7 @@ function renderAreas(){
           <button class="btn area-delete-btn" onclick="state.areas.splice(${i},1);render()">삭제</button>
         </div>
         <div class="area-tasks">
-          ${(a.tasks||[]).map((t,j)=>`<div class="subtask"><span>${j+1}.</span><input value="${esc(t)}" placeholder="작업내용" oninput="state.areas[${i}].tasks[${j}]=this.value;updatePreview()"><button class="btn" onclick="state.areas[${i}].tasks.splice(${j},1);if(state.areas[${i}].tasks.length===0)state.areas[${i}].tasks.push('');render()">−</button><button class="btn" onclick="state.areas[${i}].tasks.splice(${j+1},0,'');render()">+</button></div>`).join('')}
+          ${(a.tasks||[]).map((t,j)=>`<div class="subtask"><span>${j+1}.</span><input value="${esc(t)}" placeholder="작업내용" oninput="state.areas[${i}].tasks[${j}]=this.value;updateAreaEmptyStyle(${i});updatePreview()"><button class="btn" onclick="state.areas[${i}].tasks.splice(${j},1);if(state.areas[${i}].tasks.length===0)state.areas[${i}].tasks.push('');render()">−</button><button class="btn" onclick="state.areas[${i}].tasks.splice(${j+1},0,'');render()">+</button></div>`).join('')}
         </div>
       </div>
     </div>`;
@@ -961,11 +1206,11 @@ function refreshManagerMasters(){
 function renderManagers(){
   refreshManagerMasters();
   state.managers=state.managers.map(m=>Array.isArray(m)?[m[0]||'',m[1]||'',m[2]||'',m.length>3?m[3]:true]:m);
-  $('managers').innerHTML=state.managers.map((m,i)=>`<tr>
+  $('managers').innerHTML=state.managers.map((m,i)=>`<tr class="${m[3]===false?'manager-hidden':''}">
   <td><input style="width:100%" value="${esc(m[0])}" list="managerList" onchange="selectManager(${i},this.value)" oninput="state.managers[${i}][0]=this.value;updatePreview()"></td>
   <td><input style="width:100%" value="${esc(m[1])}" oninput="state.managers[${i}][1]=this.value;updatePreview()"></td>
   <td><input style="width:100%" value="${esc(m[2])}" oninput="state.managers[${i}][2]=this.value;updatePreview()"></td>
-  <td style="white-space:nowrap"><button class="btn" onclick="toggleManager(${i})">${m[3]!==false?'표시':'숨김'}</button> <button class="btn" onclick="state.managers.splice(${i},1);renderManagers();updatePreview()">삭제</button></td></tr>`).join('')+`<datalist id="managerList">${(D.managers||[]).map(m=>`<option value="${esc(m[0])}">${esc(m[1]||'')} ${esc(m[2]||'')}</option>`).join('')}</datalist>`
+  <td style="white-space:nowrap"><button class="btn ${m[3]===false?'manager-hidden-btn':''}" onclick="toggleManager(${i})">${m[3]!==false?'표시':'숨김'}</button> <button class="btn" onclick="state.managers.splice(${i},1);renderManagers();updatePreview()">삭제</button></td></tr>`).join('')+`<datalist id="managerList">${(D.managers||[]).map(m=>`<option value="${esc(m[0])}">${esc(m[1]||'')} ${esc(m[2]||'')}</option>`).join('')}</datalist>`
 }
 function selectManager(i,name){let m=(D.managers||[]).find(x=>x[0]===name);if(m){state.managers[i]=[m[0]||'',m[1]||'',m[2]||'',state.managers[i][3]!==false];renderManagers();updatePreview()}}
 function toggleManager(i){state.managers[i][3]=state.managers[i][3]===false?true:false;renderManagers();updatePreview()}
@@ -996,11 +1241,23 @@ function moveWorkDate(days){
   let d=el.value?new Date(el.value+'T00:00:00'):new Date();
   if(isNaN(d))d=new Date();
   d.setDate(d.getDate()+days);
-  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
-  el.value=`${y}-${m}-${day}`;
-  clearDailyValuesForDateMove();
-  render();
-  autoSave();
+  const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+  el.value=`${y}-${mo}-${day}`;
+
+  const rs=JSON.parse(localStorage.getItem('reports')||'[]');
+  const r=rs.find(x=>x.date===el.value&&x.site===$('site').value&&x.trade===$('trade').value);
+  if(r){
+    $('start').value=r.start||'07:30';
+    $('end').value=r.end||'17:30';
+    $('bpa').value=r.bpa||'';
+    state=JSON.parse(JSON.stringify(r.state));
+    render();
+    autoSave();
+  }else{
+    clearDailyValuesForDateMove();
+    render();
+    autoSave();
+  }
 }
 function updatePreview(){$('preview').textContent=reportText();autoSave()}
 function autoSave(){if(!$('date'))return;localStorage.setItem('currentDraft',JSON.stringify({date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,state:state}))}
