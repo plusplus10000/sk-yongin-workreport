@@ -1382,7 +1382,7 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
 <input id="date" type="date">
 <button class="btn date-nav-btn" type="button" onclick="moveWorkDate(1)" title="다음날">▶</button>
 </div><button class="btn date-query-btn" type="button" onclick="loadCurrentDateReport()">조회</button></div></div>
-<div class="field basic-time"><label>작업시간</label><div class="time-pair"><input id="start" type="time" value="07:30"><input id="end" type="time" value="17:30"></div></div>
+<div class="field basic-time"><label>작업시간</label><div class="time-pair"><input id="start" type="time" value="07:30"><input id="end" type="time" value="17:00"></div></div>
 <div class="field basic-bpa"><label>BP사</label><input id="bpa" value="더오포"></div>
 </div></div>
 <div class="card"><div class="title"><span><span class="n">2</span>업체 입력 (공종별 인원)</span><span class="total-inline">총 투입인원 <span class="total" id="grandTotal">0명</span></span><button class="btn primary" onclick="addCompany()">+ 업체 입력</button></div><div id="companies"></div></div>
@@ -1408,7 +1408,7 @@ let currentOvertimeNo=0;
 const $=id=>document.getElementById(id); const esc=s=>(s??'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 function normalizeZones(){D.zones=(D.zones||[]).map(z=>typeof z==='string'?{zone:z,loc:''}:z)}
 function applyAppTitle(){let t=(D.appTitle||'우리공 일보').trim()||'우리공 일보';D.appTitle=t;let h=$('appTitleDisplay'),m=$('mobileAppTitle');if(h)h.textContent=t;if(m)m.textContent=t;document.title=t;}
-function init(){let m=JSON.parse(localStorage.getItem('masters')||'null');if(m)Object.assign(D,m);normalizeZones();applyAppTitle();fillSelects();normalizeReportsStorage();let draft=JSON.parse(localStorage.getItem('currentDraft')||'null');if(draft){currentWorkType=draft.workType==='overtime'?'overtime':'weekly';currentOvertimeNo=currentWorkType==='overtime'?(+draft.overtimeNo||1):0;$('date').value=draft.date||new Date().toISOString().slice(0,10);$('site').value=draft.site||D.sites[0];$('trade').value=draft.trade||D.trades[0];$('start').value=draft.start||'07:30';$('end').value=draft.end||'17:30';$('bpa').value=draft.bpa||'더오포';state=draft.state||state}else{$('date').value=new Date().toISOString().slice(0,10);state.companies=[mkCompany('하나'),mkCompany('스틸'),mkCompany('고려')];state.equipment=[{name:'T/L',qty:3,note:''}];state.areas=[{zone:'WWT 1F',loc:'X6~8, Y20~24',tasks:['기수압 테스트 준비','케이블 포설 및 결선']}];state.managers=JSON.parse(JSON.stringify(D.managers||[]))}render();['site','trade','start','end','bpa'].forEach(x=>$(x).addEventListener('input',()=>{updatePreview();autoSave();updateWorkModeTabs();updateCloseButtons()}));$('date').addEventListener('change',loadDateOrBlank);window.addEventListener('beforeunload',autoSave);}
+function init(){let m=JSON.parse(localStorage.getItem('masters')||'null');if(m)Object.assign(D,m);normalizeZones();applyAppTitle();fillSelects();normalizeReportsStorage();let draft=JSON.parse(localStorage.getItem('currentDraft')||'null');if(draft){currentWorkType=draft.workType==='overtime'?'overtime':'weekly';currentOvertimeNo=currentWorkType==='overtime'?(+draft.overtimeNo||1):0;$('date').value=draft.date||new Date().toISOString().slice(0,10);$('site').value=draft.site||D.sites[0];$('trade').value=draft.trade||D.trades[0];$('start').value=draft.start||(currentWorkType==='overtime'?'17:00':'07:30');$('end').value=draft.end||(currentWorkType==='overtime'?'19:00':'17:00');$('bpa').value=draft.bpa||'더오포';state=draft.state||state}else{$('date').value=new Date().toISOString().slice(0,10);state.companies=[mkCompany('하나'),mkCompany('스틸'),mkCompany('고려')];state.equipment=[{name:'T/L',qty:3,note:''}];state.areas=[{zone:'WWT 1F',loc:'X6~8, Y20~24',tasks:['기수압 테스트 준비','케이블 포설 및 결선']}];state.managers=JSON.parse(JSON.stringify(D.managers||[]))}render();['site','trade','start','end','bpa'].forEach(x=>$(x).addEventListener('input',()=>{updatePreview();autoSave();updateWorkModeTabs();updateCloseButtons()}));$('date').addEventListener('change',loadDateOrBlank);window.addEventListener('beforeunload',autoSave);}
 function mkCompany(name){return{name,jobs:Object.fromEntries(D.jobs.map(j=>[j,0])),visibleJobs:[...D.jobs]}}
 function fillSelects(){ if($('masterAppTitle'))$('masterAppTitle').value=D.appTitle||'우리공 일보';$('site').innerHTML=D.sites.map(x=>`<option>${esc(x)}</option>`).join('');$('trade').innerHTML=D.trades.map(x=>`<option>${esc(x)}</option>`).join('');$('masterSites').value=D.sites.join(', ');$('masterTrades').value=D.trades.join(', ');$('masterJobs').value=D.jobs.join(', ');$('masterEquipment').value=D.equipment.join(', ');renderMasterZones();$('masterManagers').value=(D.managers||[]).map(m=>m.join(' | ')).join('\n')}
 function render(){renderCompanies();renderEquipment();renderAreas();renderManagers();updatePreview();updateWorkModeTabs();updateCloseButtons()}
@@ -1547,40 +1547,37 @@ function stashModeDraft(){if(!$('date'))return;const drafts=getModeDrafts();draf
 function normalizeReportsStorage(){
   let raw=[];
   try{raw=JSON.parse(localStorage.getItem('reports')||'[]')}catch(e){raw=[]}
-  if(!Array.isArray(raw)){raw=[]}
+  if(!Array.isArray(raw))raw=[];
   const seen=new Map();
-  let changed=false;
   raw.forEach(r=>{
-    if(!r||!r.date||!r.site||!r.trade){changed=true;return}
-    const wt=reportTypeOf(r);
-    const ot=reportOvertimeNoOf(r);
+    if(!r||!r.date||!r.site||!r.trade)return;
+    const wt=reportTypeOf(r),ot=reportOvertimeNoOf(r);
     const key=modeKey(r.date,r.site,r.trade,wt,ot);
     const normalized=Object.assign({},r,{workType:wt,overtimeNo:wt==='overtime'?ot:0});
-    if(r.workType!==normalized.workType||(+r.overtimeNo||0)!==normalized.overtimeNo)changed=true;
-    if(seen.has(key))changed=true;
-    seen.set(key,normalized);
+    const prev=seen.get(key);
+    // 검색용으로만 중복을 1건으로 보이게 한다. 저장자료 자체는 여기서 지우지 않는다.
+    if(!prev)seen.set(key,normalized);
+    else if(!hasMeaningfulReportData(prev)&&hasMeaningfulReportData(normalized))seen.set(key,normalized);
   });
-  const out=[...seen.values()];
-  if(changed||out.length!==raw.length)localStorage.setItem('reports',JSON.stringify(out));
-  return out;
+  return [...seen.values()];
 }
 function findSavedReport(date,site,trade,type='weekly',no=0){const rs=normalizeReportsStorage();return rs.find(r=>r.date===date&&r.site===site&&r.trade===trade&&reportTypeOf(r)===(type==='overtime'?'overtime':'weekly')&&reportOvertimeNoOf(r)===(type==='overtime'?(+no||1):0))||null}
 function findModeDraft(date,site,trade,type='weekly',no=0){const d=getModeDrafts();return d[modeKey(date,site,trade,type,no)]||null}
-function applyReportLike(r,type,no){if(!r)return false;currentWorkType=type==='overtime'?'overtime':'weekly';currentOvertimeNo=currentWorkType==='overtime'?(+no||1):0;$('start').value=r.start||'07:30';$('end').value=r.end||'17:30';$('bpa').value=r.bpa||'';state=JSON.parse(JSON.stringify(r.state||{companies:[],equipment:[],areas:[],managers:[]}));render();autoSave();return true}
+function applyReportLike(r,type,no){if(!r)return false;currentWorkType=type==='overtime'?'overtime':'weekly';currentOvertimeNo=currentWorkType==='overtime'?(+no||1):0;$('start').value=r.start||(currentWorkType==='overtime'?'17:00':'07:30');$('end').value=r.end||(currentWorkType==='overtime'?'19:00':'17:00');$('bpa').value=r.bpa||'';state=JSON.parse(JSON.stringify(r.state||{companies:[],equipment:[],areas:[],managers:[]}));render();autoSave();return true}
 function listOvertimeNumbers(){const date=$('date')?.value,site=$('site')?.value,trade=$('trade')?.value;if(!date)return[];const nums=new Set();const rs=normalizeReportsStorage();rs.forEach(r=>{if(r.date===date&&r.site===site&&r.trade===trade&&reportTypeOf(r)==='overtime')nums.add(reportOvertimeNoOf(r))});const drafts=getModeDrafts();Object.values(drafts).forEach(r=>{if(r&&r.date===date&&r.site===site&&r.trade===trade&&r.workType==='overtime')nums.add(+r.overtimeNo||1)});if(currentWorkType==='overtime')nums.add(currentOvertimeNo||1);return [...nums].filter(n=>n>0).sort((a,b)=>a-b)}
 function updateWorkModeTabs(){const host=$('workModeTabs');if(!host||!$('date'))return;const nums=listOvertimeNumbers();const weeklyActive=currentWorkType!=='overtime';let h=`<button type="button" class="btn work-mode-btn ${weeklyActive?'active':''}" onclick="switchWorkMode('weekly',0)">주간</button>`;nums.forEach(n=>{const active=currentWorkType==='overtime'&&currentOvertimeNo===n;h+=`<span class="mode-tab-wrap ${active?'active':''}"><button type="button" class="btn work-mode-btn" onclick="switchWorkMode('overtime',${n})">연장${nums.length>1?n:''}</button><button type="button" class="mode-delete-btn" title="연장 삭제" aria-label="연장 ${n} 삭제" onclick="event.stopPropagation();deleteOvertime(${n})">−</button></span>`});h+=`<button type="button" class="btn overtime-add-btn" onclick="createOvertime()">연장+</button>`;host.innerHTML=h}
 function switchWorkMode(type,no=0){if(type==='overtime'&&!(+no))return;stashModeDraft();const date=$('date').value,site=$('site').value,trade=$('trade').value;const targetType=type==='overtime'?'overtime':'weekly',targetNo=targetType==='overtime'?(+no||1):0;let r=findModeDraft(date,site,trade,targetType,targetNo)||findSavedReport(date,site,trade,targetType,targetNo);if(r){applyReportLike(r,targetType,targetNo)}else if(targetType==='weekly'){currentWorkType='weekly';currentOvertimeNo=0;loadDateOrBlank()}updateWorkModeTabs();updateCloseButtons()}
-function cloneForOvertime(base){return {date:$('date').value,site:$('site').value,trade:$('trade').value,start:(base&&base.start)||$('start').value||'17:30',end:(base&&base.end)||$('end').value||'19:30',bpa:(base&&base.bpa)||$('bpa').value||'',state:JSON.parse(JSON.stringify((base&&base.state)||state))}}
+function cloneForOvertime(base){return {date:$('date').value,site:$('site').value,trade:$('trade').value,start:'17:00',end:'19:00',bpa:(base&&base.bpa)||$('bpa').value||'',state:JSON.parse(JSON.stringify((base&&base.state)||state))}}
 function createOvertime(){stashModeDraft();const date=$('date').value,site=$('site').value,trade=$('trade').value;const nums=listOvertimeNumbers();const next=(nums.length?Math.max(...nums):0)+1;let base=findModeDraft(date,site,trade,'weekly',0)||findSavedReport(date,site,trade,'weekly',0);if(!base&&currentWorkType==='weekly')base=makeCurrentDraftObject();const o=cloneForOvertime(base);o.workType='overtime';o.overtimeNo=next;const drafts=getModeDrafts();drafts[modeKey(date,site,trade,'overtime',next)]=o;setModeDrafts(drafts);applyReportLike(o,'overtime',next);markLocalChanged();updateWorkModeTabs()}
 function hasMeaningfulReportData(r){const st=(r&&r.state)||{};if((st.companies||[]).some(c=>Object.values(c.jobs||{}).some(v=>(+v||0)>0)))return true;if((st.equipment||[]).some(e=>(+e.qty||0)>0))return true;if((st.areas||[]).some(a=>(a.tasks||[]).some(t=>(t||'').trim())))return true;return false}
-function deleteOvertime(no){const date=$('date').value,site=$('site').value,trade=$('trade').value;const saved=findSavedReport(date,site,trade,'overtime',no),draft=findModeDraft(date,site,trade,'overtime',no);const data=saved||draft;if(data&&hasMeaningfulReportData(data)){if(!confirm(`연장${listOvertimeNumbers().length>1?no:''} 데이터가 있습니다.\n삭제하면 복구하기 어렵습니다. 정말 삭제할까요?`))return}else if(!confirm('이 연장을 삭제할까요?'))return;let rs=normalizeReportsStorage();rs=rs.filter(r=>!(r.date===date&&r.site===site&&r.trade===trade&&reportTypeOf(r)==='overtime'&&reportOvertimeNoOf(r)===+no));localStorage.setItem('reports',JSON.stringify(rs));normalizeReportsStorage();const drafts=getModeDrafts();delete drafts[modeKey(date,site,trade,'overtime',no)];setModeDrafts(drafts);if(currentWorkType==='overtime'&&currentOvertimeNo===+no){currentWorkType='weekly';currentOvertimeNo=0;const w=findModeDraft(date,site,trade,'weekly',0)||findSavedReport(date,site,trade,'weekly',0);if(w)applyReportLike(w,'weekly',0);else loadDateOrBlank()}markLocalChanged();updateWorkModeTabs();updateCloseButtons();if($('searchPage')&&$('searchPage').style.display!=='none')searchReports()}
+function deleteOvertime(no){const date=$('date').value,site=$('site').value,trade=$('trade').value;const saved=findSavedReport(date,site,trade,'overtime',no),draft=findModeDraft(date,site,trade,'overtime',no);const data=saved||draft;if(data&&hasMeaningfulReportData(data)){if(!confirm(`연장${listOvertimeNumbers().length>1?no:''} 데이터가 있습니다.\n삭제하면 복구하기 어렵습니다. 정말 삭제할까요?`))return}else if(!confirm('이 연장을 삭제할까요?'))return;let rs=[];try{rs=JSON.parse(localStorage.getItem('reports')||'[]')}catch(e){rs=[]}if(!Array.isArray(rs))rs=[];rs=rs.filter(r=>!(r&&r.date===date&&r.site===site&&r.trade===trade&&reportTypeOf(r)==='overtime'&&reportOvertimeNoOf(r)===+no));localStorage.setItem('reports',JSON.stringify(rs));const drafts=getModeDrafts();delete drafts[modeKey(date,site,trade,'overtime',no)];setModeDrafts(drafts);if(currentWorkType==='overtime'&&currentOvertimeNo===+no){currentWorkType='weekly';currentOvertimeNo=0;const w=findModeDraft(date,site,trade,'weekly',0)||findSavedReport(date,site,trade,'weekly',0);if(w)applyReportLike(w,'weekly',0);else loadDateOrBlank()}markLocalChanged();updateWorkModeTabs();updateCloseButtons();if($('searchPage')&&$('searchPage').style.display!=='none')searchReports()}
 function currentSavedReport(){return findSavedReport($('date')?.value,$('site')?.value,$('trade')?.value,currentWorkType,currentOvertimeNo)}
 function updateCloseButtons(){const b=$('writeCloseBtn');if(!b)return;const r=currentSavedReport();const closed=!!(r&&r.closed);b.textContent=closed?'마감완료':'마감';b.classList.toggle('closed',closed);b.title=closed?'마감 해제':'현재 작업일보 마감'}
 function requestCloseReleasePassword(){const pw=prompt('마감 해제 비밀번호를 입력하세요.');if(pw===null)return false;if(pw!=='12312'){alert('비밀번호가 올바르지 않습니다.');return false}return true}
 function refreshCloseViews(){updateCloseButtons();if(Array.isArray(lastSearchResults)&&lastSearchResults.length)searchReports()}
 function toggleCurrentClose(){const r=currentSavedReport();if(r&&r.closed){if(!requestCloseReleasePassword())return;if(!confirm('마감을 해제할까요?'))return;setCurrentClose(false)}else{if(!confirm('현재 작업일보를 저장하고 마감할까요?'))return;setCurrentClose(true)}}
 function setCurrentClose(closed){saveReport({silent:true,closedOverride:!!closed});refreshCloseViews();alert(closed?'마감 처리했습니다.':'마감을 해제했습니다.')}
-function toggleSearchClose(date,site,trade,type,no){let rs=normalizeReportsStorage();const ix=rs.findIndex(r=>r.date===date&&r.site===site&&r.trade===trade&&reportTypeOf(r)===(type==='overtime'?'overtime':'weekly')&&reportOvertimeNoOf(r)===(type==='overtime'?(+no||1):0));if(ix<0)return alert('해당 작업일보를 찾을 수 없습니다.');const toClose=!rs[ix].closed;if(!toClose&&!requestCloseReleasePassword())return;if(!confirm(toClose?'이 작업일보를 마감할까요?':'이 작업일보의 마감을 해제할까요?'))return;rs[ix].closed=toClose;localStorage.setItem('reports',JSON.stringify(rs));normalizeReportsStorage();markLocalChanged();refreshCloseViews()}
+function toggleSearchClose(date,site,trade,type,no){let rs=[];try{rs=JSON.parse(localStorage.getItem('reports')||'[]')}catch(e){rs=[]}if(!Array.isArray(rs))rs=[];const targetType=type==='overtime'?'overtime':'weekly',targetNo=targetType==='overtime'?(+no||1):0;const current=findSavedReport(date,site,trade,targetType,targetNo);if(!current)return alert('해당 작업일보를 찾을 수 없습니다.');const toClose=!current.closed;if(!toClose&&!requestCloseReleasePassword())return;if(!confirm(toClose?'이 작업일보를 마감할까요?':'이 작업일보의 마감을 해제할까요?'))return;let touched=false;rs.forEach(r=>{if(r&&r.date===date&&r.site===site&&r.trade===trade&&reportTypeOf(r)===targetType&&reportOvertimeNoOf(r)===targetNo){r.closed=toClose;touched=true}});if(!touched)return alert('해당 작업일보를 찾을 수 없습니다.');localStorage.setItem('reports',JSON.stringify(rs));markLocalChanged();refreshCloseViews()}
 
 function clearDailyValuesForDateMove(){
   // 업체/직종 구성은 유지, 입력 인원만 초기화
@@ -1615,12 +1612,14 @@ function moveWorkDate(days){
   const r=rs.find(x=>x.date===el.value&&x.site===$('site').value&&x.trade===$('trade').value&&reportTypeOf(x)==='weekly');
   if(r){
     $('start').value=r.start||'07:30';
-    $('end').value=r.end||'17:30';
+    $('end').value=r.end||'17:00';
     $('bpa').value=r.bpa||'';
     state=JSON.parse(JSON.stringify(r.state));
     render();
     autoSave();
   }else{
+    $('start').value='07:30';
+    $('end').value='17:00';
     clearDailyValuesForDateMove();
     render();
     autoSave();
@@ -1636,7 +1635,7 @@ function loadDateOrBlank(){
   const rs=normalizeReportsStorage();
   let r=findModeDraft(target,site,trade,'weekly',0)||rs.find(x=>x.date===target&&x.site===site&&x.trade===$('trade').value&&reportTypeOf(x)==='weekly');
   if(!r){r=rs.filter(x=>x.date<target&&x.site===site&&x.trade===$('trade').value&&reportTypeOf(x)==='weekly').sort((a,b)=>b.date.localeCompare(a.date))[0]}
-  if(r){$('start').value=r.start||'07:30';$('end').value=r.end||'17:30';$('bpa').value=r.bpa||'';state=JSON.parse(JSON.stringify(r.state));render();autoSave()}else{updatePreview();autoSave();updateWorkModeTabs();updateCloseButtons()}
+  if(r){$('start').value=r.start||'07:30';$('end').value=r.end||'17:00';$('bpa').value=r.bpa||'';state=JSON.parse(JSON.stringify(r.state));render();autoSave()}else{$('start').value='07:30';$('end').value='17:00';updatePreview();autoSave();updateWorkModeTabs();updateCloseButtons()}
 }
 // ===== 실수 방지: 최근 입력 되돌리기 =====
 let undoHistory=[];let redoHistory=[];let undoRestoring=false;
@@ -1661,7 +1660,7 @@ function resetDailyData(){
 }
 
 function loadCurrentDateReport(){let r=findSavedReport($('date').value,$('site').value,$('trade').value,currentWorkType,currentOvertimeNo)||findModeDraft($('date').value,$('site').value,$('trade').value,currentWorkType,currentOvertimeNo);if(!r)return alert('해당 날짜/현장/공종의 '+(currentWorkType==='overtime'?'연장':'주간')+' 작업일보가 없습니다.');applyReportLike(r,currentWorkType,currentOvertimeNo)}
-function saveReport(opts={}){let reports=normalizeReportsStorage();let old=findSavedReport($('date').value,$('site').value,$('trade').value,currentWorkType,currentOvertimeNo);let obj={date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,workType:currentWorkType,overtimeNo:currentWorkType==='overtime'?currentOvertimeNo:0,closed:opts.closedOverride!==undefined?!!opts.closedOverride:!!(old&&old.closed),state:JSON.parse(JSON.stringify(state)),text:reportText()};let ix=reports.findIndex(r=>r.date===obj.date&&r.site===obj.site&&r.trade===obj.trade&&reportTypeOf(r)===obj.workType&&reportOvertimeNoOf(r)===obj.overtimeNo);if(ix>=0)reports[ix]=obj;else reports.push(obj);localStorage.setItem('reports',JSON.stringify(reports));normalizeReportsStorage();autoSave();markLocalChanged();updateWorkModeTabs();updateCloseButtons();if(tokenValid())scheduleAutoSync();if(!opts.silent)alert('보고서로 저장했습니다.'+(tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''))}
+function saveReport(opts={}){let reports=[];try{reports=JSON.parse(localStorage.getItem('reports')||'[]')}catch(e){reports=[]}if(!Array.isArray(reports))reports=[];const date=$('date').value,site=$('site').value,trade=$('trade').value;const targetType=currentWorkType==='overtime'?'overtime':'weekly',targetNo=targetType==='overtime'?(+currentOvertimeNo||1):0;let old=findSavedReport(date,site,trade,targetType,targetNo);let obj={date,site,trade,start:$('start').value,end:$('end').value,bpa:$('bpa').value,workType:targetType,overtimeNo:targetNo,closed:opts.closedOverride!==undefined?!!opts.closedOverride:!!(old&&old.closed),state:JSON.parse(JSON.stringify(state)),text:reportText()};reports=reports.filter(r=>!(r&&r.date===date&&r.site===site&&r.trade===trade&&reportTypeOf(r)===targetType&&reportOvertimeNoOf(r)===targetNo));reports.push(obj);localStorage.setItem('reports',JSON.stringify(reports));autoSave();markLocalChanged();updateWorkModeTabs();updateCloseButtons();if(tokenValid())scheduleAutoSync();if(!opts.silent)alert('보고서로 저장했습니다.'+(tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''))}
 function copyPreviousDay(){
   if(!$('date'))return;
   let currentDate=$('date').value;
@@ -1934,7 +1933,7 @@ function openReportFromSearch(date,site,trade,type='weekly',no=0){
   if(!r)return alert('해당 작업보고를 찾을 수 없습니다.');
   currentWorkType=type==='overtime'?'overtime':'weekly';currentOvertimeNo=currentWorkType==='overtime'?(+no||1):0;
   $('date').value=r.date;$('site').value=r.site;$('trade').value=r.trade;
-  $('start').value=r.start||'07:30';$('end').value=r.end||'17:30';$('bpa').value=r.bpa||'';
+  $('start').value=r.start||(currentWorkType==='overtime'?'17:00':'07:30');$('end').value=r.end||(currentWorkType==='overtime'?'19:00':'17:00');$('bpa').value=r.bpa||'';
   state=JSON.parse(JSON.stringify(r.state));render();autoSave();updateWorkModeTabs();updateCloseButtons();
   showPage('write',null);
   document.querySelectorAll('aside button').forEach((b,i)=>b.classList.toggle('active',i===0));
@@ -1993,7 +1992,7 @@ function getDeviceId(){let x=localStorage.getItem('driveDeviceId');if(!x){x='dev
 function markLocalChanged(){if(applyingRemote)return;localStorage.setItem('driveLocalDirty','1');localStorage.setItem('driveLocalUpdatedAt',String(Date.now()));scheduleAutoSync()}
 function scheduleAutoSync(){if(!tokenValid())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow('auto'),1200)}
 async function fetchRemote(){const f=await driveFindFile();if(!f)return {file:null,data:null,stamp:0};const r=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id)+'?alt=media',{headers:driveHeaders()});if(!r.ok)throw new Error('Drive 불러오기 실패 ('+r.status+')');const data=await r.json();const stamp=Date.parse(data.savedAt||'')||Date.parse(f.modifiedTime||'')||0;return {file:f,data,stamp}}
-function applyRemoteData(d,stamp){applyingRemote=true;try{if(d.masters)localStorage.setItem('masters',JSON.stringify(d.masters));if(Array.isArray(d.reports))localStorage.setItem('reports',JSON.stringify(d.reports));if(d.currentDraft)localStorage.setItem('currentDraft',JSON.stringify(d.currentDraft));if(d.workModeDrafts)localStorage.setItem('workModeDrafts',JSON.stringify(d.workModeDrafts));normalizeReportsStorage();localStorage.setItem('driveLastRemoteStamp',String(stamp||Date.now()));localStorage.setItem('driveLocalDirty','0');localStorage.setItem('driveLocalUpdatedAt',String(stamp||Date.now()))}finally{applyingRemote=false}}
+function applyRemoteData(d,stamp){applyingRemote=true;try{if(d.masters)localStorage.setItem('masters',JSON.stringify(d.masters));if(Array.isArray(d.reports))localStorage.setItem('reports',JSON.stringify(d.reports));if(d.currentDraft)localStorage.setItem('currentDraft',JSON.stringify(d.currentDraft));if(d.workModeDrafts)localStorage.setItem('workModeDrafts',JSON.stringify(d.workModeDrafts));localStorage.setItem('driveLastRemoteStamp',String(stamp||Date.now()));localStorage.setItem('driveLocalDirty','0');localStorage.setItem('driveLocalUpdatedAt',String(stamp||Date.now()))}finally{applyingRemote=false}}
 async function pushLocal(file,silent=true){const snap=makeDriveSnapshot(), data=JSON.stringify(snap,null,2);let r;
   if(file){r=await fetch('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(file.id)+'?uploadType=media',{method:'PATCH',headers:driveHeaders({'Content-Type':'application/json; charset=UTF-8'}),body:data})}
   else{const boundary='workreport_'+Date.now(),meta=JSON.stringify({name:DRIVE_FILE_NAME,mimeType:'application/json'}),body='--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+meta+'\r\n--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+data+'\r\n--'+boundary+'--';r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,modifiedTime',{method:'POST',headers:driveHeaders({'Content-Type':'multipart/related; boundary='+boundary}),body})}
