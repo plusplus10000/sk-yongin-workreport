@@ -1373,7 +1373,7 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
   <button onclick="mobileGo('master',this)">⚙ 기준정보 관리</button>
 </nav>
 <div class="app" id="appShell"><aside><button class="sidebar-toggle" type="button" title="메뉴 접기/펼치기" onclick="toggleSidebar()">☰</button><button class="active" onclick="showPage('write',this)">✎ <span class="nav-label">작업보고 작성</span></button><button onclick="showPage('search',this)">⌕ <span class="nav-label">검색 / 이력</span></button><button onclick="showPage('master',this)">⚙ <span class="nav-label">기준정보 관리</span></button></aside><main>
-<section id="writePage"><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ Google Drive 연결</button><button class="btn" type="button" onclick="saveToDrive()">Drive에 저장</button><button class="btn" type="button" onclick="loadFromDrive()">Drive에서 불러오기</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 연결 안 됨</b><div class="header-action-buttons"><button class="btn" type="button" id="undoBtn" onclick="undoLastChange()" disabled>↶ 되돌리기</button><button class="btn" type="button" id="redoBtn" onclick="redoLastChange()" disabled>↷ 다시하기</button><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div id="workModeToolbar" class="work-mode-toolbar"><div id="workModeTabs" class="work-mode-tabs"></div><button id="writeCloseBtn" class="btn write-close-btn" type="button" onclick="toggleCurrentClose()">마감</button></div><div class="grid"><div class="input-col left-col">
+<section id="writePage"><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ Google Drive 연결</button><button class="btn" type="button" onclick="saveToDrive()">Drive에 저장</button><button class="btn" type="button" onclick="loadFromDrive()">Drive에서 불러오기</button><button class="btn" type="button" style="border-color:#e58aa2;color:#8c2847;font-weight:800" onclick="recoverFromDriveMerge()">🛟 자료 복구(병합)</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 연결 안 됨</b><div class="header-action-buttons"><button class="btn" type="button" id="undoBtn" onclick="undoLastChange()" disabled>↶ 되돌리기</button><button class="btn" type="button" id="redoBtn" onclick="redoLastChange()" disabled>↷ 다시하기</button><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div id="workModeToolbar" class="work-mode-toolbar"><div id="workModeTabs" class="work-mode-tabs"></div><button id="writeCloseBtn" class="btn write-close-btn" type="button" onclick="toggleCurrentClose()">마감</button></div><div class="grid"><div class="input-col left-col">
 <div class="card basic-info-card"><div class="title"><span><span class="n">1</span>기본 정보</span><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><span class="basic-action-buttons mobile-basic-actions"><button class="btn" type="button" id="undoBtnMobile" onclick="undoLastChange()" disabled>↶ 되돌리기</button><button class="btn" type="button" id="redoBtnMobile" onclick="redoLastChange()" disabled>↷ 다시하기</button><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></span></div><div class="basic-info-grid">
 <div class="field basic-site"><label>현장</label><select id="site"></select></div>
 <div class="field basic-trade"><label>공종</label><select id="trade"></select></div>
@@ -1954,6 +1954,104 @@ function changeEquip(i,d){state.equipment[i].qty=Math.max(0,Math.min(999,(+state
 function saveMasters(){autoSave();let split=id=>$(id).value.split(',').map(x=>x.trim()).filter(Boolean);let managers=$('masterManagers').value.split('\n').map(x=>x.split('|').map(v=>v.trim())).filter(m=>m.some(Boolean));D.zones=(D.zones||[]).map(z=>({zone:(z.zone||'').trim(),loc:(z.loc||'').trim()})).filter(z=>z.zone);let appTitle=($('masterAppTitle').value||'우리공 일보').trim()||'우리공 일보';let m={appTitle,sites:split('masterSites'),trades:split('masterTrades'),jobs:split('masterJobs'),equipment:split('masterEquipment'),zones:D.zones,managers};Object.assign(D,m);localStorage.setItem('masters',JSON.stringify(m));applyAppTitle();fillSelects();renderAreas();renderManagers();markLocalChanged();if(tokenValid())scheduleAutoSync();alert('기준정보를 저장했습니다. 앱 타이틀도 즉시 반영되었습니다.'+(tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''))}
 
 
+
+// ===== 안전 복구 도우미: 기존/레거시 로컬자료 + Drive자료 병합 =====
+function recoveryNormalizeRecord(r){
+  if(!r||typeof r!=='object'||!r.date||!r.site||!r.trade||!r.state)return null;
+  const overtime=(r.workType==='overtime'||r.shiftType==='extension');
+  const no=overtime?Math.max(1,+r.overtimeNo||+r.extensionIndex||1):0;
+  const x=JSON.parse(JSON.stringify(r));
+  x.workType=overtime?'overtime':'weekly';
+  x.overtimeNo=no;
+  return x;
+}
+function recoveryScore(r){
+  const st=(r&&r.state)||{}; let s=0;
+  (st.companies||[]).forEach(c=>{Object.values(c.jobs||{}).forEach(v=>s+=(+v||0)*5); if((c.name||'').trim())s+=1});
+  (st.equipment||[]).forEach(e=>{if((e&&e.name||'').trim())s+=2; s+=(+e.qty||0)*2});
+  (st.areas||[]).forEach(a=>{if((a.zone||'').trim())s+=2;if((a.loc||'').trim())s+=1;(a.tasks||[]).forEach(t=>{const q=(t||'').trim();if(q)s+=10+Math.min(50,q.length)})});
+  (st.managers||[]).forEach(m=>{if(Array.isArray(m)&&m.some(v=>(v||'').toString().trim()))s+=2});
+  if((r.bpa||'').trim())s+=2;if((r.start||'').trim())s+=1;if((r.end||'').trim())s+=1;if((r.text||'').trim())s+=3;if(r.closed)s+=1;
+  return s;
+}
+function recoveryKey(r){return [r.date||'',r.site||'',r.trade||'',r.workType==='overtime'?'overtime':'weekly',r.workType==='overtime'?(+r.overtimeNo||1):0].join('||')}
+function recoveryCollectFromBundle(bundle,tag){
+  const out=[]; if(!bundle||typeof bundle!=='object')return out;
+  const push=(r,source)=>{const n=recoveryNormalizeRecord(r);if(n){n.__recoverySource=source;out.push(n)}};
+  if(Array.isArray(bundle.reports))bundle.reports.forEach(r=>push(r,tag+':reports'));
+  if(bundle.currentDraft)push(bundle.currentDraft,tag+':currentDraft');
+  if(bundle.workModeDrafts&&typeof bundle.workModeDrafts==='object')Object.values(bundle.workModeDrafts).forEach(r=>push(r,tag+':workModeDrafts'));
+  if(bundle.shiftDrafts&&typeof bundle.shiftDrafts==='object')Object.values(bundle.shiftDrafts).forEach(r=>push(r,tag+':shiftDrafts'));
+  return out;
+}
+function recoveryLocalBundle(){
+  const get=(k,fallback)=>{try{return JSON.parse(localStorage.getItem(k)||fallback)}catch(e){return JSON.parse(fallback)}};
+  return {reports:get('reports','[]'),currentDraft:get('currentDraft','null'),workModeDrafts:get('workModeDrafts','{}'),shiftDrafts:get('shiftDrafts','{}')};
+}
+function recoveryMergeCandidates(candidates){
+  const best=new Map();
+  candidates.forEach((r,idx)=>{
+    const n=recoveryNormalizeRecord(r);if(!n)return;
+    const k=recoveryKey(n),score=recoveryScore(n);
+    const old=best.get(k);
+    // 같은 주간/연장 키가 겹치면 내용이 더 충실한 것을 남기고, 점수가 같으면 뒤쪽(새로 읽은 자료)을 우선.
+    if(!old||score>old.score||(score===old.score&&idx>old.idx))best.set(k,{r:n,score,idx});
+  });
+  return [...best.values()].map(v=>{const x=v.r;delete x.__recoverySource;return x});
+}
+function recoveryBackupLocal(label){
+  const snap={savedAt:new Date().toISOString(),label,local:{}};
+  for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);try{snap.local[k]=localStorage.getItem(k)}catch(e){}}
+  const key='workreportRecoveryBackup_'+Date.now();
+  try{localStorage.setItem(key,JSON.stringify(snap))}catch(e){}
+  return key;
+}
+function recoverLegacyLocalData(){
+  const bundle=recoveryLocalBundle();
+  const before=Array.isArray(bundle.reports)?bundle.reports.length:0;
+  let candidates=recoveryCollectFromBundle(bundle,'local');
+  // 과거 버전에서 이름이 달랐던 키까지 현재 origin 안에서 찾아본다.
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i); if(['reports','currentDraft','workModeDrafts','shiftDrafts'].includes(k))continue;
+    let v;try{v=JSON.parse(localStorage.getItem(k)||'null')}catch(e){continue}
+    if(Array.isArray(v))v.forEach(r=>{const n=recoveryNormalizeRecord(r);if(n)candidates.push(n)});
+    else if(v&&typeof v==='object'){
+      const n=recoveryNormalizeRecord(v);if(n)candidates.push(n);
+      Object.values(v).forEach(r=>{const q=recoveryNormalizeRecord(r);if(q)candidates.push(q)});
+    }
+  }
+  const merged=recoveryMergeCandidates(candidates);
+  if(merged.length>before){
+    recoveryBackupLocal('legacy-local-auto-recovery');
+    localStorage.setItem('reports',JSON.stringify(merged));
+    window.__localRecoveredCount=merged.length-before;
+  }else window.__localRecoveredCount=0;
+}
+async function recoverFromDriveMerge(){
+  if(!tokenValid()){
+    drivePendingAction='recover';
+    if(initDriveTokenClient())driveTokenClient.requestAccessToken({prompt:''});
+    return;
+  }
+  try{
+    setDriveStatus('복구용 Drive 자료 확인 중...');
+    const remote=await fetchRemote();
+    if(!remote.file||!remote.data)return alert('Drive에 복구할 작업일보 데이터 파일이 없습니다.');
+    const backupKey=recoveryBackupLocal('before-drive-merge');
+    const local=recoveryLocalBundle();
+    const candidates=[...recoveryCollectFromBundle(local,'local'),...recoveryCollectFromBundle(remote.data,'drive')];
+    const merged=recoveryMergeCandidates(candidates);
+    const before=(local.reports||[]).length;
+    localStorage.setItem('reports',JSON.stringify(merged));
+    // Drive 자료의 레거시 초안도 삭제하지 않고 보관한다.
+    if(remote.data.shiftDrafts&&!localStorage.getItem('shiftDrafts'))localStorage.setItem('shiftDrafts',JSON.stringify(remote.data.shiftDrafts));
+    localStorage.setItem('driveLocalDirty','1');
+    setDriveStatus('복구 병합 완료 · 검토 후 Drive 저장');
+    if($('searchPage')&&$('searchPage').style.display!=='none')searchReports();
+    alert(`복구 병합을 완료했습니다.\n현재 보고서: ${before}건 → ${merged.length}건\n\n안전백업: ${backupKey}\n먼저 검색/이력에서 자료를 확인하세요. 확인 전에는 Drive에 저장하지 마세요.`);
+  }catch(e){console.error(e);setDriveStatus('복구 실패: '+e.message);alert('복구 중 오류가 발생했습니다.\n'+e.message)}
+}
+
 // ===== Google Drive 자동 동기화 v2: 최신자료 비교 + 충돌 방지 =====
 const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
 const DRIVE_FILE_NAME='SK_YONGIN_WORKREPORT_DATA.json';
@@ -1974,7 +2072,7 @@ function initDriveTokenClient(){
     sessionStorage.setItem('driveAccessToken',driveAccessToken);sessionStorage.setItem('driveTokenExpires',String(driveTokenExpires));
     setDriveStatus('Google Drive 연결됨 · 최신자료 확인 중...');
     const a=drivePendingAction;drivePendingAction=null;
-    if(a==='save')saveToDrive(); else if(a==='load')loadFromDrive(); else syncNow('connect');
+    if(a==='save')saveToDrive(); else if(a==='load')loadFromDrive(); else if(a==='recover')recoverFromDriveMerge(); else syncNow('connect');
   }});return true
 }
 function connectGoogleDrive(){drivePendingAction=null;if(initDriveTokenClient())driveTokenClient.requestAccessToken({prompt:''})}
@@ -2061,8 +2159,10 @@ window.addEventListener('storage',e=>{
   }
 });
 
+recoverLegacyLocalData();
 init();
 restorePanelStates();
+setTimeout(()=>{if(window.__localRecoveredCount>0)alert('브라우저 안에 남아 있던 이전 자료 '+window.__localRecoveredCount+'건을 자동 복구했습니다.\n검색 / 이력에서 확인해 주세요.');},250);
 </script>
 <div class="mobile-quickbar" aria-label="모바일 빠른 작업">
   <button type="button" title="되돌리기" onclick="undoLastChange()">↶</button>
