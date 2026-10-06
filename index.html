@@ -1548,6 +1548,23 @@ body.report-is-closed #writePage textarea:disabled{
   .result-table{min-width:1080px}
 }
 
+
+/* ===== 로컬 폴더 백업 ===== */
+.local-backup-btn{white-space:nowrap!important}
+.local-backup-modal{display:none;position:fixed;inset:0;z-index:120000;background:rgba(13,31,52,.42);align-items:center;justify-content:center;padding:16px}
+.local-backup-modal.open{display:flex}
+.local-backup-box{width:min(94vw,560px);max-height:90vh;overflow:auto;background:#fff;border:1px solid #cfdceb;border-radius:12px;padding:16px;box-shadow:0 18px 48px rgba(0,0,0,.24)}
+.local-backup-title{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:16px;font-weight:800;color:#12365f;margin-bottom:12px}
+.local-backup-close{border:0;background:transparent;color:#5d6f82;font-size:22px;line-height:1;cursor:pointer;padding:2px 5px}
+.local-backup-folder{padding:10px;border:1px solid #dbe6f2;border-radius:8px;background:#f7fbff;font-size:12px;line-height:1.55;overflow-wrap:anywhere}
+.local-backup-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.local-backup-list{margin-top:12px}
+.local-backup-list label{display:block;font-size:12px;font-weight:700;margin-bottom:5px}
+.local-backup-list select{width:100%;min-height:36px;padding:7px;border:1px solid #cbd9e8;border-radius:7px;background:#fff}
+.local-backup-help{font-size:11px;color:#66788c;line-height:1.55;margin-top:9px}
+.local-backup-status{font-size:12px;font-weight:700;color:#075f9c;margin-top:9px;min-height:18px}
+@media(max-width:850px){.local-backup-box{padding:13px}.local-backup-actions .btn{flex:1 1 auto}}
+
 </style><script src="https://accounts.google.com/gsi/client" async defer></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
 <body class="locked site-home-mode"><section id="siteHome" aria-label="현장 선택">
   <div class="site-home-inner site-home-simple">
@@ -1704,7 +1721,7 @@ body.report-is-closed #writePage textarea:disabled{
 </div>
 </div>
 </aside><main>
-<section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 검색 / 이력에서 회색 [마감] 버튼을 눌러 마스터 비밀번호로 마감을 해제하세요.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ Google Drive 연결</button><button class="btn" type="button" onclick="saveToDrive()">Drive에 저장</button><button class="btn" type="button" onclick="loadFromDrive()">Drive에서 불러오기</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 연결 안 됨</b><div class="header-action-buttons"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div class="grid"><div class="input-col left-col">
+<section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 검색 / 이력에서 회색 [마감] 버튼을 눌러 마스터 비밀번호로 마감을 해제하세요.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ Google Drive 연결</button><button class="btn" type="button" onclick="saveToDrive()">Drive에 저장</button><button class="btn" type="button" onclick="loadFromDrive()">Drive에서 불러오기</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 연결 안 됨</b><button class="btn local-backup-btn" type="button" onclick="openLocalBackupDialog()">로컬백업</button><div class="header-action-buttons"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div class="grid"><div class="input-col left-col">
 <div class="card basic-info-card"><div class="title"><span><span class="n">1</span>기본 정보</span><span class="basic-close-wrap"><span id="workModeTabs" class="work-mode-tabs-inline"></span><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><span class="basic-action-buttons mobile-basic-actions"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></span></div><div class="basic-info-grid">
 <div class="field basic-site"><label>현장</label><select id="site"></select></div>
 <div class="field basic-trade"><label>공종</label><select id="trade"></select></div>
@@ -1731,6 +1748,24 @@ body.report-is-closed #writePage textarea:disabled{
 <div id="driveStatus" style="font-size:12px;margin-top:8px;color:#53657a">상태: 연결 안 됨</div><div style="font-size:12px;margin-top:5px;color:#0878f9;font-weight:700">자동 동기화: 켜짐 · 연결 시 Drive 최신자료를 받고, 보고서/기준정보 저장 시 자동으로 Drive에 저장합니다.</div>
 </div><button class="btn primary" style="margin-top:10px" onclick="saveMasters()">기준정보 저장</button></div></section>
 </main></div>
+<div id="localBackupModal" class="local-backup-modal" onclick="if(event.target===this)closeLocalBackupDialog()" aria-hidden="true">
+  <div class="local-backup-box" role="dialog" aria-modal="true" aria-labelledby="localBackupTitle">
+    <div class="local-backup-title"><span id="localBackupTitle">로컬 백업</span><button class="local-backup-close" type="button" onclick="closeLocalBackupDialog()" aria-label="닫기">×</button></div>
+    <div id="localBackupFolder" class="local-backup-folder"><b>백업 폴더:</b> 미지정</div>
+    <div class="local-backup-actions">
+      <button class="btn" type="button" onclick="chooseLocalBackupFolder()">폴더 지정/변경</button>
+      <button class="btn primary" type="button" onclick="saveLocalBackupNow()">지금 백업</button>
+      <button class="btn" type="button" onclick="restoreSelectedLocalBackup()">선택 백업 불러오기</button>
+    </div>
+    <div class="local-backup-list">
+      <label for="localBackupFiles">지정 폴더의 백업파일</label>
+      <select id="localBackupFiles"><option value="">폴더를 지정하면 백업파일이 표시됩니다.</option></select>
+    </div>
+    <div id="localBackupStatus" class="local-backup-status"></div>
+    <div class="local-backup-help">백업파일에는 5개 현장의 기준정보·저장보고서·작성 중 자료·주간/연장 자료가 함께 저장됩니다. 파일명에는 저장한 날짜와 시간이 자동으로 들어갑니다.</div>
+  </div>
+</div>
+
 <script>
 
 // ===== 현장 선택 / 현장별 로컬 데이터 분리 =====
@@ -3682,6 +3717,159 @@ function applyRemoteData(d,stamp){
     if(d.workModeDrafts)projectSet('workModeDrafts',JSON.stringify(d.workModeDrafts),activeProject);
     setDriveMeta('driveLastRemoteStamp',String(stamp||Date.now()));setDriveMeta('driveLocalDirty','0');setDriveMeta('driveLocalUpdatedAt',String(stamp||Date.now()));
   }finally{applyingRemote=false}
+}
+
+
+// ===== 로컬 폴더 백업: Chrome/Edge File System Access API =====
+const LOCAL_BACKUP_DB='urigongLocalBackupDB';
+const LOCAL_BACKUP_STORE='handles';
+const LOCAL_BACKUP_DIR_KEY='backupDirectory';
+const LOCAL_BACKUP_FORMAT='URIGONG-WORKREPORT-LOCAL-BACKUP';
+let localBackupDirHandle=null;
+let localBackupEntries=[];
+
+function setLocalBackupStatus(msg){
+  const el=document.getElementById('localBackupStatus');
+  if(el)el.textContent=msg||'';
+}
+function openLocalBackupDB(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(LOCAL_BACKUP_DB,1);
+    req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(LOCAL_BACKUP_STORE))db.createObjectStore(LOCAL_BACKUP_STORE)};
+    req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+  });
+}
+async function saveLocalBackupDirHandle(handle){
+  const db=await openLocalBackupDB();
+  await new Promise((resolve,reject)=>{const tx=db.transaction(LOCAL_BACKUP_STORE,'readwrite');tx.objectStore(LOCAL_BACKUP_STORE).put(handle,LOCAL_BACKUP_DIR_KEY);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});
+  db.close();
+}
+async function loadLocalBackupDirHandle(){
+  try{
+    const db=await openLocalBackupDB();
+    const h=await new Promise((resolve,reject)=>{const tx=db.transaction(LOCAL_BACKUP_STORE,'readonly');const req=tx.objectStore(LOCAL_BACKUP_STORE).get(LOCAL_BACKUP_DIR_KEY);req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error)});
+    db.close();return h;
+  }catch(e){console.warn('로컬 백업 폴더 기억 불러오기 실패',e);return null}
+}
+async function ensureLocalBackupPermission(handle,write=false){
+  if(!handle)return false;
+  const opts={mode:write?'readwrite':'read'};
+  if((await handle.queryPermission(opts))==='granted')return true;
+  return (await handle.requestPermission(opts))==='granted';
+}
+function localBackupStamp(d=new Date()){
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+  const hh=String(d.getHours()).padStart(2,'0'),mm=String(d.getMinutes()).padStart(2,'0'),ss=String(d.getSeconds()).padStart(2,'0');
+  return `${y}-${m}-${day}_${hh}-${mm}-${ss}`;
+}
+function makeFullLocalBackupSnapshot(){
+  try{saveActiveProject()}catch(e){try{autoSave()}catch(_){} }
+  const storage={};
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k&&k.startsWith('projectV3::'))storage[k]=localStorage.getItem(k);
+  }
+  return {
+    format:LOCAL_BACKUP_FORMAT,
+    version:1,
+    savedAt:new Date().toISOString(),
+    activeProject:sessionStorage.getItem('activeProject')||'',
+    projects:Array.from(typeof PROJECTS!=='undefined'?PROJECTS:[]),
+    storage
+  };
+}
+async function writeLocalBackupSnapshot(dirHandle,snapshot,prefix='우리공일보_백업'){
+  const filename=`${prefix}_${localBackupStamp()}.json`;
+  const fh=await dirHandle.getFileHandle(filename,{create:true});
+  const writable=await fh.createWritable();
+  await writable.write(JSON.stringify(snapshot,null,2));
+  await writable.close();
+  return filename;
+}
+async function refreshLocalBackupFolderUI(requestPermission=false){
+  const folderEl=document.getElementById('localBackupFolder');
+  const sel=document.getElementById('localBackupFiles');
+  if(!localBackupDirHandle)localBackupDirHandle=await loadLocalBackupDirHandle();
+  if(!localBackupDirHandle){
+    if(folderEl)folderEl.innerHTML='<b>백업 폴더:</b> 미지정';
+    if(sel)sel.innerHTML='<option value="">폴더를 지정하면 백업파일이 표시됩니다.</option>';
+    return;
+  }
+  let permitted=false;
+  try{
+    const q=await localBackupDirHandle.queryPermission({mode:'read'});
+    permitted=q==='granted';
+    if(!permitted&&requestPermission)permitted=(await localBackupDirHandle.requestPermission({mode:'read'}))==='granted';
+  }catch(e){}
+  if(folderEl)folderEl.innerHTML=`<b>백업 폴더:</b> ${esc(localBackupDirHandle.name||'선택한 폴더')}${permitted?'':' <span style="color:#b26a00">(권한 확인 필요)</span>'}`;
+  if(!permitted){if(sel)sel.innerHTML='<option value="">폴더 권한을 허용하면 목록이 표시됩니다.</option>';return}
+  localBackupEntries=[];
+  try{
+    for await(const [name,handle] of localBackupDirHandle.entries()){
+      if(handle.kind==='file'&&/^우리공일보_(백업|복구전)_.*\.json$/i.test(name))localBackupEntries.push({name,handle});
+    }
+    localBackupEntries.sort((a,b)=>b.name.localeCompare(a.name));
+    if(sel){
+      sel.innerHTML=localBackupEntries.length?localBackupEntries.map((x,i)=>`<option value="${i}">${esc(x.name)}</option>`).join(''):'<option value="">아직 백업파일이 없습니다.</option>';
+    }
+  }catch(e){console.error(e);setLocalBackupStatus('백업파일 목록을 읽지 못했습니다: '+e.message)}
+}
+async function openLocalBackupDialog(){
+  if(!('showDirectoryPicker' in window)){
+    alert('이 기능은 PC의 Chrome 또는 Edge에서 사용할 수 있습니다.\n현재 브라우저에서는 폴더를 직접 지정하는 기능을 지원하지 않습니다.');return;
+  }
+  const m=document.getElementById('localBackupModal');if(m){m.classList.add('open');m.setAttribute('aria-hidden','false')}
+  setLocalBackupStatus('');
+  await refreshLocalBackupFolderUI(false);
+}
+function closeLocalBackupDialog(){const m=document.getElementById('localBackupModal');if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true')}}
+async function chooseLocalBackupFolder(){
+  try{
+    const h=await window.showDirectoryPicker({mode:'readwrite',id:'urigong-workreport-backup'});
+    if(!(await ensureLocalBackupPermission(h,true)))return setLocalBackupStatus('폴더 사용 권한이 필요합니다.');
+    localBackupDirHandle=h;await saveLocalBackupDirHandle(h);setLocalBackupStatus('백업 폴더를 지정했습니다.');await refreshLocalBackupFolderUI(false);
+  }catch(e){if(e&&e.name!=='AbortError'){console.error(e);setLocalBackupStatus('폴더 지정 실패: '+e.message)}}
+}
+async function getReadyLocalBackupDir(){
+  if(!localBackupDirHandle)localBackupDirHandle=await loadLocalBackupDirHandle();
+  if(!localBackupDirHandle){await chooseLocalBackupFolder();if(!localBackupDirHandle)return null}
+  if(!(await ensureLocalBackupPermission(localBackupDirHandle,true))){setLocalBackupStatus('선택한 폴더의 읽기/쓰기 권한이 필요합니다.');return null}
+  return localBackupDirHandle;
+}
+async function saveLocalBackupNow(){
+  try{
+    const dir=await getReadyLocalBackupDir();if(!dir)return;
+    setLocalBackupStatus('백업 저장 중...');
+    const filename=await writeLocalBackupSnapshot(dir,makeFullLocalBackupSnapshot(),'우리공일보_백업');
+    setLocalBackupStatus('백업 완료: '+filename);await refreshLocalBackupFolderUI(false);
+  }catch(e){console.error(e);setLocalBackupStatus('백업 실패: '+e.message);alert('로컬 백업에 실패했습니다.\n'+e.message)}
+}
+function applyFullLocalBackupSnapshot(snapshot){
+  if(!snapshot||snapshot.format!==LOCAL_BACKUP_FORMAT||!snapshot.storage||typeof snapshot.storage!=='object')throw new Error('우리공 일보 로컬백업 파일 형식이 아닙니다.');
+  const entries=Object.entries(snapshot.storage).filter(([k,v])=>k.startsWith('projectV3::')&&typeof v==='string');
+  if(!entries.length)throw new Error('복구할 현장 데이터가 없습니다.');
+  entries.forEach(([k,v])=>localStorage.setItem(k,v));
+  localStorage.setItem('fiveDrawerV3Migration_20261002_v1','1');
+  return entries.length;
+}
+async function restoreSelectedLocalBackup(){
+  try{
+    const dir=await getReadyLocalBackupDir();if(!dir)return;
+    await refreshLocalBackupFolderUI(false);
+    const sel=document.getElementById('localBackupFiles');
+    if(!localBackupEntries.length||!sel||sel.value==='')return alert('불러올 백업파일이 없습니다.');
+    const entry=localBackupEntries[+sel.value];if(!entry)return alert('백업파일을 다시 선택해 주세요.');
+    const file=await entry.handle.getFile();
+    const snapshot=JSON.parse(await file.text());
+    if(!snapshot||snapshot.format!==LOCAL_BACKUP_FORMAT)throw new Error('우리공 일보 로컬백업 파일 형식이 아닙니다.');
+    if(!confirm(`백업파일을 불러올까요?\n\n${entry.name}\n\n현재 자료는 같은 폴더에 '복구전' 백업으로 먼저 저장한 뒤 불러옵니다.`))return;
+    setLocalBackupStatus('현재 자료 안전백업 중...');
+    await writeLocalBackupSnapshot(dir,makeFullLocalBackupSnapshot(),'우리공일보_복구전');
+    setLocalBackupStatus('백업자료 적용 중...');
+    const count=applyFullLocalBackupSnapshot(snapshot);
+    alert(`백업자료를 불러왔습니다. (${count}개 저장항목)\n화면을 새로고침합니다.`);
+    location.reload();
+  }catch(e){console.error(e);setLocalBackupStatus('불러오기 실패: '+e.message);alert('백업 불러오기에 실패했습니다.\n'+e.message)}
 }
 
 prepareActiveProjectStore();
