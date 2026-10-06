@@ -1519,6 +1519,36 @@ body.report-is-closed #writePage textarea:disabled{
   .basic-close-status{font-size:10.5px}
 }
 
+
+
+/* ===== 2026-10-06 주간 / 연장 (index6 기준, 기존 UI 유지) ===== */
+.work-mode-tabs-inline{display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap;white-space:normal}
+.work-mode-btn,.overtime-add-btn{
+  border:1px solid #8fbff5;background:#fff;color:#0672e8;border-radius:5px;
+  padding:3px 7px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;
+}
+.work-mode-btn.active,.mode-tab-wrap.active .work-mode-btn,.mode-tab-wrap.active .mode-delete-btn{
+  background:#f6a9bd!important;border-color:#e985a1!important;color:#6d1730!important;
+}
+.mode-tab-wrap{display:inline-flex;align-items:stretch}
+.mode-tab-wrap .work-mode-btn{border-radius:5px 0 0 5px;border-right:0}
+.mode-delete-btn{
+  border:1px solid #8fbff5;background:#fff;color:#a33b58;border-radius:0 5px 5px 0;
+  min-width:23px;padding:0 5px;font-size:12px;font-weight:900;cursor:pointer;
+}
+.mode-delete-btn:hover{background:#ffe7ee;border-color:#e985a1}
+.search-overtime-row td{background:#fff0f4!important}
+.search-overtime-row:hover td{background:#ffe7ee!important}
+.result-table .type-cell{font-weight:800;text-align:center;white-space:nowrap}
+.search-overtime-delete{margin-left:4px!important;min-width:22px!important;padding:2px 5px!important;color:#a33b58!important;border-color:#e3a7b8!important}
+@media(max-width:850px){
+  .basic-close-wrap{flex:1 1 100%;margin-left:0!important;margin-right:0!important;justify-content:flex-start;gap:5px!important}
+  .work-mode-tabs-inline{gap:3px}
+  .work-mode-btn,.overtime-add-btn{font-size:11.5px;padding:4px 6px}
+  .mode-delete-btn{min-width:24px;font-size:12px}
+  .result-table{min-width:1080px}
+}
+
 </style><script src="https://accounts.google.com/gsi/client" async defer></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
 <body class="locked site-home-mode"><section id="siteHome" aria-label="현장 선택">
   <div class="site-home-inner site-home-simple">
@@ -1676,7 +1706,7 @@ body.report-is-closed #writePage textarea:disabled{
 </div>
 </aside><main>
 <section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 검색 / 이력에서 회색 [마감] 버튼을 눌러 마스터 비밀번호로 마감을 해제하세요.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ Google Drive 연결</button><button class="btn" type="button" onclick="saveToDrive()">Drive에 저장</button><button class="btn" type="button" onclick="loadFromDrive()">Drive에서 불러오기</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 연결 안 됨</b><div class="header-action-buttons"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div class="grid"><div class="input-col left-col">
-<div class="card basic-info-card"><div class="title"><span><span class="n">1</span>기본 정보</span><span class="basic-close-wrap"><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><span class="basic-action-buttons mobile-basic-actions"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></span></div><div class="basic-info-grid">
+<div class="card basic-info-card"><div class="title"><span><span class="n">1</span>기본 정보</span><span class="basic-close-wrap"><span id="workModeTabs" class="work-mode-tabs-inline"></span><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><span class="basic-action-buttons mobile-basic-actions"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></span></div><div class="basic-info-grid">
 <div class="field basic-site"><label>현장</label><select id="site"></select></div>
 <div class="field basic-trade"><label>공종</label><select id="trade"></select></div>
 <div class="field basic-date"><label>작업일</label><div class="date-with-query"><div class="date-nav">
@@ -1709,7 +1739,7 @@ const PROJECTS=['Y1 IECO','EPI','Indiana','청주Ph4','이천TMAH'];
 function safeParseJSON(v,fallback){
   try{return v===null||v===undefined?fallback:JSON.parse(v)}catch(e){return fallback}
 }
-const PROJECT_KEYS=['masters','reports','currentDraft'];
+const PROJECT_KEYS=['masters','reports','currentDraft','workModeDrafts'];
 function projectKey(name,key){
   // 5개 현장 모두 동일한 V3 독립 저장소를 사용
   return 'projectV3::'+name+'::'+key;
@@ -2319,6 +2349,9 @@ function applyReportLockUI(locked){
       if(el.classList.contains('preview-copy-btn')||
          el.classList.contains('preview-toggle')||
          el.classList.contains('basic-report-close-btn')||
+         el.classList.contains('work-mode-btn')||
+         el.classList.contains('overtime-add-btn')||
+         el.classList.contains('mode-delete-btn')||
          el.classList.contains('date-nav-btn')||
          el.classList.contains('date-query-btn')||
          el.id==='date')return;
@@ -2935,17 +2968,17 @@ function downloadSearchScreenExcel(){
   if(!lastSearchResults.length){alert('먼저 검색을 실행하세요.');return}
   if(typeof XLSX==='undefined'){alert('엑셀 모듈을 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 다시 시도하세요.');return}
   // 현재 검색 화면에 보이는 표 그대로 다운로드
-  const rows=[['날짜','현장','공종','BP사','총인원','업체별 인원','장비','작업구역 · 작업내용']];
+  const rows=[['날짜','구분','현장','공종','BP사','총인원','업체별 인원','장비','작업구역 · 작업내용','마감']];
   lastSearchResults.forEach(x=>{
     rows.push([
-      x.r.date||'', x.r.site||'', x.r.trade||'', x.r.bpa||'',
-      `${x.total||0}명`, x.companyText||'-', x.equipment||'-', x.work||'-'
+      x.r.date||'', x.typeLabel||'주간', x.r.site||'', x.r.trade||'', x.r.bpa||'',
+      `${x.total||0}명`, x.companyText||'-', x.equipment||'-', x.work||'-', x.r.closed?'마감완료':'마감'
     ]);
   });
   const ws=XLSX.utils.aoa_to_sheet(rows);
-  ws['!autofilter']={ref:`A1:H${rows.length}`};
+  ws['!autofilter']={ref:`A1:J${rows.length}`};
   ws['!freeze']={xSplit:0,ySplit:1};
-  ws['!cols']=[{wch:12},{wch:11},{wch:11},{wch:14},{wch:10},{wch:32},{wch:24},{wch:60}];
+  ws['!cols']=[{wch:12},{wch:9},{wch:11},{wch:11},{wch:14},{wch:10},{wch:32},{wch:24},{wch:60},{wch:11}];
   ws['!rows']=rows.map(()=>({hpt:28}));
   const range=XLSX.utils.decode_range(ws['!ref']);
   for(let R=range.s.r;R<=range.e.r;R++){
@@ -3028,13 +3061,13 @@ function downloadSearchExcel(){
     if(ia<0)return 1; if(ib<0)return -1; return ia-ib;
   });
 
-  const header1=['날짜','현장','공종','BP사','총인원'];
-  const header2=['','','','',''];
+  const header1=['날짜','구분','현장','공종','BP사','총인원'];
+  const header2=['','','','','',''];
   const merges=[];
   // 기본정보는 헤더 2행을 세로 병합
-  for(let c=0;c<5;c++)merges.push({s:{r:0,c},e:{r:1,c}});
+  for(let c=0;c<6;c++)merges.push({s:{r:0,c},e:{r:1,c}});
 
-  let col=5;
+  let col=6;
   companyNames.forEach(name=>{
     const jobs=companyJobs[name]||[];
     const span=jobs.length+1; // 이 업체에서 사용하는 직종 + 소계
@@ -3077,7 +3110,7 @@ function downloadSearchExcel(){
     const areas=st.areas||[];
     const equips=st.equipment||[];
     const managers=st.managers||[];
-    const row=[x.r.date||'',x.r.site||'',x.r.trade||'',x.r.bpa||'',x.total||0];
+    const row=[x.r.date||'',x.typeLabel||'주간',x.r.site||'',x.r.trade||'',x.r.bpa||'',x.total||0];
 
     companyNames.forEach(name=>{
       const same=companies.filter(c=>(c.name||'').trim()===name);
@@ -3111,11 +3144,11 @@ function downloadSearchExcel(){
 
   const ws=XLSX.utils.aoa_to_sheet(rows);
   ws['!merges']=merges;
-  ws['!freeze']={xSplit:5,ySplit:2};
+  ws['!freeze']={xSplit:6,ySplit:2};
   ws['!autofilter']={ref:`A2:${XLSX.utils.encode_col(header1.length-1)}${rows.length}`};
   ws['!cols']=header1.map((_,i)=>{
     if(i===0)return {wch:12};
-    if(i>=1&&i<=4)return {wch:11};
+    if(i>=1&&i<=5)return {wch:11};
     return {wch:16};
   });
   ws['!rows']=rows.map(()=>({hpt:28}));
@@ -3345,6 +3378,313 @@ window.addEventListener('storage',e=>{
     }catch(err){}
   }
 });
+
+
+
+// ===== 2026-10-06 주간 / 연장 기능 - index6 원본 위 최소 확장 =====
+let currentWorkType='weekly';
+let currentOvertimeNo=0;
+
+function reportTypeOf(r){return r&&r.workType==='overtime'?'overtime':'weekly'}
+function reportOvertimeNoOf(r){return reportTypeOf(r)==='overtime'?(+r.overtimeNo||1):0}
+function workModeKey(date,site,trade,type,no){
+  const wt=type==='overtime'?'overtime':'weekly';
+  return [date||'',site||'',trade||'',wt,wt==='overtime'?(+no||1):0].join('||');
+}
+function getModeDrafts(){return safeParseJSON(projectGet('workModeDrafts'),{})||{}}
+function setModeDrafts(v){projectSet('workModeDrafts',JSON.stringify(v||{}))}
+function currentModeKey(){return workModeKey($('date')?.value,$('site')?.value,$('trade')?.value,currentWorkType,currentOvertimeNo)}
+function currentModeLabel(type=currentWorkType,no=currentOvertimeNo){
+  if(type!=='overtime')return '주간';
+  return no>1?'연장'+no:'연장';
+}
+function normalizedReportsForRead(){
+  const raw=safeParseJSON(projectGet('reports'),[])||[];
+  const map=new Map();
+  raw.forEach(r=>{
+    if(!r||!r.date)return;
+    const wt=reportTypeOf(r), no=reportOvertimeNoOf(r);
+    const n=Object.assign({},r,{workType:wt,overtimeNo:wt==='overtime'?no:0});
+    map.set(workModeKey(r.date,r.site,r.trade,wt,no),n); // 마지막 저장본 우선
+  });
+  return [...map.values()];
+}
+function findSavedReport(date,site,trade,type='weekly',no=0){
+  const wt=type==='overtime'?'overtime':'weekly', targetNo=wt==='overtime'?(+no||1):0;
+  return normalizedReportsForRead().find(r=>r.date===date&&r.site===site&&r.trade===trade&&reportTypeOf(r)===wt&&reportOvertimeNoOf(r)===targetNo)||null;
+}
+function findModeDraft(date,site,trade,type='weekly',no=0){return getModeDrafts()[workModeKey(date,site,trade,type,no)]||null}
+function makeCurrentModeDraft(){
+  return {date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,
+    workType:currentWorkType,overtimeNo:currentWorkType==='overtime'?(+currentOvertimeNo||1):0,state:JSON.parse(JSON.stringify(state))};
+}
+function stashModeDraft(){
+  if(!$('date')||sessionStorage.getItem('projectSwitching')==='1')return;
+  if(isCurrentStoredReportClosed())return;
+  const drafts=getModeDrafts();drafts[currentModeKey()]=makeCurrentModeDraft();setModeDrafts(drafts);
+}
+function listOvertimeNumbers(date=$('date')?.value,site=$('site')?.value,trade=$('trade')?.value){
+  if(!date)return[];
+  const nums=new Set();
+  normalizedReportsForRead().forEach(r=>{if(r.date===date&&r.site===site&&r.trade===trade&&reportTypeOf(r)==='overtime')nums.add(reportOvertimeNoOf(r))});
+  Object.values(getModeDrafts()).forEach(r=>{if(r&&r.date===date&&r.site===site&&r.trade===trade&&r.workType==='overtime')nums.add(+r.overtimeNo||1)});
+  if(currentWorkType==='overtime'&&$('date')?.value===date&&$('site')?.value===site&&$('trade')?.value===trade)nums.add(+currentOvertimeNo||1);
+  return [...nums].filter(n=>n>0).sort((a,b)=>a-b);
+}
+function updateWorkModeTabs(){
+  const host=$('workModeTabs');if(!host||!$('date'))return;
+  const nums=listOvertimeNumbers();
+  let h=`<button type="button" class="work-mode-btn ${currentWorkType==='weekly'?'active':''}" onclick="switchWorkMode('weekly',0)">주간</button>`;
+  nums.forEach(n=>{
+    const active=currentWorkType==='overtime'&&currentOvertimeNo===n;
+    h+=`<span class="mode-tab-wrap ${active?'active':''}"><button type="button" class="work-mode-btn" onclick="switchWorkMode('overtime',${n})">${esc(currentModeLabel('overtime',n))}</button><button type="button" class="mode-delete-btn" title="${esc(currentModeLabel('overtime',n))} 삭제" onclick="event.stopPropagation();deleteOvertime(${n})">−</button></span>`;
+  });
+  h+=`<button type="button" class="overtime-add-btn" onclick="createOvertime()">연장+</button>`;
+  host.innerHTML=h;
+}
+function applyReportLike(r,type,no){
+  if(!r)return false;
+  currentWorkType=type==='overtime'?'overtime':'weekly';
+  currentOvertimeNo=currentWorkType==='overtime'?(+no||1):0;
+  if(r.site!==undefined)$('site').value=r.site;
+  if(r.trade!==undefined)$('trade').value=r.trade;
+  $('start').value=r.start||(currentWorkType==='overtime'?'17:00':'07:30');
+  $('end').value=r.end||(currentWorkType==='overtime'?'19:00':'17:00');
+  $('bpa').value=r.bpa||'';
+  state=JSON.parse(JSON.stringify(r.state||{companies:[],equipment:[],areas:[],managers:[]}));
+  currentReportLocked=!!r.closed;
+  render();
+  applyReportLockUI(currentReportLocked);
+  if(!currentReportLocked)autoSave();
+  return true;
+}
+function switchWorkMode(type,no=0){
+  if(type==='overtime'&&!(+no))return;
+  stashModeDraft();
+  const date=$('date').value,site=$('site').value,trade=$('trade').value;
+  const wt=type==='overtime'?'overtime':'weekly', n=wt==='overtime'?(+no||1):0;
+  const r=findModeDraft(date,site,trade,wt,n)||findSavedReport(date,site,trade,wt,n);
+  if(r){applyReportLike(r,wt,n)}
+  else if(wt==='weekly'){
+    currentWorkType='weekly';currentOvertimeNo=0;
+    $('start').value='07:30';$('end').value='17:00';
+    currentReportLocked=false;render();applyReportLockUI(false);autoSave();
+  }
+  updateWorkModeTabs();syncReportLockForCurrentDate();
+}
+function createOvertime(){
+  if(!$('date'))return;
+  stashModeDraft();
+  const date=$('date').value,site=$('site').value,trade=$('trade').value;
+  const nums=listOvertimeNumbers(date,site,trade), next=(nums.length?Math.max(...nums):0)+1;
+  let base=findModeDraft(date,site,trade,'weekly',0)||findSavedReport(date,site,trade,'weekly',0);
+  if(!base && currentWorkType==='weekly')base=makeCurrentModeDraft();
+  if(!base){
+    base={date,site,trade,start:'07:30',end:'17:00',bpa:$('bpa').value||'',state:JSON.parse(JSON.stringify(state))};
+  }
+  const o={date,site,trade,start:'17:00',end:'19:00',bpa:base.bpa||'',workType:'overtime',overtimeNo:next,closed:false,state:JSON.parse(JSON.stringify(base.state||state))};
+  const drafts=getModeDrafts();drafts[workModeKey(date,site,trade,'overtime',next)]=o;setModeDrafts(drafts);
+  applyReportLike(o,'overtime',next);markLocalChanged();updateWorkModeTabs();
+}
+function hasMeaningfulReportData(r){
+  const st=(r&&r.state)||{};
+  if((st.companies||[]).some(c=>Object.values(c.jobs||{}).some(v=>(+v||0)>0)))return true;
+  if((st.equipment||[]).some(e=>(+e.qty||0)>0&&(e.name||'').trim()))return true;
+  if((st.areas||[]).some(a=>(a.tasks||[]).some(t=>(t||'').trim())))return true;
+  return false;
+}
+function deleteOvertimeRecord(date,site,trade,no,fromSearch=false){
+  const n=+no||1;
+  const saved=findSavedReport(date,site,trade,'overtime',n),draft=findModeDraft(date,site,trade,'overtime',n),data=saved||draft;
+  if(saved&&saved.closed===true){alert('마감된 연장 작업일보입니다. 먼저 마감을 해제한 뒤 삭제해 주세요.');return false}
+  const label=currentModeLabel('overtime',n);
+  if(data&&hasMeaningfulReportData(data)){
+    if(!confirm(`${label} 데이터가 있습니다.\n삭제하면 복구하기 어렵습니다. 정말 삭제할까요?`))return false;
+  }else if(!confirm(`${label}을 삭제할까요?`))return false;
+
+  let reports=safeParseJSON(projectGet('reports'),[])||[];
+  reports=reports.filter(r=>!(r.date===date&&r.site===site&&r.trade===trade&&reportTypeOf(r)==='overtime'&&reportOvertimeNoOf(r)===n));
+  projectSet('reports',JSON.stringify(reports));
+  const drafts=getModeDrafts();delete drafts[workModeKey(date,site,trade,'overtime',n)];setModeDrafts(drafts);
+
+  if(currentWorkType==='overtime'&&currentOvertimeNo===n&&$('date')?.value===date&&$('site')?.value===site&&$('trade')?.value===trade){
+    const w=findModeDraft(date,site,trade,'weekly',0)||findSavedReport(date,site,trade,'weekly',0);
+    if(w)applyReportLike(w,'weekly',0);
+    else{currentWorkType='weekly';currentOvertimeNo=0;$('start').value='07:30';$('end').value='17:00';currentReportLocked=false;render();autoSave()}
+  }
+  markLocalChanged();if(tokenValid())scheduleAutoSync();updateWorkModeTabs();
+  if(fromSearch||($('searchPage')&&$('searchPage').style.display!=='none'))searchReports();
+  return true;
+}
+function deleteOvertime(no){return deleteOvertimeRecord($('date').value,$('site').value,$('trade').value,no,false)}
+function deleteOvertimeFromSearch(date,site,trade,no){return deleteOvertimeRecord(date,site,trade,no,true)}
+
+function getStoredReport(date,site,trade,type=currentWorkType,no=currentOvertimeNo){return findSavedReport(date,site,trade,type,no)}
+function isStoredReportClosed(date,site,trade,type=currentWorkType,no=currentOvertimeNo){const r=getStoredReport(date,site,trade,type,no);return !!(r&&r.closed===true)}
+function isCurrentStoredReportClosed(){if(!$('date')||!$('site')||!$('trade'))return false;return isStoredReportClosed($('date').value,$('site').value,$('trade').value,currentWorkType,currentOvertimeNo)}
+
+function toggleCurrentReportClosed(){
+  if(!$('date')||!$('site')||!$('trade'))return;
+  const date=$('date').value,site=$('site').value,trade=$('trade').value;
+  const r=findSavedReport(date,site,trade,currentWorkType,currentOvertimeNo);
+  if(!r)return alert('먼저 보고서를 저장한 뒤 마감해 주세요.');
+  toggleReportClosed(date,site,trade,currentWorkType,currentOvertimeNo);
+}
+function toggleReportClosed(date,site,trade,type='weekly',no=0){
+  const wt=type==='overtime'?'overtime':'weekly', n=wt==='overtime'?(+no||1):0;
+  let reports=safeParseJSON(projectGet('reports'),[])||[];
+  let indexes=[];
+  reports.forEach((r,i)=>{if(r.date===date&&r.site===site&&r.trade===trade&&reportTypeOf(r)===wt&&reportOvertimeNoOf(r)===n)indexes.push(i)});
+  if(!indexes.length)return alert('해당 보고서를 찾을 수 없습니다.');
+  const ix=indexes[indexes.length-1], r=reports[ix];
+  if(r.closed===true){
+    const pw=prompt('마스터 비밀번호를 입력하세요.');
+    if(pw===null)return;
+    if(pw!==MASTER_CLOSE_PASSWORD)return alert('마스터 비밀번호가 맞지 않습니다.');
+    r.closed=false;delete r.closedAt;reports[ix]=r;projectSet('reports',JSON.stringify(reports));markLocalChanged();if(tokenValid())scheduleAutoSync();alert('마감이 해제되었습니다. 이제 수정할 수 있습니다.');
+  }else{
+    if(!confirm('이 보고서를 마감할까요?\n마감 후에는 수정·삭제·저장할 수 없습니다.'))return;
+    r.closed=true;r.closedAt=new Date().toISOString();reports[ix]=r;projectSet('reports',JSON.stringify(reports));markLocalChanged();if(tokenValid())scheduleAutoSync();
+  }
+  if($('date')&&$('site')&&$('trade')&&$('date').value===date&&$('site').value===site&&$('trade').value===trade&&currentWorkType===wt&&reportOvertimeNoOf({workType:wt,overtimeNo:n})===n){syncReportLockForCurrentDate()}
+  if(Array.isArray(lastSearchResults))lastSearchResults.forEach(x=>{if(x?.r&&x.r.date===date&&x.r.site===site&&x.r.trade===trade&&x.workType===wt&&x.overtimeNo===n){x.r.closed=reports[ix].closed===true}});
+  if($('searchPage')&&$('searchPage').style.display!=='none')searchReports();
+}
+
+function loadExactSavedReportForDate(targetDate){
+  currentWorkType='weekly';currentOvertimeNo=0;
+  const reports=normalizedReportsForRead().filter(r=>r.date===targetDate&&reportTypeOf(r)==='weekly');
+  if(!reports.length)return false;
+  let r=reports.find(x=>x.site===$('site').value&&x.trade===$('trade').value);
+  if(!r&&reports.length===1)r=reports[0];
+  if(!r)return false;
+  if(r.site!==undefined)$('site').value=r.site;if(r.trade!==undefined)$('trade').value=r.trade;
+  return applyReportLike(r,'weekly',0);
+}
+function setWorkDateToday(){
+  const el=$('date');if(!el)return;
+  const today=getTodayLocalDate();el.value=today;currentWorkType='weekly';currentOvertimeNo=0;
+  if(loadExactSavedReportForDate(today))return;
+  $('start').value='07:30';$('end').value='17:00';currentReportLocked=false;updatePreview();applyReportLockUI(false);autoSave();updateWorkModeTabs();
+}
+function render(){renderCompanies();renderEquipment();renderAreas();renderManagers();updatePreview();applyReportLockUI(currentReportLocked);updateWorkModeTabs()}
+function reportText(){
+  let d=new Date($('date').value+'T00:00:00'),days='일월화수목금토';
+  let ds=isNaN(d)?'':`${String(d.getFullYear()).slice(2)}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}(${days[d.getDay()]})`;
+  let totals=Object.fromEntries(D.jobs.map(j=>[j,0]));state.companies.forEach(c=>D.jobs.forEach(j=>totals[j]+=+c.jobs[j]||0));let total=Object.values(totals).reduce((a,b)=>a+b,0);
+  const modeTitle=currentWorkType==='overtime'?`${currentModeLabel()}작업보고`:'주간작업보고';
+  let lines=[`[${$('trade').value}] ${ds} ${modeTitle} 작업시간(${$('start').value}~${$('end').value})`,'',`■ ${$('site').value}`,`1.BP사 : ${$('bpa').value}`,'',`1) 출력인원: ${total}명`];
+  D.jobs.forEach(j=>{if(totals[j]>0)lines.push(`   - ${j} : ${totals[j]}명`)});
+  let eq=state.equipment.filter(e=>e.name&&e.qty>0).map(e=>`${e.name}-${e.qty}대`);lines.push('',`2) 장비 : ${eq.length?eq.join(', '):'-'}`,'','3) 금일 작업 내용');
+  state.areas.forEach(a=>{let tasks=a.tasks.filter(x=>x.trim());if((a.zone||a.loc)&&tasks.length){lines.push(`- ${[a.zone,a.loc].filter(Boolean).join('  ')}`);tasks.forEach((t,i)=>lines.push(`   ${i+1}. ${t}`))}});
+  lines.push('','4) 담당자');state.managers.filter(m=>m[3]!==false&&[m[0],m[1],m[2]].some(x=>(x||'').trim())).forEach(m=>lines.push(`   - ${m[0]} ${m[1]} ${m[2]}`));return lines.join('\n');
+}
+function moveWorkDate(days){
+  const el=$('date');if(!el)return;stashModeDraft();
+  let d=el.value?new Date(el.value+'T00:00:00'):new Date();if(isNaN(d))d=new Date();d.setDate(d.getDate()+days);
+  const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');el.value=`${y}-${mo}-${day}`;
+  currentWorkType='weekly';currentOvertimeNo=0;
+  const r=findSavedReport(el.value,$('site').value,$('trade').value,'weekly',0)||findModeDraft(el.value,$('site').value,$('trade').value,'weekly',0);
+  if(r)applyReportLike(r,'weekly',0);else{$('start').value='07:30';$('end').value='17:00';currentReportLocked=false;clearDailyValuesForDateMove();render();autoSave()}
+}
+function autoSave(){
+  if(sessionStorage.getItem('projectSwitching')==='1'||!$('date'))return;
+  if(isCurrentStoredReportClosed())return;
+  const d=makeCurrentModeDraft();projectSet('currentDraft',JSON.stringify(d));
+  const drafts=getModeDrafts();drafts[currentModeKey()]=d;setModeDrafts(drafts);
+}
+function loadDateOrBlank(){
+  stashModeDraft();currentWorkType='weekly';currentOvertimeNo=0;
+  const target=$('date').value,site=$('site').value,trade=$('trade').value;
+  const exact=findSavedReport(target,site,trade,'weekly',0)||findModeDraft(target,site,trade,'weekly',0);
+  let r=exact;
+  if(!r){r=normalizedReportsForRead().filter(x=>x.date<target&&x.site===site&&x.trade===trade&&reportTypeOf(x)==='weekly').sort((a,b)=>b.date.localeCompare(a.date))[0]}
+  if(r){
+    $('start').value=exact?(r.start||'07:30'):'07:30';$('end').value=exact?(r.end||'17:00'):'17:00';$('bpa').value=r.bpa||'';state=JSON.parse(JSON.stringify(r.state));currentReportLocked=!!(exact&&r.closed);render();if(!currentReportLocked)autoSave();
+  }else{$('start').value='07:30';$('end').value='17:00';currentReportLocked=false;applyReportLockUI(false);updatePreview();autoSave();updateWorkModeTabs()}
+}
+function loadCurrentDateReport(){
+  const r=findSavedReport($('date').value,$('site').value,$('trade').value,currentWorkType,currentOvertimeNo)||findModeDraft($('date').value,$('site').value,$('trade').value,currentWorkType,currentOvertimeNo);
+  if(!r)return alert(`해당 날짜/현장/공종의 ${currentModeLabel()} 작업일보가 없습니다.`);
+  applyReportLike(r,currentWorkType,currentOvertimeNo);
+}
+function saveReport(){
+  if(!requireReportEditable())return;
+  let reports=safeParseJSON(projectGet('reports'),[])||[];
+  const wt=currentWorkType==='overtime'?'overtime':'weekly', no=wt==='overtime'?(+currentOvertimeNo||1):0;
+  const old=findSavedReport($('date').value,$('site').value,$('trade').value,wt,no);
+  const obj={date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,
+    workType:wt,overtimeNo:no,state:JSON.parse(JSON.stringify(state)),text:reportText(),closed:!!(old&&old.closed)};
+  // 같은 날짜+현장+공종의 주간은 무조건 1개, 연장은 번호별 1개만 유지
+  reports=reports.filter(r=>!(r.date===obj.date&&r.site===obj.site&&r.trade===obj.trade&&reportTypeOf(r)===wt&&reportOvertimeNoOf(r)===no));
+  reports.push(obj);projectSet('reports',JSON.stringify(reports));
+  const drafts=getModeDrafts();drafts[workModeKey(obj.date,obj.site,obj.trade,wt,no)]=makeCurrentModeDraft();setModeDrafts(drafts);
+  autoSave();markLocalChanged();if(tokenValid())scheduleAutoSync();updateWorkModeTabs();syncReportLockForCurrentDate();
+  alert('보고서로 저장했습니다.'+(tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''));
+}
+function copyPreviousDay(){
+  if(!requireReportEditable()||!$('date'))return;let currentDate=$('date').value,d=new Date(currentDate+'T00:00:00');if(isNaN(d))return alert('작업일을 먼저 선택해 주세요.');
+  d.setDate(d.getDate()-1);const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'),prev=`${y}-${m}-${day}`;
+  const r=findSavedReport(prev,$('site').value,$('trade').value,'weekly',0);if(!r)return alert('전일 저장된 주간 보고서가 없습니다.');
+  state=JSON.parse(JSON.stringify(r.state));$('date').value=currentDate;render();autoSave();
+}
+function loadYesterday(){let d=new Date($('date').value+'T00:00:00');d.setDate(d.getDate()-1);let y=d.toISOString().slice(0,10),r=findSavedReport(y,$('site').value,$('trade').value,'weekly',0);if(!r)return alert('전날 저장된 주간 보고서가 없습니다.');state=JSON.parse(JSON.stringify(r.state));render()}
+
+async function searchReports(){
+  try{
+    $('results').innerHTML='<div style="padding:10px;font-weight:700;color:#53657a">검색 중...</div>';
+    let type=$('searchType').value,q=(type==='keyword'?$('query').value:$('querySelect').value).trim().toLowerCase(),from=$('from').value,to=$('to').value;
+    let rs=normalizedReportsForRead(),out=[];
+    rs.forEach(r=>{
+      if((from&&r.date<from)||(to&&r.date>to))return;
+      const st=r.state||{},areas=st.areas||[],equips=st.equipment||[],companies=st.companies||[];
+      const hasPersonnel=companies.some(c=>Object.values(c.jobs||{}).some(n=>(+n||0)>0));
+      const hasWork=areas.some(a=>(a.tasks||[]).some(t=>(t||'').trim()));
+      const hasEquipment=equips.some(e=>(+e.qty||0)>0&&(e.name||'').trim());
+      if(!(hasPersonnel||hasWork||hasEquipment))return;
+      let matched=false;
+      if(type==='keyword'){const taskText=areas.flatMap(a=>a.tasks||[]).join(' ').toLowerCase();matched=!q||taskText.includes(q)}
+      else if(type==='equipment'){matched=!q||equips.some(e=>(+e.qty||0)>0&&(e.name||'').toLowerCase().includes(q))}
+      else if(type==='trade'){matched=!q||(r.trade||'').toLowerCase().includes(q)}
+      else if(type==='job'){matched=!q||companies.some(c=>Object.entries(c.jobs||{}).some(([job,n])=>(+n||0)>0&&job.toLowerCase()===q))}
+      else if(type==='area'){matched=!q||areas.some(a=>((a.zone||'')+' '+(a.loc||'')).toLowerCase().includes(q))}
+      if(!matched)return;
+      const total=companies.reduce((sum,c)=>sum+Object.values(c.jobs||{}).reduce((a,b)=>a+(+b||0),0),0);
+      const companyText=companies.map(c=>{const n=Object.values(c.jobs||{}).reduce((a,b)=>a+(+b||0),0);return `${c.name||'-'} ${n}명`}).join(', ');
+      const equipment=equips.filter(e=>e.name&&(+e.qty||0)>0).map(e=>`${e.name} ${e.qty}대`).join(', ');
+      const work=areas.map(a=>{const tasks=(a.tasks||[]).filter(Boolean).join(' / ');return [a.zone,a.loc,tasks].filter(Boolean).join(' · ')}).filter(Boolean).join(' | ');
+      const wt=reportTypeOf(r),ot=reportOvertimeNoOf(r);out.push({r,total,companyText,equipment,work,workType:wt,overtimeNo:ot,typeLabel:currentModeLabel(wt,ot)});
+    });
+    out.sort((a,b)=>{const d=b.r.date.localeCompare(a.r.date);if(d)return d;if(a.workType!==b.workType)return a.workType==='weekly'?-1:1;return a.overtimeNo-b.overtimeNo});
+    lastSearchResults=out;
+    if(!out.length){$('results').innerHTML=`<div style="padding:10px;line-height:1.6"><b>검색 결과가 없습니다.</b><br>현재 ${esc(activeProjectName())} 저장보고서: <b>${rs.length}건</b></div>`;return}
+    const dateCounts={};out.forEach(x=>dateCounts[x.r.date]=(dateCounts[x.r.date]||0)+1);const dateUsed={};
+    $('results').innerHTML=`<div style="font-size:12px;font-weight:700;margin:8px 0">저장보고서 ${rs.length}건 · 검색 결과 ${out.length}건</div><div class="result-table-wrap"><table class="result-table"><thead><tr><th>날짜</th><th>구분</th><th>현장</th><th>공종</th><th>BP사</th><th>총인원</th><th>업체별 인원</th><th>장비</th><th>작업구역 · 작업내용</th><th>마감</th></tr></thead><tbody>${out.map(x=>{
+      const dateCell=dateUsed[x.r.date]?'':`<td rowspan="${dateCounts[x.r.date]}"><button type="button" class="date-link-btn" onclick="openReportFromSearch('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}','${x.workType}',${x.overtimeNo})">${esc(x.r.date)}</button></td>`;dateUsed[x.r.date]=true;
+      const del=x.workType==='overtime'?`<button type="button" class="btn search-overtime-delete" title="연장 삭제" onclick="event.stopPropagation();deleteOvertimeFromSearch('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}',${x.overtimeNo})">−</button>`:'';
+      return `<tr class="${x.workType==='overtime'?'search-overtime-row':''}">${dateCell}<td class="type-cell"><button type="button" class="date-link-btn" onclick="openReportFromSearch('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}','${x.workType}',${x.overtimeNo})">${esc(x.typeLabel)}</button>${del}</td><td>${esc(x.r.site)}</td><td>${esc(x.r.trade)}</td><td>${esc(x.r.bpa||'')}</td><td class="num-cell">${x.total}명</td><td>${esc(x.companyText||'-')}</td><td>${esc(x.equipment||'-')}</td><td class="work-cell">${esc(x.work||'-')}</td><td><button type="button" class="report-close-btn ${x.r.closed?'closed':''}" title="${x.r.closed?'마감 해제':'보고서 마감'}" onclick="event.stopPropagation();toggleReportClosed('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}','${x.workType}',${x.overtimeNo})">마감</button></td></tr>`;
+    }).join('')}</tbody></table></div>`;
+  }catch(e){console.error('검색 오류',e);$('results').innerHTML='<div style="padding:10px;color:#c62828;font-weight:700">검색 오류: '+esc(e.message||String(e))+'</div>'}
+}
+function openReportFromSearch(date,site,trade,type='weekly',no=0){
+  const r=findSavedReport(date,site,trade,type,no);if(!r)return alert('해당 작업보고를 찾을 수 없습니다.');
+  $('date').value=r.date;$('site').value=r.site;$('trade').value=r.trade;applyReportLike(r,type,no);showPage('write',null);applyReportLockUI(!!r.closed);refreshProjectTree();window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function localData(){
+  autoSave();
+  return {masters:safeParseJSON(projectGet('masters',DRIVE_PROJECT),null),reports:safeParseJSON(projectGet('reports',DRIVE_PROJECT),[])||[],currentDraft:safeParseJSON(projectGet('currentDraft',DRIVE_PROJECT),null),workModeDrafts:safeParseJSON(projectGet('workModeDrafts',DRIVE_PROJECT),{})||{}};
+}
+function applyRemoteData(d,stamp){
+  applyingRemote=true;try{
+    const activeProject=sessionStorage.getItem('activeProject')||DRIVE_PROJECT||'Y1 IECO';
+    if(d.masters)projectSet('masters',JSON.stringify(d.masters),activeProject);
+    if(Array.isArray(d.reports))projectSet('reports',JSON.stringify(d.reports),activeProject);
+    if(d.currentDraft)projectSet('currentDraft',JSON.stringify(d.currentDraft),activeProject);
+    if(d.workModeDrafts)projectSet('workModeDrafts',JSON.stringify(d.workModeDrafts),activeProject);
+    setDriveMeta('driveLastRemoteStamp',String(stamp||Date.now()));setDriveMeta('driveLocalDirty','0');setDriveMeta('driveLocalUpdatedAt',String(stamp||Date.now()));
+  }finally{applyingRemote=false}
+}
 
 prepareActiveProjectStore();
 init();
