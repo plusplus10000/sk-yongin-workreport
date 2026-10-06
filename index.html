@@ -1540,7 +1540,6 @@ body.report-is-closed #writePage textarea:disabled{
 .search-overtime-row td{background:#fff0f4!important}
 .search-overtime-row:hover td{background:#ffe7ee!important}
 .result-table .type-cell{font-weight:800;text-align:center;white-space:nowrap}
-.search-overtime-delete{margin-left:4px!important;min-width:22px!important;padding:2px 5px!important;color:#a33b58!important;border-color:#e3a7b8!important}
 @media(max-width:850px){
   .basic-close-wrap{flex:1 1 100%;margin-left:0!important;margin-right:0!important;justify-content:flex-start;gap:5px!important}
   .work-mode-tabs-inline{gap:3px}
@@ -3661,8 +3660,7 @@ async function searchReports(){
     const dateCounts={};out.forEach(x=>dateCounts[x.r.date]=(dateCounts[x.r.date]||0)+1);const dateUsed={};
     $('results').innerHTML=`<div style="font-size:12px;font-weight:700;margin:8px 0">저장보고서 ${rs.length}건 · 검색 결과 ${out.length}건</div><div class="result-table-wrap"><table class="result-table"><thead><tr><th>날짜</th><th>구분</th><th>현장</th><th>공종</th><th>BP사</th><th>총인원</th><th>업체별 인원</th><th>장비</th><th>작업구역 · 작업내용</th><th>마감</th></tr></thead><tbody>${out.map(x=>{
       const dateCell=dateUsed[x.r.date]?'':`<td rowspan="${dateCounts[x.r.date]}"><button type="button" class="date-link-btn" onclick="openReportFromSearch('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}','${x.workType}',${x.overtimeNo})">${esc(x.r.date)}</button></td>`;dateUsed[x.r.date]=true;
-      const del=x.workType==='overtime'?`<button type="button" class="btn search-overtime-delete" title="연장 삭제" onclick="event.stopPropagation();deleteOvertimeFromSearch('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}',${x.overtimeNo})">−</button>`:'';
-      return `<tr class="${x.workType==='overtime'?'search-overtime-row':''}">${dateCell}<td class="type-cell"><button type="button" class="date-link-btn" onclick="openReportFromSearch('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}','${x.workType}',${x.overtimeNo})">${esc(x.typeLabel)}</button>${del}</td><td>${esc(x.r.site)}</td><td>${esc(x.r.trade)}</td><td>${esc(x.r.bpa||'')}</td><td class="num-cell">${x.total}명</td><td>${esc(x.companyText||'-')}</td><td>${esc(x.equipment||'-')}</td><td class="work-cell">${esc(x.work||'-')}</td><td><button type="button" class="report-close-btn ${x.r.closed?'closed':''}" title="${x.r.closed?'마감 해제':'보고서 마감'}" onclick="event.stopPropagation();toggleReportClosed('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}','${x.workType}',${x.overtimeNo})">마감</button></td></tr>`;
+      return `<tr class="${x.workType==='overtime'?'search-overtime-row':''}">${dateCell}<td class="type-cell"><button type="button" class="date-link-btn" onclick="openReportFromSearch('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}','${x.workType}',${x.overtimeNo})">${esc(x.typeLabel)}</button></td><td>${esc(x.r.site)}</td><td>${esc(x.r.trade)}</td><td>${esc(x.r.bpa||'')}</td><td class="num-cell">${x.total}명</td><td>${esc(x.companyText||'-')}</td><td>${esc(x.equipment||'-')}</td><td class="work-cell">${esc(x.work||'-')}</td><td><button type="button" class="report-close-btn ${x.r.closed?'closed':''}" title="${x.r.closed?'마감 해제':'보고서 마감'}" onclick="event.stopPropagation();toggleReportClosed('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}','${x.workType}',${x.overtimeNo})">마감</button></td></tr>`;
     }).join('')}</tbody></table></div>`;
   }catch(e){console.error('검색 오류',e);$('results').innerHTML='<div style="padding:10px;color:#c62828;font-weight:700">검색 오류: '+esc(e.message||String(e))+'</div>'}
 }
