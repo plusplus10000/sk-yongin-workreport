@@ -504,7 +504,7 @@ body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobi
 }
 
 
-/* Google Drive 상태 박스: 좌측 연결상태 + 우측 작업버튼 */
+/* 공용저장소 상태 박스: 좌측 연결상태 + 우측 작업버튼 */
 .drive-action-row{display:flex!important;align-items:center!important;gap:7px!important;width:100%!important}
 .drive-action-row .header-action-buttons{margin-left:auto!important;display:flex!important;align-items:center!important;gap:5px!important;white-space:nowrap!important}
 .drive-action-row .header-action-buttons .btn{background:#fff;color:#0672e8;border-color:#c8d8ea}
@@ -1565,7 +1565,7 @@ body.report-is-closed #writePage textarea:disabled{
 .local-backup-status{font-size:12px;font-weight:700;color:#075f9c;margin-top:9px;min-height:18px}
 @media(max-width:850px){.local-backup-box{padding:13px}.local-backup-actions .btn{flex:1 1 auto}}
 
-</style><script src="https://accounts.google.com/gsi/client" async defer></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
+</style><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
 <body class="locked site-home-mode"><section id="siteHome" aria-label="현장 선택">
   <div class="site-home-inner site-home-simple">
     <div class="site-select-title site-select-title-simple">
@@ -1721,7 +1721,7 @@ body.report-is-closed #writePage textarea:disabled{
 </div>
 </div>
 </aside><main>
-<section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 검색 / 이력에서 회색 [마감] 버튼을 눌러 마스터 비밀번호로 마감을 해제하세요.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ Google Drive 연결</button><button class="btn" type="button" onclick="saveToDrive()">Drive에 저장</button><button class="btn" type="button" onclick="loadFromDrive()">Drive에서 불러오기</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 연결 안 됨</b><button class="btn local-backup-btn" type="button" onclick="openLocalBackupDialog()">로컬백업</button><div class="header-action-buttons"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div class="grid"><div class="input-col left-col">
+<section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 검색 / 이력에서 회색 [마감] 버튼을 눌러 마스터 비밀번호로 마감을 해제하세요.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ 공용저장소 연결</button><button class="btn" type="button" onclick="saveToDrive()">공용저장소 저장</button><button class="btn" type="button" onclick="loadFromDrive()">공용저장소 불러오기</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 접속키 미설정</b><button class="btn local-backup-btn" type="button" onclick="openLocalBackupDialog()">로컬백업</button><div class="header-action-buttons"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div class="grid"><div class="input-col left-col">
 <div class="card basic-info-card"><div class="title"><span><span class="n">1</span>기본 정보</span><span class="basic-close-wrap"><span id="workModeTabs" class="work-mode-tabs-inline"></span><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><span class="basic-action-buttons mobile-basic-actions"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></span></div><div class="basic-info-grid">
 <div class="field basic-site"><label>현장</label><select id="site"></select></div>
 <div class="field basic-trade"><label>공종</label><select id="trade"></select></div>
@@ -1741,11 +1741,12 @@ body.report-is-closed #writePage textarea:disabled{
 <div class="desktop-preview"><div class="card"><div class="title preview-title-row"><span class="preview-title-text">작업보고 미리보기</span><button class="btn preview-copy-btn" onclick="copyPreview()">복사하기</button><button class="btn preview-toggle" type="button" title="미리보기 접기/펼치기" onclick="togglePreview()">◀</button></span></div><div id="preview" class="preview" contenteditable="true"></div></div></div></div></section>
 <section id="searchPage" class="search-panel"><div class="card"><div class="title"><span>검색 / 이력 조회</span></div><div class="row"><div class="field"><label>검색 유형</label><select id="searchType" onchange="updateSearchHint()"><option value="keyword">작업내용</option><option value="equipment">장비</option><option value="trade">공종</option><option value="job">직종</option><option value="area">구역</option></select></div><div class="field"><label id="queryLabel">작업내용 검색어</label><input id="query" placeholder="비워두면 전체 목록"><select id="querySelect" style="display:none"></select></div><div class="field"><label>시작일</label><input id="from" type="date"></div><div class="field"><label>종료일</label><input id="to" type="date"></div></div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px"><button class="btn primary" onclick="searchReports()">검색</button><button class="btn" type="button" onclick="downloadSearchExcel()">📥 엑셀 다운로드(상세)</button><button class="btn" type="button" onclick="downloadSearchScreenExcel()">📥 엑셀 다운로드(검색화면)</button><button class="btn" type="button" onclick="resetSearch()">↻ 새로고침</button></div><div id="results" class="results"></div></div></section>
 <section id="masterPage" class="search-panel"><div class="card"><div class="title">기준정보 관리</div><p>앱 타이틀과 기준정보를 수정한 뒤 저장하세요. 저장 즉시 PC·모바일 화면에 반영됩니다.</p><div class="field"><label>앱 타이틀</label><input id="masterAppTitle" maxlength="40" placeholder="예: SK 용인 작업일보"></div><div class="field"><label>현장</label><input id="masterSites"></div><div class="field"><label>공종</label><input id="masterTrades"></div><div class="field"><label>직종</label><input id="masterJobs"></div><div class="field"><label>장비</label><input id="masterEquipment"></div><div class="field"><label>구역 / 위치범위</label><div id="masterZones"></div><button class="btn" type="button" onclick="addMasterZone()">+ 구역 추가</button></div><div class="field"><label>담당</label><textarea id="masterManagers" rows="5" placeholder="한 줄에 1명: 이름 | 직책 | 전화번호"></textarea></div><div class="card" style="margin-top:14px;background:#f8fbff">
-<div class="title" style="font-size:16px">☁ Google Drive 자료 공유</div>
-<p style="font-size:13px;line-height:1.6;margin-top:0">같은 Google 계정으로 PC와 휴대폰에서 연결하면 작업일보·기준정보를 하나의 Drive 백업 파일로 공유합니다. 인터넷이 없어도 기존 로컬 저장은 계속 사용할 수 있습니다.</p>
-<div class="field"><label>Google OAuth 클라이언트 ID</label><input id="googleClientId" value="992657911090-e04el1bhbr62a5554g5ikldervq05krc.apps.googleusercontent.com" placeholder="...apps.googleusercontent.com"></div>
-<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><button class="btn primary" type="button" onclick="connectGoogleDrive()">Google Drive 연결</button><button class="btn" type="button" onclick="saveToDrive()">Drive에 저장</button><button class="btn" type="button" onclick="loadFromDrive()">Drive에서 불러오기</button></div>
-<div id="driveStatus" style="font-size:12px;margin-top:8px;color:#53657a">상태: 연결 안 됨</div><div style="font-size:12px;margin-top:5px;color:#0878f9;font-weight:700">자동 동기화: 켜짐 · 연결 시 Drive 최신자료를 받고, 보고서/기준정보 저장 시 자동으로 Drive에 저장합니다.</div>
+<div class="title" style="font-size:16px">☁ 공용저장소 자료 공유</div>
+<p style="font-size:13px;line-height:1.6;margin-top:0">Google 계정 로그인 없이 공용저장소를 통해 PC·휴대폰의 작업일보를 공유합니다. 각 기기에서는 최초 1회 공용 접속키만 입력하면 됩니다. 인터넷이 없어도 기존 로컬 저장은 계속 사용할 수 있습니다.</p>
+<div class="field"><label>공용저장소 웹앱 주소</label><input id="publicStoreUrl" value="https://script.google.com/macros/s/AKfycby9z5m2ffZuzPFh2gEteaIpZq2hsJLRUJeSli-_xdTWF8stQu8ekixq1h8JeDDm_nJv/exec" placeholder="https://script.google.com/macros/s/.../exec"></div>
+<div class="field" style="margin-top:7px"><label>공용 접속키</label><div style="display:flex;gap:6px;align-items:center"><input id="publicStoreKeyInput" type="password" autocomplete="off" placeholder="처음 한 번만 입력"><button class="btn" type="button" onclick="savePublicStoreSettings()">접속키 저장/변경</button></div></div>
+<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><button class="btn primary" type="button" onclick="connectGoogleDrive()">공용저장소 연결</button><button class="btn" type="button" onclick="saveToDrive()">공용저장소 저장</button><button class="btn" type="button" onclick="loadFromDrive()">공용저장소 불러오기</button></div>
+<div id="driveStatus" style="font-size:12px;margin-top:8px;color:#53657a">상태: 접속키 미설정</div><div style="font-size:12px;margin-top:5px;color:#0878f9;font-weight:700">자동 동기화: 켜짐 · 연결 후 저장자료를 공용저장소와 자동으로 맞춥니다.</div>
 </div><button class="btn primary" style="margin-top:10px" onclick="saveMasters()">기준정보 저장</button></div></section>
 </main></div>
 <div id="localBackupModal" class="local-backup-modal" onclick="if(event.target===this)closeLocalBackupDialog()" aria-hidden="true">
@@ -2264,7 +2265,7 @@ function applyY1MasterFromUserImageV1(){
   const key=projectKey('Y1 IECO','masters');
 
   // 이미 저장된 Y1 기준정보가 있으면 절대 덮어쓰지 않는다.
-  // Drive에서 동기화된 기준정보와 사용자가 수정한 기준정보를 그대로 유지.
+  // 공용저장소에서 동기화된 기준정보와 사용자가 수정한 기준정보를 그대로 유지.
   if(localStorage.getItem(key)!==null)return;
 
   const masters=y1MasterFromUserImage();
@@ -2868,7 +2869,7 @@ function saveReport(){
   projectSet('reports',JSON.stringify(reports));
   autoSave();markLocalChanged();
   if(tokenValid())scheduleAutoSync();
-  alert('보고서로 저장했습니다.'+(tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''));
+  alert('보고서로 저장했습니다.'+(tokenValid()?'\n공용저장소 자동 동기화를 시작했습니다.':''));
 }
 function copyPreviousDay(){
   if(!requireReportEditable())return;
@@ -3262,106 +3263,229 @@ function saveMasters(){
   if(tokenValid())scheduleAutoSync();
 
   alert('기준정보를 저장했습니다. 앱 타이틀도 즉시 반영되었습니다.'+
-    (tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''));
+    (tokenValid()?'\n공용저장소 자동 동기화를 시작했습니다.':''));
 }
 
 
-// ===== Google Drive 자동 동기화 v2: 최신자료 비교 + 충돌 방지 =====
+// ===== 계정 없는 공용저장소 자동 동기화: Apps Script iframe 브리지 =====
 
 function driveMetaKey(k){
   const p=sessionStorage.getItem('activeProject')||'Y1 IECO';
-  return 'driveProject::'+p+'::'+k;
+  return 'publicStoreProject::'+p+'::'+k;
 }
 function getDriveMeta(k){return localStorage.getItem(driveMetaKey(k))}
 function setDriveMeta(k,v){localStorage.setItem(driveMetaKey(k),v)}
 
-const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
 const DRIVE_PROJECT=sessionStorage.getItem('activeProject')||'Y1 IECO';
-const DRIVE_FILE_NAME=DRIVE_PROJECT==='Y1 IECO'
-  ? 'SK_YONGIN_WORKREPORT_DATA.json'
-  : 'SK_'+DRIVE_PROJECT.replace(/[^0-9A-Za-z가-힣_-]/g,'_')+'_WORKREPORT_DATA.json';
-let driveAccessToken=sessionStorage.getItem('driveAccessToken')||'';
-let driveTokenExpires=+(sessionStorage.getItem('driveTokenExpires')||0);
-let driveTokenClient=null, drivePendingAction=null, syncTimer=null, syncBusy=false, applyingRemote=false;
-function setDriveStatus(msg){let e=$('driveStatus');if(e)e.textContent='상태: '+msg;let t=$('topDriveStatus');if(t)t.textContent='상태: '+msg;let q=$('quickDriveStatus');if(q)q.textContent='상태: '+msg}
-function getGoogleClientId(){return (($('googleClientId')&&$('googleClientId').value)||localStorage.getItem('googleClientId')||'').trim()}
-function tokenValid(){return !!driveAccessToken && Date.now()<driveTokenExpires-60000}
-function initDriveTokenClient(){
-  const cid=getGoogleClientId();
-  if(!cid){alert('Google OAuth 클라이언트 ID를 입력하세요.');return false}
-  localStorage.setItem('googleClientId',cid);
-  if(!window.google||!google.accounts||!google.accounts.oauth2){alert('Google 로그인 모듈을 아직 불러오는 중입니다. 잠시 후 다시 눌러주세요.');return false}
-  driveTokenClient=google.accounts.oauth2.initTokenClient({client_id:cid,scope:DRIVE_SCOPE,callback:(resp)=>{
-    if(resp.error){setDriveStatus('연결 실패: '+resp.error);return}
-    driveAccessToken=resp.access_token; driveTokenExpires=Date.now()+((resp.expires_in||3600)*1000);
-    sessionStorage.setItem('driveAccessToken',driveAccessToken);sessionStorage.setItem('driveTokenExpires',String(driveTokenExpires));
-    setDriveStatus('Google Drive 연결됨 · 최신자료 확인 중...');
-    const a=drivePendingAction;drivePendingAction=null;
-    if(a==='save')saveToDrive(); else if(a==='load')loadFromDrive(); else syncNow('connect');
-  }});return true
+const PUBLIC_STORE_DEFAULT_URL='https://script.google.com/macros/s/AKfycby9z5m2ffZuzPFh2gEteaIpZq2hsJLRUJeSli-_xdTWF8stQu8ekixq1h8JeDDm_nJv/exec';
+const PUBLIC_STORE_URL_KEY='urigongPublicStoreUrl';
+const PUBLIC_STORE_ACCESS_KEY='urigongPublicStoreAccessKey';
+let syncTimer=null, syncBusy=false, applyingRemote=false;
+let publicStoreFrame=null, publicStoreReady=false, publicStoreReadyResolve=null, publicStoreReadyReject=null, publicStoreReadyPromise=null;
+let publicStoreRequestSeq=0;
+const publicStorePending=new Map();
+
+function setDriveStatus(msg){
+  let e=$('driveStatus');if(e)e.textContent='상태: '+msg;
+  let t=$('topDriveStatus');if(t)t.textContent='상태: '+msg;
+  let q=$('quickDriveStatus');if(q)q.textContent='상태: '+msg;
 }
-function connectGoogleDrive(){drivePendingAction=null;if(initDriveTokenClient())driveTokenClient.requestAccessToken({prompt:''})}
-function requireDrive(action){if(tokenValid())return true;driveAccessToken='';sessionStorage.removeItem('driveAccessToken');drivePendingAction=action;if(initDriveTokenClient())driveTokenClient.requestAccessToken({prompt:''});return false}
-function driveHeaders(extra={}){return Object.assign({'Authorization':'Bearer '+driveAccessToken},extra)}
-async function driveFindFile(){
-  const q=`name='${DRIVE_FILE_NAME}' and trashed=false`;
-  const u='https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent(q)+'&spaces=drive&fields=files(id,name,modifiedTime)&orderBy=modifiedTime%20desc&pageSize=10';
-  const r=await fetch(u,{headers:driveHeaders()});if(!r.ok)throw new Error('Drive 파일 조회 실패 ('+r.status+')');
-  const j=await r.json();return (j.files||[])[0]||null
+function getPublicStoreUrl(){
+  const fromInput=($('publicStoreUrl')&&$('publicStoreUrl').value||'').trim();
+  return fromInput||localStorage.getItem(PUBLIC_STORE_URL_KEY)||PUBLIC_STORE_DEFAULT_URL;
 }
+function getPublicStoreKey(){return (localStorage.getItem(PUBLIC_STORE_ACCESS_KEY)||'').trim()}
+function tokenValid(){return !!getPublicStoreUrl()&&!!getPublicStoreKey()}
+function syncPublicStoreSettingsUI(){
+  const u=$('publicStoreUrl');if(u)u.value=localStorage.getItem(PUBLIC_STORE_URL_KEY)||PUBLIC_STORE_DEFAULT_URL;
+  const k=$('publicStoreKeyInput');if(k){k.value='';k.placeholder=getPublicStoreKey()?'접속키 저장됨 · 변경 시 새 키 입력':'처음 한 번만 입력'}
+}
+function savePublicStoreSettings(){
+  const u=(($('publicStoreUrl')&&$('publicStoreUrl').value)||PUBLIC_STORE_DEFAULT_URL).trim();
+  const k=(($('publicStoreKeyInput')&&$('publicStoreKeyInput').value)||'').trim();
+  if(!u)return alert('공용저장소 웹앱 주소를 입력하세요.');
+  localStorage.setItem(PUBLIC_STORE_URL_KEY,u);
+  if(k)localStorage.setItem(PUBLIC_STORE_ACCESS_KEY,k);
+  publicStoreReady=false;publicStoreReadyPromise=null;
+  if(publicStoreFrame){publicStoreFrame.remove();publicStoreFrame=null}
+  syncPublicStoreSettingsUI();
+  setDriveStatus(getPublicStoreKey()?'설정 저장됨 · 연결 확인 필요':'웹앱 주소 저장됨 · 접속키를 입력하세요.');
+}
+function ensurePublicStoreCredentials(interactive=true){
+  const u=getPublicStoreUrl();
+  if(!u){if(interactive)alert('공용저장소 웹앱 주소가 없습니다.');return false}
+  localStorage.setItem(PUBLIC_STORE_URL_KEY,u);
+  const typed=(($('publicStoreKeyInput')&&$('publicStoreKeyInput').value)||'').trim();
+  if(typed){localStorage.setItem(PUBLIC_STORE_ACCESS_KEY,typed);$('publicStoreKeyInput').value=''}
+  if(!getPublicStoreKey()&&interactive){
+    const v=prompt('공용 접속키를 입력하세요.\n이 기기에서는 최초 1회만 입력하면 됩니다.');
+    if(v===null)return false;
+    if(!String(v).trim())return alert('공용 접속키를 입력하세요.'),false;
+    localStorage.setItem(PUBLIC_STORE_ACCESS_KEY,String(v).trim());
+  }
+  syncPublicStoreSettingsUI();
+  return !!getPublicStoreKey();
+}
+
+function initPublicStoreBridge(){
+  const url=getPublicStoreUrl();
+  if(publicStoreFrame&&publicStoreFrame.dataset.url===url&&publicStoreReady)return Promise.resolve(true);
+  if(publicStoreFrame&&publicStoreFrame.dataset.url!==url){publicStoreFrame.remove();publicStoreFrame=null;publicStoreReady=false;publicStoreReadyPromise=null}
+  if(!publicStoreFrame){
+    publicStoreFrame=document.createElement('iframe');
+    publicStoreFrame.id='urigongPublicStoreBridge';
+    publicStoreFrame.style.display='none';
+    publicStoreFrame.setAttribute('aria-hidden','true');
+    publicStoreFrame.dataset.url=url;
+    document.body.appendChild(publicStoreFrame);
+  }
+  if(publicStoreReady)return Promise.resolve(true);
+  if(publicStoreReadyPromise)return publicStoreReadyPromise;
+  publicStoreReadyPromise=new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>{
+      if(publicStoreReady)return;
+      publicStoreReadyResolve=null;publicStoreReadyReject=null;publicStoreReadyPromise=null;
+      reject(new Error('공용저장소 연결 시간이 초과되었습니다. Apps Script 배포 상태를 확인해 주세요.'));
+    },15000);
+    publicStoreReadyResolve=(v)=>{clearTimeout(timer);resolve(v)};
+    publicStoreReadyReject=(e)=>{clearTimeout(timer);reject(e)};
+    publicStoreFrame.src=url+(url.includes('?')?'&':'?')+'_bridge='+Date.now();
+  });
+  return publicStoreReadyPromise;
+}
+
+window.addEventListener('message',e=>{
+  if(!publicStoreFrame||e.source!==publicStoreFrame.contentWindow)return;
+  const d=e.data||{};
+  if(d.__urigongBridgeReady===1){
+    publicStoreReady=true;
+    if(publicStoreReadyResolve){const fn=publicStoreReadyResolve;publicStoreReadyResolve=null;publicStoreReadyReject=null;fn(true)}
+    publicStoreReadyPromise=Promise.resolve(true);
+    return;
+  }
+  if(d.__urigongBridgeResponse===1&&d.requestId){
+    const p=publicStorePending.get(d.requestId);if(!p)return;
+    clearTimeout(p.timer);publicStorePending.delete(d.requestId);
+    const result=d.result||{};
+    if(result.ok===false)p.reject(new Error(result.error||'공용저장소 요청 실패'));
+    else p.resolve(result);
+  }
+});
+
+async function publicStoreCall(action,data){
+  if(!ensurePublicStoreCredentials(true))throw new Error('공용 접속키가 필요합니다.');
+  await initPublicStoreBridge();
+  const requestId='urigong-'+Date.now()+'-'+(++publicStoreRequestSeq);
+  return new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>{publicStorePending.delete(requestId);reject(new Error('공용저장소 응답 시간이 초과되었습니다.'))},20000);
+    publicStorePending.set(requestId,{resolve,reject,timer});
+    publicStoreFrame.contentWindow.postMessage({
+      __urigongBridge:1,
+      requestId,
+      action,
+      project:sessionStorage.getItem('activeProject')||DRIVE_PROJECT||'Y1 IECO',
+      accessKey:getPublicStoreKey(),
+      data:data===undefined?null:data
+    },'*');
+  });
+}
+
+async function connectGoogleDrive(){
+  try{
+    if(!ensurePublicStoreCredentials(true))return;
+    setDriveStatus('공용저장소 연결 확인 중...');
+    await publicStoreCall('ping');
+    setDriveStatus('공용저장소 연결됨 · 최신자료 확인 중...');
+    await syncNow('connect');
+  }catch(e){console.error(e);setDriveStatus('연결 실패: '+e.message);alert('공용저장소 연결에 실패했습니다.\n'+e.message)}
+}
+function requireDrive(){return ensurePublicStoreCredentials(true)}
 function localData(){
   autoSave();
   return {
     masters:JSON.parse(projectGet('masters',DRIVE_PROJECT)||'null'),
     reports:JSON.parse(projectGet('reports',DRIVE_PROJECT)||'[]'),
-    currentDraft:JSON.parse(projectGet('currentDraft',DRIVE_PROJECT)||'null')
+    currentDraft:JSON.parse(projectGet('currentDraft',DRIVE_PROJECT)||'null'),
+    workModeDrafts:JSON.parse(projectGet('workModeDrafts',DRIVE_PROJECT)||'{}')
   };
 }
-function makeDriveSnapshot(){const d=localData();return {format:'SK-YONGIN-WORKREPORT',version:2,savedAt:new Date().toISOString(),deviceId:getDeviceId(),...d}}
+function makeDriveSnapshot(){const d=localData();return {format:'URIGONG-WORKREPORT-PUBLIC',version:3,savedAt:new Date().toISOString(),deviceId:getDeviceId(),...d}}
 function getDeviceId(){let x=localStorage.getItem('driveDeviceId');if(!x){x='dev-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);localStorage.setItem('driveDeviceId',x)}return x}
 function markLocalChanged(){if(applyingRemote)return;setDriveMeta('driveLocalDirty','1');setDriveMeta('driveLocalUpdatedAt',String(Date.now()));scheduleAutoSync()}
-function scheduleAutoSync(){if(!tokenValid())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow('auto'),1200)}
-async function fetchRemote(){const f=await driveFindFile();if(!f)return {file:null,data:null,stamp:0};const r=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id)+'?alt=media',{headers:driveHeaders()});if(!r.ok)throw new Error('Drive 불러오기 실패 ('+r.status+')');const data=await r.json();const stamp=Date.parse(data.savedAt||'')||Date.parse(f.modifiedTime||'')||0;return {file:f,data,stamp}}
+function scheduleAutoSync(){if(!tokenValid())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow('auto'),1600)}
+async function fetchRemote(){
+  const r=await publicStoreCall('load');
+  if(!r.exists)return {file:null,data:null,stamp:0};
+  const stamp=Date.parse(r.updatedAt||'')||Date.parse((r.data&&r.data.serverSavedAt)||'')||0;
+  return {file:{id:r.fileId||'public-store',modifiedTime:r.updatedAt||''},data:r.data,stamp};
+}
 function applyRemoteData(d,stamp){
   applyingRemote=true;
   try{
     const activeProject=sessionStorage.getItem('activeProject')||DRIVE_PROJECT||'Y1 IECO';
-
     if(d.masters)projectSet('masters',JSON.stringify(d.masters),activeProject);
     if(Array.isArray(d.reports))projectSet('reports',JSON.stringify(d.reports),activeProject);
     if(d.currentDraft)projectSet('currentDraft',JSON.stringify(d.currentDraft),activeProject);
-
+    if(d.workModeDrafts)projectSet('workModeDrafts',JSON.stringify(d.workModeDrafts),activeProject);
     setDriveMeta('driveLastRemoteStamp',String(stamp||Date.now()));
     setDriveMeta('driveLocalDirty','0');
     setDriveMeta('driveLocalUpdatedAt',String(stamp||Date.now()));
-  }finally{
-    applyingRemote=false;
-  }
+  }finally{applyingRemote=false}
 }
-async function pushLocal(file,silent=true){const snap=makeDriveSnapshot(), data=JSON.stringify(snap,null,2);let r;
-  if(file){r=await fetch('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(file.id)+'?uploadType=media',{method:'PATCH',headers:driveHeaders({'Content-Type':'application/json; charset=UTF-8'}),body:data})}
-  else{const boundary='workreport_'+Date.now(),meta=JSON.stringify({name:DRIVE_FILE_NAME,mimeType:'application/json'}),body='--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+meta+'\r\n--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+data+'\r\n--'+boundary+'--';r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,modifiedTime',{method:'POST',headers:driveHeaders({'Content-Type':'multipart/related; boundary='+boundary}),body})}
-  if(!r.ok)throw new Error('Drive 저장 실패 ('+r.status+')');const stamp=Date.parse(snap.savedAt);setDriveMeta('driveLastRemoteStamp',String(stamp));setDriveMeta('driveLocalDirty','0');setDriveStatus('자동 동기화 완료 · '+new Date().toLocaleString());if(!silent)alert('Google Drive에 저장했습니다.')
+async function pushLocal(file,silent=true){
+  const snap=makeDriveSnapshot();
+  const r=await publicStoreCall('save',snap);
+  const stamp=Date.parse(r.updatedAt||'')||Date.now();
+  setDriveMeta('driveLastRemoteStamp',String(stamp));
+  setDriveMeta('driveLocalDirty','0');
+  setDriveStatus('자동 동기화 완료 · '+new Date().toLocaleString());
+  if(!silent)alert('공용저장소에 저장했습니다.');
 }
 async function syncNow(reason='auto'){
-  if(!tokenValid()||syncBusy)return;syncBusy=true;
+  if(!tokenValid()||syncBusy)return;
+  syncBusy=true;
   try{
-    setDriveStatus('동기화 확인 중...');const remote=await fetchRemote();const last=+(getDriveMeta('driveLastRemoteStamp')||0);const dirty=getDriveMeta('driveLocalDirty')==='1';
+    setDriveStatus('동기화 확인 중...');
+    const remote=await fetchRemote();
+    const last=+(getDriveMeta('driveLastRemoteStamp')||0);
+    const dirty=getDriveMeta('driveLocalDirty')==='1';
     if(!remote.file){await pushLocal(null,true);return}
     const remoteChanged=remote.stamp>last+500;
     if(dirty&&remoteChanged){
-      const useLocal=confirm('PC/휴대폰 양쪽에서 자료가 변경되었습니다.\n\n확인 = 이 기기의 자료를 Drive에 저장\n취소 = Drive의 최신 자료를 이 기기에 적용');
-      if(useLocal){await pushLocal(remote.file,true)}else{applyRemoteData(remote.data,remote.stamp);setDriveStatus('Drive 최신자료 적용 완료');alert('Drive의 최신 자료를 적용합니다.');location.reload()}
+      const useLocal=confirm('PC/휴대폰 양쪽에서 자료가 변경되었습니다.\n\n확인 = 이 기기의 자료를 공용저장소에 저장\n취소 = 공용저장소의 최신 자료를 이 기기에 적용');
+      if(useLocal){await pushLocal(remote.file,true)}
+      else{applyRemoteData(remote.data,remote.stamp);setDriveStatus('공용저장소 최신자료 적용 완료');alert('공용저장소의 최신 자료를 적용합니다.');location.reload()}
     }else if(dirty){await pushLocal(remote.file,true)}
-    else if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('Drive 최신자료 자동 반영');location.reload()}
-    else setDriveStatus('Google Drive 연결됨 · 최신 상태');
-  }catch(e){console.error(e);setDriveStatus('동기화 실패: '+e.message)}finally{syncBusy=false}
+    else if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('공용저장소 최신자료 자동 반영');location.reload()}
+    else setDriveStatus('공용저장소 연결됨 · 최신 상태');
+  }catch(e){console.error(e);setDriveStatus('동기화 실패: '+e.message)}
+  finally{syncBusy=false}
 }
-async function saveToDrive(silent=false){if(!requireDrive('save'))return;setDriveMeta('driveLocalDirty','1');try{const f=await driveFindFile();await pushLocal(f,silent)}catch(e){console.error(e);setDriveStatus(e.message);if(!silent)alert(e.message)}}
-async function loadFromDrive(){if(!requireDrive('load'))return;try{const remote=await fetchRemote();if(!remote.file)return alert('아직 Drive에 저장된 작업일보 데이터가 없습니다.');if(!confirm('Drive의 자료로 이 기기의 작업일보 데이터를 갱신할까요?\n현재 로컬 자료는 Drive 자료로 바뀝니다.'))return;applyRemoteData(remote.data,remote.stamp);alert('Drive 자료를 불러왔습니다.');location.reload()}catch(e){setDriveStatus(e.message);alert(e.message)}}
-function restoreDriveClientId(){let v=localStorage.getItem('googleClientId');if(v&&$('googleClientId'))$('googleClientId').value=v;if(tokenValid()){setDriveStatus('Google Drive 연결됨 · 자동 동기화 켜짐');setTimeout(()=>syncNow('startup'),500)}}
+async function saveToDrive(silent=false){
+  if(!requireDrive())return;
+  setDriveMeta('driveLocalDirty','1');
+  try{await pushLocal(null,silent)}catch(e){console.error(e);setDriveStatus(e.message);if(!silent)alert('공용저장소 저장 실패\n'+e.message)}
+}
+async function loadFromDrive(){
+  if(!requireDrive())return;
+  try{
+    const remote=await fetchRemote();
+    if(!remote.file)return alert('아직 공용저장소에 저장된 작업일보 데이터가 없습니다.');
+    if(!confirm('공용저장소의 자료로 이 기기의 작업일보 데이터를 갱신할까요?\n현재 로컬 자료는 공용저장소 자료로 바뀝니다.'))return;
+    applyRemoteData(remote.data,remote.stamp);
+    alert('공용저장소 자료를 불러왔습니다.');
+    location.reload();
+  }catch(e){setDriveStatus(e.message);alert('공용저장소 불러오기 실패\n'+e.message)}
+}
+function restoreDriveClientId(){
+  syncPublicStoreSettingsUI();
+  if(tokenValid()){
+    setDriveStatus('공용저장소 설정됨 · 자동 연결 확인 중...');
+    setTimeout(()=>syncNow('startup'),700);
+  }else setDriveStatus('접속키 미설정');
+}
 setTimeout(restoreDriveClientId,0);
-// 사용자가 실제 입력을 바꾸면 로컬 변경으로 표시하고, 연결 중이면 1.2초 후 자동 동기화
+// 사용자가 실제 입력을 바꾸면 로컬 변경으로 표시하고, 연결 중이면 자동 동기화
 setTimeout(()=>{document.addEventListener('input',e=>{if(e.target&&e.target.closest&&e.target.closest('main'))markLocalChanged()});document.addEventListener('change',e=>{if(e.target&&e.target.closest&&e.target.closest('main'))markLocalChanged()})},0);
 // 다른 기기의 변경을 받기 위해 연결된 동안 20초마다 최신 상태 확인
 setInterval(()=>{if(tokenValid()&&document.visibilityState==='visible')syncNow('poll')},20000);
@@ -3654,7 +3778,7 @@ function saveReport(){
   reports.push(obj);projectSet('reports',JSON.stringify(reports));
   const drafts=getModeDrafts();drafts[workModeKey(obj.date,obj.site,obj.trade,wt,no)]=makeCurrentModeDraft();setModeDrafts(drafts);
   autoSave();markLocalChanged();if(tokenValid())scheduleAutoSync();updateWorkModeTabs();syncReportLockForCurrentDate();
-  alert('보고서로 저장했습니다.'+(tokenValid()?'\nGoogle Drive 자동 동기화를 시작했습니다.':''));
+  alert('보고서로 저장했습니다.'+(tokenValid()?'\n공용저장소 자동 동기화를 시작했습니다.':''));
 }
 function copyPreviousDay(){
   if(!requireReportEditable()||!$('date'))return;let currentDate=$('date').value,d=new Date(currentDate+'T00:00:00');if(isNaN(d))return alert('작업일을 먼저 선택해 주세요.');
