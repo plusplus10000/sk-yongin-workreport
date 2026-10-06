@@ -3281,9 +3281,7 @@ const PUBLIC_STORE_DEFAULT_URL='https://script.google.com/macros/s/AKfycby9z5m2f
 const PUBLIC_STORE_URL_KEY='urigongPublicStoreUrl';
 const PUBLIC_STORE_ACCESS_KEY='urigongPublicStoreAccessKey';
 let syncTimer=null, syncBusy=false, applyingRemote=false;
-let publicStoreFrame=null, publicStoreReady=false, publicStoreReadyResolve=null, publicStoreReadyReject=null, publicStoreReadyPromise=null;
 let publicStoreRequestSeq=0;
-const publicStorePending=new Map();
 
 function setDriveStatus(msg){
   let e=$('driveStatus');if(e)e.textContent='상태: '+msg;
@@ -3306,8 +3304,6 @@ function savePublicStoreSettings(){
   if(!u)return alert('공용저장소 웹앱 주소를 입력하세요.');
   localStorage.setItem(PUBLIC_STORE_URL_KEY,u);
   if(k)localStorage.setItem(PUBLIC_STORE_ACCESS_KEY,k);
-  publicStoreReady=false;publicStoreReadyPromise=null;
-  if(publicStoreFrame){publicStoreFrame.remove();publicStoreFrame=null}
   syncPublicStoreSettingsUI();
   setDriveStatus(getPublicStoreKey()?'설정 저장됨 · 연결 확인 필요':'웹앱 주소 저장됨 · 접속키를 입력하세요.');
 }
@@ -3327,67 +3323,77 @@ function ensurePublicStoreCredentials(interactive=true){
   return !!getPublicStoreKey();
 }
 
-function initPublicStoreBridge(){
-  const url=getPublicStoreUrl();
-  if(publicStoreFrame&&publicStoreFrame.dataset.url===url&&publicStoreReady)return Promise.resolve(true);
-  if(publicStoreFrame&&publicStoreFrame.dataset.url!==url){publicStoreFrame.remove();publicStoreFrame=null;publicStoreReady=false;publicStoreReadyPromise=null}
-  if(!publicStoreFrame){
-    publicStoreFrame=document.createElement('iframe');
-    publicStoreFrame.id='urigongPublicStoreBridge';
-    publicStoreFrame.style.display='none';
-    publicStoreFrame.setAttribute('aria-hidden','true');
-    publicStoreFrame.dataset.url=url;
-    document.body.appendChild(publicStoreFrame);
-  }
-  if(publicStoreReady)return Promise.resolve(true);
-  if(publicStoreReadyPromise)return publicStoreReadyPromise;
-  publicStoreReadyPromise=new Promise((resolve,reject)=>{
-    const timer=setTimeout(()=>{
-      if(publicStoreReady)return;
-      publicStoreReadyResolve=null;publicStoreReadyReject=null;publicStoreReadyPromise=null;
-      reject(new Error('공용저장소 연결 시간이 초과되었습니다. Apps Script 배포 상태를 확인해 주세요.'));
-    },15000);
-    publicStoreReadyResolve=(v)=>{clearTimeout(timer);resolve(v)};
-    publicStoreReadyReject=(e)=>{clearTimeout(timer);reject(e)};
-    publicStoreFrame.src=url+(url.includes('?')?'&':'?')+'_bridge='+Date.now();
+function jsonpPublicStore(action, extra={}){
+  if(!ensurePublicStoreCredentials(true))return Promise.reject(new Error('공용 접속키가 필요합니다.'));
+  const base=getPublicStoreUrl();
+  const callback='__urigongJsonp_'+Date.now()+'_'+(++publicStoreRequestSeq);
+  const params=new URLSearchParams({
+    action:String(action||''),
+    project:sessionStorage.getItem('activeProject')||DRIVE_PROJECT||'Y1 IECO',
+    accessKey:getPublicStoreKey(),
+    callback
   });
-  return publicStoreReadyPromise;
+  Object.entries(extra||{}).forEach(([k,v])=>{if(v!==undefined&&v!==null)params.set(k,String(v))});
+
+  return new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    const timer=setTimeout(()=>finish(new Error('공용저장소 응답 시간이 초과되었습니다.')),20000);
+    let done=false;
+    function finish(err,value){
+      if(done)return;done=true;clearTimeout(timer);
+      try{delete window[callback]}catch(_){window[callback]=undefined}
+      try{script.remove()}catch(_){}
+      if(err)reject(err);else resolve(value);
+    }
+    window[callback]=(result)=>{
+      result=result||{};
+      if(result.ok===false)finish(new Error(result.error||'공용저장소 요청 실패'));
+      else finish(null,result);
+    };
+    script.onerror=()=>finish(new Error('공용저장소에 연결하지 못했습니다. Apps Script 배포와 인터넷 연결을 확인해 주세요.'));
+    script.src=base+(base.includes('?')?'&':'?')+params.toString()+'&_t='+Date.now();
+    document.head.appendChild(script);
+  });
 }
 
-window.addEventListener('message',e=>{
-  if(!publicStoreFrame||e.source!==publicStoreFrame.contentWindow)return;
-  const d=e.data||{};
-  if(d.__urigongBridgeReady===1){
-    publicStoreReady=true;
-    if(publicStoreReadyResolve){const fn=publicStoreReadyResolve;publicStoreReadyResolve=null;publicStoreReadyReject=null;fn(true)}
-    publicStoreReadyPromise=Promise.resolve(true);
-    return;
+async function savePublicStoreNoCors(data){
+  if(!ensurePublicStoreCredentials(true))throw new Error('공용 접속키가 필요합니다.');
+  const requestId='urigong-'+Date.now()+'-'+(++publicStoreRequestSeq)+'-'+Math.random().toString(36).slice(2,8);
+  const body={
+    action:'save',
+    requestId,
+    project:sessionStorage.getItem('activeProject')||DRIVE_PROJECT||'Y1 IECO',
+    accessKey:getPublicStoreKey(),
+    data
+  };
+
+  try{
+    await fetch(getPublicStoreUrl(),{
+      method:'POST',
+      mode:'no-cors',
+      redirect:'follow',
+      cache:'no-store',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(body)
+    });
+  }catch(e){
+    throw new Error('공용저장소 저장 요청을 보내지 못했습니다. '+(e&&e.message?e.message:e));
   }
-  if(d.__urigongBridgeResponse===1&&d.requestId){
-    const p=publicStorePending.get(d.requestId);if(!p)return;
-    clearTimeout(p.timer);publicStorePending.delete(d.requestId);
-    const result=d.result||{};
-    if(result.ok===false)p.reject(new Error(result.error||'공용저장소 요청 실패'));
-    else p.resolve(result);
+
+  const deadline=Date.now()+22000;
+  while(Date.now()<deadline){
+    await new Promise(r=>setTimeout(r,700));
+    const status=await jsonpPublicStore('status',{requestId});
+    if(status.pending)continue;
+    if(status.ok===false)throw new Error(status.error||'공용저장소 저장 실패');
+    return status;
   }
-});
+  throw new Error('공용저장소 저장 확인 시간이 초과되었습니다.');
+}
 
 async function publicStoreCall(action,data){
-  if(!ensurePublicStoreCredentials(true))throw new Error('공용 접속키가 필요합니다.');
-  await initPublicStoreBridge();
-  const requestId='urigong-'+Date.now()+'-'+(++publicStoreRequestSeq);
-  return new Promise((resolve,reject)=>{
-    const timer=setTimeout(()=>{publicStorePending.delete(requestId);reject(new Error('공용저장소 응답 시간이 초과되었습니다.'))},20000);
-    publicStorePending.set(requestId,{resolve,reject,timer});
-    publicStoreFrame.contentWindow.postMessage({
-      __urigongBridge:1,
-      requestId,
-      action,
-      project:sessionStorage.getItem('activeProject')||DRIVE_PROJECT||'Y1 IECO',
-      accessKey:getPublicStoreKey(),
-      data:data===undefined?null:data
-    },'*');
-  });
+  if(action==='save')return savePublicStoreNoCors(data);
+  return jsonpPublicStore(action);
 }
 
 async function connectGoogleDrive(){
