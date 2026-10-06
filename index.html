@@ -3422,8 +3422,11 @@ async function publicPost(action,payload={},timeoutMs=26000){
     await fetch(getPublicStoreUrl(),{method:'POST',mode:'no-cors',redirect:'follow',cache:'no-store',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
   }catch(e){throw new Error('공용저장소 요청을 보내지 못했습니다. '+(e&&e.message?e.message:e))}
   const deadline=Date.now()+timeoutMs;
+  let firstCheck=true;
   while(Date.now()<deadline){
-    await new Promise(r=>setTimeout(r,650));
+    // POST 응답이 돌아온 직후 먼저 확인한다. 캐시 반영 전이면 짧게 재확인.
+    if(!firstCheck)await new Promise(r=>setTimeout(r,350));
+    firstCheck=false;
     const status=await jsonpGet('status',{requestId});
     if(status.pending)continue;
     if(status.ok===false)throw new Error(status.error||'공용저장소 요청 실패');
@@ -3456,9 +3459,15 @@ function localData(){
 function makeDriveSnapshot(){const d=localData();return {format:'URIGONG-WORKREPORT-PUBLIC',version:4,savedAt:new Date().toISOString(),deviceId:getDeviceId(),...d}}
 function getDeviceId(){let x=localStorage.getItem('driveDeviceId');if(!x){x='dev-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);localStorage.setItem('driveDeviceId',x)}return x}
 function markLocalChanged(){if(applyingRemote||!isMasterDevice())return;setDriveMeta('driveLocalDirty','1');setDriveMeta('driveLocalUpdatedAt',String(Date.now()));scheduleAutoSync()}
-function scheduleAutoSync(){if(!tokenValid()||!isMasterDevice())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow('auto'),1600)}
+function scheduleAutoSync(){if(!tokenValid()||!isMasterDevice())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow('auto'),2800)}
 async function fetchRemote(){
   const r=await publicStoreCall('load');
+  // load 응답에 포함된 최신 기기권한을 함께 반영해 별도 ping 왕복을 없앤다.
+  if(r&&r.role){
+    localStorage.setItem(DEVICE_ROLE_KEY,r.role);
+    localStorage.setItem(DEVICE_PROJECTS_KEY,JSON.stringify(Array.isArray(r.allowedProjects)?r.allowedProjects:(r.role==='admin'?PROJECTS:[])));
+    applyDevicePermissions();
+  }
   if(!r.exists)return {file:null,data:null,stamp:0};
   const stamp=Date.parse(r.updatedAt||'')||Date.parse((r.data&&r.data.serverSavedAt)||'')||0;
   return {file:{id:r.fileId||'public-store',modifiedTime:r.updatedAt||''},data:r.data,stamp};
@@ -3530,27 +3539,47 @@ function applyProjectAccessUI(){
     else if(btn.classList.contains('site-add'))btn.style.display=master?'':'none';
   });
 }
+let lastPermissionMode='';
+let permissionRefreshTimer=null;
+function schedulePermissionRefresh(){
+  if(permissionRefreshTimer)return;
+  permissionRefreshTimer=setTimeout(()=>{permissionRefreshTimer=null;applyDevicePermissions()},90);
+}
 function applyDevicePermissions(){
   const registered=tokenValid(), master=isMasterDevice(), readonly=registered&&!master;
+  const mode=readonly?'readonly':(master?'master':'guest');
   document.body.classList.toggle('read-only-user',readonly);
   const badge=$('readOnlyBadge');if(badge)badge.classList.toggle('visible',readonly);
   applyProjectAccessUI();updateAdminSecurityButtons();
-  // 일반 기기는 작업일보를 조회만 할 수 있다. 미리보기 복사/접기와 기존 주간·연장 탭 조회만 허용.
+
+  // 마스터는 입력 제한 스캔이 필요 없다. 읽기전용→마스터 전환 때만 기존 disabled 표시를 해제한다.
+  if(master){
+    if(lastPermissionMode==='readonly'){
+      document.querySelectorAll('[data-role-disabled="1"]').forEach(el=>{
+        if(!(typeof currentReportLocked!=='undefined'&&currentReportLocked&&el.closest&&el.closest('#writePage'))){el.disabled=false}
+        delete el.dataset.roleDisabled;
+      });
+    }
+    document.querySelectorAll('.local-backup-btn, button[onclick="saveToDrive()"], button[onclick="loadFromDrive()"], button[onclick="saveMasters()"], .mobile-quickbar .quick-save').forEach(el=>{el.style.display=''});
+    lastPermissionMode=mode;
+    return;
+  }
+
+  // 일반 기기는 작업일보를 조회만 할 수 있다. 미리보기 복사/접기와 주간·연장 탭 조회만 허용.
   const write=$('writePage');
   if(write){
     write.querySelectorAll('input,select,textarea').forEach(el=>{if(readonly){el.dataset.roleDisabled='1';el.disabled=true}else if(el.dataset.roleDisabled==='1'){el.disabled=false;delete el.dataset.roleDisabled}});
     write.querySelectorAll('button').forEach(el=>{
       const allow=el.classList.contains('preview-copy-btn')||el.classList.contains('preview-toggle')||el.classList.contains('work-mode-btn');
-      if(readonly&&!allow){el.dataset.roleDisabled='1';el.disabled=true}else if(el.dataset.roleDisabled==='1'&&!currentReportLocked){el.disabled=false;delete el.dataset.roleDisabled}
+      if(readonly&&!allow){el.dataset.roleDisabled='1';el.disabled=true}else if(el.dataset.roleDisabled==='1'&&!(typeof currentReportLocked!=='undefined'&&currentReportLocked)){el.disabled=false;delete el.dataset.roleDisabled}
     });
-    const preview=$('preview');if(preview)preview.contentEditable=readonly?'false':(currentReportLocked?'false':'true');
+    const preview=$('preview');if(preview)preview.contentEditable=readonly?'false':((typeof currentReportLocked!=='undefined'&&currentReportLocked)?'false':'true');
   }
-  // 검색·이력의 조회/검색/엑셀은 허용하지만 마감 변경은 금지.
   document.querySelectorAll('#searchPage .report-close-btn').forEach(el=>{if(readonly){el.dataset.roleDisabled='1';el.disabled=true}else if(el.dataset.roleDisabled==='1'){el.disabled=false;delete el.dataset.roleDisabled}});
-  // 공용저장소 수동 저장/불러오기·로컬복구·설정 변경은 마스터만.
   document.querySelectorAll('.local-backup-btn, button[onclick="saveToDrive()"], button[onclick="loadFromDrive()"], button[onclick="saveMasters()"], .mobile-quickbar .quick-save').forEach(el=>{el.style.display=readonly?'none':''});
   if(readonly&&sessionStorage.getItem('activeProjectPage')==='master'){sessionStorage.setItem('activeProjectPage','search');if($('masterPage')&&$('masterPage').style.display!=='none')showPage('search',null)}
   const active=sessionStorage.getItem('activeProject');if(readonly&&active&&!canAccessProject(active)){sessionStorage.removeItem('activeProject');sessionStorage.removeItem('openProjectAfterReload');document.body.classList.add('site-home-mode')}
+  lastPermissionMode=mode;
 }
 function selectedNewDeviceProjects(){return Array.from(document.querySelectorAll('#newDeviceProjectPicker input[type="checkbox"]:checked')).map(x=>x.value).filter(x=>PROJECTS.includes(x))}
 function selectedProjectsForDevice(deviceId){return Array.from(document.querySelectorAll(`.device-project-editor input[data-device-id="${deviceId}"]:checked`)).map(x=>x.value).filter(x=>PROJECTS.includes(x))}
@@ -3577,23 +3606,25 @@ async function setupMasterPasswordFromGate(){
 async function initDeviceGate(){
   syncPublicStoreSettingsUI();setDeviceGateError('');
   const hadToken=!!getDeviceToken();
+
+  // 이미 등록된 기기는 서버 왕복을 기다리지 않고 즉시 화면을 연다.
+  // 최신 권한/토큰 검증은 뒤에서 load 1회로 처리한다.
+  if(hadToken){
+    hideDeviceGate();
+    applyDevicePermissions();
+    setDriveStatus('등록기기 · 최신자료 확인 중...');
+    setTimeout(()=>syncNow('startup'),120);
+    return;
+  }
+
+  // 새 기기에서만 서버 설정상태를 확인한 뒤 등록 화면을 보여준다.
   try{
     const hello=await jsonpGet('hello');
     const setup=$('masterSetupFields');if(setup)setup.classList.toggle('open',hello.masterConfigured===false);
-    const normalMessage=hello.masterConfigured===false?'관리자 초기 설정이 필요합니다. 마스터 비밀번호를 먼저 만들어 주세요.':'등록된 기기는 자동으로 로그인됩니다. 처음 사용하는 기기는 관리자에게 받은 6자리 등록코드를 입력하세요.';
+    const normalMessage=hello.masterConfigured===false?'관리자 초기 설정이 필요합니다. 마스터 비밀번호를 먼저 만들어 주세요.':'처음 사용하는 기기는 관리자에게 받은 6자리 등록코드를 입력하세요.';
     const msg=$('deviceGateMessage');if(msg)msg.textContent=normalMessage;
-    // 등록 토큰이 없는 새 기기만 등록 화면을 표시한다.
-    if(!hadToken){showDeviceGate(normalMessage);return;}
-    // 기존 등록 기기는 등록 화면을 띄우지 않고 뒤에서 조용히 인증한다.
-    try{
-      const r=await publicPost('ping',authPayload());
-      if(r.role){localStorage.setItem(DEVICE_ROLE_KEY,r.role);localStorage.setItem(DEVICE_PROJECTS_KEY,JSON.stringify(Array.isArray(r.allowedProjects)?r.allowedProjects:(r.role==='admin'?PROJECTS:[])))}
-      updateAdminSecurityButtons();applyDevicePermissions();hideDeviceGate();setDriveStatus('공용저장소 연결됨 · 최신자료 확인 중...');setTimeout(()=>syncNow('startup'),500);
-    }catch(e){
-      clearDeviceCredential();showDeviceGate('이 기기의 등록이 만료되었거나 취소되었습니다. 다시 등록해 주세요.');setDeviceGateError(e.message||'기기 인증에 실패했습니다.');
-    }
+    showDeviceGate(normalMessage);
   }catch(e){
-    // 서버 확인 자체가 실패한 경우에만 화면을 띄워 상태를 알린다.
     showDeviceGate('공용저장소 연결을 확인할 수 없습니다. 네트워크와 서버 상태를 확인해 주세요.');setDeviceGateError('공용저장소 연결 확인 실패: '+e.message);
   }
 }
@@ -3644,7 +3675,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   const code=$('deviceRegisterCode');if(code)code.addEventListener('keydown',e=>{if(e.key==='Enter')registerThisDevice()});
   const ap=$('adminLoginPassword');if(ap)ap.addEventListener('keydown',e=>{if(e.key==='Enter')adminLoginThisDevice()});
   applyDevicePermissions();
-  const observer=new MutationObserver(()=>{if(tokenValid())applyDevicePermissions()});
+  const observer=new MutationObserver(()=>{if(tokenValid()&&!isMasterDevice())schedulePermissionRefresh()});
   const write=$('writePage'),results=$('results');if(write)observer.observe(write,{childList:true,subtree:true});if(results)observer.observe(results,{childList:true,subtree:true});
   initDeviceGate();
 });
