@@ -1578,7 +1578,7 @@ body.report-is-closed #writePage textarea:disabled{
 .security-grid{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:end}.security-grid .field{min-width:0}.security-grid .field input{width:100%}.security-actions{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0}.registration-code-box{display:none;padding:12px;border:1px solid #f0b6c6;background:#fff1f5;border-radius:8px;font-weight:800;font-size:18px;color:#851f3d;text-align:center;margin:10px 0}.registration-code-box.show{display:block}
 .device-admin-list{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}.device-admin-list th,.device-admin-list td{border:1px solid #dbe6f2;padding:7px;text-align:left}.device-admin-list th{background:#f2f7fc}.device-admin-list td:last-child{text-align:center;white-space:nowrap}
 .admin-only-security{display:none!important}.admin-only-security.visible{display:inline-block!important}
-.project-access-picker{display:flex;gap:7px;flex-wrap:wrap;padding:9px;border:1px solid #dbe6f2;border-radius:8px;background:#f8fbff;margin:7px 0 10px}.project-access-picker label{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;white-space:nowrap}.project-access-picker input{width:auto!important;margin:0!important}.device-project-editor{display:flex;gap:5px;flex-wrap:wrap;align-items:center}.device-project-editor label{display:inline-flex;align-items:center;gap:3px;font-size:11px;white-space:nowrap}.device-project-editor input{width:auto!important}.readonly-badge{display:none;background:#fff2cc;border:1px solid #e6c65c;color:#795b00;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:800}.readonly-badge.visible{display:inline-block}.read-only-user #masterPage{display:none!important}
+.project-access-picker{display:grid;gap:6px;padding:9px;border:1px solid #dbe6f2;border-radius:8px;background:#f8fbff;margin:7px 0 10px}.project-permission-row{display:grid;grid-template-columns:minmax(100px,1fr) 86px 86px;gap:8px;align-items:center;padding:5px 7px;border:1px solid #e3ebf4;border-radius:7px;background:#fff}.project-permission-row.header{font-size:11px;font-weight:800;color:#5c7087;background:#eef5fb}.project-permission-row>span:first-child{font-weight:800;color:#12365f}.project-permission-row label{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-size:11px;font-weight:700;white-space:nowrap}.project-permission-row input{width:auto!important;margin:0!important}.device-project-editor{display:grid;gap:5px;min-width:285px}.device-project-editor .project-permission-row{grid-template-columns:minmax(86px,1fr) 72px 72px;padding:4px 5px}.device-project-editor input{width:auto!important}.readonly-badge{display:none;background:#fff2cc;border:1px solid #e6c65c;color:#795b00;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:800}.readonly-badge.visible{display:inline-block}.read-only-user #masterPage{display:none!important}
 @media(max-width:850px){.device-gate-row{align-items:stretch;flex-direction:column}.security-grid{grid-template-columns:1fr}.device-admin-list{font-size:11px}.device-project-editor{min-width:220px}}
 
 </style><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
@@ -1757,7 +1757,7 @@ body.report-is-closed #writePage textarea:disabled{
 </div>
 </div>
 </aside><main>
-<section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 검색 / 이력에서 회색 [마감] 버튼을 눌러 권한 확인 후 마감을 해제하세요.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ 공용저장소 연결</button><button class="btn" type="button" onclick="saveToDrive()">공용저장소 저장</button><button class="btn" type="button" onclick="loadFromDrive()">공용저장소 불러오기</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 기기 인증 확인 중</b><span id="readOnlyBadge" class="readonly-badge">읽기 전용</span><button class="btn local-backup-btn" type="button" onclick="openLocalBackupDialog()">로컬백업</button><div class="header-action-buttons"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div class="grid"><div class="input-col left-col">
+<section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 마스터가 마감을 해제한 뒤 수정할 수 있습니다.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ 공용저장소 연결</button><button class="btn" type="button" onclick="saveToDrive()">공용저장소 저장</button><button class="btn" type="button" onclick="loadFromDrive()">공용저장소 불러오기</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 기기 인증 확인 중</b><span id="readOnlyBadge" class="readonly-badge">읽기 전용</span><button class="btn local-backup-btn" type="button" onclick="openLocalBackupDialog()">로컬백업</button><div class="header-action-buttons"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div class="grid"><div class="input-col left-col">
 <div class="card basic-info-card"><div class="title"><span><span class="n">1</span>기본 정보</span><span class="basic-close-wrap"><span id="workModeTabs" class="work-mode-tabs-inline"></span><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><span class="basic-action-buttons mobile-basic-actions"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></span></div><div class="basic-info-grid">
 <div class="field basic-site"><label>현장</label><select id="site"></select></div>
 <div class="field basic-trade"><label>공종</label><select id="trade"></select></div>
@@ -1789,19 +1789,16 @@ body.report-is-closed #writePage textarea:disabled{
   <div class="security-box" role="dialog" aria-modal="true" aria-labelledby="deviceAdminTitle">
     <div class="security-title"><span id="deviceAdminTitle">기기등록 관리</span><button class="security-close" type="button" onclick="closeDeviceAdminDialog()">×</button></div>
     <div class="field"><label>관리자 확인</label><input id="deviceAdminPassword" type="password" autocomplete="current-password" placeholder="마스터 비밀번호"></div>
-    <div class="field"><label>새 기기 권한</label><select id="newDeviceRole">
-      <option value="user">읽기전용</option>
-      <option value="site_admin">현장관리자</option>
-    </select></div>
-    <div style="font-weight:800;color:#12365f;margin:10px 0 4px">새 기기 허용 현장</div>
+    <div style="font-weight:800;color:#12365f;margin:10px 0 4px">새 기기 현장별 권한</div>
     <div id="newDeviceProjectPicker" class="project-access-picker">
-      <label><input type="checkbox" value="Y1 IECO">Y1 IECO</label>
-      <label><input type="checkbox" value="EPI">EPI</label>
-      <label><input type="checkbox" value="Indiana">Indiana</label>
-      <label><input type="checkbox" value="청주Ph4">청주Ph4</label>
-      <label><input type="checkbox" value="이천TMAH">이천TMAH</label>
+      <div class="project-permission-row header"><span>현장</span><span>읽기전용</span><span>관리전용</span></div>
+      <div class="project-permission-row"><span>Y1 IECO</span><label><input type="checkbox" data-new-project="Y1 IECO" data-project-mode="read" onclick="toggleProjectPermissionChoice(this)">읽기</label><label><input type="checkbox" data-new-project="Y1 IECO" data-project-mode="manage" onclick="toggleProjectPermissionChoice(this)">관리</label></div>
+      <div class="project-permission-row"><span>EPI</span><label><input type="checkbox" data-new-project="EPI" data-project-mode="read" onclick="toggleProjectPermissionChoice(this)">읽기</label><label><input type="checkbox" data-new-project="EPI" data-project-mode="manage" onclick="toggleProjectPermissionChoice(this)">관리</label></div>
+      <div class="project-permission-row"><span>Indiana</span><label><input type="checkbox" data-new-project="Indiana" data-project-mode="read" onclick="toggleProjectPermissionChoice(this)">읽기</label><label><input type="checkbox" data-new-project="Indiana" data-project-mode="manage" onclick="toggleProjectPermissionChoice(this)">관리</label></div>
+      <div class="project-permission-row"><span>청주Ph4</span><label><input type="checkbox" data-new-project="청주Ph4" data-project-mode="read" onclick="toggleProjectPermissionChoice(this)">읽기</label><label><input type="checkbox" data-new-project="청주Ph4" data-project-mode="manage" onclick="toggleProjectPermissionChoice(this)">관리</label></div>
+      <div class="project-permission-row"><span>이천TMAH</span><label><input type="checkbox" data-new-project="이천TMAH" data-project-mode="read" onclick="toggleProjectPermissionChoice(this)">읽기</label><label><input type="checkbox" data-new-project="이천TMAH" data-project-mode="manage" onclick="toggleProjectPermissionChoice(this)">관리</label></div>
     </div>
-    <div style="font-size:11px;color:#66788c;line-height:1.45;margin-top:-5px;margin-bottom:7px">읽기전용은 선택 현장의 조회·검색·엑셀만 가능합니다. 현장관리자는 선택 현장에서 작성·수정·삭제·마감·기준정보 변경이 가능합니다. 기기등록 관리와 마스터 비밀번호 변경은 마스터만 가능합니다.</div>
+    <div style="font-size:11px;color:#66788c;line-height:1.45;margin-top:-5px;margin-bottom:7px">현장마다 읽기전용 또는 관리전용을 선택할 수 있습니다. 읽기전용은 조회·검색·엑셀만 가능하고, 관리전용은 작성·수정·삭제·기준정보 변경이 가능합니다. <b>마감·마감해제는 마스터만 가능합니다.</b> 기기등록 관리와 마스터 비밀번호 변경도 마스터만 가능합니다.</div>
     <div class="security-actions"><button class="btn primary" type="button" onclick="loadDeviceAdminList()">등록기기 조회</button><button class="btn" type="button" onclick="createDeviceRegistrationCode()">1회용 등록코드 생성</button></div>
     <div id="registrationCodeBox" class="registration-code-box"></div>
     <div id="deviceAdminStatus" style="font-size:12px;color:#53657a;min-height:18px"></div>
@@ -2513,7 +2510,7 @@ function requireReportEditable(){
   if(!canEditActiveProject()){alert('읽기 전용 기기에서는 입력·수정·삭제할 수 없습니다.');return false}
   if(isCurrentStoredReportClosed()){
     applyReportLockUI(true);
-    alert('마감된 보고서입니다.\n검색 / 이력에서 [마감] 버튼을 눌러 마감을 해제한 뒤 수정해 주세요.');
+    alert('마감된 보고서입니다.\n마스터가 마감을 해제한 뒤 수정할 수 있습니다.');
     return false;
   }
   return true;
@@ -2531,6 +2528,7 @@ function toggleCurrentReportClosed(){
 }
 
 async function toggleReportClosed(date,site,trade){
+  if(!canCloseReports())return alert('마감·마감해제는 마스터만 사용할 수 있습니다.');
   let reports=JSON.parse(projectGet('reports')||'[]');
   const ix=reports.findIndex(r=>r.date===date&&r.site===site&&r.trade===trade);
   if(ix<0)return alert('해당 보고서를 찾을 수 없습니다.');
@@ -3359,6 +3357,7 @@ const PUBLIC_STORE_URL_KEY='urigongPublicStoreUrl';
 const DEVICE_TOKEN_KEY='urigongDeviceToken';
 const DEVICE_ROLE_KEY='urigongDeviceRole';
 const DEVICE_PROJECTS_KEY='urigongDeviceProjects';
+const DEVICE_PROJECT_PERMISSIONS_KEY='urigongDeviceProjectPermissions';
 const DEVICE_LABEL_KEY='urigongDeviceLabel';
 const LEGACY_ACCESS_KEY='urigongPublicStoreAccessKey';
 let syncTimer=null, syncBusy=false, applyingRemote=false;
@@ -3376,10 +3375,21 @@ function getPublicStoreUrl(){
 function getDeviceToken(){return (localStorage.getItem(DEVICE_TOKEN_KEY)||'').trim()}
 function getDeviceRole(){return localStorage.getItem(DEVICE_ROLE_KEY)||''}
 function getDeviceProjects(){try{const a=JSON.parse(localStorage.getItem(DEVICE_PROJECTS_KEY)||'[]');return Array.isArray(a)?a.filter(x=>PROJECTS.includes(x)):[]}catch(e){return []}}
+function getDeviceProjectPermissions(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(DEVICE_PROJECT_PERMISSIONS_KEY)||'{}');
+    const out={};
+    if(raw&&typeof raw==='object'&&!Array.isArray(raw)){PROJECTS.forEach(p=>{if(raw[p]==='manage'||raw[p]==='read')out[p]=raw[p]})}
+    if(Object.keys(out).length)return out;
+  }catch(e){}
+  const fallback={};const role=getDeviceRole();getDeviceProjects().forEach(p=>fallback[p]=role==='site_admin'?'manage':'read');return fallback;
+}
 function isMasterDevice(){return getDeviceRole()==='admin'}
 function isSiteAdminDevice(){return getDeviceRole()==='site_admin'}
-function canAccessProject(name){return isMasterDevice()||getDeviceProjects().includes(name)}
-function canEditProject(name){return isMasterDevice()||(isSiteAdminDevice()&&getDeviceProjects().includes(name))}
+function projectPermission(name){return isMasterDevice()?'manage':(getDeviceProjectPermissions()[name]||'')}
+function canAccessProject(name){return isMasterDevice()||!!projectPermission(name)}
+function canEditProject(name){return isMasterDevice()||projectPermission(name)==='manage'}
+function canCloseReports(){return isMasterDevice()}
 function currentProjectForAuth(){
   const active=sessionStorage.getItem('activeProject');
   if(active&&canAccessProject(active))return active;
@@ -3460,7 +3470,7 @@ async function connectGoogleDrive(){
     if(!ensurePublicStoreCredentials(true))return;
     setDriveStatus('등록기기 인증 확인 중...');
     const r=await publicPost('ping',authPayload());
-    if(r.role){localStorage.setItem(DEVICE_ROLE_KEY,r.role);localStorage.setItem(DEVICE_PROJECTS_KEY,JSON.stringify(Array.isArray(r.allowedProjects)?r.allowedProjects:(r.role==='admin'?PROJECTS:[])));updateAdminSecurityButtons();applyDevicePermissions()}
+    if(r.role){saveDevicePermissionState(r);updateAdminSecurityButtons();applyDevicePermissions()}
     setDriveStatus('공용저장소 연결됨 · 최신자료 확인 중...');
     await syncNow('connect');
   }catch(e){console.error(e);if(/등록되지|인증|취소/.test(e.message||''))clearDeviceCredential();setDriveStatus('연결 실패: '+e.message);alert('공용저장소 연결에 실패했습니다.\n'+e.message)}
@@ -3479,8 +3489,7 @@ async function fetchRemote(){
   const r=await publicStoreCall('load');
   // load 응답에 포함된 최신 기기권한을 함께 반영해 별도 ping 왕복을 없앤다.
   if(r&&r.role){
-    localStorage.setItem(DEVICE_ROLE_KEY,r.role);
-    localStorage.setItem(DEVICE_PROJECTS_KEY,JSON.stringify(Array.isArray(r.allowedProjects)?r.allowedProjects:(r.role==='admin'?PROJECTS:[])));
+    saveDevicePermissionState(r);
     applyDevicePermissions();
   }
   if(!r.exists)return {file:null,data:null,stamp:0};
@@ -3531,7 +3540,7 @@ function restoreDriveClientId(){syncPublicStoreSettingsUI();setDriveStatus(token
 setTimeout(restoreDriveClientId,0);
 
 // ===== 기기등록 / 관리자 인증 =====
-function clearDeviceCredential(){localStorage.removeItem(DEVICE_TOKEN_KEY);localStorage.removeItem(DEVICE_ROLE_KEY);localStorage.removeItem(DEVICE_PROJECTS_KEY);updateAdminSecurityButtons();applyDevicePermissions()}
+function clearDeviceCredential(){localStorage.removeItem(DEVICE_TOKEN_KEY);localStorage.removeItem(DEVICE_ROLE_KEY);localStorage.removeItem(DEVICE_PROJECTS_KEY);localStorage.removeItem(DEVICE_PROJECT_PERMISSIONS_KEY);updateAdminSecurityButtons();applyDevicePermissions()}
 function showDeviceGate(message=''){
   const gate=$('passwordGate');if(gate)gate.style.display='flex';document.body.classList.add('locked');
   const m=$('deviceGateMessage');if(m&&message)m.textContent=message;
@@ -3561,20 +3570,23 @@ function schedulePermissionRefresh(){
   permissionRefreshTimer=setTimeout(()=>{permissionRefreshTimer=null;applyDevicePermissions()},90);
 }
 function applyDevicePermissions(){
-  const registered=tokenValid(), role=getDeviceRole(), master=role==='admin', siteAdmin=role==='site_admin', readonly=registered&&role==='user';
-  const mode=readonly?'readonly':(siteAdmin?'siteadmin':(master?'master':'guest'));
+  const registered=tokenValid(), role=getDeviceRole(), master=role==='admin', siteAdmin=role==='site_admin';
+  const activePerm=master?'manage':projectPermission(currentProjectForAuth());
+  const readonly=registered&&!master&&activePerm!=='manage';
+  const mode=master?'master':(readonly?'readonly':(activePerm==='manage'?'siteadmin':'guest'));
   document.body.classList.toggle('read-only-user',readonly);
   const badge=$('readOnlyBadge');
-  if(badge){badge.classList.toggle('visible',readonly||siteAdmin);badge.textContent=siteAdmin?'현장관리자':'읽기 전용'}
+  if(badge){const active=currentProjectForAuth(),perm=projectPermission(active);badge.classList.toggle('visible',!master&&registered);badge.textContent=perm==='manage'?'관리전용':'읽기 전용'}
   applyProjectAccessUI();updateAdminSecurityButtons();
+  document.querySelectorAll('.report-close-btn').forEach(el=>{const allow=canCloseReports();el.style.display=allow?'':'none';el.disabled=!allow});
 
   const allowed=getDeviceProjects();
-  if((readonly||siteAdmin)&&allowed.length===0){
+  if(!master&&registered&&allowed.length===0){
     sessionStorage.removeItem('activeProject');sessionStorage.removeItem('openProjectAfterReload');document.body.classList.add('site-home-mode');
     showDeviceGate('이 기기에 허용된 현장이 없습니다. 관리자에게 새 6자리 등록코드를 받거나 관리자 로그인을 해주세요.');lastPermissionMode=mode;return;
   }
 
-  if(master||siteAdmin){
+  if(master||canEditActiveProject()){
     if(lastPermissionMode==='readonly'){
       document.querySelectorAll('[data-role-disabled="1"]').forEach(el=>{if(!(typeof currentReportLocked!=='undefined'&&currentReportLocked&&el.closest&&el.closest('#writePage'))){el.disabled=false}delete el.dataset.roleDisabled});
     }
@@ -3583,7 +3595,7 @@ function applyDevicePermissions(){
     document.querySelectorAll('.local-backup-btn').forEach(el=>{el.style.display=master?'':'none'});
     const urlInput=$('publicStoreUrl');if(urlInput){const f=urlInput.closest('.field');if(f)f.style.display=master?'':'none'}
     document.querySelectorAll('button[onclick="savePublicStoreSettings()"]').forEach(el=>el.style.display=master?'':'none');
-    const active=sessionStorage.getItem('activeProject');if(siteAdmin&&active&&!allowed.includes(active)){sessionStorage.removeItem('activeProject');sessionStorage.removeItem('openProjectAfterReload');document.body.classList.add('site-home-mode')}
+    const active=sessionStorage.getItem('activeProject');if(!master&&active&&!allowed.includes(active)){sessionStorage.removeItem('activeProject');sessionStorage.removeItem('openProjectAfterReload');document.body.classList.add('site-home-mode')}
     lastPermissionMode=mode;return;
   }
 
@@ -3597,18 +3609,22 @@ function applyDevicePermissions(){
   document.querySelectorAll('.local-backup-btn, button[onclick="saveToDrive()"], button[onclick="loadFromDrive()"], button[onclick="saveMasters()"], .mobile-quickbar .quick-save').forEach(el=>{el.style.display=readonly?'none':''});
   const urlInput=$('publicStoreUrl');if(urlInput){const f=urlInput.closest('.field');if(f)f.style.display='none'}
   document.querySelectorAll('button[onclick="savePublicStoreSettings()"]').forEach(el=>el.style.display='none');
-  if(readonly&&sessionStorage.getItem('activeProjectPage')==='master'){sessionStorage.setItem('activeProjectPage','search');if($('masterPage')&&$('masterPage').style.display!=='none')showPage('search',null)}
+  if(!master&&!canEditActiveProject()&&sessionStorage.getItem('activeProjectPage')==='master'){sessionStorage.setItem('activeProjectPage','search');if($('masterPage')&&$('masterPage').style.display!=='none')showPage('search',null)}
   const active=sessionStorage.getItem('activeProject');if(readonly&&active&&!canAccessProject(active)){sessionStorage.removeItem('activeProject');sessionStorage.removeItem('openProjectAfterReload');document.body.classList.add('site-home-mode')}
   lastPermissionMode=mode;
 }
-function selectedNewDeviceProjects(){return Array.from(document.querySelectorAll('#newDeviceProjectPicker input[type="checkbox"]:checked')).map(x=>x.value).filter(x=>PROJECTS.includes(x))}
-function selectedNewDeviceRole(){return (($('newDeviceRole')&&$('newDeviceRole').value)==='site_admin')?'site_admin':'user'}
-function selectedProjectsForDevice(deviceId){return Array.from(document.querySelectorAll(`.device-project-editor input[data-device-id="${deviceId}"]:checked`)).map(x=>x.value).filter(x=>PROJECTS.includes(x))}
-function selectedRoleForDevice(deviceId){const el=document.querySelector(`select[data-device-role="${deviceId}"]`);return el&&el.value==='site_admin'?'site_admin':'user'}
+function toggleProjectPermissionChoice(el){if(!el||!el.checked)return;const p=el.dataset.newProject||el.dataset.project,mode=el.dataset.projectMode,device=el.dataset.deviceId||'';const sel=device?`.device-project-editor input[data-device-id="${CSS.escape(device)}"][data-project="${CSS.escape(p)}"]`:`#newDeviceProjectPicker input[data-new-project="${CSS.escape(p)}"]`;document.querySelectorAll(sel).forEach(x=>{if(x!==el)x.checked=false})}
+function selectedNewDeviceProjectPermissions(){const out={};document.querySelectorAll('#newDeviceProjectPicker input[data-new-project]:checked').forEach(x=>{if(PROJECTS.includes(x.dataset.newProject)&&(x.dataset.projectMode==='read'||x.dataset.projectMode==='manage'))out[x.dataset.newProject]=x.dataset.projectMode});return out}
+function selectedNewDeviceProjects(){return Object.keys(selectedNewDeviceProjectPermissions())}
+function selectedNewDeviceRole(){return Object.values(selectedNewDeviceProjectPermissions()).includes('manage')?'site_admin':'user'}
+function selectedProjectPermissionsForDevice(deviceId){const out={};document.querySelectorAll(`.device-project-editor input[data-device-id="${CSS.escape(deviceId)}"]:checked`).forEach(x=>{const p=x.dataset.project,mode=x.dataset.projectMode;if(PROJECTS.includes(p)&&(mode==='read'||mode==='manage'))out[p]=mode});return out}
+function selectedProjectsForDevice(deviceId){return Object.keys(selectedProjectPermissionsForDevice(deviceId))}
+function selectedRoleForDevice(deviceId){return Object.values(selectedProjectPermissionsForDevice(deviceId)).includes('manage')?'site_admin':'user'}
 
+function saveDevicePermissionState(result){if(!result)return;const role=result.role||getDeviceRole()||'user';const projects=Array.isArray(result.allowedProjects)?result.allowedProjects:(role==='admin'?PROJECTS:[]);localStorage.setItem(DEVICE_ROLE_KEY,role);localStorage.setItem(DEVICE_PROJECTS_KEY,JSON.stringify(projects));const perms=(result.projectPermissions&&typeof result.projectPermissions==='object')?result.projectPermissions:Object.fromEntries(projects.map(p=>[p,(role==='admin'||role==='site_admin')?'manage':'read']));localStorage.setItem(DEVICE_PROJECT_PERMISSIONS_KEY,JSON.stringify(perms))}
 function storeDeviceCredential(result,label){
   if(!result||!result.deviceToken)throw new Error('기기토큰을 받지 못했습니다.');
-  localStorage.setItem(DEVICE_TOKEN_KEY,result.deviceToken);localStorage.setItem(DEVICE_ROLE_KEY,result.role||'user');localStorage.setItem(DEVICE_PROJECTS_KEY,JSON.stringify(Array.isArray(result.allowedProjects)?result.allowedProjects:(result.role==='admin'?PROJECTS:[])));if(label)localStorage.setItem(DEVICE_LABEL_KEY,label);localStorage.removeItem(LEGACY_ACCESS_KEY);updateAdminSecurityButtons();applyDevicePermissions();
+  localStorage.setItem(DEVICE_TOKEN_KEY,result.deviceToken);saveDevicePermissionState(result);if(label)localStorage.setItem(DEVICE_LABEL_KEY,label);localStorage.removeItem(LEGACY_ACCESS_KEY);updateAdminSecurityButtons();applyDevicePermissions();
 }
 function currentDeviceLabel(){return (($('deviceLabelInput')&&$('deviceLabelInput').value)||localStorage.getItem(DEVICE_LABEL_KEY)||'').trim()||('기기 '+new Date().toLocaleDateString())}
 function toggleAdminLoginFields(){const el=$('adminLoginFields');if(!el)return;el.classList.toggle('open');if(el.classList.contains('open'))setTimeout(()=>$('adminLoginPassword')?.focus(),30)}
@@ -3674,20 +3690,22 @@ async function loadDeviceAdminList(){
 function renderDeviceAdminList(devices){
   const wrap=$('deviceAdminListWrap');if(!wrap)return;const me=getDeviceId();
   if(!devices.length){wrap.innerHTML='<div style="font-size:12px;color:#66788c;padding:8px 0">등록된 기기가 없습니다.</div>';return}
-  wrap.innerHTML='<table class="device-admin-list"><thead><tr><th>기기명</th><th>권한</th><th>허용 현장</th><th>최근사용</th><th>관리</th></tr></thead><tbody>'+devices.map(d=>{
-    const last=d.lastSeen?new Date(d.lastSeen).toLocaleString():'-';const master=d.role==='admin';const siteAdmin=d.role==='site_admin';const role=master?'마스터':(siteAdmin?'현장관리자':'읽기전용');const own=d.deviceId===me;const allowed=master?PROJECTS:(Array.isArray(d.allowedProjects)?d.allowedProjects:[]);
-    const roleEditor=master?'<b>마스터</b>':`<select data-device-role="${esc(d.deviceId)}"><option value="user" ${siteAdmin?'':'selected'}>읽기전용</option><option value="site_admin" ${siteAdmin?'selected':''}>현장관리자</option></select>`;
-    const editor=master?'<b>전체 현장</b>':`<div class="device-project-editor">${PROJECTS.map(p=>`<label><input type="checkbox" data-device-id="${esc(d.deviceId)}" value="${esc(p)}" ${allowed.includes(p)?'checked':''}>${esc(p)}</label>`).join('')}<button class="btn" type="button" onclick="updateRegisteredDeviceProjects('${esc(d.deviceId)}')">권한저장</button></div>`;
-    return `<tr><td>${esc(d.label||d.deviceId)}${own?' <b>(현재)</b>':''}</td><td>${roleEditor}<div style="font-size:10px;color:#66788c;margin-top:3px">${role}</div></td><td>${editor}</td><td>${esc(last)}</td><td>${own?'-':`<button class="btn" type="button" onclick="revokeRegisteredDevice('${esc(d.deviceId)}')">차단</button>`}</td></tr>`
+  wrap.innerHTML='<table class="device-admin-list"><thead><tr><th>기기명</th><th>권한</th><th>현장별 권한</th><th>최근사용</th><th>관리</th></tr></thead><tbody>'+devices.map(d=>{
+    const last=d.lastSeen?new Date(d.lastSeen).toLocaleString():'-';const master=d.role==='admin';const own=d.deviceId===me;
+    const perms=master?Object.fromEntries(PROJECTS.map(p=>[p,'manage'])):((d.projectPermissions&&typeof d.projectPermissions==='object')?d.projectPermissions:Object.fromEntries((Array.isArray(d.allowedProjects)?d.allowedProjects:[]).map(p=>[p,d.role==='site_admin'?'manage':'read'])));
+    const manageCount=Object.values(perms).filter(v=>v==='manage').length,readCount=Object.values(perms).filter(v=>v==='read').length;
+    const role=master?'마스터':(manageCount?`관리 ${manageCount} · 읽기 ${readCount}`:`읽기전용 ${readCount}`);
+    const editor=master?'<b>전체 현장 · 마스터</b>':`<div class="device-project-editor"><div class="project-permission-row header"><span>현장</span><span>읽기</span><span>관리</span></div>${PROJECTS.map(p=>`<div class="project-permission-row"><span>${esc(p)}</span><label><input type="checkbox" data-device-id="${esc(d.deviceId)}" data-project="${esc(p)}" data-project-mode="read" ${perms[p]==='read'?'checked':''} onclick="toggleProjectPermissionChoice(this)">읽기</label><label><input type="checkbox" data-device-id="${esc(d.deviceId)}" data-project="${esc(p)}" data-project-mode="manage" ${perms[p]==='manage'?'checked':''} onclick="toggleProjectPermissionChoice(this)">관리</label></div>`).join('')}<button class="btn" type="button" onclick="updateRegisteredDeviceProjects('${esc(d.deviceId)}')">권한저장</button></div>`;
+    return `<tr><td>${esc(d.label||d.deviceId)}${own?' <b>(현재)</b>':''}</td><td><b>${esc(role)}</b><div style="font-size:10px;color:#66788c;margin-top:3px">마감은 마스터만</div></td><td>${editor}</td><td>${esc(last)}</td><td>${own?'-':`<button class="btn" type="button" onclick="revokeRegisteredDevice('${esc(d.deviceId)}')">차단</button>`}</td></tr>`
   }).join('')+'</tbody></table>';
 }
 async function createDeviceRegistrationCode(){
-  const pw=adminPasswordValue();if(!pw)return setDeviceAdminStatus('마스터 비밀번호를 입력하세요.');const allowedProjects=selectedNewDeviceProjects();const role=selectedNewDeviceRole();if(!allowedProjects.length)return setDeviceAdminStatus('새 기기가 사용할 현장을 1개 이상 선택하세요.');setDeviceAdminStatus('등록코드 생성 중...');
-  try{const r=await publicPost('adminCreateCode',authPayload({masterPassword:pw,allowedProjects,role}));const b=$('registrationCodeBox');const label=role==='site_admin'?'현장관리자':'읽기전용';if(b){b.textContent=`등록코드 ${r.registrationCode} · ${r.expiresMinutes||10}분간 1회 사용 · ${label} · ${allowedProjects.join(', ')}`;b.classList.add('show')}setDeviceAdminStatus(role==='site_admin'?'이 코드는 선택 현장에서 작성·수정·삭제·마감·기준정보 변경이 가능한 현장관리자용입니다.':'이 코드는 선택 현장을 조회만 하는 읽기전용 기기용입니다.')}catch(e){setDeviceAdminStatus(e.message)}
+  const pw=adminPasswordValue();if(!pw)return setDeviceAdminStatus('마스터 비밀번호를 입력하세요.');const projectPermissions=selectedNewDeviceProjectPermissions();const allowedProjects=Object.keys(projectPermissions);const role=Object.values(projectPermissions).includes('manage')?'site_admin':'user';if(!allowedProjects.length)return setDeviceAdminStatus('새 기기가 사용할 현장을 1개 이상 선택하세요.');setDeviceAdminStatus('등록코드 생성 중...');
+  try{const r=await publicPost('adminCreateCode',authPayload({masterPassword:pw,allowedProjects,projectPermissions,role}));const b=$('registrationCodeBox');const summary=PROJECTS.filter(p=>projectPermissions[p]).map(p=>`${p}:${projectPermissions[p]==='manage'?'관리':'읽기'}`).join(', ');if(b){b.textContent=`등록코드 ${r.registrationCode} · ${r.expiresMinutes||10}분간 1회 사용 · ${summary}`;b.classList.add('show')}setDeviceAdminStatus('관리전용은 작성·수정·삭제·기준정보 변경이 가능하며, 마감·마감해제는 마스터만 가능합니다.')}catch(e){setDeviceAdminStatus(e.message)}
 }
 async function updateRegisteredDeviceProjects(deviceId){
-  const pw=adminPasswordValue();if(!pw)return setDeviceAdminStatus('마스터 비밀번호를 입력하세요.');const allowedProjects=selectedProjectsForDevice(deviceId);const role=selectedRoleForDevice(deviceId);if(!allowedProjects.length&&!confirm('이 기기의 현장 권한을 모두 제거할까요?'))return;
-  try{await publicPost('adminUpdateDeviceProjects',authPayload({masterPassword:pw,targetDeviceId:deviceId,allowedProjects,role}));setDeviceAdminStatus('기기 권한을 변경했습니다.');await loadDeviceAdminList()}catch(e){setDeviceAdminStatus(e.message)}
+  const pw=adminPasswordValue();if(!pw)return setDeviceAdminStatus('마스터 비밀번호를 입력하세요.');const projectPermissions=selectedProjectPermissionsForDevice(deviceId);const allowedProjects=Object.keys(projectPermissions);const role=Object.values(projectPermissions).includes('manage')?'site_admin':'user';if(!allowedProjects.length&&!confirm('이 기기의 현장 권한을 모두 제거할까요?'))return;
+  try{await publicPost('adminUpdateDeviceProjects',authPayload({masterPassword:pw,targetDeviceId:deviceId,allowedProjects,projectPermissions,role}));setDeviceAdminStatus('현장별 권한을 변경했습니다.');await loadDeviceAdminList()}catch(e){setDeviceAdminStatus(e.message)}
 }
 async function revokeRegisteredDevice(deviceId){
   const pw=adminPasswordValue();if(!pw)return setDeviceAdminStatus('마스터 비밀번호를 입력하세요.');if(!confirm('이 기기의 공용저장소 사용권한을 차단할까요?'))return;
@@ -3877,7 +3895,7 @@ function toggleCurrentReportClosed(){
   toggleReportClosed(date,site,trade,currentWorkType,currentOvertimeNo);
 }
 async function toggleReportClosed(date,site,trade,type='weekly',no=0){
-  if(!canEditActiveProject())return alert('읽기 전용 기기에서는 마감을 변경할 수 없습니다.');
+  if(!canCloseReports())return alert('마감·마감해제는 마스터만 사용할 수 있습니다.');
   const wt=type==='overtime'?'overtime':'weekly', n=wt==='overtime'?(+no||1):0;
   let reports=safeParseJSON(projectGet('reports'),[])||[];
   let indexes=[];
@@ -3887,8 +3905,7 @@ async function toggleReportClosed(date,site,trade,type='weekly',no=0){
   if(r.closed===true){
     try{
       if(!ensurePublicStoreCredentials(true))return;
-      if(isMasterDevice()){const pw=prompt('마스터 비밀번호를 입력하세요.');if(pw===null)return;await publicPost('verifyMasterPassword',authPayload({masterPassword:pw}))}
-      else{await publicPost('verifyProjectWriteAccess',authPayload());if(!confirm('이 보고서의 마감을 해제할까요?'))return}
+      const pw=prompt('마스터 비밀번호를 입력하세요.');if(pw===null)return;await publicPost('verifyMasterPassword',authPayload({masterPassword:pw}))
     }catch(e){return alert(e&&e.message?e.message:'마감 해제 권한 확인에 실패했습니다.')}
     r.closed=false;delete r.closedAt;reports[ix]=r;projectSet('reports',JSON.stringify(reports));markLocalChanged();if(tokenValid())scheduleAutoSync();alert('마감이 해제되었습니다. 이제 수정할 수 있습니다.');
   }else{
@@ -4010,9 +4027,11 @@ async function searchReports(){
     lastSearchResults=out;
     if(!out.length){$('results').innerHTML=`<div style="padding:10px;line-height:1.6"><b>검색 결과가 없습니다.</b><br>현재 ${esc(activeProjectName())} 저장보고서: <b>${rs.length}건</b></div>`;return}
     const dateCounts={};out.forEach(x=>dateCounts[x.r.date]=(dateCounts[x.r.date]||0)+1);const dateUsed={};
-    $('results').innerHTML=`<div style="font-size:12px;font-weight:700;margin:8px 0">저장보고서 ${rs.length}건 · 검색 결과 ${out.length}건</div><div class="result-table-wrap"><table class="result-table"><thead><tr><th>날짜</th><th>구분</th><th>현장</th><th>공종</th><th>BP사</th><th>총인원</th><th>업체별 인원</th><th>장비</th><th>작업구역 · 작업내용</th><th>마감</th></tr></thead><tbody>${out.map(x=>{
+    const showClose=canCloseReports();
+    $('results').innerHTML=`<div style="font-size:12px;font-weight:700;margin:8px 0">저장보고서 ${rs.length}건 · 검색 결과 ${out.length}건</div><div class="result-table-wrap"><table class="result-table"><thead><tr><th>날짜</th><th>구분</th><th>현장</th><th>공종</th><th>BP사</th><th>총인원</th><th>업체별 인원</th><th>장비</th><th>작업구역 · 작업내용</th>${showClose?'<th>마감</th>':''}</tr></thead><tbody>${out.map(x=>{
       const dateCell=dateUsed[x.r.date]?'':`<td rowspan="${dateCounts[x.r.date]}"><button type="button" class="date-link-btn" onclick="openReportFromSearch('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}','${x.workType}',${x.overtimeNo})">${esc(x.r.date)}</button></td>`;dateUsed[x.r.date]=true;
-      return `<tr class="${x.workType==='overtime'?'search-overtime-row':''}">${dateCell}<td class="type-cell"><button type="button" class="date-link-btn" onclick="openReportFromSearch('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}','${x.workType}',${x.overtimeNo})">${esc(x.typeLabel)}</button></td><td>${esc(x.r.site)}</td><td>${esc(x.r.trade)}</td><td>${esc(x.r.bpa||'')}</td><td class="num-cell">${x.total}명</td><td>${esc(x.companyText||'-')}</td><td>${esc(x.equipment||'-')}</td><td class="work-cell">${esc(x.work||'-')}</td><td><button type="button" class="report-close-btn ${x.r.closed?'closed':''}" title="${x.r.closed?'마감 해제':'보고서 마감'}" onclick="event.stopPropagation();toggleReportClosed('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}','${x.workType}',${x.overtimeNo})">마감</button></td></tr>`;
+      const closeCell=showClose?`<td><button type="button" class="report-close-btn ${x.r.closed?'closed':''}" title="${x.r.closed?'마감 해제':'보고서 마감'}" onclick="event.stopPropagation();toggleReportClosed('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}','${x.workType}',${x.overtimeNo})">마감</button></td>`:'';
+      return `<tr class="${x.workType==='overtime'?'search-overtime-row':''}">${dateCell}<td class="type-cell"><button type="button" class="date-link-btn" onclick="openReportFromSearch('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}','${x.workType}',${x.overtimeNo})">${esc(x.typeLabel)}</button></td><td>${esc(x.r.site)}</td><td>${esc(x.r.trade)}</td><td>${esc(x.r.bpa||'')}</td><td class="num-cell">${x.total}명</td><td>${esc(x.companyText||'-')}</td><td>${esc(x.equipment||'-')}</td><td class="work-cell">${esc(x.work||'-')}</td>${closeCell}</tr>`;
     }).join('')}</tbody></table></div>`;
     applyDevicePermissions();
   }catch(e){console.error('검색 오류',e);$('results').innerHTML='<div style="padding:10px;color:#c62828;font-weight:700">검색 오류: '+esc(e.message||String(e))+'</div>'}
