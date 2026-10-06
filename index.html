@@ -157,10 +157,11 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
 .date-link-btn{border:0;background:transparent;color:#0672e8;text-decoration:underline;font:inherit;font-weight:700;cursor:pointer;padding:0;white-space:nowrap}.date-link-btn:hover{color:#004fa8}
 
 /* 간단 비밀번호 잠금 화면 */
-#passwordGate{position:fixed;inset:0;z-index:99999;background:#f4f8fc;display:flex;align-items:center;justify-content:center;padding:20px}
+#passwordGate{position:fixed;inset:0;z-index:99999;background:#f4f8fc;display:none;align-items:center;justify-content:center;padding:20px}
 .password-box{width:min(92vw,360px);background:#fff;border:1px solid #dbe6f2;border-radius:14px;padding:24px;box-shadow:0 10px 30px #0002;text-align:center}
 .password-box h2{margin:0 0 8px;color:#12365f}.password-box p{font-size:13px;color:#66788c;margin:0 0 16px}.password-box input{width:100%;padding:12px;border:1px solid #cbd9e8;border-radius:8px;font-size:18px;margin-bottom:10px}.password-error{min-height:20px;color:#d22;font-size:13px;margin-top:8px}
 body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobileDrawer{visibility:hidden}
+body.locked>#siteHome{pointer-events:none}
 
 
 /* 2026-10-02: PC 왼쪽 메뉴 / 작업보고 미리보기 접기·펼치기 */
@@ -1577,7 +1578,8 @@ body.report-is-closed #writePage textarea:disabled{
 .security-grid{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:end}.security-grid .field{min-width:0}.security-grid .field input{width:100%}.security-actions{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0}.registration-code-box{display:none;padding:12px;border:1px solid #f0b6c6;background:#fff1f5;border-radius:8px;font-weight:800;font-size:18px;color:#851f3d;text-align:center;margin:10px 0}.registration-code-box.show{display:block}
 .device-admin-list{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}.device-admin-list th,.device-admin-list td{border:1px solid #dbe6f2;padding:7px;text-align:left}.device-admin-list th{background:#f2f7fc}.device-admin-list td:last-child{text-align:center;white-space:nowrap}
 .admin-only-security{display:none!important}.admin-only-security.visible{display:inline-block!important}
-@media(max-width:850px){.device-gate-row{align-items:stretch;flex-direction:column}.security-grid{grid-template-columns:1fr}.device-admin-list{font-size:11px}}
+.project-access-picker{display:flex;gap:7px;flex-wrap:wrap;padding:9px;border:1px solid #dbe6f2;border-radius:8px;background:#f8fbff;margin:7px 0 10px}.project-access-picker label{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;white-space:nowrap}.project-access-picker input{width:auto!important;margin:0!important}.device-project-editor{display:flex;gap:5px;flex-wrap:wrap;align-items:center}.device-project-editor label{display:inline-flex;align-items:center;gap:3px;font-size:11px;white-space:nowrap}.device-project-editor input{width:auto!important}.readonly-badge{display:none;background:#fff2cc;border:1px solid #e6c65c;color:#795b00;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:800}.readonly-badge.visible{display:inline-block}.read-only-user #masterPage{display:none!important}
+@media(max-width:850px){.device-gate-row{align-items:stretch;flex-direction:column}.security-grid{grid-template-columns:1fr}.device-admin-list{font-size:11px}.device-project-editor{min-width:220px}}
 
 </style><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
 <body class="locked site-home-mode"><section id="siteHome" aria-label="현장 선택">
@@ -1755,7 +1757,7 @@ body.report-is-closed #writePage textarea:disabled{
 </div>
 </div>
 </aside><main>
-<section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 검색 / 이력에서 회색 [마감] 버튼을 눌러 마스터 비밀번호로 마감을 해제하세요.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ 공용저장소 연결</button><button class="btn" type="button" onclick="saveToDrive()">공용저장소 저장</button><button class="btn" type="button" onclick="loadFromDrive()">공용저장소 불러오기</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 기기 인증 확인 중</b><button class="btn local-backup-btn" type="button" onclick="openLocalBackupDialog()">로컬백업</button><div class="header-action-buttons"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div class="grid"><div class="input-col left-col">
+<section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 검색 / 이력에서 회색 [마감] 버튼을 눌러 마스터 비밀번호로 마감을 해제하세요.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ 공용저장소 연결</button><button class="btn" type="button" onclick="saveToDrive()">공용저장소 저장</button><button class="btn" type="button" onclick="loadFromDrive()">공용저장소 불러오기</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 기기 인증 확인 중</b><span id="readOnlyBadge" class="readonly-badge">읽기 전용</span><button class="btn local-backup-btn" type="button" onclick="openLocalBackupDialog()">로컬백업</button><div class="header-action-buttons"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div class="grid"><div class="input-col left-col">
 <div class="card basic-info-card"><div class="title"><span><span class="n">1</span>기본 정보</span><span class="basic-close-wrap"><span id="workModeTabs" class="work-mode-tabs-inline"></span><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><span class="basic-action-buttons mobile-basic-actions"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" onclick="saveReport()">보고서 저장</button></span></div><div class="basic-info-grid">
 <div class="field basic-site"><label>현장</label><select id="site"></select></div>
 <div class="field basic-trade"><label>공종</label><select id="trade"></select></div>
@@ -1787,6 +1789,15 @@ body.report-is-closed #writePage textarea:disabled{
   <div class="security-box" role="dialog" aria-modal="true" aria-labelledby="deviceAdminTitle">
     <div class="security-title"><span id="deviceAdminTitle">기기등록 관리</span><button class="security-close" type="button" onclick="closeDeviceAdminDialog()">×</button></div>
     <div class="field"><label>관리자 확인</label><input id="deviceAdminPassword" type="password" autocomplete="current-password" placeholder="마스터 비밀번호"></div>
+    <div style="font-weight:800;color:#12365f;margin:10px 0 4px">새 기기 허용 현장</div>
+    <div id="newDeviceProjectPicker" class="project-access-picker">
+      <label><input type="checkbox" value="Y1 IECO">Y1 IECO</label>
+      <label><input type="checkbox" value="EPI">EPI</label>
+      <label><input type="checkbox" value="Indiana">Indiana</label>
+      <label><input type="checkbox" value="청주Ph4">청주Ph4</label>
+      <label><input type="checkbox" value="이천TMAH">이천TMAH</label>
+    </div>
+    <div style="font-size:11px;color:#66788c;line-height:1.45;margin-top:-5px;margin-bottom:7px">일반 기기는 선택한 현장만 볼 수 있고 읽기 전용입니다. 마스터 기기만 전체 현장과 입력·수정·삭제 권한을 가집니다.</div>
     <div class="security-actions"><button class="btn primary" type="button" onclick="loadDeviceAdminList()">등록기기 조회</button><button class="btn" type="button" onclick="createDeviceRegistrationCode()">1회용 등록코드 생성</button></div>
     <div id="registrationCodeBox" class="registration-code-box"></div>
     <div id="deviceAdminStatus" style="font-size:12px;color:#53657a;min-height:18px"></div>
@@ -2002,6 +2013,8 @@ function loadProjectStore(name){
 }
 function enterProject(name){enterProjectPage(name,'write')}
 function enterProjectPage(name,page){
+  if(tokenValid()&&!canAccessProject(name)){alert('이 기기에는 '+name+' 현장 조회권한이 없습니다.');return}
+  if(page==='master'&&!isMasterDevice()){alert('설정 및 변경 기능은 마스터 기기에서만 사용할 수 있습니다.');return}
   const old=sessionStorage.getItem('activeProject');
 
   if(old===name){
@@ -2401,6 +2414,7 @@ function refreshProjectTree(){
       btn.getAttribute('data-project')===active &&
       btn.getAttribute('data-page')===page);
   });
+  if(typeof applyProjectAccessUI==='function')applyProjectAccessUI();
 }
 
 window.addEventListener('beforeunload',saveActiveProject);
@@ -2486,6 +2500,7 @@ function applyReportLockUI(locked){
     closeBtn.title=currentReportLocked?'마감 해제':'보고서 마감';
     closeBtn.disabled=false;
   }
+  if(typeof applyDevicePermissions==='function')applyDevicePermissions();
 }
 function syncReportLockForCurrentDate(){
   applyReportLockUI(isCurrentStoredReportClosed());
@@ -2856,6 +2871,7 @@ function moveWorkDate(days){
 function updatePreview(){$('preview').textContent=reportText();autoSave()}
 
 function autoSave(){
+  if(!isMasterDevice())return;
   if(sessionStorage.getItem('projectSwitching')==='1')return;
   if(!$('date'))return;
 
@@ -2899,7 +2915,7 @@ function loadDateOrBlank(){
     updatePreview();autoSave();
   }
 }
-function resetDailyData(){if(!requireReportEditable())return;
+function resetDailyData(){if(!isMasterDevice())return alert('읽기 전용 기기에서는 초기화할 수 없습니다.');if(!requireReportEditable())return;
   // 업체/직종 구성은 유지하고 인원수만 0으로 초기화한다.
   state.companies.forEach(c=>{D.jobs.forEach(j=>c.jobs[j]=0)});
   // 구역/위치와 화면 구성은 유지하고 하부작업 내용만 비운다.
@@ -2909,6 +2925,7 @@ function resetDailyData(){if(!requireReportEditable())return;
 
 function loadCurrentDateReport(){let rs=JSON.parse(projectGet('reports')||'[]');let r=rs.find(x=>x.date===$('date').value&&x.site===$('site').value&&x.trade===$('trade').value);if(!r)return alert('해당 날짜/현장/공종의 저장된 작업일보가 없습니다.');$('start').value=r.start||'07:30';$('end').value=r.end||'17:30';$('bpa').value=r.bpa||'';state=JSON.parse(JSON.stringify(r.state));currentReportLocked=!!r.closed;render();autoSave()}
 function saveReport(){
+  if(!isMasterDevice())return alert('읽기 전용 기기에서는 저장할 수 없습니다.');
   if(!requireReportEditable())return;
   let reports=JSON.parse(projectGet('reports')||'[]');
   let obj={
@@ -2924,6 +2941,7 @@ function saveReport(){
   alert('보고서로 저장했습니다.'+(tokenValid()?'\n공용저장소 자동 동기화를 시작했습니다.':''));
 }
 function copyPreviousDay(){
+  if(!isMasterDevice())return alert('읽기 전용 기기에서는 자료를 복사할 수 없습니다.');
   if(!requireReportEditable())return;
   if(!$('date'))return;
   let currentDate=$('date').value;
@@ -2965,6 +2983,7 @@ function toggleMobileMenu(){document.getElementById('mobileDrawer').classList.to
 function closeMobileMenu(){document.getElementById('mobileDrawer').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('open')}
 function mobileGo(page,btn){showPage(page,null);document.querySelectorAll('#mobileDrawer button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');closeMobileMenu();window.scrollTo({top:0,behavior:'smooth'})}
 function showPage(p,b){
+  if(p==='master'&&!isMasterDevice()){p='search';b=null}
   autoSave();
   if(sessionStorage.getItem('activeProject'))sessionStorage.setItem('activeProjectPage',p);
   document.querySelectorAll('aside button').forEach(x=>x.classList.remove('active'));
@@ -3286,6 +3305,7 @@ function updateMobileZeroJobStyles(){
 function changeJob(i,j,d){let v=Math.max(0,Math.min(999,(+state.companies[i].jobs[j]||0)+d));state.companies[i].jobs[j]=v;renderCompanies();updatePreview()}
 function changeEquip(i,d){state.equipment[i].qty=Math.max(0,Math.min(999,(+state.equipment[i].qty||0)+d));renderEquipment();updatePreview()}
 function saveMasters(){
+  if(!isMasterDevice())return alert('기준정보 변경은 마스터 기기에서만 가능합니다.');
   autoSave();
   let split=id=>$(id).value.split(',').map(x=>x.trim()).filter(Boolean);
   let managers=$('masterManagers').value.split('\n').map(x=>x.split('|').map(v=>v.trim())).filter(m=>m.some(Boolean));
@@ -3333,6 +3353,7 @@ const PUBLIC_STORE_DEFAULT_URL='https://script.google.com/macros/s/AKfycby9z5m2f
 const PUBLIC_STORE_URL_KEY='urigongPublicStoreUrl';
 const DEVICE_TOKEN_KEY='urigongDeviceToken';
 const DEVICE_ROLE_KEY='urigongDeviceRole';
+const DEVICE_PROJECTS_KEY='urigongDeviceProjects';
 const DEVICE_LABEL_KEY='urigongDeviceLabel';
 const LEGACY_ACCESS_KEY='urigongPublicStoreAccessKey';
 let syncTimer=null, syncBusy=false, applyingRemote=false;
@@ -3349,6 +3370,9 @@ function getPublicStoreUrl(){
 }
 function getDeviceToken(){return (localStorage.getItem(DEVICE_TOKEN_KEY)||'').trim()}
 function getDeviceRole(){return localStorage.getItem(DEVICE_ROLE_KEY)||''}
+function getDeviceProjects(){try{const a=JSON.parse(localStorage.getItem(DEVICE_PROJECTS_KEY)||'[]');return Array.isArray(a)?a.filter(x=>PROJECTS.includes(x)):[]}catch(e){return []}}
+function isMasterDevice(){return getDeviceRole()==='admin'}
+function canAccessProject(name){return isMasterDevice()||getDeviceProjects().includes(name)}
 function tokenValid(){return !!getPublicStoreUrl()&&!!getDeviceToken()}
 function syncPublicStoreSettingsUI(){
   const u=$('publicStoreUrl');if(u)u.value=localStorage.getItem(PUBLIC_STORE_URL_KEY)||PUBLIC_STORE_DEFAULT_URL;
@@ -3419,7 +3443,7 @@ async function connectGoogleDrive(){
     if(!ensurePublicStoreCredentials(true))return;
     setDriveStatus('등록기기 인증 확인 중...');
     const r=await publicPost('ping',authPayload());
-    if(r.role){localStorage.setItem(DEVICE_ROLE_KEY,r.role);updateAdminSecurityButtons()}
+    if(r.role){localStorage.setItem(DEVICE_ROLE_KEY,r.role);localStorage.setItem(DEVICE_PROJECTS_KEY,JSON.stringify(Array.isArray(r.allowedProjects)?r.allowedProjects:(r.role==='admin'?PROJECTS:[])));updateAdminSecurityButtons();applyDevicePermissions()}
     setDriveStatus('공용저장소 연결됨 · 최신자료 확인 중...');
     await syncNow('connect');
   }catch(e){console.error(e);if(/등록되지|인증|취소/.test(e.message||''))clearDeviceCredential();setDriveStatus('연결 실패: '+e.message);alert('공용저장소 연결에 실패했습니다.\n'+e.message)}
@@ -3431,8 +3455,8 @@ function localData(){
 }
 function makeDriveSnapshot(){const d=localData();return {format:'URIGONG-WORKREPORT-PUBLIC',version:4,savedAt:new Date().toISOString(),deviceId:getDeviceId(),...d}}
 function getDeviceId(){let x=localStorage.getItem('driveDeviceId');if(!x){x='dev-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);localStorage.setItem('driveDeviceId',x)}return x}
-function markLocalChanged(){if(applyingRemote)return;setDriveMeta('driveLocalDirty','1');setDriveMeta('driveLocalUpdatedAt',String(Date.now()));scheduleAutoSync()}
-function scheduleAutoSync(){if(!tokenValid())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow('auto'),1600)}
+function markLocalChanged(){if(applyingRemote||!isMasterDevice())return;setDriveMeta('driveLocalDirty','1');setDriveMeta('driveLocalUpdatedAt',String(Date.now()));scheduleAutoSync()}
+function scheduleAutoSync(){if(!tokenValid()||!isMasterDevice())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow('auto'),1600)}
 async function fetchRemote(){
   const r=await publicStoreCall('load');
   if(!r.exists)return {file:null,data:null,stamp:0};
@@ -3451,26 +3475,39 @@ function applyRemoteData(d,stamp){
   }finally{applyingRemote=false}
 }
 async function pushLocal(file,silent=true){
+  if(!isMasterDevice())throw new Error('읽기 전용 기기는 공용저장소에 저장할 수 없습니다.');
   const snap=makeDriveSnapshot();const r=await publicStoreCall('save',snap);const stamp=Date.parse(r.updatedAt||'')||Date.now();
   setDriveMeta('driveLastRemoteStamp',String(stamp));setDriveMeta('driveLocalDirty','0');setDriveStatus('자동 동기화 완료 · '+new Date().toLocaleString());if(!silent)alert('공용저장소에 저장했습니다.');
 }
 async function syncNow(reason='auto'){
   if(!tokenValid()||syncBusy)return;syncBusy=true;
   try{
-    setDriveStatus('동기화 확인 중...');const remote=await fetchRemote();const last=+(getDriveMeta('driveLastRemoteStamp')||0);const dirty=getDriveMeta('driveLocalDirty')==='1';
+    setDriveStatus('동기화 확인 중...');
+    const remote=await fetchRemote();
+    const last=+(getDriveMeta('driveLastRemoteStamp')||0);
+    if(!isMasterDevice()){
+      // 일반 기기는 서버 자료를 읽기만 한다. 로컬 변경/업로드는 절대 수행하지 않는다.
+      setDriveMeta('driveLocalDirty','0');
+      if(!remote.file){setDriveStatus('읽기 전용 · 저장된 공용자료 없음');return}
+      const remoteChanged=remote.stamp>last+500;
+      if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('읽기 전용 · 최신자료 반영');if(reason!=='poll')location.reload()}
+      else setDriveStatus('읽기 전용 · 최신 상태');
+      return;
+    }
+    const dirty=getDriveMeta('driveLocalDirty')==='1';
     if(!remote.file){await pushLocal(null,true);return}
     const remoteChanged=remote.stamp>last+500;
     if(dirty&&remoteChanged){const useLocal=confirm('PC/휴대폰 양쪽에서 자료가 변경되었습니다.\n\n확인 = 이 기기의 자료를 공용저장소에 저장\n취소 = 공용저장소의 최신 자료를 이 기기에 적용');if(useLocal){await pushLocal(remote.file,true)}else{applyRemoteData(remote.data,remote.stamp);setDriveStatus('공용저장소 최신자료 적용 완료');alert('공용저장소의 최신 자료를 적용합니다.');location.reload()}}
     else if(dirty){await pushLocal(remote.file,true)}else if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('공용저장소 최신자료 자동 반영');location.reload()}else setDriveStatus('공용저장소 연결됨 · 최신 상태');
-  }catch(e){console.error(e);setDriveStatus('동기화 실패: '+e.message);if(/등록되지|인증이 만료|취소/.test(e.message||'')){clearDeviceCredential();showDeviceGate('기기 사용권한이 만료되었거나 취소되었습니다. 다시 등록해 주세요.')}}finally{syncBusy=false}
+  }catch(e){console.error(e);setDriveStatus('동기화 실패: '+e.message);if(/등록되지|인증이 만료|취소|조회권한/.test(e.message||'')){if(/등록되지|인증이 만료|취소/.test(e.message||'')){clearDeviceCredential();showDeviceGate('기기 사용권한이 만료되었거나 취소되었습니다. 다시 등록해 주세요.')}}}finally{syncBusy=false}
 }
-async function saveToDrive(silent=false){if(!requireDrive())return;setDriveMeta('driveLocalDirty','1');try{await pushLocal(null,silent)}catch(e){console.error(e);setDriveStatus(e.message);if(!silent)alert('공용저장소 저장 실패\n'+e.message)}}
-async function loadFromDrive(){if(!requireDrive())return;try{const remote=await fetchRemote();if(!remote.file)return alert('아직 공용저장소에 저장된 작업일보 데이터가 없습니다.');if(!confirm('공용저장소의 자료로 이 기기의 작업일보 데이터를 갱신할까요?\n현재 로컬 자료는 공용저장소 자료로 바뀝니다.'))return;applyRemoteData(remote.data,remote.stamp);alert('공용저장소 자료를 불러왔습니다.');location.reload()}catch(e){setDriveStatus(e.message);alert('공용저장소 불러오기 실패\n'+e.message)}}
+async function saveToDrive(silent=false){if(!isMasterDevice())return alert('공용저장소 저장은 마스터 기기에서만 가능합니다.');if(!requireDrive())return;setDriveMeta('driveLocalDirty','1');try{await pushLocal(null,silent)}catch(e){console.error(e);setDriveStatus(e.message);if(!silent)alert('공용저장소 저장 실패\n'+e.message)}}
+async function loadFromDrive(){if(!isMasterDevice())return alert('수동 불러오기는 마스터 기기에서만 가능합니다. 일반 기기는 자동으로 최신 자료를 조회합니다.');if(!requireDrive())return;try{const remote=await fetchRemote();if(!remote.file)return alert('아직 공용저장소에 저장된 작업일보 데이터가 없습니다.');if(!confirm('공용저장소의 자료로 이 기기의 작업일보 데이터를 갱신할까요?\n현재 로컬 자료는 공용저장소 자료로 바뀝니다.'))return;applyRemoteData(remote.data,remote.stamp);alert('공용저장소 자료를 불러왔습니다.');location.reload()}catch(e){setDriveStatus(e.message);alert('공용저장소 불러오기 실패\n'+e.message)}}
 function restoreDriveClientId(){syncPublicStoreSettingsUI();setDriveStatus(tokenValid()?'등록기기 인증 확인 중...':'기기등록 필요')}
 setTimeout(restoreDriveClientId,0);
 
 // ===== 기기등록 / 관리자 인증 =====
-function clearDeviceCredential(){localStorage.removeItem(DEVICE_TOKEN_KEY);localStorage.removeItem(DEVICE_ROLE_KEY);updateAdminSecurityButtons()}
+function clearDeviceCredential(){localStorage.removeItem(DEVICE_TOKEN_KEY);localStorage.removeItem(DEVICE_ROLE_KEY);localStorage.removeItem(DEVICE_PROJECTS_KEY);updateAdminSecurityButtons();applyDevicePermissions()}
 function showDeviceGate(message=''){
   const gate=$('passwordGate');if(gate)gate.style.display='flex';document.body.classList.add('locked');
   const m=$('deviceGateMessage');if(m&&message)m.textContent=message;
@@ -3481,11 +3518,46 @@ function hideDeviceGate(){
 }
 function setDeviceGateError(msg){const e=$('passwordError');if(e)e.textContent=msg||''}
 function updateAdminSecurityButtons(){
-  const admin=getDeviceRole()==='admin';document.querySelectorAll('.admin-only-security').forEach(el=>el.classList.toggle('visible',admin));
+  const admin=isMasterDevice();document.querySelectorAll('.admin-only-security').forEach(el=>el.classList.toggle('visible',admin));
 }
+function applyProjectAccessUI(){
+  const master=isMasterDevice(), allowed=getDeviceProjects();
+  document.querySelectorAll('.project-tree-node[data-project-node]').forEach(node=>{const p=node.getAttribute('data-project-node');node.style.display=(master||allowed.includes(p))?'':'none'});
+  document.querySelectorAll('.project-tree-children button[data-page="master"]').forEach(btn=>btn.style.display=master?'':'none');
+  document.querySelectorAll('#siteHome .site-card').forEach(btn=>{
+    const oc=btn.getAttribute('onclick')||'';const m=oc.match(/enterProjectPage\('([^']+)'/);
+    if(m)btn.style.display=(master||allowed.includes(m[1]))?'':'none';
+    else if(btn.classList.contains('site-add'))btn.style.display=master?'':'none';
+  });
+}
+function applyDevicePermissions(){
+  const registered=tokenValid(), master=isMasterDevice(), readonly=registered&&!master;
+  document.body.classList.toggle('read-only-user',readonly);
+  const badge=$('readOnlyBadge');if(badge)badge.classList.toggle('visible',readonly);
+  applyProjectAccessUI();updateAdminSecurityButtons();
+  // 일반 기기는 작업일보를 조회만 할 수 있다. 미리보기 복사/접기와 기존 주간·연장 탭 조회만 허용.
+  const write=$('writePage');
+  if(write){
+    write.querySelectorAll('input,select,textarea').forEach(el=>{if(readonly){el.dataset.roleDisabled='1';el.disabled=true}else if(el.dataset.roleDisabled==='1'){el.disabled=false;delete el.dataset.roleDisabled}});
+    write.querySelectorAll('button').forEach(el=>{
+      const allow=el.classList.contains('preview-copy-btn')||el.classList.contains('preview-toggle')||el.classList.contains('work-mode-btn');
+      if(readonly&&!allow){el.dataset.roleDisabled='1';el.disabled=true}else if(el.dataset.roleDisabled==='1'&&!currentReportLocked){el.disabled=false;delete el.dataset.roleDisabled}
+    });
+    const preview=$('preview');if(preview)preview.contentEditable=readonly?'false':(currentReportLocked?'false':'true');
+  }
+  // 검색·이력의 조회/검색/엑셀은 허용하지만 마감 변경은 금지.
+  document.querySelectorAll('#searchPage .report-close-btn').forEach(el=>{if(readonly){el.dataset.roleDisabled='1';el.disabled=true}else if(el.dataset.roleDisabled==='1'){el.disabled=false;delete el.dataset.roleDisabled}});
+  // 공용저장소 수동 저장/불러오기·로컬복구·설정 변경은 마스터만.
+  document.querySelectorAll('.local-backup-btn, button[onclick="saveToDrive()"], button[onclick="loadFromDrive()"], button[onclick="saveMasters()"], .mobile-quickbar .quick-save').forEach(el=>{el.style.display=readonly?'none':''});
+  if(readonly&&sessionStorage.getItem('activeProjectPage')==='master'){sessionStorage.setItem('activeProjectPage','search');if($('masterPage')&&$('masterPage').style.display!=='none')showPage('search',null)}
+  const active=sessionStorage.getItem('activeProject');if(readonly&&active&&!canAccessProject(active)){sessionStorage.removeItem('activeProject');sessionStorage.removeItem('openProjectAfterReload');document.body.classList.add('site-home-mode')}
+}
+function selectedNewDeviceProjects(){return Array.from(document.querySelectorAll('#newDeviceProjectPicker input[type="checkbox"]:checked')).map(x=>x.value).filter(x=>PROJECTS.includes(x))}
+function selectedProjectsForDevice(deviceId){return Array.from(document.querySelectorAll(`.device-project-editor input[data-device-id="${deviceId}"]:checked`)).map(x=>x.value).filter(x=>PROJECTS.includes(x))}
+
 function storeDeviceCredential(result,label){
   if(!result||!result.deviceToken)throw new Error('기기토큰을 받지 못했습니다.');
-  localStorage.setItem(DEVICE_TOKEN_KEY,result.deviceToken);localStorage.setItem(DEVICE_ROLE_KEY,result.role||'user');if(label)localStorage.setItem(DEVICE_LABEL_KEY,label);localStorage.removeItem(LEGACY_ACCESS_KEY);updateAdminSecurityButtons();
+  localStorage.setItem(DEVICE_TOKEN_KEY,result.deviceToken);localStorage.setItem(DEVICE_ROLE_KEY,result.role||'user');localStorage.setItem(DEVICE_PROJECTS_KEY,JSON.stringify(Array.isArray(result.allowedProjects)?result.allowedProjects:(result.role==='admin'?PROJECTS:[])));if(label)localStorage.setItem(DEVICE_LABEL_KEY,label);localStorage.removeItem(LEGACY_ACCESS_KEY);updateAdminSecurityButtons();applyDevicePermissions();
 }
 function currentDeviceLabel(){return (($('deviceLabelInput')&&$('deviceLabelInput').value)||localStorage.getItem(DEVICE_LABEL_KEY)||'').trim()||('기기 '+new Date().toLocaleDateString())}
 function toggleAdminLoginFields(){const el=$('adminLoginFields');if(!el)return;el.classList.toggle('open');if(el.classList.contains('open'))setTimeout(()=>$('adminLoginPassword')?.focus(),30)}
@@ -3503,14 +3575,27 @@ async function setupMasterPasswordFromGate(){
   try{const r=await publicPost('setupMasterPassword',{accessKey,newPassword:p1,deviceId:getDeviceId(),deviceLabel:label});storeDeviceCredential(r,label);['bootstrapAccessKey','newMasterPassword','newMasterPassword2'].forEach(id=>{if($(id))$(id).value=''});hideDeviceGate();setDriveStatus('마스터 비밀번호 설정 완료 · 관리자 기기 등록됨');setTimeout(()=>syncNow('master-setup'),400)}catch(e){setDeviceGateError(e.message)}
 }
 async function initDeviceGate(){
-  syncPublicStoreSettingsUI();showDeviceGate('기기 인증을 확인하고 있습니다...');setDeviceGateError('');
+  syncPublicStoreSettingsUI();setDeviceGateError('');
+  const hadToken=!!getDeviceToken();
   try{
     const hello=await jsonpGet('hello');
     const setup=$('masterSetupFields');if(setup)setup.classList.toggle('open',hello.masterConfigured===false);
-    const msg=$('deviceGateMessage');if(msg)msg.textContent=hello.masterConfigured===false?'관리자 초기 설정이 필요합니다. 마스터 비밀번호를 먼저 만들어 주세요.':'등록된 기기는 자동으로 로그인됩니다. 처음 사용하는 기기는 관리자에게 받은 6자리 등록코드를 입력하세요.';
-    if(!getDeviceToken())return;
-    try{const r=await publicPost('ping',authPayload());if(r.role)localStorage.setItem(DEVICE_ROLE_KEY,r.role);updateAdminSecurityButtons();hideDeviceGate();setDriveStatus('공용저장소 연결됨 · 최신자료 확인 중...');setTimeout(()=>syncNow('startup'),500)}catch(e){clearDeviceCredential();setDeviceGateError('이 기기의 등록이 만료되었거나 취소되었습니다. 다시 등록해 주세요.')}
-  }catch(e){setDeviceGateError('공용저장소 연결 확인 실패: '+e.message)}
+    const normalMessage=hello.masterConfigured===false?'관리자 초기 설정이 필요합니다. 마스터 비밀번호를 먼저 만들어 주세요.':'등록된 기기는 자동으로 로그인됩니다. 처음 사용하는 기기는 관리자에게 받은 6자리 등록코드를 입력하세요.';
+    const msg=$('deviceGateMessage');if(msg)msg.textContent=normalMessage;
+    // 등록 토큰이 없는 새 기기만 등록 화면을 표시한다.
+    if(!hadToken){showDeviceGate(normalMessage);return;}
+    // 기존 등록 기기는 등록 화면을 띄우지 않고 뒤에서 조용히 인증한다.
+    try{
+      const r=await publicPost('ping',authPayload());
+      if(r.role){localStorage.setItem(DEVICE_ROLE_KEY,r.role);localStorage.setItem(DEVICE_PROJECTS_KEY,JSON.stringify(Array.isArray(r.allowedProjects)?r.allowedProjects:(r.role==='admin'?PROJECTS:[])))}
+      updateAdminSecurityButtons();applyDevicePermissions();hideDeviceGate();setDriveStatus('공용저장소 연결됨 · 최신자료 확인 중...');setTimeout(()=>syncNow('startup'),500);
+    }catch(e){
+      clearDeviceCredential();showDeviceGate('이 기기의 등록이 만료되었거나 취소되었습니다. 다시 등록해 주세요.');setDeviceGateError(e.message||'기기 인증에 실패했습니다.');
+    }
+  }catch(e){
+    // 서버 확인 자체가 실패한 경우에만 화면을 띄워 상태를 알린다.
+    showDeviceGate('공용저장소 연결을 확인할 수 없습니다. 네트워크와 서버 상태를 확인해 주세요.');setDeviceGateError('공용저장소 연결 확인 실패: '+e.message);
+  }
 }
 
 function openDeviceAdminDialog(focusChange=false){
@@ -3526,11 +3611,19 @@ async function loadDeviceAdminList(){
 function renderDeviceAdminList(devices){
   const wrap=$('deviceAdminListWrap');if(!wrap)return;const me=getDeviceId();
   if(!devices.length){wrap.innerHTML='<div style="font-size:12px;color:#66788c;padding:8px 0">등록된 기기가 없습니다.</div>';return}
-  wrap.innerHTML='<table class="device-admin-list"><thead><tr><th>기기명</th><th>권한</th><th>최근사용</th><th>관리</th></tr></thead><tbody>'+devices.map(d=>{const last=d.lastSeen?new Date(d.lastSeen).toLocaleString():'-';const role=d.role==='admin'?'관리자':'사용자';const own=d.deviceId===me;return `<tr><td>${esc(d.label||d.deviceId)}${own?' <b>(현재)</b>':''}</td><td>${role}</td><td>${esc(last)}</td><td>${own?'-':`<button class="btn" type="button" onclick="revokeRegisteredDevice('${esc(d.deviceId)}')">차단</button>`}</td></tr>`}).join('')+'</tbody></table>';
+  wrap.innerHTML='<table class="device-admin-list"><thead><tr><th>기기명</th><th>권한</th><th>허용 현장</th><th>최근사용</th><th>관리</th></tr></thead><tbody>'+devices.map(d=>{
+    const last=d.lastSeen?new Date(d.lastSeen).toLocaleString():'-';const master=d.role==='admin';const role=master?'마스터':'읽기전용';const own=d.deviceId===me;const allowed=master?PROJECTS:(Array.isArray(d.allowedProjects)?d.allowedProjects:[]);
+    const editor=master?'<b>전체 현장</b>':`<div class="device-project-editor">${PROJECTS.map(p=>`<label><input type="checkbox" data-device-id="${esc(d.deviceId)}" value="${esc(p)}" ${allowed.includes(p)?'checked':''}>${esc(p)}</label>`).join('')}<button class="btn" type="button" onclick="updateRegisteredDeviceProjects('${esc(d.deviceId)}')">권한저장</button></div>`;
+    return `<tr><td>${esc(d.label||d.deviceId)}${own?' <b>(현재)</b>':''}</td><td>${role}</td><td>${editor}</td><td>${esc(last)}</td><td>${own?'-':`<button class="btn" type="button" onclick="revokeRegisteredDevice('${esc(d.deviceId)}')">차단</button>`}</td></tr>`
+  }).join('')+'</tbody></table>';
 }
 async function createDeviceRegistrationCode(){
-  const pw=adminPasswordValue();if(!pw)return setDeviceAdminStatus('마스터 비밀번호를 입력하세요.');setDeviceAdminStatus('등록코드 생성 중...');
-  try{const r=await publicPost('adminCreateCode',authPayload({masterPassword:pw}));const b=$('registrationCodeBox');if(b){b.textContent=`등록코드 ${r.registrationCode} · ${r.expiresMinutes||10}분간 1회 사용`;b.classList.add('show')}setDeviceAdminStatus('이 코드만 새 기기 사용자에게 전달하세요. 마스터 비밀번호는 공유하지 마세요.')}catch(e){setDeviceAdminStatus(e.message)}
+  const pw=adminPasswordValue();if(!pw)return setDeviceAdminStatus('마스터 비밀번호를 입력하세요.');const allowedProjects=selectedNewDeviceProjects();if(!allowedProjects.length)return setDeviceAdminStatus('새 기기가 볼 현장을 1개 이상 선택하세요.');setDeviceAdminStatus('등록코드 생성 중...');
+  try{const r=await publicPost('adminCreateCode',authPayload({masterPassword:pw,allowedProjects}));const b=$('registrationCodeBox');if(b){b.textContent=`등록코드 ${r.registrationCode} · ${r.expiresMinutes||10}분간 1회 사용 · ${allowedProjects.join(', ')}`;b.classList.add('show')}setDeviceAdminStatus('이 코드만 새 기기 사용자에게 전달하세요. 등록된 기기는 선택 현장만 읽기 전용으로 볼 수 있습니다.')}catch(e){setDeviceAdminStatus(e.message)}
+}
+async function updateRegisteredDeviceProjects(deviceId){
+  const pw=adminPasswordValue();if(!pw)return setDeviceAdminStatus('마스터 비밀번호를 입력하세요.');const allowedProjects=selectedProjectsForDevice(deviceId);if(!allowedProjects.length&&!confirm('이 기기의 현장 조회권한을 모두 제거할까요?'))return;
+  try{await publicPost('adminUpdateDeviceProjects',authPayload({masterPassword:pw,targetDeviceId:deviceId,allowedProjects}));setDeviceAdminStatus('현장 조회권한을 변경했습니다.');await loadDeviceAdminList()}catch(e){setDeviceAdminStatus(e.message)}
 }
 async function revokeRegisteredDevice(deviceId){
   const pw=adminPasswordValue();if(!pw)return setDeviceAdminStatus('마스터 비밀번호를 입력하세요.');if(!confirm('이 기기의 공용저장소 사용권한을 차단할까요?'))return;
@@ -3550,6 +3643,9 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 document.addEventListener('DOMContentLoaded',()=>{
   const code=$('deviceRegisterCode');if(code)code.addEventListener('keydown',e=>{if(e.key==='Enter')registerThisDevice()});
   const ap=$('adminLoginPassword');if(ap)ap.addEventListener('keydown',e=>{if(e.key==='Enter')adminLoginThisDevice()});
+  applyDevicePermissions();
+  const observer=new MutationObserver(()=>{if(tokenValid())applyDevicePermissions()});
+  const write=$('writePage'),results=$('results');if(write)observer.observe(write,{childList:true,subtree:true});if(results)observer.observe(results,{childList:true,subtree:true});
   initDeviceGate();
 });
 window.addEventListener('storage',e=>{
@@ -3602,6 +3698,7 @@ function makeCurrentModeDraft(){
     workType:currentWorkType,overtimeNo:currentWorkType==='overtime'?(+currentOvertimeNo||1):0,state:JSON.parse(JSON.stringify(state))};
 }
 function stashModeDraft(){
+  if(!isMasterDevice())return;
   if(!$('date')||sessionStorage.getItem('projectSwitching')==='1')return;
   if(isCurrentStoredReportClosed())return;
   const drafts=getModeDrafts();drafts[currentModeKey()]=makeCurrentModeDraft();setModeDrafts(drafts);
@@ -3656,6 +3753,7 @@ function switchWorkMode(type,no=0){
   updateWorkModeTabs();syncReportLockForCurrentDate();
 }
 function createOvertime(){
+  if(!isMasterDevice())return alert('읽기 전용 기기에서는 연장을 생성할 수 없습니다.');
   if(!$('date'))return;
   stashModeDraft();
   const date=$('date').value,site=$('site').value,trade=$('trade').value;
@@ -3677,6 +3775,7 @@ function hasMeaningfulReportData(r){
   return false;
 }
 function deleteOvertimeRecord(date,site,trade,no,fromSearch=false){
+  if(!isMasterDevice())return alert('읽기 전용 기기에서는 삭제할 수 없습니다.');
   const n=+no||1;
   const saved=findSavedReport(date,site,trade,'overtime',n),draft=findModeDraft(date,site,trade,'overtime',n),data=saved||draft;
   if(saved&&saved.closed===true){alert('마감된 연장 작업일보입니다. 먼저 마감을 해제한 뒤 삭제해 주세요.');return false}
@@ -3714,6 +3813,7 @@ function toggleCurrentReportClosed(){
   toggleReportClosed(date,site,trade,currentWorkType,currentOvertimeNo);
 }
 async function toggleReportClosed(date,site,trade,type='weekly',no=0){
+  if(!isMasterDevice())return alert('마감 변경은 마스터 기기에서만 가능합니다.');
   const wt=type==='overtime'?'overtime':'weekly', n=wt==='overtime'?(+no||1):0;
   let reports=safeParseJSON(projectGet('reports'),[])||[];
   let indexes=[];
@@ -3776,6 +3876,7 @@ function moveWorkDate(days){
   if(r)applyReportLike(r,'weekly',0);else{$('start').value='07:30';$('end').value='17:00';currentReportLocked=false;clearDailyValuesForDateMove();render();autoSave()}
 }
 function autoSave(){
+  if(!isMasterDevice())return;
   if(sessionStorage.getItem('projectSwitching')==='1'||!$('date'))return;
   if(isCurrentStoredReportClosed())return;
   const d=makeCurrentModeDraft();projectSet('currentDraft',JSON.stringify(d));
@@ -3811,6 +3912,7 @@ function saveReport(){
   alert('보고서로 저장했습니다.'+(tokenValid()?'\n공용저장소 자동 동기화를 시작했습니다.':''));
 }
 function copyPreviousDay(){
+  if(!isMasterDevice())return alert('읽기 전용 기기에서는 자료를 복사할 수 없습니다.');
   if(!requireReportEditable()||!$('date'))return;let currentDate=$('date').value,d=new Date(currentDate+'T00:00:00');if(isNaN(d))return alert('작업일을 먼저 선택해 주세요.');
   d.setDate(d.getDate()-1);const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'),prev=`${y}-${m}-${day}`;
   const r=findSavedReport(prev,$('site').value,$('trade').value,'weekly',0);if(!r)return alert('전일 저장된 주간 보고서가 없습니다.');
@@ -3851,6 +3953,7 @@ async function searchReports(){
       const dateCell=dateUsed[x.r.date]?'':`<td rowspan="${dateCounts[x.r.date]}"><button type="button" class="date-link-btn" onclick="openReportFromSearch('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}','${x.workType}',${x.overtimeNo})">${esc(x.r.date)}</button></td>`;dateUsed[x.r.date]=true;
       return `<tr class="${x.workType==='overtime'?'search-overtime-row':''}">${dateCell}<td class="type-cell"><button type="button" class="date-link-btn" onclick="openReportFromSearch('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}','${x.workType}',${x.overtimeNo})">${esc(x.typeLabel)}</button></td><td>${esc(x.r.site)}</td><td>${esc(x.r.trade)}</td><td>${esc(x.r.bpa||'')}</td><td class="num-cell">${x.total}명</td><td>${esc(x.companyText||'-')}</td><td>${esc(x.equipment||'-')}</td><td class="work-cell">${esc(x.work||'-')}</td><td><button type="button" class="report-close-btn ${x.r.closed?'closed':''}" title="${x.r.closed?'마감 해제':'보고서 마감'}" onclick="event.stopPropagation();toggleReportClosed('${esc(x.r.date)}','${esc(x.r.site)}','${esc(x.r.trade)}','${x.workType}',${x.overtimeNo})">마감</button></td></tr>`;
     }).join('')}</tbody></table></div>`;
+    applyDevicePermissions();
   }catch(e){console.error('검색 오류',e);$('results').innerHTML='<div style="padding:10px;color:#c62828;font-weight:700">검색 오류: '+esc(e.message||String(e))+'</div>'}
 }
 function openReportFromSearch(date,site,trade,type='weekly',no=0){
