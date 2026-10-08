@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>우리공 일보</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>우공이산 일보</title>
 <style>
 :root{--nav:#12365f;--blue:#0878f9;--line:#dbe6f2;--bg:#f4f8fc;--text:#13233a}*{box-sizing:border-box}body{margin:0;font-family:Arial,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text)}header{height:58px;background:var(--nav);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-weight:700}.app{display:grid;grid-template-columns:180px 1fr;min-height:calc(100vh - 58px)}aside{background:#14385f;color:#fff;padding:14px 10px}aside button{display:block;width:100%;border:0;background:transparent;color:#fff;text-align:left;padding:12px;border-radius:8px;margin:3px 0;font-size:14px}aside button.active,aside button:hover{background:var(--blue)}main{padding:14px}.grid{display:grid;grid-template-columns:minmax(600px,1.5fr) minmax(360px,.9fr);gap:14px}.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:12px;box-shadow:0 1px 2px #00000008}.title{display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:18px;margin-bottom:10px}.n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;margin-right:8px}.row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.field label{font-size:12px;font-weight:700;display:block;margin-bottom:5px}.field input,.field select,textarea{width:100%;padding:9px;border:1px solid #cbd9e8;border-radius:7px;background:#fff}.btn{border:1px solid #9dc5f7;background:#fff;color:#0672e8;border-radius:7px;padding:8px 12px;font-weight:700;cursor:pointer}.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}table{width:100%;border-collapse:collapse;font-size:13px}th,td{border:1px solid var(--line);padding:6px;text-align:center}th{background:#f2f7fc}td input{width:60px;padding:6px;border:1px solid #d4e0ed;border-radius:5px}.company{border:1px solid var(--line);border-radius:8px;padding:8px;margin:8px 0}.company-head{display:flex;align-items:center;gap:6px;font-weight:800}.company-name{width:120px!important;flex:0 0 120px}.company-total{margin-left:auto;white-space:nowrap}.jobs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.jobs label{font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:4px;white-space:nowrap}.jobs input{width:48px;max-width:48px;padding:6px 3px;border:1px solid #d4e0ed;border-radius:5px;text-align:center}.total{font-weight:900;color:#0672e8}.area{border:1px solid var(--line);border-radius:8px;padding:9px;margin:8px 0}.area-head{display:grid;grid-template-columns:1fr 1.5fr auto;gap:7px}.subtask{display:flex;gap:6px;margin:6px 0}.subtask input{flex:1}.preview{white-space:pre-wrap;line-height:1.75;font-size:14px;min-height:660px;border:1px solid var(--line);border-radius:8px;padding:14px;background:#fff}.search-panel{display:none}.search-panel.active{display:block}.results{margin-top:10px}.result{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;margin:6px 0}.manager-scroll{width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding-bottom:5px}.manager-table{table-layout:auto;min-width:650px}.manager-table .manager-name-col{width:1%}.manager-table .manager-role-col{width:1%}.manager-table .manager-phone-col{width:135px}.manager-table .manager-action-col{width:1%}.manager-table th:nth-child(1),.manager-table td:nth-child(1),.manager-table th:nth-child(2),.manager-table td:nth-child(2),.manager-table th:nth-child(4),.manager-table td:nth-child(4){white-space:nowrap}.manager-table td:nth-child(1) input{min-width:72px;width:max-content}.manager-table td:nth-child(2) input{min-width:82px;width:max-content}.manager-table td:nth-child(3) input{width:128px;min-width:128px;max-width:128px}.manager-table td:nth-child(4){white-space:nowrap}
 .mobile-only{display:none}@media(max-width:850px){
@@ -46,8 +46,8 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
 }
 
 .counter{display:inline-flex;align-items:center;gap:2px;white-space:nowrap}.counter input{width:42px!important;text-align:center;padding:5px 2px!important}.counter button{width:24px;height:28px;padding:0!important;border:1px solid #cbd5e1;background:#fff;border-radius:5px;font-weight:800;cursor:pointer}.counter button:active{background:#e8f1ff}
-.zone-master-row{display:grid;grid-template-columns:minmax(120px,1fr) minmax(150px,1.4fr) auto;gap:6px;margin-bottom:6px}.zone-master-row input{width:100%}
-@media(max-width:600px){.zone-master-row{grid-template-columns:1fr 1.2fr auto}.counter input{width:40px!important}.counter button{width:23px}}
+.zone-master-row{display:grid;grid-template-columns:minmax(110px,1fr) minmax(150px,1.4fr) minmax(100px,1fr) auto;gap:6px;margin-bottom:6px}.zone-master-row input{width:100%}
+@media(max-width:600px){.zone-master-row{grid-template-columns:minmax(72px,1fr) minmax(105px,1.4fr) minmax(80px,1fr) auto;gap:4px}.zone-master-row input{min-width:0;font-size:12px;padding:6px 4px}.zone-master-row .btn{padding:5px 4px!important}.counter input{width:40px!important}.counter button{width:23px}}
 
 /* PC: 숫자 입력은 브라우저 기본 number spinner(위/아래 화살표) 사용 */
 @media(min-width:851px){
@@ -1581,6 +1581,46 @@ body.report-is-closed #writePage textarea:disabled{
 .project-access-picker{display:grid;gap:6px;padding:9px;border:1px solid #dbe6f2;border-radius:8px;background:#f8fbff;margin:7px 0 10px}.project-permission-row{display:grid;grid-template-columns:minmax(100px,1fr) 86px 86px;gap:8px;align-items:center;padding:5px 7px;border:1px solid #e3ebf4;border-radius:7px;background:#fff}.project-permission-row.header{font-size:11px;font-weight:800;color:#5c7087;background:#eef5fb}.project-permission-row>span:first-child{font-weight:800;color:#12365f}.project-permission-row label{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-size:11px;font-weight:700;white-space:nowrap}.project-permission-row input{width:auto!important;margin:0!important}.device-project-editor{display:grid;gap:5px;min-width:285px}.device-project-editor .project-permission-row{grid-template-columns:minmax(86px,1fr) 72px 72px;padding:4px 5px}.device-project-editor input{width:auto!important}.readonly-badge{display:none;background:#fff2cc;border:1px solid #e6c65c;color:#795b00;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:800}.readonly-badge.visible{display:inline-block}.read-only-user #masterPage{display:none!important}
 @media(max-width:850px){.device-gate-row{align-items:stretch;flex-direction:column}.security-grid{grid-template-columns:1fr}.device-admin-list{font-size:11px}.device-project-editor{min-width:220px}}
 
+
+/* Slack/작업일보 미리보기 형식 탭 — PC·모바일 공통 */
+.preview-tabs{display:inline-flex;align-items:center;gap:3px;margin-left:4px;border-radius:6px;background:#eef4fa;padding:3px}
+.preview-tab{cursor:pointer;border:0;border-radius:5px;padding:5px 9px;color:#496279;background:transparent;font-size:12px;font-weight:700}
+.preview-tab.active{background:#0878f9;color:#fff}
+.desktop-preview .card > #slackPreview{min-height:0;flex:1;overflow:auto;font-size:14px!important;line-height:1.5!important;font-family:Arial,'Noto Sans KR',sans-serif}
+@media(max-width:850px){.preview-title-row{flex-wrap:wrap!important}.preview-tabs{order:2}.preview-copy-btn{order:3}.preview-toggle{order:4}.preview-tab{font-size:12px;padding:7px 10px}}
+@media(min-width:851px){#writePage>.grid.preview-collapsed #slackPreview,#writePage>.grid.preview-collapsed .preview-tabs{display:none!important}}
+
+/* 2026-10-08: 구역 / 위치 / 자유 비고를 한 줄로 유지 (PC+모바일) */
+#areas .area .area-meta{display:grid!important;grid-template-columns:minmax(75px,1fr) minmax(105px,1.45fr) minmax(90px,1fr) auto!important;grid-template-rows:auto!important;gap:5px!important;align-items:center!important}
+#areas .area .area-name-input{grid-column:1!important;grid-row:1!important}
+#areas .area .area-location-input{grid-column:2!important;grid-row:1!important}
+#areas .area .area-note-input{grid-column:3!important;grid-row:1!important;width:100%!important;min-width:0!important;padding:5px 7px;border:1px solid #cbd9e8;border-radius:5px;background:#fff;color:#13233a;font-size:12px}
+#areas .area .area-delete-btn{grid-column:4!important;grid-row:1!important;min-width:38px!important}
+@media(max-width:850px){#areas .area .area-meta{grid-template-columns:minmax(66px,1fr) minmax(90px,1.4fr) minmax(72px,1fr) 38px!important;gap:3px!important}#areas .area .area-note-input{font-size:13px;padding:7px 4px!important}#areas .area .area-delete-btn{width:38px!important;min-width:38px!important;padding:5px 2px!important}}
+@media(max-width:400px){#areas .area .area-meta{grid-template-columns:minmax(63px,1fr) minmax(80px,1.2fr) minmax(64px,.9fr) 36px!important}#areas .area .area-delete-btn{width:36px!important;min-width:36px!important}}
+
+/* Slack 형식: 원본 줄 간격과 들여쓰기, PC/모바일 동일 */
+#slackPreview .slack-preview-line{display:block;white-space:pre-wrap;min-height:1.28em;margin:0;padding:0;line-height:1.28}
+#slackPreview{line-height:1.28!important;white-space:pre-wrap!important;font-size:14px!important;font-family:Arial,'Noto Sans KR',sans-serif!important}
+.slack-extra-fields{grid-template-columns:1fr;gap:5px;margin:5px 0;font-size:11px;font-weight:700}
+.slack-extra-fields label{display:flex;align-items:center;gap:6px}
+.slack-extra-fields input{flex:1;min-width:0;padding:5px;border:1px solid #cbd9e8;border-radius:5px;font-size:12px;font-weight:400}
+
+/* 2026-10-08: Slack 표시만 보정 — 고정 작업시간 / 체크 이미지 / 위험·특이사항 빨간색 */
+#slackFields label {color:#d32222!important;}
+#slackFields label:has(#slackRiskInput) {color:#13233a!important;}
+#slackFields input {color:#d32222!important;}
+#slackRiskInput {color:#13233a!important;}
+#slackPreview .slack-alert-line {color:#d32222!important;}
+#slackPreview .slack-check-text {font-size:14px;vertical-align:baseline;user-select:text;-webkit-user-select:text;}
+#start:read-only,#end:read-only{cursor:default;}
+
+/* 미리보기의 복사 버튼을 접기/펼치기 화살표 바로 왼쪽에 고정 */
+.preview-title-row .preview-copy-btn{margin-left:auto!important;flex:0 0 auto!important;order:3!important}
+.preview-title-row .preview-toggle{margin-left:0!important;flex:0 0 auto!important;order:4!important}
+.preview-title-row .preview-title-text{order:1!important}
+.preview-title-row .preview-tabs{order:2!important}
+@media(max-width:850px){.preview-title-row .preview-copy-btn{margin-left:auto!important}}
 </style><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
 <body class="locked site-home-mode"><section id="siteHome" aria-label="현장 선택">
   <div class="site-home-inner site-home-simple">
@@ -1624,7 +1664,7 @@ body.report-is-closed #writePage textarea:disabled{
     </button>
   </div>
 </section><div id="passwordGate"><div class="password-box">
-  <h2>🔐 우리공 일보 기기등록</h2>
+  <h2>🔐 우공이산 일보 기기등록</h2>
   <p id="deviceGateMessage" class="device-gate-help">등록된 기기는 자동으로 로그인됩니다. 처음 사용하는 기기는 관리자에게 받은 6자리 등록코드를 입력하세요.</p>
   <input id="deviceLabelInput" type="text" maxlength="60" autocomplete="off" placeholder="기기 이름 (예: 현장사무실 PC)">
   <input id="deviceRegisterCode" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="6자리 기기 등록코드">
@@ -1774,9 +1814,9 @@ body.report-is-closed #writePage textarea:disabled{
 </div><div class="input-col middle-col"><div class="card"><div class="title"><span><span class="n">4</span>금일 작업 내용</span><button class="btn primary" onclick="addArea()">+ 구역 추가</button></div><div id="areas"></div></div>
 <div class="card"><div class="title"><span><span class="n">5</span>담당자</span><button class="btn" onclick="addManager()">+ 담당자 추가</button></div><div class="manager-scroll"><table class="manager-table"><colgroup><col class="manager-visibility-col"><col class="manager-name-col"><col class="manager-role-col"><col class="manager-phone-col"><col class="manager-action-col"></colgroup><thead><tr><th></th><th>이름</th><th>직책</th><th>전화번호</th><th>관리</th></tr></thead><tbody id="managers"></tbody></table></div></div>
 </div>
-<div class="desktop-preview"><div class="card"><div class="title preview-title-row"><span class="preview-title-text">작업보고 미리보기</span><button class="btn preview-copy-btn" onclick="copyPreview()">복사하기</button><button class="btn preview-toggle" type="button" title="미리보기 접기/펼치기" onclick="togglePreview()">◀</button></span></div><div id="preview" class="preview" contenteditable="true"></div></div></div></div></section>
+<div class="desktop-preview"><div class="card"><div class="title preview-title-row"><span class="preview-title-text">미리보기</span><span class="preview-tabs" role="tablist" aria-label="미리보기 형식"><button type="button" class="preview-tab active" id="reportTab" role="tab" aria-selected="true" onclick="selectPreviewTab('report')">작업일보</button><button type="button" class="preview-tab" id="slackTab" role="tab" aria-selected="false" onclick="selectPreviewTab('slack')">Slack</button></span><button class="btn preview-copy-btn" onclick="copyPreview()">복사하기</button><button class="btn preview-toggle" type="button" title="미리보기 접기/펼치기" onclick="togglePreview()">◀</button></span></div><div id="preview" class="preview" contenteditable="true"></div><div id="slackFields" class="slack-extra-fields" style="display:none"><label>주요위험요소 <input id="slackRiskInput" type="text" oninput="saveSlackFields()" placeholder="주요위험요소"></label><label>특이사항 <input id="slackSpecialInput" type="text" oninput="saveSlackFields()" placeholder="특이사항"></label></div><div id="slackPreview" class="preview" role="tabpanel" contenteditable="true" style="display:none"></div></div></div></div></section>
 <section id="searchPage" class="search-panel"><div class="card"><div class="title"><span>검색 / 이력 조회</span></div><div class="row"><div class="field"><label>검색 유형</label><select id="searchType" onchange="updateSearchHint()"><option value="keyword">작업내용</option><option value="equipment">장비</option><option value="trade">공종</option><option value="job">직종</option><option value="area">구역</option></select></div><div class="field"><label id="queryLabel">작업내용 검색어</label><input id="query" placeholder="비워두면 전체 목록"><select id="querySelect" style="display:none"></select></div><div class="field"><label>시작일</label><input id="from" type="date"></div><div class="field"><label>종료일</label><input id="to" type="date"></div></div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px"><button class="btn primary" onclick="searchReports()">검색</button><button class="btn" type="button" onclick="downloadSearchExcel()">📥 엑셀 다운로드(상세)</button><button class="btn" type="button" onclick="downloadSearchScreenExcel()">📥 엑셀 다운로드(검색화면)</button><button class="btn" type="button" onclick="resetSearch()">↻ 새로고침</button></div><div id="results" class="results"></div></div></section>
-<section id="masterPage" class="search-panel"><div class="card"><div class="title">기준정보 관리</div><p>앱 타이틀과 기준정보를 수정한 뒤 저장하세요. 저장 즉시 PC·모바일 화면에 반영됩니다.</p><div class="field"><label>앱 타이틀</label><input id="masterAppTitle" maxlength="40" placeholder="예: SK 용인 작업일보"></div><div class="field"><label>현장</label><input id="masterSites"></div><div class="field"><label>공종</label><input id="masterTrades"></div><div class="field"><label>직종</label><input id="masterJobs"></div><div class="field"><label>장비</label><input id="masterEquipment"></div><div class="field"><label>구역 / 위치범위</label><div id="masterZones"></div><button class="btn" type="button" onclick="addMasterZone()">+ 구역 추가</button></div><div class="field"><label>담당</label><textarea id="masterManagers" rows="5" placeholder="한 줄에 1명: 이름 | 직책 | 전화번호"></textarea></div><div class="card" style="margin-top:14px;background:#f8fbff">
+<section id="masterPage" class="search-panel"><div class="card"><div class="title">기준정보 관리</div><p>앱 타이틀과 기준정보를 수정한 뒤 저장하세요. 저장 즉시 PC·모바일 화면에 반영됩니다.</p><div class="field"><label>앱 타이틀</label><input id="masterAppTitle" readonly title="고정 앱 이름" maxlength="40" placeholder="예: SK 용인 작업일보"></div><div class="field"><label>현장</label><input id="masterSites"></div><div class="field"><label>공종</label><input id="masterTrades"></div><div class="field"><label>직종</label><input id="masterJobs"></div><div class="field"><label>장비</label><input id="masterEquipment"></div><div class="field"><label>구역 / 위치범위 / 비고</label><div id="masterZones"></div><button class="btn" type="button" onclick="addMasterZone()">+ 구역 추가</button></div><div class="field"><label>담당</label><textarea id="masterManagers" rows="5" placeholder="한 줄에 1명: 이름 | 직책 | 전화번호"></textarea></div><div class="card" style="margin-top:14px;background:#f8fbff">
 <div class="title" style="font-size:16px">☁ 공용저장소 자료 공유</div>
 <p style="font-size:13px;line-height:1.6;margin-top:0">Google 계정 없이 기기등록 방식으로 PC·휴대폰 작업일보를 공유합니다. 마스터 비밀번호는 서버에서만 검증하며 브라우저에는 저장하지 않습니다.</p>
 <div class="field"><label>공용저장소 웹앱 주소</label><div style="display:flex;gap:6px;align-items:center"><input id="publicStoreUrl" value="https://script.google.com/macros/s/AKfycby9z5m2ffZuzPFh2gEteaIpZq2hsJLRUJeSli-_xdTWF8stQu8ekixq1h8JeDDm_nJv/exec" placeholder="https://script.google.com/macros/s/.../exec"><button class="btn" type="button" onclick="savePublicStoreSettings()">주소 저장</button></div></div>
@@ -2095,7 +2135,7 @@ function makeSampleProject(name){
 
   return {
     masters:{
-      appTitle:'우리공 일보 - '+name,
+      appTitle:'우공이산 일보 - '+name,
       sites:[name],
       trades:['기계'],
       jobs:jobs,
@@ -2121,7 +2161,7 @@ function seedNonY1SampleProjects(){
 
 function makeProjectMasterSample(name){
   return {
-    appTitle:'우리공 일보 - '+name,
+    appTitle:'우공이산 일보 - '+name,
     sites:[name],
     trades:['기계'],
     jobs:['관리자','기계공','배관공','용접공','유도 및 화기','전기공','일반공','신호수','장비기사'],
@@ -2216,7 +2256,7 @@ function makeY1LiveReferenceData(){
   const jobs=['관리자','기계공','배관공','용접공','유도 및 화기','전기공','일반공'];
 
   const masters={
-    appTitle:'우리공 일보',
+    appTitle:'우공이산 일보',
     sites:['WWT','RWT'],
     trades:['기계','전기'],
     jobs:jobs,
@@ -2301,7 +2341,7 @@ function seedY1FromLiveReferenceV1(){
 
 function y1MasterFromUserImage(){
   return {
-    appTitle:'우리공 일보 Y1 IECO',
+    appTitle:'우공이산 일보 Y1 IECO',
     sites:['WWT'],
     trades:['기계','전기'],
     jobs:[
@@ -2420,7 +2460,7 @@ function refreshProjectTree(){
 
 window.addEventListener('beforeunload',saveActiveProject);
 
-const D={appTitle:'우리공 일보',sites:['WWT','RWT'],trades:['기계','전기'],jobs:['관리자','기계공','배관공','용접공','유도 및 화기','전기공','일반공'],equipment:['T/L','지게차','고소작업대'],zones:[{zone:'WWT 1F',loc:'X6~8, Y20~24'},{zone:'WWT B1F',loc:'X3~6, Y21~24'},{zone:'WWT 4F',loc:'X11~17, Y1~6'}],managers:[['지형근','현장소장','010-9349-2141'],['조현기','공사부장','010-4236-3120'],['양희몽','안전부장','010-2702-9467'],['김태연','안전과장','010-6690-5027']]};
+const D={appTitle:'우공이산 일보',sites:['WWT','RWT'],trades:['기계','전기'],jobs:['관리자','기계공','배관공','용접공','유도 및 화기','전기공','일반공'],equipment:['T/L','지게차','고소작업대'],zones:[{zone:'WWT 1F',loc:'X6~8, Y20~24'},{zone:'WWT B1F',loc:'X3~6, Y21~24'},{zone:'WWT 4F',loc:'X11~17, Y1~6'}],managers:[['지형근','현장소장','010-9349-2141'],['조현기','공사부장','010-4236-3120'],['양희몽','안전부장','010-2702-9467'],['김태연','안전과장','010-6690-5027']]};
 let state={companies:[],equipment:[],areas:[],managers:[]};
 
 let currentReportLocked=false;
@@ -2584,17 +2624,17 @@ async function toggleReportClosed(date,site,trade){
 }
 
 const $=id=>document.getElementById(id); const esc=s=>(s??'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-function normalizeZones(){D.zones=(D.zones||[]).map(z=>typeof z==='string'?{zone:z,loc:''}:z)}
+function normalizeZones(){D.zones=(D.zones||[]).map(z=>typeof z==='string'?{zone:z,loc:'',note:''}:{...z,note:z.note||''})}
 function applyAppTitle(){
-  let t=(D.appTitle||'우리공 일보').trim()||'우리공 일보';
+  let t='우공이산 일보';
   D.appTitle=t;
   const active=sessionStorage.getItem('activeProject')||'Y1 IECO';
-  const baseTitle='우리공 일보 -';
+  const baseTitle='우공이산 일보 -';
   let h=$('appTitleDisplay'),m=$('mobileAppTitle'),a=$('projectAccent');
   if(h)h.textContent=baseTitle;
   if(a)a.textContent=' '+active;
-  if(m)m.textContent='우리공 일보 - '+active;
-  document.title='우리공 일보 - '+active;
+  if(m)m.textContent='우공이산 일보 - '+active;
+  document.title='우공이산 일보 - '+active;
 }
 
 function getTodayLocalDate(){
@@ -2653,7 +2693,7 @@ function init(){
   if(m){
     Object.assign(D,m);
   }else if(activeProject!=='Y1 IECO'){
-    D.appTitle='우리공 일보 - '+activeProject;
+    D.appTitle='우공이산 일보 - '+activeProject;
     D.sites=[''];
     D.trades=[''];
     D.jobs=[];
@@ -2701,7 +2741,7 @@ function init(){
   window.addEventListener('beforeunload',autoSave);
 }
 function mkCompany(name){return{name,jobs:Object.fromEntries(D.jobs.map(j=>[j,0])),visibleJobs:[...D.jobs]}}
-function fillSelects(){ if($('masterAppTitle'))$('masterAppTitle').value=D.appTitle||'우리공 일보';$('site').innerHTML=D.sites.map(x=>`<option>${esc(x)}</option>`).join('');$('trade').innerHTML=D.trades.map(x=>`<option>${esc(x)}</option>`).join('');$('masterSites').value=D.sites.join(', ');$('masterTrades').value=D.trades.join(', ');$('masterJobs').value=D.jobs.join(', ');$('masterEquipment').value=D.equipment.join(', ');renderMasterZones();$('masterManagers').value=(D.managers||[]).map(m=>m.join(' | ')).join('\n')}
+function fillSelects(){ if($('masterAppTitle'))$('masterAppTitle').value='우공이산 일보';$('site').innerHTML=D.sites.map(x=>`<option>${esc(x)}</option>`).join('');$('trade').innerHTML=D.trades.map(x=>`<option>${esc(x)}</option>`).join('');$('masterSites').value=D.sites.join(', ');$('masterTrades').value=D.trades.join(', ');$('masterJobs').value=D.jobs.join(', ');$('masterEquipment').value=D.equipment.join(', ');renderMasterZones();$('masterManagers').value=(D.managers||[]).map(m=>m.join(' | ')).join('\n')}
 function render(){renderCompanies();renderEquipment();renderAreas();renderManagers();updatePreview();applyReportLockUI(currentReportLocked)}
 function normalizeCompanyJobs(c){
   c.jobs=c.jobs||{};
@@ -2784,6 +2824,7 @@ function renderAreas(){
   $('areas').innerHTML=state.areas.map((a,i)=>{
     if(a.zone===undefined)a.zone=a.name||'';
     if(a.loc===undefined)a.loc=a.location||'';
+    if(a.note===undefined)a.note='';
     if(!Array.isArray(a.tasks))a.tasks=[];
     if(a.tasks.length===0)a.tasks.push('');
     const master=zones.find(z=>z.zone===a.zone);
@@ -2796,6 +2837,7 @@ function renderAreas(){
             <option value="">구역명</option>${options}
           </select>
           <input class="area-location-input" value="${esc(a.loc||'')}" placeholder="위치" oninput="state.areas[${i}].loc=this.value;updatePreview()">
+          <input class="area-note-input" aria-label="비고" title="비고 직접 입력" value="${esc(a.note||'')}" placeholder="비고" oninput="state.areas[${i}].note=this.value;updatePreview()">
           <button class="btn area-delete-btn" onclick="state.areas.splice(${i},1);render()">삭제</button>
         </div>
         <div class="area-tasks">
@@ -2805,7 +2847,7 @@ function renderAreas(){
     </div>`;
   }).join('');
 }
-function addArea(){state.areas.push({zone:'',loc:'',tasks:['']});renderAreas()} function addTask(i){state.areas[i].tasks.push('');renderAreas()} function removeTask(i,k){if(state.areas[i].tasks.length>1)state.areas[i].tasks.splice(k,1);else state.areas[i].tasks[0]='';renderAreas();updatePreview()}
+function addArea(){state.areas.push({zone:'',loc:'',note:'',tasks:['']});renderAreas()} function addTask(i){state.areas[i].tasks.push('');renderAreas()} function removeTask(i,k){if(state.areas[i].tasks.length>1)state.areas[i].tasks.splice(k,1);else state.areas[i].tasks[0]='';renderAreas();updatePreview()}
 function refreshManagerMasters(){
   try{
     const m=JSON.parse(projectGet('masters')||'null');
@@ -2871,7 +2913,157 @@ function moveWorkDate(days){
     autoSave();
   }
 }
-function updatePreview(){$('preview').textContent=reportText();autoSave()}
+let activePreviewTab='report';
+function selectPreviewTab(tab){
+  activePreviewTab=tab==='slack'?'slack':'report';
+  initSlackFields();
+  if($('slackFields'))$('slackFields').style.display=activePreviewTab==='slack'?'grid':'none';
+  const report=$('preview'),slack=$('slackPreview');
+  if(report)report.style.display=activePreviewTab==='report'?'block':'none';
+  if(slack)slack.style.display=activePreviewTab==='slack'?'block':'none';
+  for(const [key,id] of [['report','reportTab'],['slack','slackTab']]){
+    const button=$(id);if(button){button.classList.toggle('active',key===activePreviewTab);button.setAttribute('aria-selected',String(key===activePreviewTab));}
+  }
+}
+function enforceFixedWorkHours(){
+  const start=document.getElementById('start'),end=document.getElementById('end');
+  if(!start||!end)return;
+  const overtime=(typeof currentWorkType!=='undefined'&&currentWorkType==='overtime');
+  const fixedStart=overtime?'17:30':'07:00',fixedEnd=overtime?'19:30':'17:30';
+  if(start.value!==fixedStart)start.value=fixedStart;
+  if(end.value!==fixedEnd)end.value=fixedEnd;
+  start.readOnly=true;end.readOnly=true;
+}
+// Slack 종료 문구: 같은 날짜/현장/공종에 실제 투입인원이 있는 연장 보고서만 반영한다.
+function slackClosingLine(ds){
+  const base=`✅ 금일 ${ds} 작업 종료합니다.`;
+  const date=$('date')?.value,site=$('site')?.value,trade=$('trade')?.value;
+  if(!date||!site||!trade)return base;
+  const names=[],managers=[];
+  const nums=typeof listOvertimeNumbers==='function'?listOvertimeNumbers(date,site,trade):[];
+  nums.forEach(no=>{
+    let overtimeState=null;
+    // 현재 편집 중인 연장도 가장 최신 상태로 반영
+    if(typeof currentWorkType!=='undefined'&&currentWorkType==='overtime'&&(+currentOvertimeNo||1)===no){overtimeState=state;}
+    else{
+      const draft=typeof findModeDraft==='function'?findModeDraft(date,site,trade,'overtime',no):null;
+      const saved=typeof findSavedReport==='function'?findSavedReport(date,site,trade,'overtime',no):null;
+      overtimeState=(draft?.state||saved?.state||null);
+    }
+    if(!overtimeState)return;
+    const participating=(overtimeState.companies||[]).filter(c=>Object.values(c.jobs||{}).some(v=>Number(v)>0));
+    if(!participating.length)return;
+    participating.forEach(c=>{
+      const name=String(c.name||'').trim();
+      // 업체 표시명에 공백/기호/추가 설명이 있어도 제외 대상이 나오지 않도록 한다.
+      const normalized=name.replace(/[\s\u200b-\u200d\ufeff\p{P}\p{S}]/gu,'').toLowerCase();
+      if(!name||/(?:더오포|디오포|더오프|디오프|장비)/.test(normalized))return;
+      if(!names.includes(name))names.push(name);
+    });
+    (overtimeState.managers||[]).forEach(m=>{
+      const name=String(Array.isArray(m)?m[0]:m?.name||'').trim();
+      const visible=Array.isArray(m)?m[3]!==false:m?.visible!==false;
+      if(name&&visible&&!managers.includes(name))managers.push(name);
+    });
+  });
+  if(!names.length)return base;
+  return `${base} [연장(~19:30) :${names.join(', ')}]${managers.length?' 근무:'+managers.join(', '):''}`;
+}
+function slackReportText(){
+  enforceFixedWorkHours();
+  const date=$('date').value, d=new Date(date+'T00:00:00');
+  const days='일월화수목금토';
+  const ds=isNaN(d)?date:`${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}(${days[d.getDay()]})`;
+  const totals=Object.fromEntries((D.jobs||[]).map(j=>[j,0]));
+  (state.companies||[]).forEach(c=>Object.entries(c.jobs||{}).forEach(([job,n])=>{totals[job]=(totals[job]||0)+(+n||0)}));
+  const total=Object.values(totals).reduce((sum,n)=>sum+n,0);
+  const managerTotal=Object.entries(totals).reduce((n,[job,v])=>n+(/관리자|관리직/.test(job)?v:0),0);
+  const workTotal=total-managerTotal;
+  const parts=[];
+  if(managerTotal)parts.push(`관리자 ${managerTotal}명`);
+  if(workTotal){
+    const contractors=(state.companies||[]).map(c=>{
+      const count=Object.entries(c.jobs||{}).reduce((n,[job,v])=>n+(/관리자|관리직/.test(job)?0:(+v||0)),0);
+      return count>0?`${c.name||'업체'} ${count}명`:'';
+    }).filter(Boolean);
+    parts.push(`작업자 ${workTotal}명${contractors.length?'('+contractors.join(', ')+')':''}`);
+  }
+  const lines=[slackClosingLine(ds),'','','',`✅ ${ds} 작업 용인 Y-1 Ph-1 미래이슈물질 고도처리설비`,
+    `1. 작업일시 : ${$('start').value}~${$('end').value}`,
+    `2. 작업인원 : ${parts.join(', ')||'0명'} : 총 ${total}명`,
+    '3. 작업내용 :'];
+  let idx=0;
+  (state.areas||[]).forEach(a=>{
+    const tasks=(a.tasks||[]).map(t=>String(t||'').trim()).filter(Boolean);
+    if(!tasks.length)return;
+    const zone=String(a.zone||'작업구역').trim();
+    const note=String(a.note||'').trim().replace(/^\[|\]$/g,'').replace(/^\(|\)$/g,'');
+    lines.push(`   ${String.fromCharCode(97+idx%26)}. ${zone}${note?' ('+note+')':''}`);
+    tasks.forEach(t=>lines.push(`      - ${t}`));
+    idx++;
+  });
+  const equipment=(state.equipment||[]).filter(e=>e.name&&Number(e.qty)>0).map(e=>`${e.name} ${e.qty}대`);
+  lines.push(`4. 사용장비 : ${equipment.length?equipment.join(', ')+', ':''}함마드릴, 진공청소기 등`);
+  const risk=$('slackRiskInput')?.value || localStorage.getItem('ugongsan_slack_last_risk') || '낙하물, 협착, 전도, 끼임, 추락';
+  const note=$('slackSpecialInput')?.value || '';
+  lines.push(`5. 주요위험요소 : ${risk}`,`6. 특이사항 : ${note}`);
+  return lines.join('\n');
+}
+// Slack 본문을 실제 줄 단위 요소로 표시해 마우스 드래그 복사에서도 줄바꿈을 유지한다.
+function renderSlackPreview(){
+  const el=$('slackPreview');if(!el)return;
+  const fragment=document.createDocumentFragment();
+  slackReportText().split('\n').forEach(line=>{
+    const div=document.createElement('div');
+    div.className='slack-preview-line';
+    if(line.startsWith('✅ ')){
+      // 실제 선택 가능한 문자: 마우스로 드래그해 복사해도 체크가 사라지지 않음
+      const mark=document.createElement('span');
+      mark.className='slack-check-text';
+      mark.textContent='✅';
+      div.appendChild(mark);
+      div.appendChild(document.createTextNode(' '+line.slice(2)));
+    }else{div.textContent=line||'\u00a0';}
+    if(/^6\. 특이사항/.test(line))div.classList.add('slack-alert-line');
+    fragment.appendChild(div);
+  });
+  el.replaceChildren(fragment);
+}
+// 복사하기 버튼을 누르지 않고 직접 선택해 Ctrl+C 해도 줄 구조가 유지되도록 처리한다.
+document.addEventListener('copy',function(event){
+  const el=$('slackPreview');
+  if(!el||activePreviewTab!=='slack'||getComputedStyle(el).display==='none')return;
+  const selection=window.getSelection();
+  if(!selection||selection.isCollapsed||!selection.rangeCount)return;
+  const range=selection.getRangeAt(0);
+  if(!el.contains(range.commonAncestorContainer))return;
+  const text=selection.toString().replace(/\r\n?/g,'\n');
+  if(!text||!event.clipboardData)return;
+  event.clipboardData.setData('text/plain',text);
+  event.clipboardData.setData('text/html',slackCopyHtml(text));
+  event.preventDefault();
+});
+function saveSlackFields(){
+  const risk=$('slackRiskInput');
+  if(risk)localStorage.setItem('ugongsan_slack_last_risk',risk.value);
+  const special=$('slackSpecialInput');
+  if(special)localStorage.setItem('ugongsan_slack_last_special',special.value);
+  const preview=$('slackPreview');
+  if(preview)renderSlackPreview();
+}
+function initSlackFields(){
+  const risk=$('slackRiskInput'),special=$('slackSpecialInput');
+  if(risk&&!risk.dataset.initialized){risk.value=localStorage.getItem('ugongsan_slack_last_risk')||'낙하물, 협착, 전도, 끼임, 추락';risk.dataset.initialized='1';}
+  if(special&&!special.dataset.initialized){special.value=localStorage.getItem('ugongsan_slack_last_special')||'';special.dataset.initialized='1';}
+}
+
+function updatePreview(){
+  enforceFixedWorkHours();
+  $('preview').textContent=reportText();
+  initSlackFields();
+  if($('slackPreview'))renderSlackPreview();
+  autoSave();
+}
 
 function autoSave(){
   if(!canEditActiveProject())return;
@@ -2964,7 +3156,48 @@ function copyPreviousDay(){
   autoSave();
 }
 function loadYesterday(){let d=new Date($('date').value+'T00:00:00');d.setDate(d.getDate()-1);let y=d.toISOString().slice(0,10),rs=JSON.parse(projectGet('reports')||'[]');let r=rs.find(x=>x.date===y&&x.site===$('site').value&&x.trade===$('trade').value);if(!r)return alert('전날 저장된 보고서가 없습니다.');state=JSON.parse(JSON.stringify(r.state));render()}
-async function copyPreview(){await navigator.clipboard.writeText($('preview').innerText);alert('복사했습니다.')}
+function slackCopyHtml(plain){
+  // Slack은 클립보드에 포함한 data URI 이미지를 누락할 수 있으므로
+  // 복사본에서는 항상 표시되는 체크 문자로 처리한다.
+  const escapeHtml=value=>String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return '<html><body><!--StartFragment-->'+plain.split(/\r?\n/).map((line,index)=>{
+    const leading=(line.match(/^\s*/)||[''])[0].length;
+    let content=escapeHtml(line.trimStart());
+    return '<p style="margin:0; padding:0; white-space:pre-wrap;">'+'&nbsp;'.repeat(leading)+(content||'<br>')+'</p>';
+  }).join('')+'<!--EndFragment--></body></html>';
+}
+
+async function copyPreview(){
+  const isSlack=activePreviewTab==='slack';
+  const el=$(isSlack?'slackPreview':'preview');
+  if(!el)return;
+  const plain=(isSlack?slackReportText():el.innerText).replace(/\r\n?/g,'\n');
+  try{
+    if(isSlack && navigator.clipboard?.write && typeof ClipboardItem!=='undefined'){
+      const html=slackCopyHtml(plain);
+      await navigator.clipboard.write([new ClipboardItem({
+        'text/plain':new Blob([plain],{type:'text/plain'}),
+        'text/html':new Blob([html],{type:'text/html'})
+      })]);
+    }else if(navigator.clipboard?.writeText){
+      await navigator.clipboard.writeText(plain);
+    }else{
+      const helper=document.createElement('textarea');
+      helper.value=plain;
+      helper.style.position='fixed';helper.style.left='-9999px';
+      document.body.appendChild(helper);helper.select();
+      const success=document.execCommand('copy');helper.remove();
+      if(!success)throw new Error('복사 실패');
+    }
+    alert((isSlack?'Slack':'작업일보')+' 미리보기를 복사했습니다.');
+  }catch(e){
+    // 일부 브라우저가 HTML ClipboardItem을 막는 경우 일반 텍스트로 재시도
+    try{
+      if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(plain);alert('미리보기를 복사했습니다.');return;}
+    }catch(_){ }
+    alert('복사에 실패했습니다. 미리보기 내용을 직접 선택해 복사해 주세요.');
+  }
+}
 function toggleSidebar(){
   const app=$('appShell');if(!app)return;
   app.classList.toggle('sidebar-collapsed');
@@ -3296,8 +3529,8 @@ function openReportFromSearch(date,site,trade){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function renderMasterZones(){let el=$('masterZones');if(!el)return;el.innerHTML=(D.zones||[]).map((z,i)=>`<div class="zone-master-row"><input value="${esc(z.zone||'')}" placeholder="예: WWT 4F" oninput="D.zones[${i}].zone=this.value"><input value="${esc(z.loc||'')}" placeholder="예: X11~17, Y1~6" oninput="D.zones[${i}].loc=this.value"><button class="btn" type="button" onclick="D.zones.splice(${i},1);renderMasterZones()">삭제</button></div>`).join('')}
-function addMasterZone(){D.zones.push({zone:'',loc:''});renderMasterZones()}
+function renderMasterZones(){let el=$('masterZones');if(!el)return;el.innerHTML=(D.zones||[]).map((z,i)=>`<div class="zone-master-row"><input value="${esc(z.zone||'')}" placeholder="예: WWT 4F" oninput="D.zones[${i}].zone=this.value"><input value="${esc(z.loc||'')}" placeholder="예: X11~17, Y1~6" oninput="D.zones[${i}].loc=this.value"><input value="${esc(z.note||'')}" placeholder="비고" aria-label="비고" oninput="D.zones[${i}].note=this.value"><button class="btn" type="button" onclick="D.zones.splice(${i},1);renderMasterZones()">삭제</button></div>`).join('')}
+function addMasterZone(){D.zones.push({zone:'',loc:'',note:''});renderMasterZones()}
 function applyZone(i,v){let z=(D.zones||[]).find(x=>x.zone===v);if(z){state.areas[i].zone=z.zone;state.areas[i].loc=z.loc||'';renderAreas();updatePreview()}}
 function updateMobileZeroJobStyles(){
   document.querySelectorAll('#companies .job-item').forEach(el=>{
@@ -3312,8 +3545,8 @@ function saveMasters(){
   autoSave();
   let split=id=>$(id).value.split(',').map(x=>x.trim()).filter(Boolean);
   let managers=$('masterManagers').value.split('\n').map(x=>x.split('|').map(v=>v.trim())).filter(m=>m.some(Boolean));
-  D.zones=(D.zones||[]).map(z=>({zone:(z.zone||'').trim(),loc:(z.loc||'').trim()})).filter(z=>z.zone);
-  let appTitle=($('masterAppTitle').value||'우리공 일보').trim()||'우리공 일보';
+  D.zones=(D.zones||[]).map(z=>({...z,zone:(z.zone||'').trim(),loc:(z.loc||'').trim(),note:(z.note||'').trim()})).filter(z=>z.zone);
+  let appTitle='우공이산 일보';
   let m={
     appTitle,
     sites:split('masterSites'),
@@ -4183,7 +4416,7 @@ async function saveLocalBackupNow(){
   }catch(e){console.error(e);setLocalBackupStatus('백업 실패: '+e.message);alert('로컬 백업에 실패했습니다.\n'+e.message)}
 }
 function applyFullLocalBackupSnapshot(snapshot){
-  if(!snapshot||snapshot.format!==LOCAL_BACKUP_FORMAT||!snapshot.storage||typeof snapshot.storage!=='object')throw new Error('우리공 일보 로컬백업 파일 형식이 아닙니다.');
+  if(!snapshot||snapshot.format!==LOCAL_BACKUP_FORMAT||!snapshot.storage||typeof snapshot.storage!=='object')throw new Error('우공이산 일보 로컬백업 파일 형식이 아닙니다.');
   const entries=Object.entries(snapshot.storage).filter(([k,v])=>k.startsWith('projectV3::')&&typeof v==='string');
   if(!entries.length)throw new Error('복구할 현장 데이터가 없습니다.');
   entries.forEach(([k,v])=>localStorage.setItem(k,v));
@@ -4199,7 +4432,7 @@ async function restoreSelectedLocalBackup(){
     const entry=localBackupEntries[+sel.value];if(!entry)return alert('백업파일을 다시 선택해 주세요.');
     const file=await entry.handle.getFile();
     const snapshot=JSON.parse(await file.text());
-    if(!snapshot||snapshot.format!==LOCAL_BACKUP_FORMAT)throw new Error('우리공 일보 로컬백업 파일 형식이 아닙니다.');
+    if(!snapshot||snapshot.format!==LOCAL_BACKUP_FORMAT)throw new Error('우공이산 일보 로컬백업 파일 형식이 아닙니다.');
     if(!confirm(`백업파일을 불러올까요?\n\n${entry.name}\n\n현재 자료는 같은 폴더에 '복구전' 백업으로 먼저 저장한 뒤 불러옵니다.`))return;
     setLocalBackupStatus('현재 자료 안전백업 중...');
     await writeLocalBackupSnapshot(dir,makeFullLocalBackupSnapshot(),'우리공일보_복구전');
