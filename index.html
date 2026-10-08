@@ -5585,18 +5585,50 @@ function saveConstructionProgressEntry(input,date,site,trade){
     constructionProgressSaveTimer=setTimeout(()=>refreshConstructionExcelPreview(),600);
   }
 }
+/* 공사일보 전일 = 데이터 메뉴 강제이월 + 선택일 이전 실적 (단위: %) */
+function constructionReportPriorProgress(date,site,trade){
+  const opening=forceCarryProgressAmounts(site,trade);
+  const history=dataProgressTotals(date,date,site,trade);
+  const totals={};
+  for(const [row] of CONSTRUCTION_PROGRESS_ITEMS){
+    const prior=Number(history.get(row)?.prior)||0;
+    totals[row]=(Number(opening[row])||0)+prior;
+  }
+  return totals;
+}
+/* 전일 인원 강제이월은 주간/연장 구분이 없는 기초 누계이므로 주간 전일 칸에 포함합니다. */
+function constructionReportCarryJobs(site,trade,aliases){
+  const result={};
+  for(const [label,amount] of Object.entries(forceCarryItems('job',site,trade))){
+    const normalized=aliases[label]||label;
+    result[normalized]=(result[normalized]||0)+(Number(amount)||0);
+  }
+  return result;
+}
+/* 강제이월 장비도 날짜별 실적과 동일하게 장비명/규격으로 분류합니다. */
+function constructionReportCarryEquip(site,trade,keyEquip){
+  const result={};
+  for(const [key,amount] of Object.entries(forceCarryItems('equipment',site,trade))){
+    const [name,note='']=String(key).split('\u0001');
+    const category=keyEquip({name,note});
+    if(category)result[category]=(result[category]||0)+(Number(amount)||0);
+  }
+  return result;
+}
 function constructionApplyProgressToPreviewModel(model,date,site,trade){
   if(!model)return;
   const read=r=>Number(excelPreviewChild(model.map.get(r),'v')?.textContent||0);
   const put=(ref,value)=>{const c=model.map.get(ref);if(!c)return;let node=excelPreviewChild(c,'v');if(!node){node=c.ownerDocument.createElementNS('http://schemas.openxmlformats.org/spreadsheetml/2006/main','v');c.appendChild(node)}node.textContent=String(value)};
   const sums=constructionProgressGroups(date,site,trade);
+  const priorProgress=constructionReportPriorProgress(date,site,trade);
   for(const [row,_,group] of CONSTRUCTION_PROGRESS_ITEMS){
     if(row===25)continue;
     const pct=group?(sums[row]||0):constructionProgressPct(row,date,site,trade);
-    const daily=pct/100,prior=read('H'+row),amount=prior+daily,ratio=read('G'+row);
-    put('I'+row,daily);put('J'+row,amount);put('K'+row,ratio?(row===23||row===24?amount/ratio/100:amount/ratio):0);put('L'+row,amount);
+    const daily=pct/100,prior=(priorProgress[row]||0)/100,amount=prior+daily,ratio=read('G'+row);
+    put('H'+row,prior);put('I'+row,daily);put('J'+row,amount);put('K'+row,ratio?(row===23||row===24?amount/ratio/100:amount/ratio):0);put('L'+row,amount);
   }
-  put('I25',sums[25]/100);put('J25',read('H25')+sums[25]/100);put('L25',read('H25')+sums[25]/100);
+  const priorTotal=(priorProgress[25]||0)/100;
+  put('H25',priorTotal);put('I25',sums[25]/100);put('J25',priorTotal+sums[25]/100);put('L25',priorTotal+sums[25]/100);
 }
 
 
@@ -6127,6 +6159,10 @@ async function exportConstructionDaily(mode){
   const pw=byJobs(previous.filter(r=>r.workType!=='overtime')),po=byJobs(previous.filter(r=>r.workType==='overtime'));
   const tw=byJobs(wk?[wk]:[]),to=byJobs(overtime);
   const pe=byEquip(previous),we=byEquip(wk?[wk]:[]),oe=byEquip(overtime);
+  // 데이터 메뉴에서 마스터가 입력한 강제이월을 기존 전일 실적에 한 번만 합산합니다.
+  // 강제이월에는 주간/연장 구분이 없으므로 인원은 전일 주간 칸에 포함합니다.
+  for(const [name,amount] of Object.entries(constructionReportCarryJobs(site,trade,aliases)))pw[name]=(pw[name]||0)+amount;
+  for(const [name,amount] of Object.entries(constructionReportCarryEquip(site,trade,keyEquip)))pe[name]=(pe[name]||0)+amount;
   const zip=await JSZip.loadAsync(Uint8Array.from(atob(constructionDailyTemplate),c=>c.charCodeAt(0)));
   const path='xl/worksheets/sheet1.xml', raw=await zip.file(path).async('string'),doc=new DOMParser().parseFromString(raw,'application/xml');
   if(doc.getElementsByTagName('parsererror').length)throw Error('엑셀 양식 XML에 오류가 있습니다.');
@@ -6157,18 +6193,23 @@ async function exportConstructionDaily(mode){
   }
   const progressNumber=ref=>Number(Array.from(cell(ref).children).find(x=>x.localName==='v')?.textContent||0);
   const progressTotals=constructionProgressGroups(date,site,trade);
+  const priorProgress=constructionReportPriorProgress(date,site,trade);
   for(const [row,_,group] of CONSTRUCTION_PROGRESS_ITEMS){
     if(row===25)continue;
     const daily=(group?(progressTotals[row]||0):constructionProgressPct(row,date,site,trade))/100;
-    const past=progressNumber('H'+row),weighted=progressNumber('G'+row),combined=past+daily;
+    const past=(priorProgress[row]||0)/100,weighted=progressNumber('G'+row),combined=past+daily;
+    // 전일의 원본 서식 값은 쓰지 않습니다. 강제이월+이전 날짜 실적을 표시합니다.
+    progressV('H'+row,past);
     progressV('I'+row,daily);
     progressV('J'+row,combined);
     progressV('K'+row,weighted?(row===23||row===24?combined/weighted/100:combined/weighted):0);
     progressV('L'+row,combined);
   }
-  progressV('I25',(progressTotals[25]||0)/100);
-  progressV('J25',progressNumber('H25')+(progressTotals[25]||0)/100);
-  progressV('L25',progressNumber('H25')+(progressTotals[25]||0)/100);
+  const pastTotal=(priorProgress[25]||0)/100,dayTotal=(progressTotals[25]||0)/100;
+  progressV('H25',pastTotal);
+  progressV('I25',dayTotal);
+  progressV('J25',pastTotal+dayTotal);
+  progressV('L25',pastTotal+dayTotal);
   // 날짜별로 수정한 Remark 셀만 덮어씁니다. 수정하지 않은 원본 비고는 그대로 보존합니다.
   const remarkEdits=constructionRemarkEdits(date,site,trade);
   for(const row of constructionRemarkEditableRows){
