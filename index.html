@@ -5608,51 +5608,70 @@ function constructionRemarkKey(date,site,trade){
   return 'projectV3::'+encodeURIComponent(project)+'::constructionRemarks::'+encodeURIComponent(site||'')+'::'+encodeURIComponent(trade||'')+'::'+date;
 }
 /*
- * 공사일보 Remark(비고) 익일 자동 승계
- * - 같은 현장/공종에서 가장 최근의 이전 날짜에 직접 수정한 셀만 가져옵니다.
- * - 새 날짜의 첫 조회 시 별도 복사본으로 저장합니다.
- * - 이미 저장된 날짜는 절대 덮어쓰지 않으며 과거 날짜는 변경하지 않습니다.
+ * 공사일보 Remark(비고) 날짜별 승계 (v2)
+ * 구버전은 전날 전체 비고를 다음 날 저장하여 과거 수정 이후에도 오래된 복사본이 남았습니다.
+ * 새 버전은 직접 수정한 날짜/셀만 별도 기록하고, 조회 시 최신 수정값을 계산합니다.
+ * 기존의 원본 저장 내용은 삭제하거나 덮어쓰지 않습니다.
  */
+function constructionRemarkDirectKey(date,site,trade){
+  const project=typeof activeProjectName==='function'?activeProjectName():'';
+  return 'projectV3::'+encodeURIComponent(project)+'::constructionRemarksDirectV2::'+encodeURIComponent(site||'')+'::'+encodeURIComponent(trade||'')+'::'+date;
+}
 function constructionRemarkEdits(date,site,trade){
-  const key=constructionRemarkKey(date,site,trade);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(date||'')))return {};
   try{
-    const stored=localStorage.getItem(key);
-    if(stored!==null){
-      const obj=JSON.parse(stored);
-      return obj&&typeof obj==='object'&&!Array.isArray(obj)?obj:{};
-    }
-    if(!/^\d{4}-\d{2}-\d{2}$/.test(String(date||'')))return {};
-    const prefix=constructionRemarkKey('',site,trade);
-    let lastDate='',lastEdits=null;
+    const rawPrefix=constructionRemarkKey('',site,trade);
+    const directPrefix=constructionRemarkDirectKey('',site,trade);
+    const legacy=[],direct=[];
     for(let i=0;i<localStorage.length;i++){
-      const candidate=localStorage.key(i)||'';
-      if(!candidate.startsWith(prefix))continue;
-      const previousDate=candidate.slice(prefix.length);
-      if(!/^\d{4}-\d{2}-\d{2}$/.test(previousDate) || previousDate>=date || previousDate<=lastDate)continue;
-      let previous;
-      try{previous=JSON.parse(localStorage.getItem(candidate)||'{}');}catch(_){continue;}
-      if(!previous||typeof previous!=='object'||Array.isArray(previous))continue;
-      const edits={};
+      const key=localStorage.key(i)||'';
+      const legacyItem=key.startsWith(rawPrefix),directItem=key.startsWith(directPrefix);
+      if(!legacyItem&&!directItem)continue;
+      const day=key.slice((legacyItem?rawPrefix:directPrefix).length);
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||day>date)continue;
+      let record;
+      try{record=JSON.parse(localStorage.getItem(key)||'{}');}catch(_){continue;}
+      if(!record||typeof record!=='object'||Array.isArray(record))continue;
+      (legacyItem?legacy:direct).push([day,record]);
+    }
+    const result={};
+    // 구버전에서는 각 날짜의 자동 복사분과 직접 변경분을 식별하는 기록이 없습니다.
+    // 각 셀의 최초 저장값만 초기 기준값으로 삼아 오래된 익일 복사본을 무시합니다.
+    legacy.sort((a,b)=>a[0].localeCompare(b[0]));
+    for(const [,record] of legacy){
       for(const row of constructionRemarkEditableRows){
         const ref='M'+row;
-        if(Object.prototype.hasOwnProperty.call(previous,ref))edits[ref]=String(previous[ref]??'').slice(0,300);
+        if(!Object.prototype.hasOwnProperty.call(result,ref)&&Object.prototype.hasOwnProperty.call(record,ref)){
+          result[ref]=String(record[ref]??'').replace(/\r/g,'').slice(0,300);
+        }
       }
-      if(Object.keys(edits).length){lastDate=previousDate;lastEdits=edits;}
     }
-    if(!lastEdits)return {};
-    const inherited={...lastEdits};
-    localStorage.setItem(key,JSON.stringify(inherited));
-    return inherited;
-  }catch(e){console.error('익일 비고 불러오기 오류',e);return {};}
+    // 직접 수정한 변경사항은 해당 날짜부터 이어받되, 뒤 날짜에 다시 수정했다면
+    // 그 날짜의 수정값이 우선합니다. 빈 문자열(지우기)과 문자 '0'도 보존합니다.
+    direct.sort((a,b)=>a[0].localeCompare(b[0]));
+    for(const [,record] of direct){
+      for(const row of constructionRemarkEditableRows){
+        const ref='M'+row;
+        if(Object.prototype.hasOwnProperty.call(record,ref))result[ref]=String(record[ref]??'').replace(/\r/g,'').slice(0,300);
+      }
+    }
+    return result;
+  }catch(e){console.error('비고 승계 조회 오류',e);return {};}
 }
 function saveConstructionRemark(ref,value){
   if(!/^M(1[0-5]|1[7-9]|2[0-4])$/.test(ref))return;
   const date=constructionExcelPreviewDate||$('date')?.value||'',site=$('site')?.value||'',trade=$('trade')?.value||'';
   if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return;
-  const edits=constructionRemarkEdits(date,site,trade);
-  edits[ref]=String(value||'').replace(/\r/g,'').slice(0,300);
+  const key=constructionRemarkDirectKey(date,site,trade);
+  let edits={};
   try{
-    localStorage.setItem(constructionRemarkKey(date,site,trade),JSON.stringify(edits));
+    const saved=JSON.parse(localStorage.getItem(key)||'{}');
+    if(saved&&typeof saved==='object'&&!Array.isArray(saved))edits=saved;
+  }catch(_){}
+  edits[ref]=String(value??'').replace(/\r/g,'').slice(0,300);
+  try{
+    // 날짜별 직접 수정한 셀만 보관합니다. 익일 복사본은 새로 만들지 않습니다.
+    localStorage.setItem(key,JSON.stringify(edits));
     constructionExcelRemarkDirty=true;
     // 시트 탭을 잠시 바꿨다가 되돌아와도 수정한 비고를 그대로 표시합니다.
     const displayed=constructionExcelPreviewSheets?.[0]?.map?.get(ref);
