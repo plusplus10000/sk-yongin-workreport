@@ -4047,6 +4047,22 @@ function findSavedReport(date,site,trade,type='weekly',no=0){
   return normalizedReportsForRead().find(r=>r.date===date&&r.site===site&&r.trade===trade&&reportTypeOf(r)===wt&&reportOvertimeNoOf(r)===targetNo)||null;
 }
 function findModeDraft(date,site,trade,type='weekly',no=0){return getModeDrafts()[workModeKey(date,site,trade,type,no)]||null}
+// 새 주간 작성만 전날 주간을 상속한다. 기존 날짜의 보고서/작성중 자료는 변경하지 않는다.
+function newWeeklyFromPreviousDay(target,site,trade){
+  if(!target||!site||!trade)return null;
+  if(findSavedReport(target,site,trade,'weekly',0)||findModeDraft(target,site,trade,'weekly',0))return null;
+  // 과거의 빈 날짜를 열 때 오래된 기록이 새로 만들어지지 않게 한다.
+  const saved=normalizedReportsForRead().filter(r=>r.site===site&&r.trade===trade&&reportTypeOf(r)==='weekly');
+  if(saved.some(r=>r.date>target))return null;
+  const d=new Date(target+'T00:00:00');if(isNaN(d))return null;
+  d.setDate(d.getDate()-1);
+  const previous=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+  const source=findModeDraft(previous,site,trade,'weekly',0)||findSavedReport(previous,site,trade,'weekly',0);
+  if(!source||!source.state)return null;
+  return {date:target,site,trade,start:'07:00',end:'17:30',bpa:source.bpa||'',workType:'weekly',overtimeNo:0,closed:false,
+    state:JSON.parse(JSON.stringify(source.state)),slackExtra:source.slackExtra?JSON.parse(JSON.stringify(source.slackExtra)):undefined};
+}
+
 function makeCurrentModeDraft(){
   return {date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,
     workType:currentWorkType,overtimeNo:currentWorkType==='overtime'?(+currentOvertimeNo||1):0,state:JSON.parse(JSON.stringify(state)),slackExtra:currentSlackExtra()};
@@ -4100,6 +4116,8 @@ function switchWorkMode(type,no=0){
   const r=findModeDraft(date,site,trade,wt,n)||findSavedReport(date,site,trade,wt,n);
   if(r){applyReportLike(r,wt,n)}
   else if(wt==='weekly'){
+    const initial=newWeeklyFromPreviousDay(date,site,trade);
+    if(initial){applyReportLike(initial,'weekly',0);updateWorkModeTabs();syncReportLockForCurrentDate();return;}
     currentWorkType='weekly';currentOvertimeNo=0;
     $('start').value='07:30';$('end').value='17:00';
     currentReportLocked=false;render();applyReportLockUI(false);autoSave();
@@ -4203,6 +4221,8 @@ function setWorkDateToday(){
   const el=$('date');if(!el)return;
   const today=getTodayLocalDate();el.value=today;currentWorkType='weekly';currentOvertimeNo=0;
   if(loadExactSavedReportForDate(today))return;
+  const initial=findModeDraft(today,$('site').value,$('trade').value,'weekly',0)||newWeeklyFromPreviousDay(today,$('site').value,$('trade').value);
+  if(initial){applyReportLike(initial,'weekly',0);return;}
   $('start').value='07:30';$('end').value='17:00';currentReportLocked=false;updatePreview();applyReportLockUI(false);autoSave();updateWorkModeTabs();
 }
 function render(){renderCompanies();renderEquipment();renderAreas();renderManagers();updatePreview();applyReportLockUI(currentReportLocked);updateWorkModeTabs()}
@@ -4223,7 +4243,7 @@ function moveWorkDate(days){
   const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');el.value=`${y}-${mo}-${day}`;
   currentWorkType='weekly';currentOvertimeNo=0;
   const r=findSavedReport(el.value,$('site').value,$('trade').value,'weekly',0)||findModeDraft(el.value,$('site').value,$('trade').value,'weekly',0);
-  if(r)applyReportLike(r,'weekly',0);else{$('start').value='07:30';$('end').value='17:00';currentReportLocked=false;clearDailyValuesForDateMove();render();autoSave()}
+  if(r)applyReportLike(r,'weekly',0);else{const initial=newWeeklyFromPreviousDay(el.value,$('site').value,$('trade').value);if(initial){applyReportLike(initial,'weekly',0)}else{$('start').value='07:30';$('end').value='17:00';currentReportLocked=false;clearDailyValuesForDateMove();render();autoSave()}}
 }
 function autoSave(){
   if(!canEditActiveProject())return;
@@ -4237,7 +4257,7 @@ function loadDateOrBlank(){
   const target=$('date').value,site=$('site').value,trade=$('trade').value;
   const exact=findSavedReport(target,site,trade,'weekly',0)||findModeDraft(target,site,trade,'weekly',0);
   let r=exact;
-  if(!r){r=normalizedReportsForRead().filter(x=>x.date<target&&x.site===site&&x.trade===trade&&reportTypeOf(x)==='weekly').sort((a,b)=>b.date.localeCompare(a.date))[0]}
+  if(!r){r=newWeeklyFromPreviousDay(target,site,trade)}
   if(r){
     $('start').value=exact?(r.start||'07:30'):'07:30';$('end').value=exact?(r.end||'17:00'):'17:00';$('bpa').value=r.bpa||'';state=JSON.parse(JSON.stringify(r.state));currentReportLocked=!!(exact&&r.closed);render();if(!currentReportLocked)autoSave();
   }else{$('start').value='07:30';$('end').value='17:00';currentReportLocked=false;applyReportLockUI(false);updatePreview();autoSave();updateWorkModeTabs()}
