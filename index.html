@@ -2483,7 +2483,7 @@ function applyReportLockUI(locked){
 
   const page=$('writePage');
   if(page){
-    page.querySelectorAll('.preview-tab').forEach(el=>{el.disabled=false;delete el.dataset.reportLockDisabled;});
+    page.querySelectorAll('.preview-tab').forEach(el=>{el.disabled=false;delete el.dataset.reportLockDisabled;delete el.dataset.roleDisabled;});
     page.querySelectorAll('input,select,textarea,button').forEach(el=>{
       // 읽기 기능, 마감 해제, 날짜 이동/조회는 잠금 중에도 허용
       if(el.classList.contains('preview-copy-btn')||
@@ -2917,6 +2917,7 @@ function moveWorkDate(days){
 }
 let activePreviewTab='report';
 function selectPreviewTab(tab){
+  document.querySelectorAll('#writePage .preview-tab').forEach(b=>{b.disabled=false;delete b.dataset.roleDisabled;delete b.dataset.reportLockDisabled});
   activePreviewTab=tab==='slack'?'slack':'report';
   initSlackFields();
   if($('slackFields'))$('slackFields').style.display=activePreviewTab==='slack'?'grid':'none';
@@ -3873,7 +3874,7 @@ function applyDevicePermissions(){
   const write=$('writePage');
   if(write){
     write.querySelectorAll('input,select,textarea').forEach(el=>{if(readonly){el.dataset.roleDisabled='1';el.disabled=true}else if(el.dataset.roleDisabled==='1'){el.disabled=false;delete el.dataset.roleDisabled}});
-    write.querySelectorAll('button').forEach(el=>{const allow=el.classList.contains('preview-copy-btn')||el.classList.contains('preview-toggle')||el.classList.contains('work-mode-btn');if(readonly&&!allow){el.dataset.roleDisabled='1';el.disabled=true}else if(el.dataset.roleDisabled==='1'&&!(typeof currentReportLocked!=='undefined'&&currentReportLocked)){el.disabled=false;delete el.dataset.roleDisabled}});
+    write.querySelectorAll('button').forEach(el=>{const allow=el.classList.contains('preview-copy-btn')||el.classList.contains('preview-toggle')||el.classList.contains('preview-tab')||el.classList.contains('work-mode-btn')||el.classList.contains('date-nav-btn')||el.classList.contains('date-query-btn');if(allow){el.disabled=false;delete el.dataset.roleDisabled;delete el.dataset.reportLockDisabled}else if(readonly){el.dataset.roleDisabled='1';el.disabled=true}else if(el.dataset.roleDisabled==='1'&&!(typeof currentReportLocked!=='undefined'&&currentReportLocked)){el.disabled=false;delete el.dataset.roleDisabled}});
     const preview=$('preview');if(preview)preview.contentEditable=readonly?'false':((typeof currentReportLocked!=='undefined'&&currentReportLocked)?'false':'true');
   }
   document.querySelectorAll('#searchPage .report-close-btn').forEach(el=>{if(readonly){el.dataset.roleDisabled='1';el.disabled=true}else if(el.dataset.roleDisabled==='1'){el.disabled=false;delete el.dataset.roleDisabled}});
