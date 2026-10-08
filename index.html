@@ -2483,10 +2483,12 @@ function applyReportLockUI(locked){
 
   const page=$('writePage');
   if(page){
+    page.querySelectorAll('.preview-tab').forEach(el=>{el.disabled=false;delete el.dataset.reportLockDisabled;});
     page.querySelectorAll('input,select,textarea,button').forEach(el=>{
       // 읽기 기능, 마감 해제, 날짜 이동/조회는 잠금 중에도 허용
       if(el.classList.contains('preview-copy-btn')||
          el.classList.contains('preview-toggle')||
+         el.classList.contains('preview-tab')||
          el.classList.contains('basic-report-close-btn')||
          el.classList.contains('work-mode-btn')||
          el.classList.contains('overtime-add-btn')||
@@ -3043,18 +3045,54 @@ document.addEventListener('copy',function(event){
   event.clipboardData.setData('text/html',slackCopyHtml(text));
   event.preventDefault();
 });
+// Slack 부가정보: 현장/날짜별 저장. 화면 이동 함수는 변경하지 않는다.
+let slackFieldsKeyLoaded=null;
+function slackDailyKey(){
+  return [($('site')?.value||''),($('trade')?.value||''),($('date')?.value||'')].join('::');
+}
+function getSlackDailyMap(){
+  try{return JSON.parse(projectGet('slackDailyByDate')||'{}')||{}}catch(e){return {}}
+}
+function findSlackDailyValue(key){
+  const map=getSlackDailyMap();
+  if(Object.prototype.hasOwnProperty.call(map,key))return map[key];
+  const [site,trade,date]=key.split('::');
+  // 공용저장소에서 가져온 보고서 값을 우선 사용한다.
+  const reports=typeof normalizedReportsForRead==='function'?normalizedReportsForRead():[];
+  const exact=reports.filter(r=>r.date===date&&r.site===site&&r.trade===trade&&r.slackExtra&&typeof r.slackExtra==='object');
+  if(exact.length)return exact[exact.length-1].slackExtra;
+  const drafts=typeof getModeDrafts==='function'?Object.values(getModeDrafts()):[];
+  const exactDraft=drafts.filter(r=>r&&r.date===date&&r.site===site&&r.trade===trade&&r.slackExtra&&typeof r.slackExtra==='object');
+  if(exactDraft.length)return exactDraft[exactDraft.length-1].slackExtra;
+  // 날짜가 없는 첫 방문에는 가장 가까운 과거 입력값만 초기 표시한다.
+  const previous=Object.entries(map).filter(([k,v])=>{const a=k.split('::');return a[0]===site&&a[1]===trade&&a[2]<date&&v&&typeof v==='object'}).sort((a,b)=>b[0].localeCompare(a[0]));
+  const pastReports=reports.filter(r=>r.date<date&&r.site===site&&r.trade===trade&&r.slackExtra).sort((a,b)=>b.date.localeCompare(a.date));
+  if(pastReports.length&&(!previous.length||pastReports[0].date>previous[0][0].split('::')[2]))return pastReports[0].slackExtra;
+  if(previous.length)return previous[0][1];
+  return {risk:'낙하물, 협착, 전도, 끼임, 추락',special:''};
+}
+function currentSlackExtra(){
+  return {risk:$('slackRiskInput')?.value??'',special:$('slackSpecialInput')?.value??''};
+}
 function saveSlackFields(){
-  const risk=$('slackRiskInput');
-  if(risk)localStorage.setItem('ugongsan_slack_last_risk',risk.value);
-  const special=$('slackSpecialInput');
-  if(special)localStorage.setItem('ugongsan_slack_last_special',special.value);
-  const preview=$('slackPreview');
-  if(preview)renderSlackPreview();
+  const key=slackDailyKey();if(!key.endsWith('::')&&key.split('::')[2]){
+    const map=getSlackDailyMap();map[key]=currentSlackExtra();
+    projectSet('slackDailyByDate',JSON.stringify(map));
+    if(typeof autoSave==='function')autoSave();
+    if(typeof markLocalChanged==='function')markLocalChanged();
+    if(typeof tokenValid==='function'&&tokenValid()&&typeof scheduleAutoSync==='function')scheduleAutoSync();
+  }
+  if($('slackPreview'))renderSlackPreview();
 }
 function initSlackFields(){
   const risk=$('slackRiskInput'),special=$('slackSpecialInput');
-  if(risk&&!risk.dataset.initialized){risk.value=localStorage.getItem('ugongsan_slack_last_risk')||'낙하물, 협착, 전도, 끼임, 추락';risk.dataset.initialized='1';}
-  if(special&&!special.dataset.initialized){special.value=localStorage.getItem('ugongsan_slack_last_special')||'';special.dataset.initialized='1';}
+  if(!risk||!special)return;
+  const key=slackDailyKey();
+  if(slackFieldsKeyLoaded===key)return;
+  const value=findSlackDailyValue(key);
+  risk.value=String(value.risk??'낙하물, 협착, 전도, 끼임, 추락');
+  special.value=String(value.special??'');
+  slackFieldsKeyLoaded=key;
 }
 
 function updatePreview(){
@@ -3287,7 +3325,7 @@ async function searchReports(){
     const total=companies.reduce((sum,c)=>sum+Object.values(c.jobs||{}).reduce((a,b)=>a+(+b||0),0),0);
     const companyText=companies.map(c=>{const n=Object.values(c.jobs||{}).reduce((a,b)=>a+(+b||0),0);return `${c.name||'-'} ${n}명`}).join(', ');
     const equipment=equips.filter(e=>e.name&&(+e.qty||0)>0).map(e=>`${e.name} ${e.qty}대`).join(', ');
-    const work=areas.map(a=>{const tasks=(a.tasks||[]).filter(Boolean).join(' / ');return [a.zone,a.loc,tasks].filter(Boolean).join(' · ')}).filter(Boolean).join(' | ');
+    const work=areas.map(a=>{const tasks=(a.tasks||[]).filter(Boolean).join(' / ');return [a.zone,a.note||'',tasks].filter(Boolean).join(' · ')}).filter(Boolean).join(' | ');
     out.push({r,total,companyText,equipment,work});
   });
   out.sort((a,b)=>b.r.date.localeCompare(a.r.date));
@@ -4010,7 +4048,7 @@ function findSavedReport(date,site,trade,type='weekly',no=0){
 function findModeDraft(date,site,trade,type='weekly',no=0){return getModeDrafts()[workModeKey(date,site,trade,type,no)]||null}
 function makeCurrentModeDraft(){
   return {date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,
-    workType:currentWorkType,overtimeNo:currentWorkType==='overtime'?(+currentOvertimeNo||1):0,state:JSON.parse(JSON.stringify(state))};
+    workType:currentWorkType,overtimeNo:currentWorkType==='overtime'?(+currentOvertimeNo||1):0,state:JSON.parse(JSON.stringify(state)),slackExtra:currentSlackExtra()};
 }
 function stashModeDraft(){
   if(!canEditActiveProject())return;
@@ -4214,7 +4252,7 @@ function saveReport(){
   const wt=currentWorkType==='overtime'?'overtime':'weekly', no=wt==='overtime'?(+currentOvertimeNo||1):0;
   const old=findSavedReport($('date').value,$('site').value,$('trade').value,wt,no);
   const obj={date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,
-    workType:wt,overtimeNo:no,state:JSON.parse(JSON.stringify(state)),text:reportText(),closed:!!(old&&old.closed)};
+    workType:wt,overtimeNo:no,state:JSON.parse(JSON.stringify(state)),slackExtra:currentSlackExtra(),text:reportText(),closed:!!(old&&old.closed)};
   // 같은 날짜+현장+공종의 주간은 무조건 1개, 연장은 번호별 1개만 유지
   reports=reports.filter(r=>!(r.date===obj.date&&r.site===obj.site&&r.trade===obj.trade&&reportTypeOf(r)===wt&&reportOvertimeNoOf(r)===no));
   reports.push(obj);projectSet('reports',JSON.stringify(reports));
@@ -4253,7 +4291,7 @@ async function searchReports(){
       const total=companies.reduce((sum,c)=>sum+Object.values(c.jobs||{}).reduce((a,b)=>a+(+b||0),0),0);
       const companyText=companies.map(c=>{const n=Object.values(c.jobs||{}).reduce((a,b)=>a+(+b||0),0);return `${c.name||'-'} ${n}명`}).join(', ');
       const equipment=equips.filter(e=>e.name&&(+e.qty||0)>0).map(e=>`${e.name} ${e.qty}대`).join(', ');
-      const work=areas.map(a=>{const tasks=(a.tasks||[]).filter(Boolean).join(' / ');return [a.zone,a.loc,tasks].filter(Boolean).join(' · ')}).filter(Boolean).join(' | ');
+      const work=areas.map(a=>{const tasks=(a.tasks||[]).filter(Boolean).join(' / ');return [a.zone,a.note||'',tasks].filter(Boolean).join(' · ')}).filter(Boolean).join(' | ');
       const wt=reportTypeOf(r),ot=reportOvertimeNoOf(r);out.push({r,total,companyText,equipment,work,workType:wt,overtimeNo:ot,typeLabel:currentModeLabel(wt,ot)});
     });
     out.sort((a,b)=>{const d=b.r.date.localeCompare(a.r.date);if(d)return d;if(a.workType!==b.workType)return a.workType==='weekly'?-1:1;return a.overtimeNo-b.overtimeNo});
