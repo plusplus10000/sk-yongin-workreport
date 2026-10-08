@@ -1995,6 +1995,12 @@ body.report-is-closed #writePage textarea:disabled{
 .force-carry-dialog input{height:40px;padding:9px;border:1px solid #bfcfe0;border-radius:5px;font-size:16px;width:100%}
 .force-carry-dialog-actions{display:flex;gap:8px;justify-content:flex-end}
 @media(max-width:850px){#dataPage .data-board-card th,#dataPage .data-board-card td{font-size:calc(10px + 1pt)!important;padding:6px 3px!important}#dataPage .force-carry-input{max-width:58px;padding:4px 0}#dataPage .data-force-bar{justify-content:flex-start}}
+
+/* 강제이월 중 미사용 0 장비 항목 정리 버튼 (마스터에게만 노출) */
+#dataPage .data-board-card .data-card-title{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#dataPage .data-board-card .data-card-title .data-add-row{margin-left:0}
+#dataPage .data-board-card .data-card-title .data-add-row:first-child{margin-left:auto}
+
 </style><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script></head>
 <body class="locked site-home-mode"><section id="siteHome" aria-label="현장 선택">
   <div class="site-home-inner site-home-simple">
@@ -4050,7 +4056,7 @@ function dataBoardTable(title,headers,rows,opts){
   opts=opts||{};
   const kind=opts.kind||'',isEquipment=kind==='equipment',baseCol=isEquipment?2:1;
   const canEdit=forceCarryCanEdit(),isProgress=kind==='progress';
-  const plus=canEdit&&!isProgress?'<button class="data-add-row" type="button" onclick="addForcedCarryItem(\''+kind+'\')">+ 항목 추가</button>':'';
+  const plus=(canEdit&&!isProgress?'<button class="data-add-row" type="button" onclick="addForcedCarryItem(\''+kind+'\')">+ 항목 추가</button>':'')+(opts.extraActions||'');
   const cls='data-board-card'+(opts.className?' '+opts.className:'');
   const foot=opts.foot?'<div class="data-card-foot">'+opts.foot+'</div>':'';
   if(!rows.length)return '<section class="'+cls+'"><div class="data-card-title">'+esc(title)+plus+'</div><div class="data-empty-info">표시할 데이터가 없습니다.</div>'+foot+'</section>';
@@ -4102,6 +4108,36 @@ function dataRegisteredNames(kind){
   else if(kind==='manager')candidates=(D.managers||[]).map(m=>Array.isArray(m)?m[0]:m?.name);
   return [...new Set(candidates.map(x=>String(x||'').trim()).filter(Boolean))];
 }
+// 과거 강제이월에서 수동 추가한 항목은 기준정보와 별도로 저장됩니다.
+// 기준정보에 없고, 실제 실적도 없으며, 강제이월 값까지 0인 항목만 미사용으로 분류합니다.
+function unusedZeroForceCarryKeys(kind,recordMap,site,trade){
+  const registered=new Set(dataRegisteredNames(kind).map(name=>kind==='equipment'?name+'\u0001':name));
+  return Object.entries(forceCarryItems(kind,site,trade)).filter(([key,raw])=>{
+    const value=Number(raw);
+    return Number.isFinite(value)&&value===0&&!recordMap.has(key)&&!registered.has(key);
+  }).map(([key])=>key);
+}
+// 실제로 저장된 미사용 강제이월 0 항목은 마스터가 마감 해제한 경우에만 삭제할 수 있습니다.
+function cleanupUnusedZeroForceCarry(kind){
+  if(!forceCarryCanEdit())return alert('강제이월 마감을 해제한 마스터만 정리할 수 있습니다.');
+  if(!['company','job','equipment','manager'].includes(kind))return;
+  const site=$('site').value,trade=$('trade').value;
+  // 현재 조회일보다 나중에 투입된 장비도 보호하도록 모든 저장 날짜의 실적을 확인합니다.
+  const allRecords=dataRecordsForWindow('0000-01-01','9999-12-31',site,trade);
+  const allMaps=buildDataAggregates(allRecords,'9999-12-31');
+  const keys=unusedZeroForceCarryKeys(kind,allMaps[kind],site,trade);
+  if(!keys.length)return alert('정리할 미사용 0 항목이 없습니다.');
+  const names=keys.map(key=>key.replace('\u0001',' / ')).join(', ');
+  if(!confirm('다음 미사용 강제이월 0 항목을 삭제할까요?\n'+names+'\n\n작업일보 기록과 기준정보는 삭제되지 않습니다.'))return;
+  const all=forceCarryStorage(),scope=forceCarryScope(site,trade);
+  const items=all[scope]?.[kind];
+  if(!items)return;
+  keys.forEach(key=>delete items[key]);
+  projectSet('forcedCarryover',JSON.stringify(all));
+  if(typeof markLocalChanged==='function')markLocalChanged();
+  renderDataPage();
+}
+
 function buildDataDashboard(controls,maps){
   const h=controls.labels,site=$('site').value,trade=$('trade').value;
   const fixed=kind=>forceCarryItems(kind,site,trade);
@@ -4113,7 +4149,12 @@ function buildDataDashboard(controls,maps){
       if(kind==='equipment'&&[...rows.keys()].some(k=>k.split('\u0001')[0]===name))continue;
       if(!rows.has(key))rows.set(key,make(key,{prior:0,current:0,name,note:''}));
     }
-    for(const key of Object.keys(fixed(kind)))if(!rows.has(key))rows.set(key,make(key,{prior:0,current:0,name:key,note:key.split('\u0001')[1]||''}));
+    // 강제이월로 별도 등록됐더라도 기준정보·실적이 없고 금액이 0인 옛 항목은 다시 보여주지 않습니다.
+    const unused=new Set(unusedZeroForceCarryKeys(kind,map,site,trade));
+    for(const key of Object.keys(fixed(kind))){
+      if(unused.has(key)||rows.has(key))continue;
+      rows.set(key,make(key,{prior:0,current:0,name:kind==='equipment'?key.split('\u0001')[0]:key,note:key.split('\u0001')[1]||''}));
+    }
     return dataSortRows(kind,[...rows.entries()].map(([key,row])=>{
       const v=forceCarryAmount(kind,key,site,trade);
       const out=kind==='equipment'?[row[0],row[1],v,row[2],row[3],v+row[2]+row[3]]:[row[0],v,row[1],row[2],v+row[1]+row[2]];
@@ -4127,7 +4168,7 @@ function buildDataDashboard(controls,maps){
   return [
     dataBoardTable('업체별 인원',['업체','강제이월',h.past,h.current,'누계'],companies,{kind:'company',foot:'순서: 더오포 · 하나 · 스틸 · 고려 · 장비'}),
     dataBoardTable('직종별 인원',['직종','강제이월',h.past,h.current,'누계'],jobs,{kind:'job'}),
-    dataBoardTable('장비',['장비명','비고','강제이월',h.past,h.current,'누계'],equipments,{kind:'equipment',className:'equipment-card'}),
+    dataBoardTable('장비',['장비명','비고','강제이월',h.past,h.current,'누계'],equipments,{kind:'equipment',className:'equipment-card',extraActions:forceCarryCanEdit()&&unusedZeroForceCarryKeys('equipment',maps.equipment,site,trade).length?'<button class="data-add-row" type="button" onclick="cleanupUnusedZeroForceCarry(\'equipment\')">미사용 0 항목 정리</button>':''}),
     dataBoardTable('담당자',['이름','강제이월',h.past,h.current,'누계'],managers,{kind:'manager'}),
     dataProgressBoard(controls,site,trade)
   ].join('');
@@ -6151,8 +6192,9 @@ async function exportConstructionDaily(mode){
   const wk=todays.find(r=>r.workType!=='overtime'), overtime=todays.filter(r=>r.workType==='overtime');
   const empty={companies:[],equipment:[],areas:[],managers:[],tomorrowAreas:[]};
   const w=wk?.state||empty;
-  const aliases={'관리자':'현장관리자','기계설치':'기계공','유도원':'유도 및 화기','화기감시자':'유도 및 화기','신입':'일반공'};
-  const jobs=['현장관리자','기계공','배관공','용접공','유도 및 화기','일반공','전기공','계장공','시운전','장비기사','비계설치공'];
+  // 신호수는 별도 직종으로 집계하고, 기존 '유도 및 화기'는 새 표기명으로 합산합니다.
+  const aliases={'관리자':'현장관리자','기계설치':'기계공','유도원':'유도원,화기감시자','화기감시자':'유도원,화기감시자','유도 및 화기':'유도원,화기감시자','신호수,화기감시자':'유도원,화기감시자','신호수, 화기감시자':'유도원,화기감시자','신입':'일반공'};
+  const jobs=['현장관리자','기계공','배관공','용접공','유도원,화기감시자','일반공','전기공','계장공','시운전','장비기사','비계설치공','신호수'];
   function byJobs(reports){const ans={};for(const r of reports){for(const c of r.state?.companies||[]){for(const [name,qty] of Object.entries(c.jobs||{})){const key=aliases[name]||name;ans[key]=(ans[key]||0)+(Number(qty)||0)}}}return ans}
   function keyEquip(e){const n=String(e.name||'').toLowerCase().replace(/\s/g,'');const spec=String(e.note||e.remark||e.spec||'').toLowerCase();if(n.includes('크레인')){const m=(n+' '+spec).match(/(13|25|4)\s*(ton|톤|t)\b/);return m?'crane-'+m[1]:'crane-unknown'}if(n.includes('지게차'))return 'forklift';if(/table.?lift|t\/l|^tl\b|고소작업대|테이블리프트/.test(n))return 'lift';if(n.includes('펌프카'))return 'pump';if(n.includes('레미콘'))return 'mixer';return null}
   function byEquip(reports){const ans={};for(const r of reports)for(const e of r.state?.equipment||[]){const key=keyEquip(e);if(key)ans[key]=(ans[key]||0)+(Number(e.qty)||0)}return ans}
@@ -6222,6 +6264,14 @@ async function exportConstructionDaily(mode){
   // 착공일은 원본 양식 2026-01-26 기준. 착공일 포함 공정일수
   const start='2026-01-26';put('D6',Math.max(0,Math.round((Date.parse(date+'T00:00:00Z')-Date.parse(start+'T00:00:00Z'))/86400000)+1));
   jobs.forEach((j,i)=>{const row=29+i;put('C'+row,pw[j]||0);put('D'+row,po[j]||0);put('E'+row,tw[j]||0);put('F'+row,to[j]||0)});
+  // 인력표 33행 표기 변경, 비어 있던 40행에 신호수 추가. 기존 수식/합계 42행은 유지.
+  put('A33','유도원,화기감시자');
+  put('A40','신호수');
+  for(const col of ['A','B','C','D','E','F','G'])cell(col+'40').setAttribute('s',cell(col+'39').getAttribute('s')||'0');
+  const signalTotalCell=cell('G40');
+  let signalFormula=Array.from(signalTotalCell.children).find(n=>n.localName==='f');
+  if(!signalFormula){signalFormula=doc.createElementNS(ns,'f');signalTotalCell.insertBefore(signalFormula,signalTotalCell.firstChild);}
+  signalFormula.textContent='SUM(C40:F40)';
   // 장비 사양은 일보에 규격이 없으면 임의 배분하지 않고 첫 크레인 줄에만 합계 표시
   const craneUnknown=(x)=>Object.entries(x).filter(([k])=>k.startsWith('crane-')).reduce((a,[k,n])=>a+n,0);
   const ek=['crane-13','crane-25','crane-4','forklift','lift','pump','mixer'];
