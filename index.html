@@ -2159,7 +2159,7 @@ body.report-is-closed #writePage textarea:disabled{
 @media(min-width:851px) and (max-width:1350px){#writePage .work-column-resizer[data-work-edge="second"]{display:none!important;}}
 @media(max-width:850px){#writePage .work-column-resizer{display:none!important;}}
 
-/* 사진대지 전용 기능 — PC 로컬 폴더만 사용, 기존 보고서/데이터 저장소에서 완전히 분리 */
+/* 사진대지 원본 이미지 — PC 로컬 폴더만 사용. 설명 텍스트만 공용저장소 연동 */
 #photoLocalControls{display:none;align-items:center;flex-wrap:wrap;gap:6px;padding:9px 12px;background:#f1f8ff;border:1px solid #cfe3fa;border-radius:7px;margin:8px 0;font-size:12px}
 #photoLocalStatus{font-size:12px;font-weight:600;color:#315270;flex-basis:100%}
 .excel-photo-slot{position:absolute;z-index:12;box-sizing:border-box;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;outline:0;border:2px dashed transparent;background:#ffffff05;color:#4b6580}
@@ -5425,7 +5425,8 @@ function applyReportLike(r,type,no){
   $('end').value=r.end||(currentWorkType==='overtime'?'19:00':'17:00');
   $('bpa').value=r.bpa||'';
   state=JSON.parse(JSON.stringify(r.state||{companies:[],equipment:[],areas:[],managers:[]}));
-  currentReportLocked=!!r.closed;
+  const authoritativeSaved=findSavedReport(r.date||$('date').value,r.site||$('site').value,r.trade||$('trade').value,currentWorkType,currentOvertimeNo);
+  currentReportLocked=!!(authoritativeSaved?authoritativeSaved.closed:r.closed);
   render();
   applyReportLockUI(currentReportLocked);
   if(!currentReportLocked)autoSave();
@@ -5436,7 +5437,8 @@ function switchWorkMode(type,no=0){
   stashModeDraft();
   const date=$('date').value,site=$('site').value,trade=$('trade').value;
   const wt=type==='overtime'?'overtime':'weekly', n=wt==='overtime'?(+no||1):0;
-  const r=findModeDraft(date,site,trade,wt,n)||findSavedReport(date,site,trade,wt,n);
+  const saved=findSavedReport(date,site,trade,wt,n);
+  const r=saved&&saved.closed===true?saved:(findModeDraft(date,site,trade,wt,n)||saved);
   if(r){applyReportLike(r,wt,n)}
   else if(wt==='weekly'){
     const initial=newWeeklyFromPreviousDay(date,site,trade);
@@ -5631,7 +5633,8 @@ function autoSave(){
 function loadDateOrBlank(){
   stashModeDraft();currentWorkType='weekly';currentOvertimeNo=0;
   const target=$('date').value,site=$('site').value,trade=$('trade').value;
-  const exact=findSavedReport(target,site,trade,'weekly',0)||findModeDraft(target,site,trade,'weekly',0);
+  const saved=findSavedReport(target,site,trade,'weekly',0);
+  const exact=saved&&saved.closed===true?saved:(saved||findModeDraft(target,site,trade,'weekly',0));
   let r=exact;
   if(!r){r=newWeeklyFromPreviousDay(target,site,trade)}
   if(r){
@@ -5730,6 +5733,11 @@ function applyRemoteData(d,stamp){
     if(Array.isArray(d.reports))projectSet('reports',JSON.stringify(d.reports),activeProject);
     if(d.currentDraft)projectSet('currentDraft',JSON.stringify(d.currentDraft),activeProject);
     if(d.workModeDrafts)projectSet('workModeDrafts',JSON.stringify(d.workModeDrafts),activeProject);
+    // 작업없음은 작업일보 데이터와 별도로 저장된다. 모든 기기에서 동일한 날짜 상태를 내려받는다.
+    // 키가 없는 과거 서버 자료는 기존 로컬 자료를 함부로 삭제하지 않는다.
+    if(d.noWorkDays && typeof d.noWorkDays==='object' && !Array.isArray(d.noWorkDays)){
+      projectSet('noWorkDays',JSON.stringify(d.noWorkDays),activeProject);
+    }
     setDriveMeta('driveLastRemoteStamp',String(stamp||Date.now()));setDriveMeta('driveLocalDirty','0');setDriveMeta('driveLocalUpdatedAt',String(stamp||Date.now()));
   }finally{applyingRemote=false}
 }
@@ -5887,6 +5895,13 @@ async function restoreSelectedLocalBackup(){
   }catch(e){console.error(e);setLocalBackupStatus('불러오기 실패: '+e.message);alert('백업 불러오기에 실패했습니다.\n'+e.message)}
 }
 
+// 기존 부트스트랩은 작업없음 화면 스크립트보다 먼저 실행된다.
+// 앱 최초 렌더링에서도 같은 날짜별 상태를 읽을 수 있게 초기 정의를 제공한다.
+// 뒤이어 로드되는 작업없음 UI의 동명 함수가 기존 방식 그대로 덮어쓴다.
+function noWorkMap(){try{return JSON.parse(projectGet('noWorkDays')||'{}')||{}}catch(e){return {}}}
+function isNoWorkDay(date){return !!(date&&noWorkMap()[date])}
+// 화면 표시 코드는 아래쪽 추가 스크립트에서 연결된다. 초기 렌더 단계는 안전하게 통과한다.
+function updateNoWorkUI(){}
 prepareActiveProjectStore();
 init();
 restorePanelStates();
@@ -6631,7 +6646,7 @@ async function downloadConstructionExcelPreview(){
   if(!constructionExcelPreviewBlob){alert('미리보기 버튼으로 엑셀을 먼저 만들어 주세요.');return;}
   try{await photoFlushCaptionEditsBeforeDownload()}catch(e){alert(e.message);return;}
   if(photoFolderHandle&&photoFolderAccessError){alert('사진대지 전용 폴더에 접근할 수 없어 사진이 누락될 수 있습니다.\n사진대지의 「사진 폴더 지정 / 재지정」 버튼으로 폴더를 다시 연결한 뒤 엑셀을 다운로드하세요.');return;}
-  // 사진설명과 사진은 로컬 폴더에서 다시 읽어 최종 Excel 파일에 정확히 반영합니다.
+  // 사진은 로컬 폴더에서, 사진 상세 설명은 날짜별 공용저장소 동기화 데이터에서 불러와 Excel에 반영합니다.
   if(constructionExcelRemarkDirty||photoExcelDirty||photoFolderHandle){
     try{
       // 입력한 비고 및 사진이 최종 다운로드 파일에 반영되도록 다시 만듭니다.
@@ -7372,8 +7387,8 @@ document.addEventListener('DOMContentLoaded',()=>{
 })();
 </script><script>
 /* 엑셀의 두 탭이 같은 보고서 저장 버튼을 사용합니다.
- * 사진 파일은 클라우드에 넣지 않으며 붙여넣기 즉시 PC 전용 폴더에 저장됩니다.
- * 사진 설명의 마지막 수정은 보고서 저장 직전에 로컬 폴더로 반영합니다. */
+ * 사진 원본 파일은 PC 로컬 폴더에만 저장됩니다.
+ * 사진 1~4의 상세 설명 텍스트는 날짜·현장·공종별로 보고서 공용저장소에 동기화합니다. */
 async function saveExcelAndPhotoReport(){
  const ctx=photoContext();
  if(!canEditActiveProject())return alert('읽기 전용 기기에서는 저장할 수 없습니다.');
@@ -7391,7 +7406,7 @@ async function saveExcelAndPhotoReport(){
  // 기존 보고서 저장, 자동 동기화 로직은 그대로 호출합니다.
  saveReport();
 }
-/* 사진대지 전용 로컬 저장소: 기존 보고서 저장/동기화/폴더를 절대 건드리지 않음. */
+/* 사진 원본 전용 로컬 저장소. 사진 설명 텍스트만 기존 공용저장소 동기화 범위에 저장합니다. */
 const PHOTO_LOCAL_DIRECTORY_NAME='우리공일보_사진대지_전용';
 const PHOTO_LOCAL_MARKER='.urigong_photo_owned_v1.json';
 const PHOTO_LOCAL_DB='urigong-photo-folder-only-v1';
@@ -7495,7 +7510,7 @@ async function photoFileName(ctx,slot){
  return 'uwphoto_'+Array.from(new Uint8Array(digest),v=>v.toString(16).padStart(2,'0')).join('')+'_'+slot+'.jpg';
 }
 // 왼쪽 사진대지 입력 패널은 엑셀 시트 미리보기와 완전히 분리됩니다.
-// 사진 파일과 설명은 기존 PC 사진 전용 폴더에만 저장하고 보고서 데이터는 수정하지 않습니다.
+// 사진 파일은 기존 PC 전용 폴더에 저장합니다. 상세 설명은 날짜별 텍스트로 공용저장소에 동기화됩니다.
 function photoEditorSelect(slot){
  photoActiveSlot=slot;
  document.querySelectorAll('#excelPhotoEditor .photo-editor-card').forEach(el=>el.classList.toggle('photo-editor-active',Number(el.dataset.photoSlot)===slot));
@@ -7505,7 +7520,7 @@ function photoRenderEditor(){
  const editAllowed=photoCanEdit(photoContext());
  host.className='excel-photo-editor';host.classList.toggle('is-closed',!editAllowed);host.dataset.photoLockState=editAllowed?'edit':'locked';host.replaceChildren();
  const header=document.createElement('div');header.className='photo-editor-title';header.textContent='사진대지 · 사진 및 설명 입력';host.appendChild(header);
- const help=document.createElement('div');help.className='photo-editor-help';help.textContent='사진 1~4의 칸에서 마우스 오른쪽 버튼 → 붙여넣기를 누르거나, 칸을 선택한 뒤 Ctrl+V로 캡처 사진을 붙여넣으세요. 왼쪽 노란색 번호 칸은 사진 범위에 포함되지 않습니다. 설명은 아래 입력칸에서 수정합니다. 사진은 지정한 이 PC의 로컬 전용 폴더에만 저장됩니다.';host.appendChild(help);
+ const help=document.createElement('div');help.className='photo-editor-help';help.textContent='사진 1~4의 칸에서 마우스 오른쪽 버튼 → 붙여넣기를 누르거나, 칸을 선택한 뒤 Ctrl+V로 캡처 사진을 붙여넣으세요. 왼쪽 노란색 번호 칸은 사진 범위에 포함되지 않습니다. 설명은 아래 입력칸에서 수정합니다. 사진 원본은 PC 로컬 전용 폴더에만 저장되며, 사진 상세 설명 글자만 날짜별로 공용저장소에 동기화됩니다.';host.appendChild(help);
  const model=constructionExcelPreviewSheets?.[1];
  for(let slot=1;slot<=4;slot++){
   const card=document.createElement('div');card.className='photo-editor-card';card.dataset.photoSlot=String(slot);card.tabIndex=0;
@@ -7526,7 +7541,7 @@ function photoRenderEditor(){
   card.addEventListener('click',e=>{if(e.target===card)photoEditorSelect(slot)});
   host.appendChild(card);
  }
- const foot=document.createElement('div');foot.className='photo-editor-status';foot.textContent='사진 저장 후 각 PC마다 최근 5개 작업일만 보관됩니다. 좌우 폭은 두 화면 사이 경계선을 드래그하여 조절할 수 있습니다.';host.appendChild(foot);
+ const foot=document.createElement('div');foot.className='photo-editor-status';foot.textContent='사진 원본은 각 PC에서 최근 5개 작업일만 보관합니다. 사진 아래 설명 글자는 날짜별로 구글 공용저장소에 동기화되며, 사진 삭제 대상에 포함되지 않습니다. 좌우 폭은 경계선을 드래그해 조절할 수 있습니다.';host.appendChild(foot);
  photoEditorSelect(photoActiveSlot>=1&&photoActiveSlot<=4?photoActiveSlot:1);
  photoUpdateEditorImages(photoMemory.get(photoContextKey(photoContext()))||null);
 }
@@ -7565,43 +7580,82 @@ function photoSyncCaptionEditor(values){
   if(cell&&document.activeElement!==cell)cell.textContent=String(value);
  }
 }
-// 사진대지의 사진 아래 설명 4개는 원본 보고서와 분리한 로컬 전용 JSON으로만 저장합니다.
+// 사진 원본 파일은 PC 전용 폴더에만 남깁니다. 사진 4칸의 설명 텍스트는
+// 이미 공용저장소가 동기화하는 workModeDrafts 내부에 별도 이름공간으로 저장합니다.
+// 새로운 서버 배포나 이미지 업로드 없이 날짜/현장/공종별로 공유됩니다.
+const PHOTO_CAPTION_CLOUD_NAMESPACE='__urigongPhotoCaptionTextV1__';
+function photoCloudCaptions(ctx){
+ const drafts=getModeDrafts(),bucket=drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]||{};
+ const record=bucket[photoContextKey(ctx)];
+ const out={};
+ if(record&&typeof record==='object'&&!Array.isArray(record)){
+  for(const ref of PHOTO_CAPTION_REFS){
+   if(Object.prototype.hasOwnProperty.call(record,ref))out[ref]=String(record[ref]??'').slice(0,300);
+  }
+ }
+ return out;
+}
+function photoWriteCloudCaptions(ctx,values){
+ const drafts=getModeDrafts();
+ const bucket=(drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]&&typeof drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]==='object'&&!Array.isArray(drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]))?drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]:{};
+ const key=photoContextKey(ctx),old=bucket[key]||{},next={...old};
+ for(const ref of PHOTO_CAPTION_REFS){
+  if(Object.prototype.hasOwnProperty.call(values,ref))next[ref]=String(values[ref]??'').replace(/\r/g,'').slice(0,300);
+ }
+ bucket[key]=next;drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]=bucket;
+ setModeDrafts(drafts);
+ photoCaptionMemory.set(key,{...next});
+ markLocalChanged(); // 기존 보고서의 공용저장소 자동 동기화를 재사용합니다.
+}
+// 과거 버전에서 이미 PC 폴더에 저장했던 설명을 한 번 읽어올 수 있게만 남깁니다.
 async function photoCaptionFileName(ctx){
  const raw=JSON.stringify([ctx.project,ctx.site,ctx.trade]);
  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw));
  return 'uwcaption_'+Array.from(new Uint8Array(digest),v=>v.toString(16).padStart(2,'0')).join('')+'.json';
 }
+async function photoReadLegacyLocalCaptions(ctx){
+ const values={};
+ try{
+  const root=await photoGetRoot(false);if(!root)return values;
+  let day;try{day=await root.getDirectoryHandle(ctx.date)}catch(e){if(e.name==='NotFoundError')return values;throw e}
+  const h=await day.getFileHandle(await photoCaptionFileName(ctx));
+  const obj=JSON.parse(await (await h.getFile()).text());
+  for(const ref of PHOTO_CAPTION_REFS){if(Object.prototype.hasOwnProperty.call(obj,ref))values[ref]=String(obj[ref]??'').slice(0,300)}
+ }catch(e){if(e.name!=='NotFoundError')console.warn('기존 로컬 사진 설명 읽기 생략:',e)}
+ return values;
+}
 async function photoGetCaptions(ctx,force=false){
  const key=photoContextKey(ctx);
  if(!force&&photoCaptionMemory.has(key))return photoCaptionMemory.get(key);
- const result={};const root=await photoGetRoot(false);if(!root)return result;
- let day;try{day=await root.getDirectoryHandle(ctx.date)}catch(e){if(e.name==='NotFoundError')return result;throw e}
- try{
-  const h=await day.getFileHandle(await photoCaptionFileName(ctx));
-  const obj=JSON.parse(await (await h.getFile()).text());
-  for(const ref of PHOTO_CAPTION_REFS)if(Object.prototype.hasOwnProperty.call(obj,ref))result[ref]=String(obj[ref]).slice(0,300);
- }catch(e){if(e.name!=='NotFoundError')throw e}
- photoCaptionMemory.set(key,result);return result;
+ const cloud=photoCloudCaptions(ctx);
+ const hasCloud=PHOTO_CAPTION_REFS.some(ref=>Object.prototype.hasOwnProperty.call(cloud,ref));
+ let record=cloud;
+ if(!hasCloud){
+  const legacy=await photoReadLegacyLocalCaptions(ctx);
+  if(Object.keys(legacy).length){
+   record={...legacy};
+   // 옛 파일은 삭제하지 않습니다. 마감/읽기 전용 상태라면 가져오기만 합니다.
+   if(photoCanEdit(ctx))photoWriteCloudCaptions(ctx,record);
+  }
+ }
+ photoCaptionMemory.set(key,record);
+ return record;
 }
 async function photoSaveCaption(ref,value,ctx){
  if(!PHOTO_CAPTION_REFS.includes(ref)||!photoCanEdit(ctx))return false;
  try{
-  const root=await photoGetRoot(true);if(!root)return;
-  const key=photoContextKey(ctx),record=await photoGetCaptions(ctx);
-  record[ref]=String(value).replace(/\r/g,'').slice(0,300);
-  photoCaptionMemory.set(key,record);
+  const record={...(await photoGetCaptions(ctx))};
   if(!photoCanEdit(ctx))return false;
-  const day=await root.getDirectoryHandle(ctx.date,{create:true});
-  const handle=await day.getFileHandle(await photoCaptionFileName(ctx),{create:true});
-  const writer=await handle.createWritable();await writer.write(JSON.stringify(record));await writer.close();
-  photoExcelDirty=true;photoSyncCaptionEditor({[ref]:record[ref]});photoStatus('사진 설명 저장 완료 · 해당 PC의 전용 폴더에만 저장');return true;
+  record[ref]=String(value).replace(/\r/g,'').slice(0,300);
+  photoWriteCloudCaptions(ctx,record);
+  photoExcelDirty=true;photoSyncCaptionEditor({[ref]:record[ref]});
+  photoStatus('사진 설명 저장됨 · 공용저장소 자동 동기화 대기 또는 진행 중 (사진 원본은 PC에만 보관)');
+  return true;
  }catch(e){photoStatus('사진 설명 저장 실패: '+e.message);alert('사진 설명 저장 실패: '+e.message);return false}
 }
 async function photoLoadCaptions(force=false){
  if(constructionExcelSheetIndex!==1)return;
  const ctx=photoContext(),key=photoContextKey(ctx);
- if(!photoFolderHandle)await photoInit();
- if(!photoFolderHandle)return;
  try{
   const values=await photoGetCaptions(ctx,force);
   if(constructionExcelSheetIndex!==1||photoContextKey(photoContext())!==key)return;
@@ -7631,7 +7685,7 @@ function photoMakeCaptionEditable(cell,ref){
  cell.addEventListener('blur',()=>{
   // 기존에 서식 있는 글자가 들어왔더라도 저장 전에 순수 텍스트로 정규화합니다.
   const value=cell.textContent;cell.textContent=value;
-  const ctx=photoContext();if(!photoFolderHandle){photoStatus('사진 설명 저장에는 먼저 사진 전용 폴더를 지정해야 합니다.');return;}
+  const ctx=photoContext();
   void photoTrackCaptionSave(photoSaveCaption(ref,value,ctx));
  });
  cell.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();cell.blur()}});
@@ -7914,5 +7968,47 @@ function appMemoPersistGeometry(){
 })();
 
 </script>
+
+
+<style id="mobileExcelContinuousScroll20261012">
+/* 모바일 공사일보 엑셀: Item 입력칸과 엑셀 시트를 연속된 한 페이지로 스크롤. PC 레이아웃은 변경하지 않습니다. */
+@media screen and (max-width:850px){
+  #excelPage,#excelPage.active{
+    height:auto!important;min-height:calc(100dvh - 65px)!important;
+    max-height:none!important;overflow:visible!important;
+    flex-direction:column!important;
+  }
+  #excelPage.active{display:flex!important;}
+  #excelPage .excel-preview-workspace,
+  #excelPage .excel-preview-workspace.photo-editor-active,
+  #excelPage .excel-preview-workspace.photo-only{
+    display:flex!important;flex-direction:column!important;
+    grid-template-columns:none!important;grid-template-rows:none!important;
+    height:auto!important;max-height:none!important;min-height:0!important;
+    flex:0 0 auto!important;overflow:visible!important;
+    overscroll-behavior:auto!important;
+  }
+  #excelPage .excel-progress-panel,
+  #excelPage .excel-preview-workspace.photo-editor-active .excel-progress-panel{
+    width:100%!important;height:auto!important;max-height:none!important;
+    min-height:0!important;overflow:visible!important;flex:0 0 auto!important;
+    border-right:1px solid #d8e1eb!important;
+    border-bottom:1px solid #d8e1eb!important;
+    box-sizing:border-box!important;
+  }
+  #excelPage .excel-preview-workspace>.excel-preview-shell{
+    width:100%!important;height:auto!important;max-height:none!important;
+    min-height:0!important;flex:0 0 auto!important;
+    overflow-x:auto!important;overflow-y:hidden!important;
+    overscroll-behavior-x:auto!important;overscroll-behavior-y:auto!important;
+    -webkit-overflow-scrolling:touch;
+    box-sizing:border-box!important;
+  }
+  #excelPage .excel-preview-shell .excel-sheet-preview{
+    width:max-content!important;max-width:none!important;
+    margin-left:0!important;margin-right:0!important;
+  }
+}
+</style>
 
 </body></html>
