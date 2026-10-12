@@ -3369,7 +3369,7 @@ function renderCompanies(){
     </div>
     <div class="jobs">${c.visibleJobs.map(j=>`<label class="job-item">
       <span class="job-label-row"><span class="job-name">${esc(j)}</span><button class="job-remove-btn" type="button" title="이 업체에서 직종 숨기기" onclick="removeCompanyJobMobileAware(${i},'${esc(j)}',event)">×</button></span>
-      <span class="counter"><button type="button" onclick="changeJob(${i},'${j}',-1)">−</button><input type="number" min="0" max="999" inputmode="numeric" value="${c.jobs[j]||0}" oninput="if(this.value.length>3)this.value=this.value.slice(0,3);if(+this.value>999)this.value=999;state.companies[${i}].jobs['${j}']=+this.value||0;calcTotals();updateMobileZeroJobStyles()"><button type="button" onclick="changeJob(${i},'${j}',1)">+</button></span>
+      <span class="counter"><button type="button" onclick="changeJob(${i},'${j}',-1)">−</button><input type="number" min="0" max="999999" inputmode="numeric" value="${c.jobs[j]||0}" oninput="if(+this.value>999999)this.value=999999;state.companies[${i}].jobs['${j}']=Math.max(0,+this.value||0);calcTotals();updateMobileZeroJobStyles()"><button type="button" onclick="changeJob(${i},'${j}',1)">+</button></span>
     </label>`).join('')}</div>
   </div>`}).join('');
   calcTotals();updateMobileZeroJobStyles();
@@ -4693,7 +4693,7 @@ function updateMobileZeroJobStyles(){
     el.classList.toggle('mobile-job-zero',!inp||(+inp.value||0)===0);
   });
 }
-function changeJob(i,j,d){let v=Math.max(0,Math.min(999,(+state.companies[i].jobs[j]||0)+d));state.companies[i].jobs[j]=v;renderCompanies();updatePreview()}
+function changeJob(i,j,d){let v=Math.max(0,Math.min(999999,(+state.companies[i].jobs[j]||0)+d));state.companies[i].jobs[j]=v;renderCompanies();updatePreview()}
 function changeEquip(i,d){state.equipment[i].qty=Math.max(0,Math.min(999,(+state.equipment[i].qty||0)+d));renderEquipment();updatePreview()}
 function saveMasters(){
   if(!canEditActiveProject())return alert('이 현장의 기준정보 변경 권한이 없습니다.');
