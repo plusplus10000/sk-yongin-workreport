@@ -3760,7 +3760,7 @@ function previewReportSection(tab){
   const managers=tab==='lunch'?(weekly?.state?.managers||[]):(data.managers||[]);
   const title=tab==='weekly'?'주간작업보고':tab==='lunch'?'중식OT작업보고':currentModeLabel('overtime',overtimeNo)+'작업보고';
   const start=tab==='lunch'?'11:00':tab==='weekly'?'07:00':'17:30';
-  const end=tab==='lunch'?'13:00':tab==='weekly'?'17:30':'19:30';
+  const end=tab==='lunch'?'13:00':tab==='weekly'?'17:30':'20:00';
   const d=new Date(date+'T00:00:00'),days='일월화수목금토';
   const ds=isNaN(d)?'':`${String(d.getFullYear()).slice(2)}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}(${days[d.getDay()]})`;
   const totals=Object.fromEntries((D.jobs||[]).map(j=>[j,0]));
@@ -3786,7 +3786,7 @@ function enforceFixedWorkHours(){
   const start=document.getElementById('start'),end=document.getElementById('end');
   if(!start||!end)return;
   const overtime=(typeof currentWorkType!=='undefined'&&currentWorkType==='overtime');
-  const fixedStart=overtime?'17:30':'07:00',fixedEnd=overtime?'19:30':'17:30';
+  const fixedStart=overtime?'17:30':'07:00',fixedEnd=overtime?'20:00':'17:30';
   if(start.value!==fixedStart)start.value=fixedStart;
   if(end.value!==fixedEnd)end.value=fixedEnd;
   start.readOnly=true;end.readOnly=true;
@@ -3824,7 +3824,7 @@ function slackClosingLine(ds){
     });
   });
   if(!names.length)return base;
-  return `${base} [연장(~19:30) :${names.join(', ')}]${managers.length?' 근무:'+managers.join(', '):''}`;
+  return `${base} [연장(~20:00) :${names.join(', ')}]${managers.length?' 근무:'+managers.join(', '):''}`;
 }
 function slackReportText(){
   enforceFixedWorkHours();
