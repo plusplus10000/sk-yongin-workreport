@@ -2001,6 +2001,99 @@ body.report-is-closed #writePage textarea:disabled{
 #dataPage .data-board-card .data-card-title .data-add-row{margin-left:0}
 #dataPage .data-board-card .data-card-title .data-add-row:first-child{margin-left:auto}
 
+
+/* 2026-10-12 요청: 데이터 강제이월 열/도구는 화면에서만 숨김 (기록 보존) */
+.data-force-bar,.force-carry-toggle,.force-carry-input{display:none!important}
+.data-board-card:not(.progress-card):not(.equipment-card) .data-overview-table tr>th:nth-child(2),
+.data-board-card:not(.progress-card):not(.equipment-card) .data-overview-table tr>td:nth-child(2),
+.data-board-card.progress-card .data-overview-table tr>th:nth-child(2),
+.data-board-card.progress-card .data-overview-table tr>td:nth-child(2){display:none!important}
+.data-board-card.equipment-card .data-overview-table tr>th:nth-child(3),
+.data-board-card.equipment-card .data-overview-table tr>td:nth-child(3){display:none!important}
+.construction-action-buttons{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0}
+.construction-remark-input{width:100%;min-height:35px;font-size:12px;padding:5px;resize:vertical}
+.construction-no-data{padding:7px;background:#f2f6fa;font-size:12px;color:#637489}
+.construction-item-label{display:block;width:100%!important;min-width:0;font-size:12px;padding:5px;border:1px solid #d5e1ed;border-radius:4px}
+.progress-row:not(.progress-group){display:grid!important;grid-template-columns:minmax(0,1.4fr) minmax(76px,.55fr) minmax(0,1fr)!important;gap:5px;align-items:center}
+.progress-row .progress-name{min-width:0}
+@media(max-width:540px){.progress-row:not(.progress-group){grid-template-columns:minmax(0,1.3fr) minmax(65px,.6fr) minmax(0,.9fr)!important}.construction-remark-input{font-size:11px}}
+/* 공사일보 직종 이름 줄바꿈 억제 */
+.excel-fixed-sheet .excel-fixed-cell{word-break:keep-all}
+
+/* 2026-10-12: 데이터 5개 카드 한 줄, 기존 공사일보 경계 자체로 폭 조절 */
+@media(min-width:1201px){
+ #dataPage .data-dashboard{grid-template-columns:repeat(4,minmax(0,0.83fr)) minmax(0,1.55fr)!important;gap:6px!important}
+ #dataPage .data-dashboard>.progress-card{grid-column:auto!important;min-width:0!important}
+ #dataPage .data-board-card th,#dataPage .data-board-card td{padding:4px 2px!important}
+ #dataPage .data-board-card .data-card-title{padding:7px 5px!important}
+ #dataPage .data-board-card .data-table-scroll{overflow-x:auto}
+ #dataPage .data-board-card td:first-child,#dataPage .data-board-card th:first-child{width:29%;overflow-wrap:normal}
+ #dataPage .data-board-card.progress-card td:first-child,#dataPage .data-board-card.progress-card th:first-child{width:43%}
+ #dataPage .data-board-card.progress-card td:first-child{font-size:10.5px!important}
+}
+@media(min-width:851px){
+ #excelPage .excel-preview-workspace:not(.photo-only){grid-template-columns:var(--excel-editor-width,292px) minmax(0,1fr)!important}
+ #excelPage .excel-progress-panel{position:relative;min-width:185px;cursor:auto}
+ #excelPage .excel-progress-panel.excel-edge-resizing{cursor:col-resize!important;user-select:none!important}
+ #excelPage .excel-progress-panel::after{content:"";position:absolute;right:0;top:0;bottom:0;width:12px;z-index:15;cursor:col-resize;background:transparent;touch-action:none}
+ #excelPage .excel-progress-panel{isolation:isolate}
+}
+
+/* 2026-10-12 공사일보 입력부 간격 조정: 기존 폰트 크기는 변경하지 않음 */
+#excelPage .construction-action-buttons{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:3px!important;margin:4px 0 5px!important;width:100%}
+#excelPage .construction-action-buttons .btn{min-width:0!important;white-space:normal!important;overflow-wrap:keep-all!important;word-break:keep-all!important;line-height:1.3!important;padding:5px 2px!important;min-height:39px!important;font-size:inherit!important}
+#excelPage .progress-editor .progress-editor-head{padding-bottom:4px!important}
+#excelPage .progress-editor .progress-tip{padding:4px 5px!important;margin-bottom:3px!important;line-height:1.3!important}
+#excelPage .construction-no-data{padding:3px 5px!important;margin:2px 0!important}
+#excelPage .progress-editor .progress-row{padding-top:3px!important;padding-bottom:3px!important;min-height:0!important}
+#excelPage .progress-editor .progress-row.progress-group,#excelPage .progress-editor .progress-row.progress-total{margin-top:4px!important;padding-top:5px!important;padding-bottom:5px!important}
+@media(max-width:480px){#excelPage .construction-action-buttons .btn{padding:4px 1px!important}}
+@media(min-width:851px){
+ #excelPage .excel-progress-panel::after{width:20px!important;right:0!important;cursor:col-resize!important;pointer-events:auto!important}
+ #excelPage .excel-progress-panel.excel-edge-resizing::after{background:rgba(0,120,255,.08)!important}
+}
+
+/* 공사내용 Item: 항목명 전체 표시, 수치 열만 축소 (기존 글씨 크기 유지) */
+@media(min-width:1201px){
+ #dataPage .data-board-card.progress-card .data-overview-table{table-layout:fixed!important;width:100%!important}
+ #dataPage .data-board-card.progress-card .data-overview-table th:first-child,
+ #dataPage .data-board-card.progress-card .data-overview-table td:first-child{width:61%!important;text-align:left!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;padding-left:4px!important;padding-right:3px!important}
+ #dataPage .data-board-card.progress-card .data-overview-table th:not(:first-child),
+ #dataPage .data-board-card.progress-card .data-overview-table td:not(:first-child){width:13%!important;padding-left:1px!important;padding-right:1px!important;white-space:nowrap!important;font-variant-numeric:tabular-nums}
+}
+
+/* 요청한 공사일보 입력 패널 압축 (폰트 크기 유지) */
+#excelPage .progress-editor .progress-row:not(.progress-group):not(.progress-total){
+  min-height:0!important;height:29px!important;margin:2px 0!important;padding:2px 5px!important;gap:3px!important;
+}
+#excelPage .progress-editor .progress-row:not(.progress-group):not(.progress-total) .construction-item-label{
+  height:22px!important;min-height:0!important;padding:2px 5px!important;line-height:16px!important;
+}
+#excelPage .progress-editor .progress-row:not(.progress-group):not(.progress-total) .progress-amount input{
+  height:22px!important;min-height:0!important;padding:1px 3px!important;
+}
+#excelPage .progress-editor .progress-row:not(.progress-group):not(.progress-total) .construction-remark-input{
+  height:22px!important;min-height:22px!important;max-height:22px!important;padding:2px 4px!important;line-height:16px!important;resize:none!important;
+}
+#excelPage .construction-action-buttons .btn{display:flex!important;justify-content:center!important;align-items:center!important;text-align:center!important}
+#excelPage .progress-editor .progress-editor-date{color:#a94800!important;font-weight:700!important}
+#excelPage .progress-editor .progress-tip{background:#fff0d9!important;color:#a94800!important;border:1px solid #ffc47e!important;font-weight:700!important}
+#excelZoomPercent{width:51px!important;min-width:51px!important;max-width:51px!important;text-align:center!important;font-weight:700!important;appearance:textfield!important;-moz-appearance:textfield!important;padding:3px 1px!important}
+#excelZoomPercent::-webkit-inner-spin-button,#excelZoomPercent::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+
+/* 엑셀 마감: 같은 상태/회색 스타일을 작업일보와 함께 사용 */
+#excelPage #excelReportCloseBtn{font-size:15.75px!important;min-height:34px!important;padding:6px 10px!important;flex:0 0 auto}
+#excelPage .excel-editor-closed .progress-row:not(.progress-group):not(.progress-total){background:#edf0f3!important}
+#excelPage .excel-editor-closed input:disabled,#excelPage .excel-editor-closed textarea:disabled{background:#e1e4e8!important;color:#737a84!important;border-color:#c7ccd2!important}
+/* 2026-10-12: 마감 상태 표시 유지, 마감 버튼만 1.5배 확대 */
+#linkedCloseStatus{font-size:11px;font-weight:700;color:#136a43;background:#eaf8f0;padding:5px 7px;border:1px solid #bde6cc;border-radius:5px;white-space:nowrap}
+#linkedCloseStatus.is-closed{color:#535d68;background:#e5e7eb;border-color:#bcc2cb}
+#writePage #basicReportCloseBtn{
+  font-size:15.75px!important;
+  min-height:34px!important;
+  padding:6px 10px!important;
+}
+@media(max-width:850px){#linkedCloseStatus{white-space:normal;font-size:11px}}
 </style><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script></head>
 <body class="locked site-home-mode"><section id="siteHome" aria-label="현장 선택">
   <div class="site-home-inner site-home-simple">
@@ -2198,7 +2291,7 @@ body.report-is-closed #writePage textarea:disabled{
 </div>
 </aside><main>
 <section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 마스터가 마감을 해제한 뒤 수정할 수 있습니다.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ 공용저장소 연결</button><button class="btn" type="button" onclick="saveToDrive()">공용저장소 저장</button><button class="btn" type="button" onclick="loadFromDrive()">공용저장소 불러오기</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 기기 인증 확인 중</b><span id="readOnlyBadge" class="readonly-badge">읽기 전용</span><button class="btn local-backup-btn" type="button" onclick="openLocalBackupDialog()">로컬백업</button><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><div class="header-action-buttons"><button class="btn" type="button" onclick="openConstructionExcelPage()" style="background:#138b70;color:white;border-color:#138b70">📥 공사일보 엑셀</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div class="grid"><div class="input-col left-col">
-<div class="card basic-info-card"><div class="title"><span><span class="n">1</span>기본 정보</span><span class="basic-close-wrap"><span id="workModeTabs" class="work-mode-tabs-inline"></span><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><span class="basic-action-buttons mobile-basic-actions"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" type="button" onclick="openConstructionExcelPage()" style="background:#138b70;color:white;border-color:#138b70">📥 공사일보 엑셀</button><button class="btn" onclick="saveReport()">보고서 저장</button></span></div><div class="basic-info-grid">
+<div class="card basic-info-card"><div class="title"><span><span class="n">1</span>기본 정보</span><span class="basic-close-wrap"><span id="workModeTabs" class="work-mode-tabs-inline"></span><span id="linkedCloseStatus" class="linked-close-status" aria-live="polite">작업일보·공사일보: 작성중</span><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><span class="basic-action-buttons mobile-basic-actions"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" type="button" onclick="openConstructionExcelPage()" style="background:#138b70;color:white;border-color:#138b70">📥 공사일보 엑셀</button><button class="btn" onclick="saveReport()">보고서 저장</button></span></div><div class="basic-info-grid">
 <div class="field basic-site"><label>현장</label><select id="site"></select></div>
 <div class="field basic-trade"><label>공종</label><select id="trade"></select></div>
 <div class="field basic-date"><label>작업일</label><div class="date-with-query"><div class="date-nav">
@@ -2225,12 +2318,13 @@ body.report-is-closed #writePage textarea:disabled{
         <input id="excelDatePicker" type="date" aria-label="공사일보 조회 날짜" title="공사일보 조회 날짜" onchange="selectExcelPreviewDate(this.value)">
         <button type="button" class="excel-day-arrow" title="다음날 공사일보" aria-label="다음날 공사일보" onclick="shiftExcelPreviewDay(1)">▶</button>
       </div>
+      <button id="excelReportCloseBtn" class="report-close-btn excel-report-close-btn" type="button" title="작업일보와 공사일보 함께 마감/해제" onclick="toggleCurrentReportClosed()">마감</button>
       <button class="btn primary" type="button" onclick="refreshConstructionExcelPreview()">▤ 미리보기</button>
       <button class="btn" type="button" onclick="downloadConstructionExcelPreview()">↓ 엑셀 저장</button>
       <button class="btn" type="button" onclick="printConstructionExcelPreview()">▣ 인쇄</button>
       <span class="excel-zoom-controls" aria-label="시트 미리보기 확대 축소">
         <button class="btn" type="button" title="미리보기 축소" aria-label="미리보기 축소" onclick="changeConstructionExcelZoom(-1)">−</button>
-        <button class="btn excel-zoom-percent" type="button" title="화면 맞춤" onclick="resetConstructionExcelZoom()" id="excelZoomPercent">자동</button>
+        <input class="btn excel-zoom-percent" type="number" min="20" max="225" step="1" title="미리보기 배율 직접 입력(%)" aria-label="미리보기 배율 퍼센트 직접 입력" onchange="setConstructionExcelZoomPercent(this.value)" onkeydown="if(event.key==='Enter'){this.blur()}" id="excelZoomPercent" value="100">
         <button class="btn" type="button" title="미리보기 확대" aria-label="미리보기 확대" onclick="changeConstructionExcelZoom(1)">+</button>
       </span>
       <span id="excelPreviewStatus" role="status" aria-live="polite">날짜별 엑셀 미리보기</span>
@@ -2255,7 +2349,7 @@ body.report-is-closed #writePage textarea:disabled{
       <button class="btn" type="button" onclick="const d=document.getElementById('date').value;document.getElementById('dataDate').value=d;if(document.getElementById('dataPeriod').value==='custom'){document.getElementById('dataFrom').value=d;document.getElementById('dataTo').value=d;}renderDataPage()">작성일 보기</button>
     </div></div>
     <p class="data-subtitle" id="dataContext">선택 날짜의 주간·연장 현황입니다. 수정은 작업일보 작성에서 진행하세요.</p>
-    <div class="data-force-bar"><span id="forceCarryStatus" class="data-force-status">강제이월 마감 · 조회 전용</span><button type="button" class="btn force-carry-toggle" id="forceCarryToggle" onclick="toggleForcedCarryLock()" style="display:none">강제이월 마감 해제</button></div>
+    <div class="data-force-bar" style="display:none"><span id="forceCarryStatus" class="data-force-status">강제이월 마감 · 조회 전용</span><button type="button" class="btn force-carry-toggle" id="forceCarryToggle" onclick="toggleForcedCarryLock()" style="display:none">강제이월 마감 해제</button></div>
     <div class="data-kpis" id="dataStats"></div>
   </div>
   <div id="dataDashboard" class="data-dashboard"></div>
@@ -2338,6 +2432,20 @@ function projectSet(key,value,name=activeProjectName()){
 function projectRemove(key,name=activeProjectName()){
   localStorage.removeItem(projectKey(name,key));
 }
+// 강제이월 데이터 영구 폐기: 현장별 저장 키를 제거한다.
+// 다른 보고서/설정 키에는 영향을 주지 않는다.
+function purgeLegacyForcedCarryover(){
+  try{
+    const remove=[];
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i)||'';
+      if(/^projectV3::.*::forcedCarryover$/.test(key))remove.push(key);
+    }
+    remove.forEach(key=>localStorage.removeItem(key));
+  }catch(e){console.warn('강제이월 정리 실패',e)}
+}
+purgeLegacyForcedCarryover();
+
 function migrateLegacyProjectStorageOnce(){
   const mark='fiveDrawerV3Migration_20261002_v1';
   if(localStorage.getItem(mark)==='1')return;
@@ -2981,6 +3089,27 @@ function applyReportLockUI(locked){
   const preview=$('preview');
   if(preview)preview.contentEditable=currentReportLocked?'false':'true';
 
+  // 두 화면은 같은 작업일보 마감 상태를 공유한다 (공용저장소 동기화 완료 여부와 별개).
+  const linkedStatus=$('linkedCloseStatus');
+  if(linkedStatus){
+    linkedStatus.textContent='작업일보·공사일보: '+(currentReportLocked?'마감':'작성중');
+    linkedStatus.classList.toggle('is-closed',currentReportLocked);
+  }
+  // 엑셀 작성 화면도 동일 날짜의 마감 상태를 즉시 표시한다.
+  const excelClose=$('excelReportCloseBtn');
+  if(excelClose){
+    excelClose.classList.toggle('closed',currentReportLocked);
+    excelClose.title=currentReportLocked?'작업일보·공사일보 마감 해제':'작업일보·공사일보 마감';
+    excelClose.disabled=false;
+  }
+  const excelEditor=$('excelProgressEditor');
+  if(excelEditor){
+    excelEditor.classList.toggle('excel-editor-closed',currentReportLocked);
+    excelEditor.querySelectorAll('input,textarea').forEach(el=>{
+      if(currentReportLocked){if(!el.disabled){el.disabled=true;el.dataset.excelCloseDisabled='1';}}
+      else if(el.dataset.excelCloseDisabled==='1'){el.disabled=false;delete el.dataset.excelCloseDisabled;}
+    });
+  }
   // 기본정보 제목줄의 마감 상태/버튼도 즉시 갱신
   const closeBtn=$('basicReportCloseBtn');
   if(closeBtn){
@@ -3946,12 +4075,7 @@ function dataSortRows(kind,rows){
 let forceCarryUnlocked=false;
 let forceCarryProject='';
 function forceCarryCanEdit(){return forceCarryUnlocked&&forceCarryProject===activeProjectName()&&isMasterDevice()}
-function forceCarryStorage(){
-  try{
-    const value=JSON.parse(projectGet('forcedCarryover')||'{}');
-    return value&&typeof value==='object'&&!Array.isArray(value)?value:{};
-  }catch(_){return{}}
-}
+function forceCarryStorage(){return {}} // 저장된 강제이월은 더 이상 사용하지 않음
 function forceCarryScope(site,trade){return JSON.stringify([site||'',trade||''])}
 function forceCarryScopeData(site,trade){
   const o=forceCarryStorage()[forceCarryScope(site,trade)];
@@ -4087,7 +4211,7 @@ function dataBoardTable(title,headers,rows,opts){
 }
 function dataProgressBoard(windowData,site,trade){
   const totals=dataProgressTotals(windowData.start,windowData.end,site,trade);
-  const opening=forceCarryProgressAmounts(site,trade);
+  const opening={}; // 강제이월 폐기
   const rows=[];
   for(const [row,name,group] of CONSTRUCTION_PROGRESS_ITEMS){
     const item=totals.get(row)||{prior:0,current:0},force=opening[row]||0;
@@ -4096,7 +4220,7 @@ function dataProgressBoard(windowData,site,trade){
     if(group)arr.__class=row===25?'data-grand':'data-total';
     rows.push(arr);
   }
-  return dataBoardTable('공사내용 Item · 실행률(%)',['공사내용 Item','강제이월',windowData.labels.past,windowData.labels.current,'누계'],rows,{kind:'progress',className:'progress-card span-all',suffix:'%',decimals:2,noSummary:true,foot:'강제이월은 기초 실적이며, 소계와 합계는 자동 계산됩니다.'});
+  return dataBoardTable('공사내용 Item · 실행률(%)',['공사내용 Item','강제이월',windowData.labels.past,windowData.labels.current,'누계'],rows,{kind:'progress',className:'progress-card span-all',suffix:'%',decimals:2,noSummary:true,foot:''});
 }
 // 기준설정에 등록된 항목은 실적이 없어도 0으로 표시합니다.
 // 업체는 별도 기준설정 필드가 없으므로 지정된 현장 업체 순서와 기록된 업체를 합칩니다.
@@ -4166,7 +4290,7 @@ function buildDataDashboard(controls,maps){
   const equipments=withCarry('equipment',maps.equipment,(key,v)=>[v.name||key.split('\u0001')[0],v.note||key.split('\u0001')[1]||'',v.prior||0,v.current||0]);
   const managers=withCarry('manager',maps.manager,(key,v)=>[v.name||key,v.prior||0,v.current||0]);
   return [
-    dataBoardTable('업체별 인원',['업체','강제이월',h.past,h.current,'누계'],companies,{kind:'company',foot:'순서: 더오포 · 하나 · 스틸 · 고려 · 장비'}),
+    dataBoardTable('업체별 인원',['업체','강제이월',h.past,h.current,'누계'],companies,{kind:'company',foot:''}),
     dataBoardTable('직종별 인원',['직종','강제이월',h.past,h.current,'누계'],jobs,{kind:'job'}),
     dataBoardTable('장비',['장비명','비고','강제이월',h.past,h.current,'누계'],equipments,{kind:'equipment',className:'equipment-card',extraActions:forceCarryCanEdit()&&unusedZeroForceCarryKeys('equipment',maps.equipment,site,trade).length?'<button class="data-add-row" type="button" onclick="cleanupUnusedZeroForceCarry(\'equipment\')">미사용 0 항목 정리</button>':''}),
     dataBoardTable('담당자',['이름','강제이월',h.past,h.current,'누계'],managers,{kind:'manager'}),
@@ -4691,9 +4815,10 @@ async function connectGoogleDrive(){
 }
 function requireDrive(){return ensurePublicStoreCredentials(true)}
 function localData(){
+  purgeLegacyForcedCarryover();
   autoSave();
   const p=currentProjectForAuth();
-  return {masters:JSON.parse(projectGet('masters',p)||'null'),reports:JSON.parse(projectGet('reports',p)||'[]'),currentDraft:JSON.parse(projectGet('currentDraft',p)||'null'),workModeDrafts:JSON.parse(projectGet('workModeDrafts',p)||'{}'),forcedCarryover:JSON.parse(projectGet('forcedCarryover',p)||'{}')};
+  return {masters:JSON.parse(projectGet('masters',p)||'null'),reports:JSON.parse(projectGet('reports',p)||'[]'),currentDraft:JSON.parse(projectGet('currentDraft',p)||'null'),workModeDrafts:JSON.parse(projectGet('workModeDrafts',p)||'{}'),forcedCarryover:{}};
 }
 function makeDriveSnapshot(){const d=localData();return {format:'URIGONG-WORKREPORT-PUBLIC',version:4,savedAt:new Date().toISOString(),deviceId:getDeviceId(),...d}}
 function getDeviceId(){let x=localStorage.getItem('driveDeviceId');if(!x){x='dev-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);localStorage.setItem('driveDeviceId',x)}return x}
@@ -4718,7 +4843,9 @@ function applyRemoteData(d,stamp){
     if(Array.isArray(d.reports))projectSet('reports',JSON.stringify(d.reports),activeProject);
     if(d.currentDraft)projectSet('currentDraft',JSON.stringify(d.currentDraft),activeProject);
     if(d.workModeDrafts)projectSet('workModeDrafts',JSON.stringify(d.workModeDrafts),activeProject);
-    if(d.forcedCarryover&&typeof d.forcedCarryover==='object')projectSet('forcedCarryover',JSON.stringify(d.forcedCarryover),activeProject);
+    // 공용저장소에서 이전 강제이월 데이터가 내려와도 복원하지 않는다.
+    projectRemove('forcedCarryover',activeProject);
+    purgeLegacyForcedCarryover();
     setDriveMeta('driveLastRemoteStamp',String(stamp||Date.now()));setDriveMeta('driveLocalDirty','0');setDriveMeta('driveLocalUpdatedAt',String(stamp||Date.now()));
   }finally{applyingRemote=false}
 }
@@ -5203,7 +5330,7 @@ function reportText(){
   D.jobs.forEach(j=>{if(totals[j]>0)lines.push(`   - ${j} : ${totals[j]}명`)});
   let eq=state.equipment.filter(e=>e.name&&e.qty>0).map(e=>`${e.name}-${e.qty}대`);lines.push('',`2) 장비 : ${eq.length?eq.join(', '):'-'}`,'','3) 금일 작업 내용');
   state.areas.forEach(a=>{let tasks=a.tasks.filter(x=>x.trim());if((a.zone||a.loc)&&tasks.length){lines.push(`- [${[a.zone,a.loc].map(v=>String(v||'').trim()).filter(Boolean).join('  ')}]`);tasks.forEach((t,i)=>lines.push(`   ${i+1}. ${t}`))}});
-  lines.push('','4) 주간관리자');state.managers.filter(m=>m[3]!==false&&m[4]===true&&[m[0],m[1],m[2]].some(x=>(x||'').trim())).forEach(m=>lines.push(`   1 ${m[0]} ${m[1]} ${m[2]}`));return lines.join('\n');
+  lines.push('','4) 주간관리자');state.managers.filter(m=>m[3]!==false&&m[4]===true&&[m[0],m[1],m[2]].some(x=>(x||'').trim())).forEach(m=>lines.push(`   - ${m[0]} ${m[1]} ${m[2]}`));return lines.join('\n');
 }
 function moveWorkDate(days){
   const el=$('date');if(!el)return;stashModeDraft();
@@ -5302,6 +5429,7 @@ function openReportFromSearch(date,site,trade,type='weekly',no=0){
 }
 
 function localData(){
+  purgeLegacyForcedCarryover();
   autoSave();
   const p=currentProjectForAuth();
   return {masters:safeParseJSON(projectGet('masters',p),null),reports:safeParseJSON(projectGet('reports',p),[])||[],currentDraft:safeParseJSON(projectGet('currentDraft',p),null),workModeDrafts:safeParseJSON(projectGet('workModeDrafts',p),{})||{}};
@@ -5510,6 +5638,16 @@ const CONSTRUCTION_PROGRESS_ITEMS=[
 // 기존 2026-10-08 엑셀 원본에 미리 기재돼 있는 실행률(표시 단위: %).
 // 다른 날짜는 원본 당일 실행률을 임의로 복사하지 않는다.
 const CONSTRUCTION_PROGRESS_TEMPLATE={'15':0.15,'20':0.03,'21':0.20};
+function constructionItemLabelKey(date,site,trade){return constructionProgressKey(date,site,trade).replace('::constructionProgress::','::constructionItemNames::')}
+function constructionItemLabel(row,fallback,date,site,trade){
+  try{const record=JSON.parse(localStorage.getItem(constructionItemLabelKey(date,site,trade))||'{}');return Object.prototype.hasOwnProperty.call(record,row)?String(record[row]):fallback}catch(e){return fallback}
+}
+function saveConstructionItemLabel(row,value,date,site,trade){
+  if(isStoredReportClosed(date,site,trade,'weekly',0)||!canEditActiveProject())return;
+  const key=constructionItemLabelKey(date,site,trade);let record={};try{record=JSON.parse(localStorage.getItem(key)||'{}')||{}}catch(e){}
+  record[row]=String(value||'').slice(0,120);localStorage.setItem(key,JSON.stringify(record));markLocalChanged();if(tokenValid())scheduleAutoSync();
+  constructionExcelPreviewBlob=null;refreshConstructionExcelPreview();
+}
 function constructionProgressKey(date,site,trade){
   const project=typeof activeProjectName==='function'?activeProjectName():'Y1 IECO';
   return 'projectV3::'+encodeURIComponent(project)+'::constructionProgress::'+encodeURIComponent(site||'')+'::'+encodeURIComponent(trade||'')+'::'+date;
@@ -5522,30 +5660,41 @@ function constructionSavedProgress(date,site,trade){
  * 이미 저장된 날짜는 덮어쓰지 않으며, 날짜별 별도 복사본을 갖습니다.
  */
 function initializeConstructionProgressForDate(date,site,trade){
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(date||'')))return false;
-  if(typeof canEditActiveProject==='function'&&!canEditActiveProject())return false;
-  const key=constructionProgressKey(date,site,trade);
-  try{
-    if(localStorage.getItem(key)!==null)return false;
-    const prefix=constructionProgressKey('',site,trade);
-    let prior='';
-    // 오래된 원본 양식(2026-10-08)의 입력값도 최초 익일 생성 시 승계합니다.
-    if(date>'2026-10-08')prior='2026-10-08';
-    for(let i=0;i<localStorage.length;i++){
-      const storedKey=localStorage.key(i)||'';
-      if(!storedKey.startsWith(prefix))continue;
-      const day=storedKey.slice(prefix.length);
-      if(/^\d{4}-\d{2}-\d{2}$/.test(day)&&day<date&&day>prior)prior=day;
-    }
-    if(!prior)return false;
-    const values={};
-    for(const [row, ,isSubtotal] of CONSTRUCTION_PROGRESS_ITEMS){
-      if(isSubtotal)continue;
-      values[row]=constructionProgressPct(row,prior,site,trade);
-    }
-    localStorage.setItem(key,JSON.stringify(values));
-    return true;
-  }catch(err){console.warn('전일 공정 입력값 가져오기 실패',err);return false;}
+  // 새 날짜는 공정률을 자동 승계하지 않습니다. 기존 날짜에 저장한 실적은 그대로 보존합니다.
+  return false;
+}
+function copyConstructionProgressFromDate(sourceDate){
+  const date=$('date')?.value||'',site=$('site')?.value||'',trade=$('trade')?.value||'';
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(sourceDate)||!date)return alert('불러올 날짜를 선택해 주세요.');
+  if(sourceDate===date)return alert('현재 날짜가 아닌 다른 날짜를 선택해 주세요.');
+  if(isStoredReportClosed(date,site,trade,'weekly',0)||!canEditActiveProject())return alert('마감되거나 읽기 전용인 보고서입니다.');
+  const source=constructionSavedProgress(sourceDate,site,trade);
+  if(!Object.keys(source).length&&sourceDate!=='2026-10-08')return alert('선택한 날짜의 저장된 공정률이 없습니다.');
+  if(!confirm(sourceDate+'의 공정률을 '+date+'에 불러올까요? 현재 날짜의 공정률만 변경됩니다.'))return;
+  const copied={};for(const [row,,group] of CONSTRUCTION_PROGRESS_ITEMS){if(!group)copied[row]=constructionProgressPct(row,sourceDate,site,trade)}
+  localStorage.setItem(constructionProgressKey(date,site,trade),JSON.stringify(copied));
+  markLocalChanged();if(tokenValid())scheduleAutoSync();
+  refreshConstructionExcelPreview();
+}
+function copyConstructionProgressPreviousDay(){
+  const date=$('date')?.value;if(!date)return;
+  const d=new Date(date+'T12:00:00');d.setDate(d.getDate()-1);
+  copyConstructionProgressFromDate(dataCalendarDate(d));
+}
+function selectConstructionProgressSource(){
+  const date=prompt('공정률을 불러올 날짜를 입력하세요 (YYYY-MM-DD)', $('date')?.value||'');
+  if(date!==null)copyConstructionProgressFromDate(date.trim());
+}
+function resetConstructionProgressDay(){
+  const date=$('date')?.value||'',site=$('site')?.value||'',trade=$('trade')?.value||'';
+  if(isStoredReportClosed(date,site,trade,'weekly',0)||!canEditActiveProject())return alert('마감되거나 읽기 전용인 보고서입니다.');
+  if(!confirm('현재 날짜의 공정률 입력값만 0으로 초기화할까요?'))return;
+  const zero={};for(const [row,,group] of CONSTRUCTION_PROGRESS_ITEMS)if(!group)zero[row]=0;
+  localStorage.setItem(constructionProgressKey(date,site,trade),JSON.stringify(zero));
+  markLocalChanged();if(tokenValid())scheduleAutoSync();refreshConstructionExcelPreview();
+}
+function constructionProgressPresent(date,site,trade){
+  return Object.keys(constructionSavedProgress(date,site,trade)).length>0;
 }
 function constructionProgressPct(row,date,site,trade){
   const saved=constructionSavedProgress(date,site,trade);
@@ -5562,31 +5711,40 @@ function renderConstructionProgressEditor(target,date,site,trade){
   const el=document.getElementById(target);if(!el)return;
   const inherited=initializeConstructionProgressForDate(date,site,trade);
   const sum=constructionProgressGroups(date,site,trade);
-  const editable=typeof canEditActiveProject==='function'?canEditActiveProject():true;
+  const editable=(typeof canEditActiveProject==='function'?canEditActiveProject():true)&&!isStoredReportClosed(date,site,trade,'weekly',0);
   el.replaceChildren();
   const wrapper=document.createElement('div');wrapper.className='progress-editor';
   const head=document.createElement('div');head.className='progress-editor-head';
   head.textContent='공사내용 Item · 금일 실행(%)';
   const subtitle=document.createElement('div');subtitle.className='progress-editor-date';subtitle.textContent=(date||'작업일 미선택')+' · '+(site||'');
   const tip=document.createElement('div');tip.className='progress-tip';
-  tip.textContent='항목별 실행률을 % 단위로 입력합니다. 소계와 합계는 자동 계산됩니다. 새 날짜 작성 시 이전 입력값이 유지되며, 날짜별로 이 브라우저에 저장됩니다.';
+  tip.textContent='미입력 날짜는 값 없음. 불러오기 또는 직접 입력한 공정률만 해당 날짜에 기록됩니다.';
   wrapper.append(head,subtitle,tip);
+  const actions=document.createElement('div');actions.className='construction-action-buttons';
+  actions.innerHTML='<button type="button" class="btn" onclick="selectConstructionProgressSource()">날짜 지정 불러오기</button><button type="button" class="btn" onclick="copyConstructionProgressPreviousDay()">전일 데이터 불러오기</button><button type="button" class="btn" onclick="resetConstructionProgressDay()">당일 공정률 초기화</button><button type="button" class="btn primary" onclick="saveReport()">보고서 저장</button>';
+  wrapper.append(actions);
+  const present=constructionProgressPresent(date,site,trade);
+  if(!present){const absent=document.createElement('div');absent.className='construction-no-data';absent.textContent='값 없음 · 당일 공정률을 입력하거나 데이터를 불러오세요.';wrapper.append(absent);}
+
   for(const [row,name,subtotal] of CONSTRUCTION_PROGRESS_ITEMS){
     const isTotal=row===25;
     const pctValue=subtotal?(sum[row]||0):constructionProgressPct(row,date,site,trade);
     const item=document.createElement('label');item.className='progress-row'+(subtotal?' progress-group':'')+(isTotal?' progress-total':'')+(!subtotal?(pctValue>0?' progress-row-filled':' progress-row-empty'):'');
-    const label=document.createElement('span');label.className='progress-name';label.textContent=name;
+    const label=document.createElement('span');label.className='progress-name';
+    if(!subtotal){const labelInput=document.createElement('input');labelInput.type='text';labelInput.className='construction-item-label';labelInput.value=constructionItemLabel(row,name,date,site,trade);labelInput.disabled=!editable;labelInput.addEventListener('change',()=>saveConstructionItemLabel(row,labelInput.value,date,site,trade));label.append(labelInput)}else label.textContent=name;
     const value=document.createElement('span');value.className='progress-amount';
     if(subtotal){
       const out=document.createElement('span');out.className='progress-sum';out.dataset.progressSum=String(row);out.textContent=(sum[row]||0).toFixed(2)+'%';value.append(out);
     }else{
       const input=document.createElement('input');input.type='number';input.min='0';input.max='100';input.step='0.01';input.inputMode='decimal';input.dataset.progressRow=String(row);
-      input.value=pctValue.toFixed(2);
+      input.value=present?pctValue.toFixed(2):'';input.placeholder='값 없음';
       input.disabled=!editable||!date;input.setAttribute('aria-label',name+' 금일 실행 퍼센트');
       input.addEventListener('input',()=>saveConstructionProgressEntry(input,date,site,trade));
       const pct=document.createElement('span');pct.textContent='%';value.append(input,pct);
     }
-    item.append(label,value);wrapper.append(item);
+    if(!subtotal){const remarks=document.createElement('textarea');remarks.className='construction-remark-input';remarks.rows=2;remarks.placeholder='Remark 입력';const remarkRef='M'+row,remarkSaved=constructionRemarkEdits(date,site,trade);
+      const previewModel=constructionExcelPreviewSheets?.[0];
+      remarks.value=Object.prototype.hasOwnProperty.call(remarkSaved,remarkRef)?remarkSaved[remarkRef]:(previewModel?.map?.get(remarkRef)?excelPreviewFormat(previewModel.map.get(remarkRef),previewModel,remarkRef):'');remarks.disabled=!editable;remarks.addEventListener('change',()=>saveConstructionRemark('M'+row,remarks.value));item.append(label,value,remarks);}else{item.append(label,value);}wrapper.append(item);
   }
   el.append(wrapper);
   // 같은 데이터 탭의 기간별 누계도 익일 자동 승계 직후 갱신합니다.
@@ -5603,10 +5761,10 @@ function saveConstructionProgressEntry(input,date,site,trade){
     item.classList.toggle('progress-row-filled',input.valueAsNumber>0);
     item.classList.toggle('progress-row-empty',input.valueAsNumber===0);
   }
-  if(typeof canEditActiveProject==='function'&&!canEditActiveProject())return;
+  if((typeof canEditActiveProject==='function'&&!canEditActiveProject())||isStoredReportClosed(date,site,trade,'weekly',0))return;
   const row=Number(input.dataset.progressRow),saved=constructionSavedProgress(date,site,trade);
   saved[row]=Math.round(input.valueAsNumber*10000)/10000;
-  try{localStorage.setItem(constructionProgressKey(date,site,trade),JSON.stringify(saved))}catch(err){console.error('공정 데이터 저장 실패',err);return;}
+  try{localStorage.setItem(constructionProgressKey(date,site,trade),JSON.stringify(saved));markLocalChanged();if(tokenValid())scheduleAutoSync()}catch(err){console.error('공정 데이터 저장 실패',err);return;}
   const sums=constructionProgressGroups(date,site,trade);
   for(const el of document.querySelectorAll('[data-progress-sum]')){
     const section=el.closest('#excelProgressEditor,#dataProgressEditor');
@@ -5628,7 +5786,7 @@ function saveConstructionProgressEntry(input,date,site,trade){
 }
 /* 공사일보 전일 = 데이터 메뉴 강제이월 + 선택일 이전 실적 (단위: %) */
 function constructionReportPriorProgress(date,site,trade){
-  const opening=forceCarryProgressAmounts(site,trade);
+  const opening={}; // 강제이월 폐기
   const history=dataProgressTotals(date,date,site,trade);
   const totals={};
   for(const [row] of CONSTRUCTION_PROGRESS_ITEMS){
@@ -5669,7 +5827,7 @@ function constructionApplyProgressToPreviewModel(model,date,site,trade){
     put('H'+row,prior);put('I'+row,daily);put('J'+row,amount);put('K'+row,ratio?(row===23||row===24?amount/ratio/100:amount/ratio):0);put('L'+row,amount);
   }
   const priorTotal=(priorProgress[25]||0)/100;
-  put('H25',priorTotal);put('I25',sums[25]/100);put('J25',priorTotal+sums[25]/100);put('L25',priorTotal+sums[25]/100);
+  put('H25',priorTotal);put('I25',sums[25]/100);put('J25',priorTotal+sums[25]/100);put('L25',priorTotal+sums[25]/100);put('F6',priorTotal+sums[25]/100);
 }
 
 
@@ -5734,7 +5892,7 @@ function constructionRemarkEdits(date,site,trade){
 function saveConstructionRemark(ref,value){
   if(!/^M(1[0-5]|1[7-9]|2[0-4])$/.test(ref))return;
   const date=constructionExcelPreviewDate||$('date')?.value||'',site=$('site')?.value||'',trade=$('trade')?.value||'';
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||isStoredReportClosed(date,site,trade,'weekly',0)||!canEditActiveProject())return;
   const key=constructionRemarkDirectKey(date,site,trade);
   let edits={};
   try{
@@ -5745,6 +5903,7 @@ function saveConstructionRemark(ref,value){
   try{
     // 날짜별 직접 수정한 셀만 보관합니다. 익일 복사본은 새로 만들지 않습니다.
     localStorage.setItem(key,JSON.stringify(edits));
+    markLocalChanged();if(tokenValid())scheduleAutoSync();
     constructionExcelRemarkDirty=true;
     // 시트 탭을 잠시 바꿨다가 되돌아와도 수정한 비고를 그대로 표시합니다.
     const displayed=constructionExcelPreviewSheets?.[0]?.map?.get(ref);
@@ -6000,23 +6159,13 @@ function selectConstructionExcelSheet(index){
       for(const side of ['borderTop','borderBottom','borderLeft','borderRight'])delete style[side];
       Object.assign(div.style,style);
       div.textContent=excelPreviewFormat(cell,model,ref);
-      // 비고는 화면에서 바로 수정하며, 수정한 텍스트는 날짜별로 저장합니다.
-      if(model.sheet===1 && /^M(1[0-5]|1[7-9]|2[0-4])$/.test(ref)){
-        div.classList.add('excel-remark-editable');
-        div.setAttribute('contenteditable','true');
-        div.setAttribute('role','textbox');
-        div.setAttribute('aria-multiline','true');
-        div.setAttribute('aria-label',ref+' 공사일보 비고 수정');
-        div.setAttribute('spellcheck','false');
-        div.title='클릭하여 비고를 수정하세요. 날짜별로 저장됩니다.';
-        div.addEventListener('input',()=>saveConstructionRemark(ref,div.innerText));
-        div.addEventListener('paste',e=>{
-          const txt=e.clipboardData?.getData('text/plain');
-          if(txt==null)return;
-          e.preventDefault();
-          document.execCommand('insertText',false,txt);
-        });
+      // 직종명은 셀 너비에 맞춰 한 줄로 표시 (원본 글자 그대로 유지)
+      if(model.sheet===1 && /^A(2[9]|3[0-9]|40)$/.test(ref)){
+        div.style.whiteSpace='nowrap';div.style.overflowWrap='normal';div.style.wordBreak='keep-all';
+        // 기존 엑셀 셀의 기본 글꼴 크기 사용 (직종명만 축소하지 않음).
       }
+
+      // 원본 엑셀 미리보기 Remark는 읽기 전용. 오른쪽 입력 패널에서만 수정합니다.
       // 사진 촬영기준은 왼쪽 빈 칸까지 사용해 줄바꿈 없이 날짜 옆에 배치한다.
       if(model.sheet===2&&ref==='G2'){
         div.style.left=colLeft[5]+'px';
@@ -6062,6 +6211,7 @@ function selectConstructionExcelSheet(index){
   fitConstructionExcelPreview();
 }
 let constructionExcelZoomSteps=0;
+let constructionExcelManualZoom=1; // 최초 공사일보 엑셀 미리보기는 100%로 표시
 let constructionExcelFitAll=false;
 function fitConstructionExcelPreview(){
   const frame=document.querySelector('#excelPage .excel-preview-shell');
@@ -6075,16 +6225,24 @@ function fitConstructionExcelPreview(){
   const normalFit=Math.max(0.25,Math.min(max,space/width));
   const fullFit=Math.max(0.22,Math.min(normalFit,(frame.clientHeight-18)/height));
   const base=constructionExcelFitAll?fullFit:normalFit;
-  const scaled=Math.max(0.20,Math.min(2.25,base*Math.pow(1.2,constructionExcelZoomSteps)));
+  const scaled=constructionExcelManualZoom!==null?constructionExcelManualZoom:Math.max(0.20,Math.min(2.25,base*Math.pow(1.2,constructionExcelZoomSteps)));
   sheet.style.zoom=String(scaled);
   const display=document.getElementById('excelZoomPercent');
-  if(display)display.textContent=Math.round(scaled*100)+'%';
+  if(display&&document.activeElement!==display)display.value=String(Math.round(scaled*100));
+}
+function setConstructionExcelZoomPercent(raw){
+  const n=Number(raw);
+  if(!Number.isFinite(n)||n<20||n>225){fitConstructionExcelPreview();return;}
+  constructionExcelManualZoom=n/100;
+  fitConstructionExcelPreview();
 }
 function changeConstructionExcelZoom(steps){
+  constructionExcelManualZoom=null;
   constructionExcelZoomSteps=Math.max(-9,Math.min(9,constructionExcelZoomSteps+steps));
   fitConstructionExcelPreview();
 }
 function resetConstructionExcelZoom(){
+  constructionExcelManualZoom=null;
   // 화면 맞춤과 가로 맞춤을 교대로 선택한다.
   constructionExcelFitAll=!constructionExcelFitAll;
   constructionExcelZoomSteps=0;
@@ -6133,6 +6291,7 @@ async function refreshConstructionExcelPreview(){
     const label=document.getElementById('excelPreviewDate');if(label)label.textContent=' · '+$('site').value;
     if(status)status.textContent='두 시트 준비 완료';
     renderConstructionProgressEditor('excelProgressEditor',constructionExcelPreviewDate,$('site').value,$('trade').value);
+    syncReportLockForCurrentDate();
     selectConstructionExcelSheet(constructionExcelSheetIndex);
   }catch(e){
     console.error(e);constructionExcelPreviewSheets=[];constructionExcelPreviewBlob=null;
@@ -6252,7 +6411,10 @@ async function exportConstructionDaily(mode){
   progressV('I25',dayTotal);
   progressV('J25',pastTotal+dayTotal);
   progressV('L25',pastTotal+dayTotal);
+  // 공정일수 오른쪽 공정율: 전일계가 아닌 당일까지 누적 공정율
+  progressV('F6',pastTotal+dayTotal);
   // 날짜별로 수정한 Remark 셀만 덮어씁니다. 수정하지 않은 원본 비고는 그대로 보존합니다.
+  for(const [row,name,group] of CONSTRUCTION_PROGRESS_ITEMS){if(!group)put('B'+row,constructionItemLabel(row,name,date,site,trade));}
   const remarkEdits=constructionRemarkEdits(date,site,trade);
   for(const row of constructionRemarkEditableRows){
     const ref='M'+row;
@@ -6588,4 +6750,40 @@ async function exportConstructionDaily(mode){
     <div class="force-carry-dialog-actions"><button type="button" class="btn" onclick="closeForceCarryPassword()">취소</button><button id="forceCarryVerifyBtn" type="submit" class="btn primary">확인</button></div>
   </form>
 </div>
+<script>
+/* 공사일보: 기존 세로 스크롤 영역의 오른쪽 테두리를 직접 좌우로 드래그해 폭 조절. 별도 손잡이 없음. */
+(function(){
+ let drag=null;
+ const storageKey='ugong_excel_editor_width';
+ function workspace(){return document.querySelector('#excelPage .excel-preview-workspace')}
+ function panel(){return document.querySelector('#excelPage .excel-progress-panel')}
+ try{const v=Number(localStorage.getItem(storageKey));if(v>=185&&v<=950)document.documentElement.style.setProperty('--excel-editor-width',v+'px')}catch(e){}
+ document.addEventListener('pointerdown',function(e){
+   if(e.pointerType==='touch'||window.innerWidth<=850||e.button!==0)return;
+   const p=panel(),w=workspace();if(!p||!w||w.classList.contains('photo-only')||!p.contains(e.target))return;
+   const r=p.getBoundingClientRect();
+   if(e.clientX<r.right-25||e.clientX>r.right+4)return;
+   drag={x:e.clientX,width:r.width,p,w,pointer:e.pointerId};
+   p.classList.add('excel-edge-resizing');
+   e.preventDefault();e.stopPropagation();
+ },true);
+ document.addEventListener('pointermove',function(e){
+   if(!drag)return;
+   const max=Math.max(250,drag.w.clientWidth-260);
+   const width=Math.round(Math.min(max,Math.max(185,drag.width+e.clientX-drag.x)));
+   document.documentElement.style.setProperty('--excel-editor-width',width+'px');
+   e.preventDefault();
+ },true);
+ function end(){
+   if(!drag)return;
+   drag.p.classList.remove('excel-edge-resizing');
+   try{localStorage.setItem(storageKey,String(Math.round(drag.p.getBoundingClientRect().width)))}catch(e){}
+   drag=null;
+   if(typeof fitConstructionExcelPreview==='function')requestAnimationFrame(fitConstructionExcelPreview);
+ }
+ document.addEventListener('pointerup',end,true);
+ document.addEventListener('pointercancel',end,true);
+ window.addEventListener('blur',end);
+})();
+</script>
 </body></html>
