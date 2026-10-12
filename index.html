@@ -2103,6 +2103,53 @@ body.report-is-closed #writePage textarea:disabled{
 .search-pagination{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;margin:10px 0 2px}
 .search-pagination .btn{min-width:29px}
 .search-pagination .btn.selected{background:#0878f9!important;border-color:#0878f9!important;color:white!important}
+
+/* 명일 작업 내용 섹션에만 아주 연한 연노랑 색상 적용 (PC/모바일 공통) */
+#writePage .tomorrow-work-card{background:#fffdf0!important;border-color:#ede4ba!important}
+#writePage .tomorrow-work-card #tomorrowAreas .area{background:#fffbed!important;border-color:#ede5c7!important}
+#writePage .tomorrow-work-card #tomorrowAreas .area input,
+#writePage .tomorrow-work-card #tomorrowAreas .area select{background:#fffef8!important;border-color:#d9d5bf!important}
+
+/* 금일·명일 작업내용: 입력 줄 사이 세로 간격만 기존 5px -> 2.5px (50%) */
+#writePage #areas .area .area-tasks .subtask,
+#writePage #tomorrowAreas .area .area-tasks .subtask{
+  margin-top:0!important;
+  margin-bottom:2.5px!important;
+}
+#writePage #areas .area .area-tasks,
+#writePage #tomorrowAreas .area .area-tasks{
+  margin-top:2.5px!important;
+}
+
+/* 금일·명일 작업내용 좌우 2열, 기존 입력영역/미리보기/담당자 기능 유지 */
+#writePage .daily-work-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:start;width:100%;min-width:0}
+#writePage .daily-work-columns>.card{min-width:0;margin:0!important}
+#writePage .daily-work-columns .title{gap:4px;flex-wrap:wrap}
+#writePage .daily-work-columns .title .btn{white-space:normal}
+#writePage .daily-work-columns .area{min-width:0}
+#writePage .daily-work-columns .area input,#writePage .daily-work-columns .area select{min-width:0}
+@media(max-width:850px){
+  #writePage .daily-work-columns{grid-template-columns:1fr;gap:6px}
+}
+
+/* 작업일보 PC 열 폭 조절: 미리보기 | 기본정보·업체·장비 | 금일·명일·담당자 */
+@media(min-width:1351px){
+ #writePage>.grid:not(.preview-collapsed){grid-template-columns:minmax(220px,var(--work-preview-width,28%)) minmax(260px,var(--work-left-width,32%)) minmax(260px,1fr)!important;}
+}
+@media(min-width:851px) and (max-width:1350px){
+ #writePage>.grid:not(.preview-collapsed){grid-template-columns:minmax(220px,var(--work-preview-width,34%)) minmax(390px,1fr)!important;}
+}
+@media(min-width:851px){
+ #writePage>.grid:not(.preview-collapsed) .desktop-preview,
+ #writePage>.grid:not(.preview-collapsed) .left-col{position:relative;min-width:0;}
+ #writePage .work-column-resizer{position:absolute;right:-7px;top:0;bottom:0;width:13px;z-index:55;cursor:col-resize;touch-action:none;background:transparent;user-select:none;}
+ #writePage .work-column-resizer::before{content:'';position:absolute;left:5px;top:12px;bottom:12px;width:3px;border-radius:3px;background:#abc6e6;opacity:.55;}
+ #writePage .work-column-resizer:hover::before,#writePage .work-column-resizer:focus-visible::before,body.work-resizing #writePage .work-column-resizer::before{background:#0878f9;opacity:1;}
+ #writePage .work-column-resizer:focus-visible{outline:2px solid #0878f9;outline-offset:0;}
+ body.work-resizing,body.work-resizing *{cursor:col-resize!important;user-select:none!important;}
+}
+@media(min-width:851px) and (max-width:1350px){#writePage .work-column-resizer[data-work-edge="second"]{display:none!important;}}
+@media(max-width:850px){#writePage .work-column-resizer{display:none!important;}}
 </style><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
 // 다른 탭에서 변경된 동일 현장 보고서 마감 상태 즉시 조회
 window.addEventListener('storage',function(e){
@@ -2323,8 +2370,9 @@ window.addEventListener('focus',function(){
 </div></div>
 <div class="card"><div class="title"><span><span class="n">2</span>업체 입력 (공종별 인원)</span><span class="total-inline">총 투입인원 <span class="total" id="grandTotal">0명</span></span><button class="btn primary" onclick="addCompany()">+ 업체 입력</button></div><div id="companies"></div></div>
 <div class="card"><div class="title"><span><span class="n">3</span>장비</span><button class="btn primary" onclick="addEquipment()">+ 장비 추가</button></div><table><thead><tr><th>장비명</th><th>수량(대)</th><th>비고</th><th>삭제</th></tr></thead><tbody id="equipments"></tbody></table></div>
-</div><div class="input-col middle-col"><div class="card"><div class="title"><span><span class="n">4</span>금일 작업 내용</span><button class="btn primary" onclick="addArea()">+ 구역 추가</button></div><div id="areas"></div></div>
-<div class="card"><div class="title"><span><span class="n">5</span>명일 작업 내용</span><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button class="btn" type="button" onclick="copyTodayToTomorrow()">금일작업내용 복사하기</button><button class="btn primary" onclick="addTomorrowArea()">+ 구역 추가</button></span></div><div id="tomorrowAreas"></div></div>
+</div><div class="input-col middle-col"><div class="daily-work-columns"><div class="card"><div class="title"><span><span class="n">4</span>금일 작업 내용</span><button class="btn primary" onclick="addArea()">+ 구역 추가</button></div><div id="areas"></div></div>
+<div class="card tomorrow-work-card"><div class="title"><span><span class="n">5</span>명일 작업 내용</span><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button class="btn" type="button" onclick="copyTodayToTomorrow()">금일작업내용 복사하기</button><button class="btn primary" onclick="addTomorrowArea()">+ 구역 추가</button></span></div><div id="tomorrowAreas"></div></div>
+</div>
 <div class="card"><div class="title"><span><span class="n">6</span>담당자</span><button class="btn" onclick="addManager()">+ 담당자 추가</button></div><div class="manager-scroll"><table class="manager-table"><colgroup><col class="manager-visibility-col"><col class="manager-attendance-col"><col class="manager-name-col"><col class="manager-role-col"><col class="manager-phone-col"><col class="manager-action-col"></colgroup><thead><tr><th class="manager-sns-heading">SNS</th><th>공사일보</th><th>이름</th><th>직책</th><th>전화번호</th><th>관리</th></tr></thead><tbody id="managers"></tbody></table></div></div>
 </div>
 <div class="desktop-preview"><div class="card"><div class="title preview-title-row"><span class="preview-title-text">미리보기</span><span class="preview-tabs" role="tablist" aria-label="미리보기 형식"><button type="button" class="preview-tab active" id="reportTab" role="tab" aria-selected="true" onclick="selectPreviewTab('report')">작업일보</button><button type="button" class="preview-tab" id="slackTab" role="tab" aria-selected="false" onclick="selectPreviewTab('slack')">Slack</button></span><button class="btn preview-copy-btn" onclick="copyPreview()">복사하기</button><button class="btn preview-toggle" type="button" title="미리보기 접기/펼치기" onclick="togglePreview()">◀</button></span></div><div id="preview" class="preview" contenteditable="true"></div><div id="slackFields" class="slack-extra-fields" style="display:none"><label>주요위험요소 <input id="slackRiskInput" type="text" oninput="saveSlackFields()" placeholder="주요위험요소"></label><label>특이사항 <input id="slackSpecialInput" type="text" oninput="saveSlackFields()" placeholder="특이사항"></label></div><div id="slackPreview" class="preview" role="tabpanel" contenteditable="true" style="display:none"></div></div></div></div></section>
@@ -6943,4 +6991,47 @@ document.addEventListener('DOMContentLoaded',()=>{
  });
 })();
 </script>
-</body></html>
+<script>
+/* 작업일보 작성 화면 열 폭 드래그 조절. 저장된 너비는 같은 브라우저에서 유지. */
+(function(){
+ const KEY='workReportColumnWidths_v1';
+ function initWorkColumnResizers(){
+  const grid=document.querySelector('#writePage > .grid');
+  const preview=grid?.querySelector('.desktop-preview');
+  const left=grid?.querySelector('.left-col');
+  if(!grid||!preview||!left||preview.querySelector('[data-work-edge="first"]'))return;
+  try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved&&Number.isFinite(saved.preview)&&Number.isFinite(saved.left)){
+   grid.style.setProperty('--work-preview-width',saved.preview+'%');grid.style.setProperty('--work-left-width',saved.left+'%');
+  }}catch(e){}
+  for(const [parent,edge,label] of [[preview,'first','미리보기와 작성 영역 사이 너비 조절'],[left,'second','작성 영역 좌우 너비 조절']]){
+   const handle=document.createElement('div');handle.className='work-column-resizer';handle.dataset.workEdge=edge;
+   handle.setAttribute('role','separator');handle.setAttribute('aria-label',label);handle.setAttribute('aria-orientation','vertical');handle.tabIndex=0;
+   parent.appendChild(handle);
+   handle.addEventListener('pointerdown',function(ev){
+    if(ev.button!==0||innerWidth<=850||grid.classList.contains('preview-collapsed')||(edge==='second'&&innerWidth<=1350))return;
+    ev.preventDefault();ev.stopPropagation();
+    const rect=grid.getBoundingClientRect(),cols=getComputedStyle(grid).gridTemplateColumns.split(' ').map(parseFloat),gap=parseFloat(getComputedStyle(grid).columnGap)||8;
+    if(cols.length<(innerWidth<=1350?2:3))return;
+    const startX=ev.clientX;const original=cols.slice();const total=rect.width;document.body.classList.add('work-resizing');
+    handle.setPointerCapture(ev.pointerId);
+    function move(e){
+     const diff=e.clientX-startX;
+     if(edge==='first'){
+      let width=Math.max(220,Math.min(original[0]+diff,innerWidth<=1350?total-gap-390:total-2*gap-original[1]-260));
+      grid.style.setProperty('--work-preview-width',(width/total*100)+'%');
+     }else{
+      const width=Math.max(260,Math.min(original[1]+diff,total-2*gap-original[0]-260));
+      grid.style.setProperty('--work-left-width',(width/total*100)+'%');
+     }
+    }
+    function end(){document.body.classList.remove('work-resizing');handle.removeEventListener('pointermove',move);handle.removeEventListener('pointerup',end);handle.removeEventListener('pointercancel',end);
+     try{localStorage.setItem(KEY,JSON.stringify({preview:parseFloat(grid.style.getPropertyValue('--work-preview-width'))||28,left:parseFloat(grid.style.getPropertyValue('--work-left-width'))||32}));}catch(e){}
+    }
+    handle.addEventListener('pointermove',move);handle.addEventListener('pointerup',end);handle.addEventListener('pointercancel',end);
+   });
+   handle.addEventListener('keydown',function(ev){if(ev.key!=='ArrowLeft'&&ev.key!=='ArrowRight')return;ev.preventDefault();const delta=ev.key==='ArrowRight'?2:-2;const key=edge==='first'?'--work-preview-width':'--work-left-width';const current=parseFloat(grid.style.getPropertyValue(key))||(edge==='first'?28:32);grid.style.setProperty(key,Math.max(15,Math.min(65,current+delta))+'%');try{localStorage.setItem(KEY,JSON.stringify({preview:parseFloat(grid.style.getPropertyValue('--work-preview-width'))||28,left:parseFloat(grid.style.getPropertyValue('--work-left-width'))||32}));}catch(e){}});
+  }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initWorkColumnResizers);else initWorkColumnResizers();
+})();
+</script></body></html>
