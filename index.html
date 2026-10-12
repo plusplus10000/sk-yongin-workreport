@@ -2195,6 +2195,9 @@ body.report-is-closed #writePage textarea:disabled{
 /* 사진 번호가 들어 있는 노란색 A/E열은 사진 첨부영역에서 제외합니다. */
 #excelPage .excel-photo-slot{pointer-events:auto!important;z-index:15!important;outline:0}
 #excelPage .excel-photo-slot:focus-visible{outline:2px dashed #3687e8;outline-offset:-2px}
+/* 사진대지 설명 1~4: Ctrl+V의 복사 서식이 화면 글꼴을 바꾸지 않도록 고정. */
+#excelPage .excel-photo-caption{font-family:'맑은 고딕',Arial,sans-serif!important;line-height:1.2!important}
+#excelPage .excel-photo-caption *{font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;font-style:inherit!important;line-height:inherit!important;color:inherit!important}
 #excelPage .excel-photo-caption[contenteditable="true"]{cursor:text!important;user-select:text!important;outline-offset:-2px;white-space:pre-wrap}
 #excelPage .excel-photo-caption[contenteditable="true"]:focus{outline:2px solid #3687e8!important;background:#fffdea!important;z-index:7!important}
 #appMemoDialog[hidden]{display:none!important}
@@ -2236,6 +2239,12 @@ header .header-right .memo-small-btn{flex:0 0 auto!important;margin:0!important}
 #appMemoBody{flex:1 1 auto!important;min-height:0!important;max-height:none!important;resize:none!important;font-size:14px!important;line-height:1.6!important}
 #appMemoPanel .app-memo-foot{flex:0 0 auto}
 @media(max-width:600px){#appMemoPanel{left:2vw;top:5vh;min-width:250px;min-height:180px;width:96vw;height:70vh}}
+
+/* 2026-10-12: 미리보기 형식은 Slack → 주간 → 중식OT → 연장, PC/모바일 공통. */
+#writePage .preview-title-row{flex-wrap:wrap!important;column-gap:5px!important;row-gap:4px!important}
+#writePage .preview-tabs{flex-wrap:wrap;min-width:0;gap:2px;margin-left:0}
+#writePage .preview-tab{white-space:nowrap;padding:5px 7px}
+@media(max-width:540px){#writePage .preview-tabs{flex:0 1 auto}#writePage .preview-tab{font-size:12px;padding:6px 7px}}
 </style><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
 // 다른 탭에서 변경된 동일 현장 보고서 마감 상태 즉시 조회
 window.addEventListener('storage',function(e){
@@ -2461,7 +2470,7 @@ window.addEventListener('focus',function(){
 </div>
 <div class="card"><div class="title"><span><span class="n">6</span>담당자</span><button class="btn" onclick="addManager()">+ 담당자 추가</button></div><div class="manager-scroll"><table class="manager-table"><colgroup><col class="manager-visibility-col"><col class="manager-attendance-col"><col class="manager-name-col"><col class="manager-role-col"><col class="manager-phone-col"><col class="manager-action-col"></colgroup><thead><tr><th class="manager-sns-heading">SNS</th><th>공사일보</th><th>이름</th><th>직책</th><th>전화번호</th><th>관리</th></tr></thead><tbody id="managers"></tbody></table></div></div>
 </div>
-<div class="desktop-preview"><div class="card"><div class="title preview-title-row"><span class="preview-title-text">미리보기</span><span class="preview-tabs" role="tablist" aria-label="미리보기 형식"><button type="button" class="preview-tab active" id="reportTab" role="tab" aria-selected="true" onclick="selectPreviewTab('report')">작업일보</button><button type="button" class="preview-tab" id="slackTab" role="tab" aria-selected="false" onclick="selectPreviewTab('slack')">Slack</button></span><button class="btn preview-copy-btn" onclick="copyPreview()">복사하기</button><button class="btn preview-toggle" type="button" title="미리보기 접기/펼치기" onclick="togglePreview()">◀</button></span></div><div id="preview" class="preview" contenteditable="true"></div><div id="slackFields" class="slack-extra-fields" style="display:none"><label>주요위험요소 <input id="slackRiskInput" type="text" oninput="saveSlackFields()" placeholder="주요위험요소"></label><label>특이사항 <input id="slackSpecialInput" type="text" oninput="saveSlackFields()" placeholder="특이사항"></label></div><div id="slackPreview" class="preview" role="tabpanel" contenteditable="true" style="display:none"></div></div></div></div></section>
+<div class="desktop-preview"><div class="card"><div class="title preview-title-row"><span class="preview-title-text">미리보기</span><span class="preview-tabs" role="tablist" aria-label="미리보기 형식"><button type="button" class="preview-tab" id="slackTab" role="tab" aria-selected="false" onclick="selectPreviewTab('slack')">Slack</button><button type="button" class="preview-tab active" id="reportTab" role="tab" aria-selected="true" onclick="selectPreviewTab('weekly')">주간</button><button type="button" class="preview-tab" id="lunchTab" role="tab" aria-selected="false" onclick="selectPreviewTab('lunch')">중식OT</button><button type="button" class="preview-tab" id="overtimeTab" role="tab" aria-selected="false" onclick="selectPreviewTab('overtime')">연장</button></span><button class="btn preview-copy-btn" onclick="copyPreview()">복사하기</button><button class="btn preview-toggle" type="button" title="미리보기 접기/펼치기" onclick="togglePreview()">◀</button></span></div><div id="preview" class="preview" contenteditable="true"></div><div id="slackFields" class="slack-extra-fields" style="display:none"><label>주요위험요소 <input id="slackRiskInput" type="text" oninput="saveSlackFields()" placeholder="주요위험요소"></label><label>특이사항 <input id="slackSpecialInput" type="text" oninput="saveSlackFields()" placeholder="특이사항"></label></div><div id="slackPreview" class="preview" role="tabpanel" contenteditable="true" style="display:none"></div></div></div></div></section>
 <section id="excelPage" class="search-panel" aria-label="공사일보 엑셀 미리보기">
   <div class="excel-view-header card">
     <div class="title"><span><span class="n">▤</span>공사일보 엑셀</span><span id="excelPreviewDate" class="excel-preview-date"></span></div>
@@ -3714,18 +3723,64 @@ function moveWorkDate(days){
     autoSave();
   }
 }
-let activePreviewTab='report';
+// 미리보기 4개 탭은 데이터 작업모드(주간/연장)와 독립적으로 표시만 전환합니다.
+// 이전의 'report' 탭 호출도 주간으로 호환하며, 저장 원본/작성모드는 바꾸지 않습니다.
+let activePreviewTab='weekly';
 function selectPreviewTab(tab){
   document.querySelectorAll('#writePage .preview-tab').forEach(b=>{b.disabled=false;delete b.dataset.roleDisabled;delete b.dataset.reportLockDisabled});
-  activePreviewTab=tab==='slack'?'slack':'report';
+  activePreviewTab=['slack','weekly','lunch','overtime'].includes(tab)?tab:'weekly';
   initSlackFields();
-  if($('slackFields'))$('slackFields').style.display=activePreviewTab==='slack'?'grid':'none';
+  const isSlack=activePreviewTab==='slack';
+  if($('slackFields'))$('slackFields').style.display=isSlack?'grid':'none';
   const report=$('preview'),slack=$('slackPreview');
-  if(report)report.style.display=activePreviewTab==='report'?'block':'none';
-  if(slack)slack.style.display=activePreviewTab==='slack'?'block':'none';
-  for(const [key,id] of [['report','reportTab'],['slack','slackTab']]){
+  if(report){report.style.display=isSlack?'none':'block';if(!isSlack)report.textContent=previewReportSection(activePreviewTab);}
+  if(slack)slack.style.display=isSlack?'block':'none';
+  for(const [key,id] of [['slack','slackTab'],['weekly','reportTab'],['lunch','lunchTab'],['overtime','overtimeTab']]){
     const button=$(id);if(button){button.classList.toggle('active',key===activePreviewTab);button.setAttribute('aria-selected',String(key===activePreviewTab));}
   }
+}
+/* 주간/중식OT/연장 개별 미리보기: 원래 보고서의 날짜별 데이터는 읽기만 합니다. */
+function previewReportSection(tab){
+  if(isNoWorkDay($('date')?.value))return '작업없음';
+  const date=$('date')?.value||'',site=$('site')?.value||'',trade=$('trade')?.value||'';
+  const sectionBreak='\n----------------------------------------------------\n';
+  if(tab==='weekly'&&currentWorkType!=='overtime')return reportText();
+  if((tab==='lunch'||tab==='overtime')&&currentWorkType==='overtime'){
+    const parts=reportText().split(sectionBreak);
+    return tab==='lunch'?parts[0]:(parts.length>1?parts.slice(1).join(sectionBreak):parts[0]);
+  }
+  const weekly=currentWorkType==='weekly'?
+    {state:state,bpa:$('bpa')?.value,start:$('start')?.value,end:$('end')?.value}:
+    (findModeDraft(date,site,trade,'weekly',0)||findSavedReport(date,site,trade,'weekly',0));
+  const overtimeNo=listOvertimeNumbers(date,site,trade)[0]||1;
+  const overtime=findModeDraft(date,site,trade,'overtime',overtimeNo)||findSavedReport(date,site,trade,'overtime',overtimeNo);
+  const record=tab==='weekly'?weekly:overtime;
+  if(!record?.state)return tab==='weekly'?'해당 날짜에 작성된 주간 작업일보가 없습니다.':'해당 날짜에 작성된 연장 작업일보가 없습니다.';
+  const data=record.state;
+  const managers=tab==='lunch'?(weekly?.state?.managers||[]):(data.managers||[]);
+  const title=tab==='weekly'?'주간작업보고':tab==='lunch'?'중식OT작업보고':currentModeLabel('overtime',overtimeNo)+'작업보고';
+  const start=tab==='lunch'?'11:00':tab==='weekly'?'07:00':'17:30';
+  const end=tab==='lunch'?'13:00':tab==='weekly'?'17:30':'19:30';
+  const d=new Date(date+'T00:00:00'),days='일월화수목금토';
+  const ds=isNaN(d)?'':`${String(d.getFullYear()).slice(2)}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}(${days[d.getDay()]})`;
+  const totals=Object.fromEntries((D.jobs||[]).map(j=>[j,0]));
+  (data.companies||[]).forEach(c=>(D.jobs||[]).forEach(j=>{totals[j]+=(+((c.jobs||{})[j])||0)}));
+  const total=Object.values(totals).reduce((a,b)=>a+b,0);
+  const lines=[`[${trade}] ${ds} ${title} 작업시간(${start}~${end})`,'',`■ ${site}`,`1.BP사 : ${record.bpa||''}`,'',`1) 출력인원: ${total}명`];
+  (D.jobs||[]).forEach(j=>{if(totals[j]>0)lines.push(`   - ${j} : ${totals[j]}명`)});
+  const eq=(data.equipment||[]).filter(e=>e.name&&e.qty>0).map(e=>`${e.name}-${e.qty}대`);
+  lines.push('',`2) 장비 : ${eq.length?eq.join(', '):'-'}`,'','3) 금일 작업 내용');
+  (data.areas||[]).forEach(a=>{
+    const tasks=(a.tasks||[]).filter(x=>String(x||'').trim());
+    if((a.zone||a.loc)&&tasks.length){
+      lines.push(`- [${[a.zone,a.loc].map(v=>String(v||'').trim()).filter(Boolean).join('  ')}]`);
+      tasks.forEach((t,i)=>lines.push(`   ${i+1}. ${t}`));
+    }
+  });
+  lines.push('','4) 관리자');
+  managers.filter(m=>Array.isArray(m)&&m[3]!==false&&m[4]===true&&[m[0],m[1],m[2]].some(x=>String(x||'').trim()))
+    .forEach(m=>lines.push(`   - ${m[0]} ${m[1]} ${m[2]}`));
+  return lines.join('\n');
 }
 function enforceFixedWorkHours(){
   const start=document.getElementById('start'),end=document.getElementById('end');
@@ -3897,7 +3952,7 @@ function initSlackFields(){
 
 function updatePreview(){
   enforceFixedWorkHours();
-  $('preview').textContent=isNoWorkDay($('date')?.value)?'작업없음':reportText();
+  $('preview').textContent=previewReportSection(activePreviewTab);
   initSlackFields();
   if($('slackPreview')){if(isNoWorkDay($('date')?.value))$('slackPreview').textContent='작업없음';else renderSlackPreview();}
   updateNoWorkUI();
@@ -6430,7 +6485,14 @@ function selectConstructionExcelSheet(index){
 
       // 원본 엑셀 미리보기 Remark는 읽기 전용. 오른쪽 입력 패널에서만 수정합니다.
       // 사진 촬영기준은 왼쪽 빈 칸까지 사용해 줄바꿈 없이 날짜 옆에 배치한다.
-      if(model.sheet===2&&PHOTO_CAPTION_REFS.includes(ref))photoMakeCaptionEditable(div,ref);
+      if(model.sheet===2&&PHOTO_CAPTION_REFS.includes(ref)){
+        // 원본 사진 설명 4번(F28)의 글꼴 크기/굵기를 1~4번 모두에 적용합니다.
+        const referenceFont=excelPreviewCellStyle(model.map.get('F28'),model);
+        div.style.fontSize=referenceFont.fontSize||'10pt';
+        div.style.fontWeight=referenceFont.fontWeight||'normal';
+        div.style.fontStyle=referenceFont.fontStyle||'normal';
+        photoMakeCaptionEditable(div,ref);
+      }
       if(model.sheet===2&&ref==='G2'){
         div.style.left=colLeft[5]+'px';
         div.style.width=(colLeft[7]-colLeft[5])+'px';
@@ -7546,13 +7608,32 @@ async function photoLoadCaptions(force=false){
   photoSyncCaptionEditor(values);
  }catch(e){photoStatus('사진 설명을 불러오지 못했습니다: '+e.message)}
 }
+// 사진 설명 칸에 복사한 문장의 서식(글꼴/크기)은 가져오지 않고 텍스트만 삽입합니다.
+function photoPasteCaptionPlainText(cell,event){
+ event.preventDefault();event.stopPropagation();
+ const text=String(event.clipboardData?.getData('text/plain')||'').replace(/\r\n?/g,'\n');
+ if(!text)return;
+ const selection=window.getSelection();let range=selection?.rangeCount?selection.getRangeAt(0):null;
+ if(!range||!cell.contains(range.commonAncestorContainer)){
+  range=document.createRange();range.selectNodeContents(cell);range.collapse(false);
+ }
+ range.deleteContents();const node=document.createTextNode(text);range.insertNode(node);
+ range.setStartAfter(node);range.collapse(true);
+ selection?.removeAllRanges();selection?.addRange(range);
+}
 function photoMakeCaptionEditable(cell,ref){
  cell.contentEditable=photoCanEdit(photoContext())?'true':'false';
  cell.classList.add('excel-photo-caption');cell.title=ref+' · 사진 설명 직접 수정';
  cell.setAttribute('aria-label','사진 '+(PHOTO_CAPTION_REFS.indexOf(ref)+1)+' 설명');
  if(cell.contentEditable==='false')return;
  cell.addEventListener('focus',()=>{photoActiveSlot=0});
- cell.addEventListener('blur',()=>{const ctx=photoContext();if(!photoFolderHandle){photoStatus('사진 설명 저장에는 먼저 사진 전용 폴더를 지정해야 합니다.');return;}void photoTrackCaptionSave(photoSaveCaption(ref,cell.textContent,ctx))});
+ cell.addEventListener('paste',e=>photoPasteCaptionPlainText(cell,e));
+ cell.addEventListener('blur',()=>{
+  // 기존에 서식 있는 글자가 들어왔더라도 저장 전에 순수 텍스트로 정규화합니다.
+  const value=cell.textContent;cell.textContent=value;
+  const ctx=photoContext();if(!photoFolderHandle){photoStatus('사진 설명 저장에는 먼저 사진 전용 폴더를 지정해야 합니다.');return;}
+  void photoTrackCaptionSave(photoSaveCaption(ref,value,ctx));
+ });
  cell.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();cell.blur()}});
 }
 async function photoGetDay(ctx,force=false){
