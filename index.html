@@ -2634,7 +2634,7 @@ function enterProjectPage(name,page){
     sessionStorage.setItem('activeProjectPage',page||'write');
     document.body.classList.remove('site-home-mode');
     showPage(page||'write',null);
-    if((page||'write')==='write')setWorkDateToday();
+    // 동일 현장 내 메뉴 전환 시 선택된 작업일을 유지한다.
     refreshProjectTree();
     if(typeof closeMobileMenu==='function')closeMobileMenu();
     window.scrollTo(0,0);
@@ -4353,8 +4353,8 @@ function showPage(p,b){
   document.querySelectorAll('aside button').forEach(x=>x.classList.remove('active'));
   if(b)b.classList.add('active');
   ['write','excel','data','search','master'].forEach(x=>$(x+'Page').style.display=x===p?(x==='excel'?'flex':'block'):'none');
-  if(p==='data'){const d=$('dataDate');if(d&&!d.value)d.value=$('date')?.value||getTodayLocalDate();renderDataPage();}
-  if(p==='excel')Promise.resolve().then(()=>refreshConstructionExcelPreview());
+  if(p==='data'){const workDate=$('date')?.value||getTodayLocalDate();const d=$('dataDate');if(d)d.value=workDate;if($('dataPeriod')?.value==='custom'){if($('dataFrom'))$('dataFrom').value=workDate;if($('dataTo'))$('dataTo').value=workDate;}renderDataPage();}
+  if(p==='excel'){updateExcelPreviewNavDate();Promise.resolve().then(()=>refreshConstructionExcelPreview());}
   refreshProjectTree();
 
   // 검색 화면은 들어갈 때마다 reports 저장소를 다시 읽어 즉시 갱신
@@ -4363,7 +4363,7 @@ function showPage(p,b){
     Promise.resolve().then(()=>searchReports());
   }
 }
-function goWritePage(){showPage('write',null);setWorkDateToday();document.querySelectorAll('aside button').forEach((b,i)=>b.classList.toggle('active',i===0));window.scrollTo({top:0,behavior:'smooth'})}
+function goWritePage(){showPage('write',null);document.querySelectorAll('aside button').forEach((b,i)=>b.classList.toggle('active',i===0));window.scrollTo({top:0,behavior:'smooth'})}
 function updateSearchHint(){
   const type=$('searchType').value, labels={keyword:'작업내용 검색어',equipment:'장비명',company:'업체명',division:'구분',job:'직종',area:'구역'};
   const input=$('query'), sel=$('querySelect');
@@ -4384,7 +4384,7 @@ let searchPageIndex=1;
 let searchPeriodInitialized=false;
 function searchDateString(d){return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')}
 function setSearchPeriod(months,btn,run=true){
-  const toDate=($('date')&&$('date').value)||getTodayLocalDate();
+  const toDate=getTodayLocalDate();
   const end=new Date(toDate+'T00:00:00');
   if(months){const start=new Date(end);start.setMonth(start.getMonth()-months);$('from').value=searchDateString(start);$('to').value=searchDateString(end)}
   searchPeriodInitialized=true;searchPageIndex=1;
@@ -6906,5 +6906,41 @@ document.addEventListener('DOMContentLoaded',()=>{
  const w=document.querySelector('#excelPage .excel-preview-workspace');if(w&&!document.getElementById('excelNoWorkMessage')){const e=document.createElement('div');e.id='excelNoWorkMessage';e.textContent='작업없음';w.appendChild(e)}
  updateNoWorkUI();
 });
+</script>
+
+<script>
+/* 세 메뉴 작업일 공유: 작업일보 작성일을 단일 기준 날짜로 사용한다. */
+(function(){
+ const valid=v=>/^\d{4}-\d{2}-\d{2}$/.test(v||'');
+ function alignOtherDates(day){
+   if(!valid(day))return;
+   const data=document.getElementById('dataDate');if(data)data.value=day;
+   const excel=document.getElementById('excelDatePicker');if(excel)excel.value=day;
+   if(typeof updateNoWorkUI==='function')updateNoWorkUI();
+ }
+ function selectSharedDay(day){
+   const work=document.getElementById('date');
+   if(!work||!valid(day))return;
+   if(work.value!==day){
+     // 기존 날짜 전환 로직을 호출해 그 날짜의 주간/연장 자료도 올바르게 로드한다.
+     work.value=day;
+     loadDateOrBlank();
+   }
+   alignOtherDates(day);
+ }
+ const previousMove=moveWorkDate;
+ moveWorkDate=function(){const result=previousMove.apply(this,arguments);alignOtherDates(document.getElementById('date')?.value);return result;};
+ const previousLoad=loadDateOrBlank;
+ loadDateOrBlank=function(){const result=previousLoad.apply(this,arguments);alignOtherDates(document.getElementById('date')?.value);return result;};
+ const previousShiftData=shiftDataPeriod;
+ shiftDataPeriod=function(){const result=previousShiftData.apply(this,arguments);selectSharedDay(document.getElementById('dataDate')?.value);return result;};
+ document.addEventListener('DOMContentLoaded',()=>{
+   alignOtherDates(document.getElementById('date')?.value);
+   const data=document.getElementById('dataDate');
+   if(data)data.addEventListener('change',()=>selectSharedDay(data.value));
+   const work=document.getElementById('date');
+   if(work)work.addEventListener('change',()=>alignOtherDates(work.value));
+ });
+})();
 </script>
 </body></html>
