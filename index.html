@@ -2223,6 +2223,19 @@ body.report-is-closed #writePage textarea:disabled{
 #excelPage .photo-editor-thumb img{object-fit:cover!important;object-position:center!important}
 #excelPage .excel-photo-slot{cursor:default!important;caret-color:transparent!important;user-select:none!important}
 #excelPage .photo-editor-thumb{cursor:default!important;caret-color:transparent!important;user-select:none!important}
+
+/* 메모장: 상단 작업보고 작성 왼쪽 버튼, 팝업 드래그 이동 및 네 면 크기 조절. 글꼴 크기 기존 고정. */
+header .header-right{flex-direction:row!important;align-items:center!important;justify-content:flex-end!important;gap:9px!important}
+header .header-right .memo-small-btn{flex:0 0 auto!important;margin:0!important}
+#appMemoDialog{display:block!important;padding:0!important;overflow:hidden!important;align-items:initial!important;justify-content:initial!important}
+#appMemoDialog[hidden]{display:none!important}
+#appMemoPanel{position:absolute!important;left:calc(50% - 280px);top:7vh;width:min(560px,96vw);height:min(520px,85vh);min-width:280px;min-height:190px;max-width:none!important;max-height:none!important;display:flex;flex-direction:column;resize:both;overflow:hidden;padding:13px;touch-action:auto}
+#appMemoPanel header{flex:0 0 auto;cursor:move;user-select:none;touch-action:none;gap:8px}
+#appMemoPanel header strong{font-size:inherit}
+#appMemoPanel header button{cursor:pointer;touch-action:auto}
+#appMemoBody{flex:1 1 auto!important;min-height:0!important;max-height:none!important;resize:none!important;font-size:14px!important;line-height:1.6!important}
+#appMemoPanel .app-memo-foot{flex:0 0 auto}
+@media(max-width:600px){#appMemoPanel{left:2vw;top:5vh;min-width:250px;min-height:180px;width:96vw;height:70vh}}
 </style><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
 // 다른 탭에서 변경된 동일 현장 보고서 마감 상태 즉시 조회
 window.addEventListener('storage',function(e){
@@ -2429,7 +2442,7 @@ window.addEventListener('focus',function(){
 </div>
 </div>
 </aside><main>
-<section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 마스터가 마감을 해제한 뒤 수정할 수 있습니다.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ 공용저장소 연결</button><button class="btn" type="button" onclick="saveToDrive()">공용저장소 저장</button><button class="btn" type="button" onclick="loadFromDrive()">공용저장소 불러오기</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 기기 인증 확인 중</b><span id="readOnlyBadge" class="readonly-badge">읽기 전용</span><button class="btn local-backup-btn" type="button" onclick="openLocalBackupDialog()">로컬백업</button><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><div class="header-action-buttons"><button class="btn" type="button" onclick="openConstructionExcelPage()" style="background:#138b70;color:white;border-color:#138b70">📥 공사일보 엑셀</button><button class="btn" onclick="saveReport()">보고서 저장</button><button type="button" class="btn memo-small-btn" onclick="appMemoOpen()">🗒 메모</button></div></div><div class="grid"><div class="input-col left-col">
+<section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 마스터가 마감을 해제한 뒤 수정할 수 있습니다.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ 공용저장소 연결</button><button class="btn" type="button" onclick="saveToDrive()">공용저장소 저장</button><button class="btn" type="button" onclick="loadFromDrive()">공용저장소 불러오기</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 기기 인증 확인 중</b><span id="readOnlyBadge" class="readonly-badge">읽기 전용</span><button class="btn local-backup-btn" type="button" onclick="openLocalBackupDialog()">로컬백업</button><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><div class="header-action-buttons"><button class="btn" type="button" onclick="openConstructionExcelPage()" style="background:#138b70;color:white;border-color:#138b70">📥 공사일보 엑셀</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div class="grid"><div class="input-col left-col">
 <div class="card basic-info-card"><div class="title"><span><span class="n">1</span>기본 정보</span><span class="basic-close-wrap"><span id="workModeTabs" class="work-mode-tabs-inline"></span><span id="linkedCloseStatus" class="linked-close-status" aria-live="polite">작업일보·공사일보: 작성중</span><button id="noWorkDayBtn" class="report-close-btn no-work-action" type="button" onclick="toggleNoWorkDay()">작업없음</button><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><span class="basic-action-buttons mobile-basic-actions"><button class="btn" onclick="resetDailyData()">인원·하부작업 초기화</button><button class="btn" type="button" onclick="openConstructionExcelPage()" style="background:#138b70;color:white;border-color:#138b70">📥 공사일보 엑셀</button><button class="btn" onclick="saveReport()">보고서 저장</button></span></div><div class="basic-info-grid">
 <div class="field basic-site"><label>현장</label><select id="site"></select></div>
 <div class="field basic-trade"><label>공종</label><select id="trade"></select></div>
@@ -6554,8 +6567,10 @@ async function refreshConstructionExcelPreview(){
 }
 async function downloadConstructionExcelPreview(){
   if(!constructionExcelPreviewBlob){alert('미리보기 버튼으로 엑셀을 먼저 만들어 주세요.');return;}
+  try{await photoFlushCaptionEditsBeforeDownload()}catch(e){alert(e.message);return;}
   if(photoFolderHandle&&photoFolderAccessError){alert('사진대지 전용 폴더에 접근할 수 없어 사진이 누락될 수 있습니다.\n사진대지의 「사진 폴더 지정 / 재지정」 버튼으로 폴더를 다시 연결한 뒤 엑셀을 다운로드하세요.');return;}
-  if(constructionExcelRemarkDirty||photoExcelDirty){
+  // 사진설명과 사진은 로컬 폴더에서 다시 읽어 최종 Excel 파일에 정확히 반영합니다.
+  if(constructionExcelRemarkDirty||photoExcelDirty||photoFolderHandle){
     try{
       // 입력한 비고 및 사진이 최종 다운로드 파일에 반영되도록 다시 만듭니다.
       const updated=await exportConstructionDaily('preview');
@@ -6686,6 +6701,9 @@ function copyPhotoSheetImage(){
 }
 
 async function exportConstructionDaily(mode){
+ if(mode!=='preview'){
+  try{await photoFlushCaptionEditsBeforeDownload()}catch(e){alert(e.message);return null;}
+ }
  try{
   if(typeof JSZip==='undefined')throw Error('엑셀 라이브러리 연결이 필요합니다. 인터넷 연결을 확인하세요.');
   const date=$('date').value, site=$('site').value, trade=$('trade').value;
@@ -7439,7 +7457,8 @@ function photoRenderEditor(){
   const area=document.createElement('textarea');area.className='photo-editor-caption';area.id='photoLeftCaption'+slot;area.dataset.captionRef=PHOTO_CAPTION_REFS[slot-1];area.rows=2;area.disabled=!editAllowed;
   const node=model?.map?.get(PHOTO_CAPTION_REFS[slot-1]);area.value=node?excelPreviewFormat(node,model,PHOTO_CAPTION_REFS[slot-1]):'';
   area.addEventListener('focus',()=>photoEditorSelect(slot));
-  area.addEventListener('change',()=>void photoSaveCaption(area.dataset.captionRef,area.value,photoContext()));
+  area.addEventListener('input',()=>{area.dataset.captionDirty='1';photoExcelDirty=true;});
+  area.addEventListener('change',()=>void photoCommitCaption(area));
   card.appendChild(area);
   card.addEventListener('focus',e=>{if(e.target===card)photoEditorSelect(slot)});
   card.addEventListener('click',e=>{if(e.target===card)photoEditorSelect(slot)});
@@ -7455,6 +7474,25 @@ function photoUpdateEditorImages(photos){
   if(data){const img=document.createElement('img');img.alt='저장된 사진 '+slot;img.src=data;thumb.appendChild(img)}
   else thumb.textContent='클릭 후 Ctrl+V로 사진 붙여넣기';
  });
+}
+const photoCaptionPendingSaves=new Set();
+function photoTrackCaptionSave(task){
+ const pending=Promise.resolve(task);photoCaptionPendingSaves.add(pending);
+ pending.finally(()=>photoCaptionPendingSaves.delete(pending)).catch(()=>{});
+ return pending;
+}
+async function photoCommitCaption(area){
+ if(!area||area.disabled||area.dataset.captionDirty!=='1')return true;
+ const current=area.value,ctx=photoContext();
+ const saved=await photoTrackCaptionSave(photoSaveCaption(area.dataset.captionRef,current,ctx));
+ if(saved&&area.value===current)delete area.dataset.captionDirty;
+ return saved===true;
+}
+async function photoFlushCaptionEditsBeforeDownload(){
+ const dirty=Array.from(document.querySelectorAll('#excelPhotoEditor .photo-editor-caption[data-caption-dirty="1"]'));
+ for(const area of dirty){if(!(await photoCommitCaption(area)))throw Error('사진 상세 설명을 저장하지 못해 엑셀 다운로드를 중단했습니다.');}
+ const pending=Array.from(photoCaptionPendingSaves);
+ if(pending.length){const result=await Promise.all(pending);if(result.some(x=>x===false))throw Error('사진 상세 설명 저장을 확인하지 못해 엑셀 다운로드를 중단했습니다.');}
 }
 function photoSyncCaptionEditor(values){
  for(const [ref,value] of Object.entries(values||{})){
@@ -7514,7 +7552,7 @@ function photoMakeCaptionEditable(cell,ref){
  cell.setAttribute('aria-label','사진 '+(PHOTO_CAPTION_REFS.indexOf(ref)+1)+' 설명');
  if(cell.contentEditable==='false')return;
  cell.addEventListener('focus',()=>{photoActiveSlot=0});
- cell.addEventListener('blur',()=>{const ctx=photoContext();if(!photoFolderHandle){photoStatus('사진 설명 저장에는 먼저 사진 전용 폴더를 지정해야 합니다.');return;}void photoSaveCaption(ref,cell.textContent,ctx)});
+ cell.addEventListener('blur',()=>{const ctx=photoContext();if(!photoFolderHandle){photoStatus('사진 설명 저장에는 먼저 사진 전용 폴더를 지정해야 합니다.');return;}void photoTrackCaptionSave(photoSaveCaption(ref,cell.textContent,ctx))});
  cell.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();cell.blur()}});
 }
 async function photoGetDay(ctx,force=false){
@@ -7679,45 +7717,121 @@ async function photoAttachToExcelZip(zip,date,site,trade){
    return;
  }
  if(!photos.some(Boolean))return;
- const path='xl/drawings/drawing1.xml',relPath='xl/drawings/_rels/drawing1.xml.rels',typesPath='[Content_Types].xml';
- if(!zip.file(path)||!zip.file(relPath))throw Error('원본 사진대지의 그림 틀을 찾을 수 없습니다');
+ const path='xl/drawings/drawing2.xml',relPath='xl/drawings/_rels/drawing2.xml.rels',typesPath='[Content_Types].xml';
+ const wsPath='xl/worksheets/sheet2.xml',wsRelsPath='xl/worksheets/_rels/sheet2.xml.rels';
+ if(!zip.file(wsPath)||!zip.file(wsRelsPath))throw Error('사진대지 시트가 없습니다.');
  const xmlNs='http://www.w3.org/2000/xmlns/';
  const xdr='http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing';
  const a='http://schemas.openxmlformats.org/drawingml/2006/main';
  const rel='http://schemas.openxmlformats.org/officeDocument/2006/relationships';
- const drawing=new DOMParser().parseFromString(await zip.file(path).async('string'),'application/xml');
- const rels=new DOMParser().parseFromString(await zip.file(relPath).async('string'),'application/xml');
- if(drawing.getElementsByTagName('parsererror').length||rels.getElementsByTagName('parsererror').length)throw Error('사진대지의 그림 XML이 손상되었습니다');
- drawing.documentElement.setAttributeNS(xmlNs,'xmlns:r',rel);
+ const sheetNs='http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+ const pkgRelNs='http://schemas.openxmlformats.org/package/2006/relationships';
+ // sheet1의 로고용 drawing1.xml은 절대 수정하지 않는다.
+ const drawing=new DOMParser().parseFromString('<xdr:wsDr xmlns:xdr="'+xdr+'" xmlns:a="'+a+'" xmlns:r="'+rel+'"/>','application/xml');
+ const rels=new DOMParser().parseFromString('<Relationships xmlns="'+pkgRelNs+'"/>','application/xml');
+ const sheet=new DOMParser().parseFromString(await zip.file(wsPath).async('string'),'application/xml');
+ const sheetRels=new DOMParser().parseFromString(await zip.file(wsRelsPath).async('string'),'application/xml');
+ if([drawing,rels,sheet,sheetRels].some(doc=>doc.getElementsByTagName('parsererror').length))throw Error('사진대지 그림 XML이 손상되었습니다');
  function x(parent,name,txt,ns=xdr){const node=drawing.createElementNS(ns,name);if(txt!==undefined)node.textContent=String(txt);parent.appendChild(node);return node}
- const existingIds=Array.from(rels.documentElement.children).map(n=>n.getAttribute('Id'));
  for(let i=0;i<4;i++){
   const data=photos[i];if(!data)continue;const m=data.match(/^data:image\/jpeg;base64,([\w+/=]+)$/);if(!m)throw Error('지원되지 않는 사진 형식입니다');
   const target='urigong_photo_'+(i+1)+'.jpg';zip.file('xl/media/'+target,Uint8Array.from(atob(m[1]),c=>c.charCodeAt(0)));
-  let n=30+i,rid='rId'+n;while(existingIds.includes(rid)){n+=10;rid='rId'+n};existingIds.push(rid);
-  const item=rels.createElementNS(rels.documentElement.namespaceURI,'Relationship');item.setAttribute('Id',rid);item.setAttribute('Type',rel+'/image');item.setAttribute('Target','../media/'+target);rels.documentElement.appendChild(item);
+  const rid='rId'+(i+1);
+  const item=rels.createElementNS(pkgRelNs,'Relationship');item.setAttribute('Id',rid);item.setAttribute('Type',rel+'/image');item.setAttribute('Target','../media/'+target);rels.documentElement.appendChild(item);
   const z=photoZones[i];const anchor=x(drawing.documentElement,'xdr:twoCellAnchor');anchor.setAttribute('editAs','oneCell');
   for(const [label,coord] of [['from',z.from],['to',z.to]]){const nd=x(anchor,'xdr:'+label);x(nd,'xdr:col',coord[0]);x(nd,'xdr:colOff','0');x(nd,'xdr:row',coord[1]);x(nd,'xdr:rowOff','0')}
   const pic=x(anchor,'xdr:pic');const nv=x(pic,'xdr:nvPicPr');const cn=x(nv,'xdr:cNvPr');cn.setAttribute('id',String(300+i));cn.setAttribute('name','우리공 사진 '+(i+1));x(nv,'xdr:cNvPicPr');
   const fill=x(pic,'xdr:blipFill');const blip=x(fill,'a:blip',undefined,a);blip.setAttributeNS(rel,'r:embed',rid);const stretch=x(fill,'a:stretch',undefined,a);x(stretch,'a:fillRect',undefined,a);
   const shape=x(pic,'xdr:spPr');const geom=x(shape,'a:prstGeom',undefined,a);geom.setAttribute('prst','rect');x(geom,'a:avLst',undefined,a);x(anchor,'xdr:clientData');
  }
- zip.file(path,new XMLSerializer().serializeToString(drawing));zip.file(relPath,new XMLSerializer().serializeToString(rels));
- const tdoc=new DOMParser().parseFromString(await zip.file(typesPath).async('string'),'application/xml');
- if(!Array.from(tdoc.documentElement.children).some(n=>n.getAttribute('Extension')==='jpg')){
-  const d=tdoc.createElementNS(tdoc.documentElement.namespaceURI,'Default');d.setAttribute('Extension','jpg');d.setAttribute('ContentType','image/jpeg');tdoc.documentElement.appendChild(d);zip.file(typesPath,new XMLSerializer().serializeToString(tdoc));
+ // 연결이 없는 sheet2에만 drawing2를 설정. 별도의 사진대지 시트가 아닌 공사일보에는 그림을 넣지 않는다.
+ const previousDrawing=Array.from(sheet.documentElement.children).find(el=>el.localName==='drawing');
+ const otherDrawingRel=Array.from(sheetRels.documentElement.children).find(el=>el.getAttribute('Type')===rel+'/drawing');
+ let wsRid;
+ if(otherDrawingRel){
+  if(otherDrawingRel.getAttribute('Target')!=='../drawings/drawing2.xml')throw Error('사진대지의 기존 그림 연결을 보호하기 위해 중단했습니다');
+  wsRid=otherDrawingRel.getAttribute('Id');
+ }else{
+  let n=2;const ids=new Set(Array.from(sheetRels.documentElement.children).map(el=>el.getAttribute('Id')));
+  while(ids.has('rId'+n))n++;
+  wsRid='rId'+n;const r=sheetRels.createElementNS(pkgRelNs,'Relationship');
+  r.setAttribute('Id',wsRid);r.setAttribute('Type',rel+'/drawing');r.setAttribute('Target','../drawings/drawing2.xml');sheetRels.documentElement.appendChild(r);
  }
+ if(previousDrawing){previousDrawing.setAttributeNS(rel,'r:id',wsRid)}
+ else{
+  const drawTag=sheet.createElementNS(sheetNs,'drawing');drawTag.setAttributeNS(rel,'r:id',wsRid);
+  // OOXML 순서: drawing은 pageSetup 다음, legacyDrawing 앞.
+  const following=Array.from(sheet.documentElement.children).find(el=>['legacyDrawing','legacyDrawingHF','picture','oleObjects','controls','webPublishItems','tableParts','extLst'].includes(el.localName));
+  if(following)sheet.documentElement.insertBefore(drawTag,following);else sheet.documentElement.appendChild(drawTag);
+ }
+ zip.file(path,new XMLSerializer().serializeToString(drawing));zip.file(relPath,new XMLSerializer().serializeToString(rels));
+ zip.file(wsPath,new XMLSerializer().serializeToString(sheet));zip.file(wsRelsPath,new XMLSerializer().serializeToString(sheetRels));
+ const tdoc=new DOMParser().parseFromString(await zip.file(typesPath).async('string'),'application/xml');
+ const ctns=tdoc.documentElement.namespaceURI;
+ if(!Array.from(tdoc.documentElement.children).some(n=>n.getAttribute('Extension')==='jpg')){
+  const d=tdoc.createElementNS(ctns,'Default');d.setAttribute('Extension','jpg');d.setAttribute('ContentType','image/jpeg');tdoc.documentElement.appendChild(d);
+ }
+ if(!Array.from(tdoc.documentElement.children).some(n=>n.getAttribute('PartName')==='/xl/drawings/drawing2.xml')){
+  const ov=tdoc.createElementNS(ctns,'Override');ov.setAttribute('PartName','/xl/drawings/drawing2.xml');ov.setAttribute('ContentType','application/vnd.openxmlformats-officedocument.drawing+xml');tdoc.documentElement.appendChild(ov);
+ }
+ zip.file(typesPath,new XMLSerializer().serializeToString(tdoc));
 }
 document.addEventListener('DOMContentLoaded',()=>{if(!photoAPISupported())photoStatus('로컬 사진 기능은 최신 Chrome/Edge 브라우저에서 이용하세요.');photoInit()});
 </script>
 
-<div id="appMemoDialog" hidden role="dialog" aria-modal="true" aria-label="일자 관계없는 메모장" onclick="if(event.target===this)appMemoClose()"><div id="appMemoPanel"><header><strong>🗒 메모장 · 날짜와 관계없이 마지막 편집 내용</strong><button type="button" class="btn" onclick="appMemoClose()">닫기 ×</button></header><textarea id="appMemoBody" placeholder="일자와 관계없이 마지막으로 입력한 메모가 유지됩니다." oninput="appMemoSave()"></textarea><div style="font-size:11px;color:#68798a;margin-top:5px">입력 즉시 이 브라우저에 저장됩니다. 다른 PC에는 자동 공유되지 않습니다.</div></div></div>
+<div id="appMemoDialog" hidden role="dialog" aria-modal="true" aria-label="일자 관계없는 메모장" onclick="if(event.target===this)appMemoClose()"><div id="appMemoPanel"><header><strong>🗒 메모장 · 날짜와 관계없이 마지막 편집 내용</strong><button type="button" class="btn" onclick="appMemoClose()">닫기 ×</button></header><textarea id="appMemoBody" placeholder="일자와 관계없이 마지막으로 입력한 메모가 유지됩니다." oninput="appMemoSave()"></textarea><div class="app-memo-foot" style="font-size:11px;color:#68798a;margin-top:5px">입력 즉시 이 브라우저에 저장됩니다. 다른 PC에는 자동 공유되지 않습니다.</div></div></div>
 <script>
 function appMemoKey(){return 'urigong::device-memo::'+encodeURIComponent(typeof activeProjectName==='function'?activeProjectName():'default')}
-function appMemoOpen(){const d=document.getElementById('appMemoDialog'),t=document.getElementById('appMemoBody');if(!d||!t)return;try{t.value=localStorage.getItem(appMemoKey())||''}catch(e){}d.hidden=false;t.focus()}
+function appMemoOpen(){const d=document.getElementById('appMemoDialog'),t=document.getElementById('appMemoBody');if(!d||!t)return;try{t.value=localStorage.getItem(appMemoKey())||''}catch(e){}d.hidden=false;appMemoRestoreGeometry();t.focus({preventScroll:true})}
 function appMemoSave(){try{localStorage.setItem(appMemoKey(),document.getElementById('appMemoBody').value)}catch(e){console.warn('메모 자동 저장 실패',e)}}
 function appMemoClose(){document.getElementById('appMemoDialog').hidden=true}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('appMemoDialog')?.hidden)appMemoClose()});
+
+/* 메모장은 날짜별 메모 데이터와 분리하여 창 좌표/크기만 이 브라우저에 저장합니다. */
+const APP_MEMO_GEOMETRY_KEY='urigong::device-memo-window-geometry-v1';
+function appMemoPanel(){return document.getElementById('appMemoPanel')}
+function appMemoClamp(n,min,max){return Math.max(min,Math.min(n,max))}
+function appMemoRestoreGeometry(){
+ const panel=appMemoPanel();if(!panel)return;
+ let data=null;try{data=JSON.parse(localStorage.getItem(APP_MEMO_GEOMETRY_KEY)||'null')}catch(e){}
+ const vw=window.innerWidth,vh=window.innerHeight;
+ const width=appMemoClamp(Number(data?.w)||Math.min(560,vw-24),Math.min(250,vw),Math.max(250,vw-12));
+ const height=appMemoClamp(Number(data?.h)||Math.min(520,vh-36),Math.min(180,vh),Math.max(180,vh-12));
+ const left=appMemoClamp(Number.isFinite(data?.x)?data.x:(vw-width)/2,0,Math.max(0,vw-width));
+ const top=appMemoClamp(Number.isFinite(data?.y)?data.y:Math.max(8,(vh-height)*0.20),0,Math.max(0,vh-height));
+ Object.assign(panel.style,{left:left+'px',top:top+'px',width:width+'px',height:height+'px'});
+}
+function appMemoPersistGeometry(){
+ const panel=appMemoPanel();if(!panel||document.getElementById('appMemoDialog')?.hidden)return;
+ const r=panel.getBoundingClientRect();
+ try{localStorage.setItem(APP_MEMO_GEOMETRY_KEY,JSON.stringify({x:Math.round(r.left),y:Math.round(r.top),w:Math.round(r.width),h:Math.round(r.height)}))}catch(e){}
+}
+(function(){
+ let drag=null;
+ document.addEventListener('pointerdown',function(e){
+  const title=e.target.closest('#appMemoPanel header');
+  if(!title||e.target.closest('button')||e.button!==0)return;
+  const panel=appMemoPanel(),r=panel.getBoundingClientRect();
+  drag={id:e.pointerId,dx:e.clientX-r.left,dy:e.clientY-r.top};
+  title.setPointerCapture?.(e.pointerId);e.preventDefault();
+ });
+ document.addEventListener('pointermove',function(e){
+  if(!drag||drag.id!==e.pointerId)return;
+  const p=appMemoPanel(),r=p.getBoundingClientRect();
+  const left=appMemoClamp(e.clientX-drag.dx,0,Math.max(0,innerWidth-r.width));
+  const top=appMemoClamp(e.clientY-drag.dy,0,Math.max(0,innerHeight-r.height));
+  p.style.left=left+'px';p.style.top=top+'px';e.preventDefault();
+ });
+ function stop(e){if(!drag||drag.id!==e.pointerId)return;drag=null;appMemoPersistGeometry()}
+ document.addEventListener('pointerup',stop);document.addEventListener('pointercancel',stop);
+ document.addEventListener('DOMContentLoaded',()=>{
+  const p=appMemoPanel();if(p&&typeof ResizeObserver!=='undefined'){
+   const obs=new ResizeObserver(()=>{if(!document.getElementById('appMemoDialog')?.hidden)appMemoPersistGeometry()});obs.observe(p);
+  }
+ });
+ window.addEventListener('resize',()=>{if(!document.getElementById('appMemoDialog')?.hidden)appMemoRestoreGeometry()});
+})();
+
 </script>
 
 </body></html>
