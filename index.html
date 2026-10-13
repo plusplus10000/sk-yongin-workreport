@@ -5610,7 +5610,23 @@ function sharedDeltaChanges(remote,local){
   return changes;
 }
 function getDeviceId(){let x=localStorage.getItem('driveDeviceId');if(!x){x='dev-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);localStorage.setItem('driveDeviceId',x)}return x}
-function markLocalChanged(){if(applyingRemote||!canEditActiveProject())return;setDriveMeta('driveLocalDirty','1');setDriveMeta('driveLocalUpdatedAt',String(Date.now()));scheduleAutoSync()}
+function markLocalChanged(){
+  if(applyingRemote||!canEditActiveProject())return;
+  // 보고서 실제 입력/수정만 기록. 단순 화면 갱신과 날짜 이동은 별도이며,
+  // 변경분 동기화 후에도 저장본보다 나중에 사용자가 편집한 초안은 보존합니다.
+  const page=$('writePage');
+  if(page&&page.style.display!=='none'&&$('date')?.value&&$('site')?.value&&$('trade')?.value){
+    const drafts=getModeDrafts(),key=currentModeKey();
+    if(drafts[key]&&!isCurrentStoredReportClosed()){
+      const old=Date.parse(drafts[key]._dataTouchedAt||'')||0;
+      drafts[key]._dataTouchedAt=new Date(Math.max(Date.now(),old+1)).toISOString();
+      setModeDrafts(drafts);
+    }
+  }
+  setDriveMeta('driveLocalDirty','1');
+  setDriveMeta('driveLocalUpdatedAt',String(Date.now()));
+  scheduleAutoSync();
+}
 function scheduleAutoSync(){if(!tokenValid()||!canEditActiveProject())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow('auto'),2800)}
 async function fetchRemote(){
   const r=await publicStoreCall('load');
@@ -5893,7 +5909,14 @@ async function changeMasterPasswordFromAdmin(){
   try{await publicPost('changeMasterPassword',authPayload({masterPassword:current,newPassword:p1}));$('deviceAdminPassword').value='';$('changeMasterNew').value='';$('changeMasterNew2').value='';setDeviceAdminStatus('마스터 비밀번호를 변경했습니다. 등록된 기기는 그대로 유지됩니다.')}catch(e){setDeviceAdminStatus(e.message)}
 }
 // 사용자가 실제 입력을 바꾸면 로컬 변경으로 표시하고, 연결 중이면 자동 동기화
-setTimeout(()=>{document.addEventListener('input',e=>{if(e.target&&e.target.closest&&e.target.closest('main'))markLocalChanged()});document.addEventListener('change',e=>{if(e.target&&e.target.closest&&e.target.closest('main'))markLocalChanged()})},0);
+setTimeout(()=>{
+  // 날짜/현장/공종 선택은 조회 동작이지 데이터 편집이 아닙니다.
+  // 이 입력들을 dirty로 표시하면 이전 임시본이 클라우드 최신 저장본을 가립니다.
+  const isDataEdit=e=>e.target&&e.target.closest&&e.target.closest('main')&&
+    !['date','site','trade','excelDatePicker'].includes(e.target.id||'');
+  document.addEventListener('input',e=>{if(isDataEdit(e))markLocalChanged()});
+  document.addEventListener('change',e=>{if(isDataEdit(e))markLocalChanged()});
+},0);
 // 다른 기기의 변경을 받기 위해 연결된 동안 20초마다 최신 상태 확인
 // 과도한 Apps Script 호출을 줄이기 위해, 백그라운드 조회는 60초 간격.
 setInterval(()=>{if(tokenValid()&&!syncBusy&&document.visibilityState==='visible')syncNow('poll')},60000);
@@ -6004,6 +6027,10 @@ function syncLunchManagersInState(){
 function makeCurrentModeDraft(){
   const draft={date:$('date').value,site:$('site').value,trade:$('trade').value,start:$('start').value,end:$('end').value,bpa:$('bpa').value,
     workType:currentWorkType,overtimeNo:currentWorkType==='overtime'?(+currentOvertimeNo||1):0,state:JSON.parse(JSON.stringify(state)),slackExtra:currentSlackExtra()};
+  // 실제 사용자가 편집한 시간만 별도로 유지합니다. 단순 화면조회/렌더링으로
+  // 만들어진 editedAt은 최신 여부를 판단하는 근거로 사용하지 않습니다.
+  const oldDraft=getModeDrafts()[currentModeKey()];
+  if(oldDraft?._dataTouchedAt)draft._dataTouchedAt=oldDraft._dataTouchedAt;
   if(currentWorkType==='lunch'){
     // 화면 다시 그리기, 클라우드 자료 확인, 미리보기 탭 이동 등은 편집이 아닙니다.
     // 편집하지 않았는데 editedAt을 갱신하면 다른 PC의 최신 중식OT를 오래된 값으로 덮을 수 있습니다.
@@ -6076,9 +6103,18 @@ function switchWorkMode(type,no=0,skipStash=false){
   const wt=type==='overtime'?'overtime':(type==='lunch'?'lunch':'weekly'), n=wt==='overtime'?(+no||1):0;
   const saved=findSavedReport(date,site,trade,wt,n);
   const draft=findModeDraft(date,site,trade,wt,n);
-  // 마감 보고서가 우선; 열려 있으면 실제 수정 시각이 더 최신인 자료 사용.
+  // 공용저장소 동기화가 완료되어 로컬 수정 대기가 없으면, 저장된 보고서가
+  // 자동조회([조회] 버튼과 동일)의 기준입니다. 화면을 열면서 갱신된 임시본의
+  // editedAt이 더 늦더라도 구버전 임시본이 최신 저장본을 가리지 않게 합니다.
+  // 아직 전송하지 않은 로컬 편집이 있는 경우에는 기존 임시본 우선 규칙을 유지합니다.
   const savedAt=Date.parse(saved?.editedAt||'')||0,draftAt=Date.parse(draft?.editedAt||'')||0;
-  const r=saved&&saved.closed===true?saved:(saved&&draft&&savedAt>draftAt?saved:(draft||saved));
+  const pendingLocalChanges=getDriveMeta('driveLocalDirty')==='1';
+  const genuinelyEditedAt=Date.parse(draft?._dataTouchedAt||'')||0;
+  const draftHasRealNewerEdit=genuinelyEditedAt>savedAt;
+  const r=saved&&saved.closed===true?saved:
+    (saved&&draft&&draftHasRealNewerEdit?draft:
+      (saved&&!pendingLocalChanges?saved:
+        (saved&&draft&&savedAt>=draftAt?saved:(draft||saved))));
   if(r){applyReportLike(r,wt,n)}
   else if(wt==='weekly'){
     const initial=newWeeklyFromPreviousDay(date,site,trade);
@@ -6359,7 +6395,7 @@ function loadDateOrBlank(){
     return;
   }
   // 날짜 변경에서 이미 이전 날짜 임시저장을 완료했으므로 재저장은 하지 않습니다.
-  // 주간/중식OT/연장을 현재 선택한 모드 그대로 최신 저장본·임시본에서 불러옵니다.
+  // 클라우드 최신자료를 반영한 저장본을 우선 표시하되 전송 대기 중인 로컬 편집은 보존합니다.
   switchWorkMode(requestedMode,requestedNo,true);
 }
 function loadCurrentDateReport(){
