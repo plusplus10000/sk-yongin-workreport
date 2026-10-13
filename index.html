@@ -3862,13 +3862,14 @@ function init(){
 
   // 앱/현장을 열었을 때 작업일은 항상 오늘 날짜로 표시
   $('date').value=getTodayLocalDate();
+  lastLoadedWorkDate=$('date').value;
 
   currentReportLocked=isCurrentStoredReportClosed();
   render();
   applyReportLockUI(currentReportLocked);
   ['site','trade'].forEach(x=>$(x).addEventListener('input',()=>{syncReportLockForCurrentDate();updatePreview();autoSave()}));
   ['start','end','bpa'].forEach(x=>$(x).addEventListener('input',()=>{updatePreview();autoSave()}));
-  $('date').addEventListener('change',loadDateOrBlank);
+  $('date').addEventListener('change',()=>loadDateOrBlank());
   window.addEventListener('beforeunload',autoSave);
 }
 function mkCompany(name){return{name,jobs:Object.fromEntries(D.jobs.map(j=>[j,0])),visibleJobs:[...D.jobs]}}
@@ -5922,6 +5923,8 @@ window.addEventListener('storage',e=>{
 // ===== 2026-10-06 주간 / 연장 기능 - index6 원본 위 최소 확장 =====
 let currentWorkType='weekly';
 let currentOvertimeNo=0;
+// 날짜를 직접 입력한 경우에도 이전 작업일 자료를 잘못된 날짜로 저장하지 않습니다.
+let lastLoadedWorkDate='';
 
 function reportTypeOf(r){return r&&r.workType==='overtime'?'overtime':(r&&r.workType==='lunch'?'lunch':'weekly')}
 function reportOvertimeNoOf(r){return reportTypeOf(r)==='overtime'?(+r.overtimeNo||1):0}
@@ -6063,11 +6066,12 @@ function applyReportLike(r,type,no){
   render();
   applyReportLockUI(currentReportLocked);
   if(!currentReportLocked)autoSave();
+  lastLoadedWorkDate=$('date')?.value||lastLoadedWorkDate;
   return true;
 }
-function switchWorkMode(type,no=0){
+function switchWorkMode(type,no=0,skipStash=false){
   if(type==='overtime'&&!(+no))return;
-  stashModeDraft();
+  if(!skipStash)stashModeDraft();
   const date=$('date').value,site=$('site').value,trade=$('trade').value;
   const wt=type==='overtime'?'overtime':(type==='lunch'?'lunch':'weekly'), n=wt==='overtime'?(+no||1):0;
   const saved=findSavedReport(date,site,trade,wt,n);
@@ -6081,6 +6085,14 @@ function switchWorkMode(type,no=0){
     if(initial){applyReportLike(initial,'weekly',0);updateWorkModeTabs();syncReportLockForCurrentDate();selectPreviewTab('weekly');return;}
     currentWorkType='weekly';currentOvertimeNo=0;
     $('start').value='07:30';$('end').value='17:00';
+    // 이전 날짜의 인원·장비·작업내용이 빈 날짜에 남지 않도록 값만 비웁니다.
+    state={
+      companies:(state.companies||[]).map(c=>({...c,jobs:Object.fromEntries(Object.keys(c.jobs||{}).map(k=>[k,0]))})),
+      equipment:(state.equipment||[]).map(e=>({...e,qty:0})),
+      areas:(state.areas||[]).map(a=>({...a,tasks:['']})),
+      tomorrowAreas:[],
+      managers:JSON.parse(JSON.stringify(state.managers||[]))
+    };
     currentReportLocked=false;render();applyReportLockUI(false);autoSave();
   } else if(wt==='lunch'){
     // 중식OT 최초 생성에만 같은 날짜 주간을 1회 복사하고, 이후 중식OT 입력값은 따로 보존합니다.
@@ -6262,6 +6274,7 @@ function setWorkDateToday(){
   const initial=findModeDraft(today,$('site').value,$('trade').value,'weekly',0)||newWeeklyFromPreviousDay(today,$('site').value,$('trade').value);
   if(initial){applyReportLike(initial,'weekly',0);return;}
   $('start').value='07:30';$('end').value='17:00';currentReportLocked=false;updatePreview();applyReportLockUI(false);autoSave();updateWorkModeTabs();
+  lastLoadedWorkDate=el.value;
 }
 function render(){renderCompanies();renderEquipment();renderAreas();renderTomorrowAreas();renderManagers();updatePreview();applyReportLockUI(currentReportLocked);updateWorkModeTabs()}
 // 주간/중식OT/연장은 각각 별도 보고서이며, 중식OT는 집계 대상이 아닙니다.
@@ -6300,12 +6313,12 @@ function reportText(){
   return formatSection(state,state.managers,currentModeLabel()+'작업보고',$('start').value,$('end').value);
 }
 function moveWorkDate(days){
-  const el=$('date');if(!el)return;stashModeDraft();
-  let d=el.value?new Date(el.value+'T00:00:00'):new Date();if(isNaN(d))d=new Date();d.setDate(d.getDate()+days);
-  const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');el.value=`${y}-${mo}-${day}`;
-  currentWorkType='weekly';currentOvertimeNo=0;
-  const r=findSavedReport(el.value,$('site').value,$('trade').value,'weekly',0)||findModeDraft(el.value,$('site').value,$('trade').value,'weekly',0);
-  if(r)applyReportLike(r,'weekly',0);else{const initial=newWeeklyFromPreviousDay(el.value,$('site').value,$('trade').value);if(initial){applyReportLike(initial,'weekly',0)}else{$('start').value='07:30';$('end').value='17:00';currentReportLocked=false;clearDailyValuesForDateMove();render();autoSave()}}
+  const el=$('date');if(!el)return;
+  let d=el.value?new Date(el.value+'T00:00:00'):new Date();
+  if(isNaN(d))d=new Date();d.setDate(d.getDate()+days);
+  const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+  el.value=`${y}-${mo}-${day}`;
+  loadDateOrBlank();
 }
 function autoSave(){
   if(isNoWorkDay($('date')?.value))return;
@@ -6315,16 +6328,39 @@ function autoSave(){
   const d=makeCurrentModeDraft();projectSet('currentDraft',JSON.stringify(d));
   const drafts=getModeDrafts();drafts[currentModeKey()]=d;setModeDrafts(drafts);
 }
+// 날짜 선택·이전날·다음날·다른 메뉴의 날짜 이동을 동일하게 자동 조회합니다.
 function loadDateOrBlank(){
-  stashModeDraft();currentWorkType='weekly';currentOvertimeNo=0;
-  const target=$('date').value,site=$('site').value,trade=$('trade').value;
-  const saved=findSavedReport(target,site,trade,'weekly',0);
-  const exact=saved&&saved.closed===true?saved:(saved||findModeDraft(target,site,trade,'weekly',0));
-  let r=exact;
-  if(!r){r=newWeeklyFromPreviousDay(target,site,trade)}
-  if(r){
-    $('start').value=exact?(r.start||'07:30'):'07:30';$('end').value=exact?(r.end||'17:00'):'17:00';$('bpa').value=r.bpa||'';state=JSON.parse(JSON.stringify(r.state));currentReportLocked=!!(exact&&r.closed);render();if(!currentReportLocked)autoSave();
-  }else{$('start').value='07:30';$('end').value='17:00';currentReportLocked=false;applyReportLockUI(false);updatePreview();autoSave();updateWorkModeTabs()}
+  const input=$('date');if(!input)return;
+  const target=input.value;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(target))return;
+  const previous=lastLoadedWorkDate;
+  const mode=currentWorkType,number=currentOvertimeNo;
+  // date input은 change 이벤트가 실행되기 전에 이미 새 날짜로 바뀝니다.
+  // 기존 보고서를 새 날짜로 임시저장하는 문제를 방지합니다.
+  if(previous&&previous!==target){
+    input.value=previous;
+    try{stashModeDraft();}finally{input.value=target;}
+  }
+  lastLoadedWorkDate=target;
+  const site=$('site').value,trade=$('trade').value;
+  let requestedMode=mode,requestedNo=number;
+  if(mode==='overtime'&&!findSavedReport(target,site,trade,'overtime',number)&&!findModeDraft(target,site,trade,'overtime',number)){
+    // 이 날짜에 해당 번호의 연장이 없으면 주간으로 전환합니다.
+    requestedMode='weekly';requestedNo=0;
+  }
+  if(isNoWorkDay(target)){
+    // 작업없음은 데이터를 생성하지 않고 기존 화면만 갱신합니다.
+    currentWorkType=requestedMode;currentOvertimeNo=requestedNo;
+    const original=findSavedReport(target,site,trade,requestedMode,requestedNo)||findModeDraft(target,site,trade,requestedMode,requestedNo);
+    if(original)applyReportLike(original,requestedMode,requestedNo);
+    else{state={companies:[],equipment:[],areas:[],tomorrowAreas:[],managers:[]};currentReportLocked=false;render();}
+    updateWorkModeTabs();syncReportLockForCurrentDate();
+    selectPreviewTab(requestedMode==='lunch'?'lunch':requestedMode==='overtime'?'overtime':'weekly');
+    return;
+  }
+  // 날짜 변경에서 이미 이전 날짜 임시저장을 완료했으므로 재저장은 하지 않습니다.
+  // 주간/중식OT/연장을 현재 선택한 모드 그대로 최신 저장본·임시본에서 불러옵니다.
+  switchWorkMode(requestedMode,requestedNo,true);
 }
 function loadCurrentDateReport(){
   const r=findSavedReport($('date').value,$('site').value,$('trade').value,currentWorkType,currentOvertimeNo)||findModeDraft($('date').value,$('site').value,$('trade').value,currentWorkType,currentOvertimeNo);
