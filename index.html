@@ -5652,6 +5652,7 @@ function applyRemoteData(d,stamp){
     projectRemove('forcedCarryover',activeProject);
     purgeLegacyForcedCarryover();
     setDriveMeta('driveLastRemoteStamp',String(stamp||Date.now()));setDriveMeta('driveLocalDirty','0');setDriveMeta('driveLocalUpdatedAt',String(stamp||Date.now()));
+    setDriveMeta('driveLastFinishedLocalAt',String(Date.now()));
   }finally{applyingRemote=false}
 }
 async function pushLocal(file,silent=true,remoteKnown){
@@ -5667,6 +5668,7 @@ async function pushLocal(file,silent=true,remoteKnown){
   const changes=sharedDeltaChanges(remote.data||{},snap);
   if(!Object.keys(changes).length){
     setDriveMeta('driveLocalDirty','0');
+    setDriveMeta('driveLastFinishedLocalAt',String(Date.now()));
     setDriveStatus('공용저장소 연결됨 · 최신 상태');
     if(!silent)alert('변경된 자료가 없습니다.');
     return;
@@ -5681,6 +5683,7 @@ async function pushLocal(file,silent=true,remoteKnown){
     scheduleAutoSync();
   }else{
     setDriveMeta('driveLocalDirty','0');
+    setDriveMeta('driveLastFinishedLocalAt',String(Date.now()));
     setDriveStatus('변경분 동기화 완료 · '+new Date().toLocaleString());
   }
   if(!silent)alert('수정·추가·삭제된 항목만 공용저장소에 저장했습니다.');
@@ -6103,18 +6106,20 @@ function switchWorkMode(type,no=0,skipStash=false){
   const wt=type==='overtime'?'overtime':(type==='lunch'?'lunch':'weekly'), n=wt==='overtime'?(+no||1):0;
   const saved=findSavedReport(date,site,trade,wt,n);
   const draft=findModeDraft(date,site,trade,wt,n);
-  // 공용저장소 동기화가 완료되어 로컬 수정 대기가 없으면, 저장된 보고서가
-  // 자동조회([조회] 버튼과 동일)의 기준입니다. 화면을 열면서 갱신된 임시본의
-  // editedAt이 더 늦더라도 구버전 임시본이 최신 저장본을 가리지 않게 합니다.
-  // 아직 전송하지 않은 로컬 편집이 있는 경우에는 기존 임시본 우선 규칙을 유지합니다.
-  const savedAt=Date.parse(saved?.editedAt||'')||0,draftAt=Date.parse(draft?.editedAt||'')||0;
+  // [조회]와 날짜 자동조회의 자료 선택 원칙을 동일하게 합니다.
+  // 보고서 저장본이 있으면 기본적으로 그 저장본을 표시합니다.
+  // 단, 마지막 동기화 이후 *현재 보고서*에서 아직 전송되지 않은 실제 입력이 있으면
+  // 임시본을 보존하여 사용자가 방금 입력한 내용을 덮어쓰지 않습니다.
+  const savedAt=Date.parse(saved?.editedAt||'')||0;
+  const draftTouchedAt=Date.parse(draft?._dataTouchedAt||'')||0;
+  const lastFinishedSyncAt=Number(getDriveMeta('driveLastFinishedLocalAt')||0);
   const pendingLocalChanges=getDriveMeta('driveLocalDirty')==='1';
-  const genuinelyEditedAt=Date.parse(draft?._dataTouchedAt||'')||0;
-  const draftHasRealNewerEdit=genuinelyEditedAt>savedAt;
-  const r=saved&&saved.closed===true?saved:
-    (saved&&draft&&draftHasRealNewerEdit?draft:
-      (saved&&!pendingLocalChanges?saved:
-        (saved&&draft&&savedAt>=draftAt?saved:(draft||saved))));
+  const hasUnsyncedEditOnThisReport=!!(
+    draft && pendingLocalChanges && draftTouchedAt > savedAt &&
+    draftTouchedAt > lastFinishedSyncAt
+  );
+  const r=saved?.closed===true?saved:
+    (hasUnsyncedEditOnThisReport?draft:(saved||draft));
   if(r){applyReportLike(r,wt,n)}
   else if(wt==='weekly'){
     const initial=newWeeklyFromPreviousDay(date,site,trade);
