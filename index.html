@@ -5524,7 +5524,8 @@ function authPayload(extra={}){
 }
 async function publicStoreCall(action,data){
   if(!ensurePublicStoreCredentials(true))throw new Error('기기등록이 필요합니다.');
-  return publicPost(action,authPayload(action==='save'?{data}:{}));
+  // 변경분 조회에 필요한 sinceRevision 등 요청별 매개변수를 서버로 전달합니다.
+  return publicPost(action,authPayload(action==='save'?{data}:(data && typeof data==='object'?data:{})));
 }
 async function connectGoogleDrive(){
   if(!ensurePublicStoreCredentials(true))return;
