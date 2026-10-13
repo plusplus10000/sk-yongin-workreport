@@ -8282,10 +8282,41 @@ function updateNoWorkUI(){
  const status=$('linkedCloseStatus');if(status&&active)status.textContent='작업없음';
  const excelStatus=$('excelPreviewStatus');if(excelStatus&&active)excelStatus.textContent='작업없음';
 }
+// 데이터가 저장된 날짜를 실수로 '작업없음' 처리하는 것을 방지합니다.
+// 날짜별 작업없음은 현장 전체에 적용되므로 현재 공종뿐 아니라 모든 보고서를 확인합니다.
+// 이미 작업없음인 날짜는 보호 검사 없이 해제할 수 있습니다.
+function noWorkReportHasActualData(report){
+ if(!report||report.deleted===true)return false; // 삭제된 중식OT 등의 삭제기록은 제외
+ if(report.closed===true)return true;             // 마감된 저장본은 인원 0명이어도 보호
+ const st=report.state||{};
+ if((st.companies||[]).some(c=>Object.values(c.jobs||{}).some(n=>(Number(n)||0)>0)))return true;
+ if((st.equipment||[]).some(e=>String(e.name||'').trim()&&(Number(e.qty)||0)>0))return true;
+ const hasTasks=areas=>(areas||[]).some(a=>(a.tasks||[]).some(t=>String(t||'').trim()));
+ if(hasTasks(st.areas)||hasTasks(st.tomorrowAreas))return true;
+ // 출근 체크가 된 담당자도 해당 날짜의 실제 기록으로 취급합니다.
+ if((st.managers||[]).some(m=>Array.isArray(m)&&m[4]===true&&m[3]!==false&&String(m[0]||'').trim()))return true;
+ return false;
+}
+function noWorkHasReportDataForDate(date){
+ // 보고서 저장본(주간/중식OT/연장), 아직 저장되지 않은 날짜별 초안을 모두 확인.
+ const reports=safeParseJSON(projectGet('reports'),[])||[];
+ if(reports.some(r=>r?.date===date&&noWorkReportHasActualData(r)))return true;
+ const drafts=getModeDrafts();
+ if(Object.values(drafts).some(r=>r&&r.date===date&&noWorkReportHasActualData(r)))return true;
+ const current=safeParseJSON(projectGet('currentDraft'),null);
+ if(current?.date===date&&noWorkReportHasActualData(current))return true;
+ // 현재 화면 입력은 아직 자동저장되기 전이라도 놓치지 않습니다.
+ if($('date')?.value===date&&typeof state!=='undefined'&&noWorkReportHasActualData({state}))return true;
+ return false;
+}
 function toggleNoWorkDay(){
  if(!canEditActiveProject())return alert('관리 권한이 필요합니다.');
  const date=$('date')?.value;if(!date)return alert('날짜를 선택해 주세요.');
  const next=!isNoWorkDay(date);
+ if(next&&noWorkHasReportDataForDate(date)){
+   alert(`${date}에는 작성된 작업일보 자료가 있어 '작업없음'으로 변경할 수 없습니다.\n주간·중식OT·연장의 인원, 장비, 금일·명일 작업내용과 마감 여부를 확인해 주세요.\n기존 자료와 마감 상태는 변경되지 않았습니다.`);
+   return;
+ }
  if(!confirm(next?`${date}을 작업없음으로 저장하고 자동 마감할까요?\n기존 자료는 보존되며 화면에서 표시되지 않습니다.`:`${date}의 작업없음을 해제하고 기존 보고서를 복구할까요?`))return;
  const map=noWorkMap();const now=new Date().toISOString();if(next)map[date]={closed:true,at:now};else map[date]={closed:false,removed:true,at:now};
  projectSet('noWorkDays',JSON.stringify(map));markLocalChanged();if(tokenValid())scheduleAutoSync();schedulePriorityCloudSync();
