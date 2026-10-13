@@ -5439,24 +5439,45 @@ function jsonpGet(action,extra={}){
     document.head.appendChild(script);
   });
 }
-async function publicPost(action,payload={},timeoutMs=26000){
+async function publicStoreReadChunked(status){
+  if(!status||!Number.isInteger(status.count)||status.count<1||status.count>500)throw new Error('서버 응답 조각 정보가 잘못되었습니다.');
+  const pieces=[];
+  for(let i=0;i<status.count;i++){
+    const part=await jsonpGet('chunk',{requestId:status.requestId,index:i});
+    if(!part||part.ok===false||part.index!==i||typeof part.chunk!=='string')throw new Error('공용저장소 응답 조각을 읽지 못했습니다.');
+    pieces.push(part.chunk);
+  }
+  let b64=pieces.join('').replace(/-/g,'+').replace(/_/g,'/');
+  while(b64.length%4)b64+='=';
+  const binary=atob(b64);
+  const bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+  let decodedBytes=bytes;
+  if(status.encoding==='gzip-base64url'){
+    if(typeof DecompressionStream==='undefined')throw new Error('이 브라우저는 압축 응답을 지원하지 않습니다. Chrome 또는 Edge 최신 버전을 사용해 주세요.');
+    const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+    decodedBytes=new Uint8Array(await new Response(stream).arrayBuffer());
+  }else if(status.encoding!=='base64url')throw new Error('서버 응답 압축 형식이 올바르지 않습니다.');
+  return JSON.parse(new TextDecoder('utf-8').decode(decodedBytes));
+}
+async function publicPost(action,payload={},timeoutMs=75000){
   const requestId=makePublicRequestId();
-  const body={action,requestId,...payload};
+  const body={action,requestId,acceptGzip:typeof DecompressionStream!=='undefined',...payload};
   try{
     await fetch(getPublicStoreUrl(),{method:'POST',mode:'no-cors',redirect:'follow',cache:'no-store',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
   }catch(e){throw new Error('공용저장소 요청을 보내지 못했습니다. '+(e&&e.message?e.message:e))}
   const deadline=Date.now()+timeoutMs;
-  let firstCheck=true;
+  let attempts=0;
   while(Date.now()<deadline){
-    // POST 응답이 돌아온 직후 먼저 확인한다. 캐시 반영 전이면 짧게 재확인.
-    if(!firstCheck)await new Promise(r=>setTimeout(r,350));
-    firstCheck=false;
+    if(attempts>0)await new Promise(r=>setTimeout(r,Math.min(2200,600+attempts*200)));
+    attempts++;
     const status=await jsonpGet('status',{requestId});
     if(status.pending)continue;
-    if(status.ok===false)throw new Error(status.error||'공용저장소 요청 실패');
-    return status;
+    const response=status.chunked?await publicStoreReadChunked(status):status;
+    if(response.ok===false)throw new Error(response.error||'공용저장소 요청 실패');
+    return response;
   }
-  throw new Error('공용저장소 응답 시간이 초과되었습니다.');
+  throw new Error('공용저장소 응답 시간 초과. 서버 로그와 웹앱 배포 버전을 확인해 주세요.');
 }
 function authPayload(extra={}){
   return {deviceId:getDeviceId(),deviceToken:getDeviceToken(),project:currentProjectForAuth(),...extra};
@@ -5484,6 +5505,51 @@ function localData(){
   return {masters:JSON.parse(projectGet('masters',p)||'null'),reports:JSON.parse(projectGet('reports',p)||'[]'),currentDraft:JSON.parse(projectGet('currentDraft',p)||'null'),workModeDrafts:JSON.parse(projectGet('workModeDrafts',p)||'{}'),forcedCarryover:{}};
 }
 function makeDriveSnapshot(){const d=localData();return {format:'URIGONG-WORKREPORT-PUBLIC',version:4,savedAt:new Date().toISOString(),deviceId:getDeviceId(),...d}}
+// 변경분 프로토콜 v1. 모든 변경은 서버 잠금 + 버전 검증으로 병합됩니다.
+function sharedDeltaReportKey(r){
+  const type=r?.workType==='overtime'?'overtime':(r?.workType==='lunch'?'lunch':'weekly');
+  return [String(r?.date||''),String(r?.site||''),String(r?.trade||''),type,String(type==='overtime'?(Number(r?.overtimeNo)||1):0)].join('|');
+}
+function sharedDeltaMap(oldMap,newMap){
+  const before=oldMap&&typeof oldMap==='object'&&!Array.isArray(oldMap)?oldMap:{};
+  const after=newMap&&typeof newMap==='object'&&!Array.isArray(newMap)?newMap:{};
+  const put={},remove=[];
+  for(const [k,v] of Object.entries(after)){
+    if(!Object.prototype.hasOwnProperty.call(before,k)||JSON.stringify(before[k])!==JSON.stringify(v))put[k]=v;
+  }
+  for(const k of Object.keys(before))if(!Object.prototype.hasOwnProperty.call(after,k))remove.push(k);
+  return Object.keys(put).length||remove.length?{put,remove}:null;
+}
+function sharedDeltaDraftChanges(oldMap,newMap){
+  const before=oldMap&&typeof oldMap==='object'?oldMap:{},after=newMap&&typeof newMap==='object'?newMap:{};
+  const special=new Set(['__urigongConstructionItemSyncV1__','__urigongNoWorkDaysSyncV1__','__urigongPhotoCaptionTextV1__']);
+  const plainBefore={},plainAfter={},nested={};
+  for(const [k,v] of Object.entries(before)){if(!special.has(k))plainBefore[k]=v}
+  for(const [k,v] of Object.entries(after)){if(!special.has(k))plainAfter[k]=v}
+  const result=sharedDeltaMap(plainBefore,plainAfter)||{put:{},remove:[]};
+  for(const namespace of special){
+    const diff=sharedDeltaMap(before[namespace],after[namespace]);
+    if(diff)nested[namespace]=diff;
+  }
+  if(Object.keys(nested).length)result.nested=nested;
+  return Object.keys(result.put).length||result.remove.length||Object.keys(nested).length?result:null;
+}
+function sharedDeltaChanges(remote,local){
+  const old=remote&&typeof remote==='object'?remote:{},now=local&&typeof local==='object'?local:{};
+  const changes={};
+  const mapReports=list=>{
+    const out={};(Array.isArray(list)?list:[]).forEach(r=>{if(r&&r.date)out[sharedDeltaReportKey(r)]=r});return out;
+  };
+  const reportDiff=sharedDeltaMap(mapReports(old.reports),mapReports(now.reports));
+  if(reportDiff)changes.reports=reportDiff;
+  const draftDiff=sharedDeltaDraftChanges(old.workModeDrafts,now.workModeDrafts);
+  if(draftDiff)changes.workModeDrafts=draftDiff;
+  const noWorkDiff=sharedDeltaMap(old.noWorkDays,now.noWorkDays);
+  if(noWorkDiff)changes.noWorkDays=noWorkDiff;
+  if(now.masters&&JSON.stringify(old.masters||null)!==JSON.stringify(now.masters))changes.masters=now.masters;
+  if(Object.prototype.hasOwnProperty.call(now,'currentDraft')&&JSON.stringify(old.currentDraft||null)!==JSON.stringify(now.currentDraft))changes.currentDraft=now.currentDraft;
+  return changes;
+}
 function getDeviceId(){let x=localStorage.getItem('driveDeviceId');if(!x){x='dev-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);localStorage.setItem('driveDeviceId',x)}return x}
 function markLocalChanged(){if(applyingRemote||!canEditActiveProject())return;setDriveMeta('driveLocalDirty','1');setDriveMeta('driveLocalUpdatedAt',String(Date.now()));scheduleAutoSync()}
 function scheduleAutoSync(){if(!tokenValid()||!canEditActiveProject())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow('auto'),2800)}
@@ -5513,22 +5579,36 @@ function applyRemoteData(d,stamp){
     setDriveMeta('driveLastRemoteStamp',String(stamp||Date.now()));setDriveMeta('driveLocalDirty','0');setDriveMeta('driveLocalUpdatedAt',String(stamp||Date.now()));
   }finally{applyingRemote=false}
 }
-async function pushLocal(file,silent=true){
+async function pushLocal(file,silent=true,remoteKnown){
   if(!canEditActiveProject())throw new Error('읽기 전용 기기는 공용저장소에 저장할 수 없습니다.');
-  // 전송 중에도 계속 편집할 수 있으므로 시작 시점의 로컬 수정 시각을 기록합니다.
+  // A manual save must also read the latest revision before sending any changes.
+  const remote=remoteKnown!==undefined?{data:remoteKnown,stamp:Number(getDriveMeta('driveLastRemoteStamp'))||0}:await fetchRemote();
+  const last=Number(getDriveMeta('driveLastRemoteStamp'))||0;
+  if(remoteKnown===undefined&&remote.file&&remote.stamp>last+500&&getDriveMeta('driveLocalDirty')==='1'){
+    throw new Error('다른 기기의 최신 수정이 있습니다. 「공용저장소 연결」을 먼저 눌러 병합 여부를 확인해 주세요.');
+  }
   const before=Number(getDriveMeta('driveLocalUpdatedAt'))||0;
-  const snap=makeDriveSnapshot();const r=await publicStoreCall('save',snap);const stamp=Date.parse(r.updatedAt||'')||Date.now();
+  const snap=makeDriveSnapshot();
+  const changes=sharedDeltaChanges(remote.data||{},snap);
+  if(!Object.keys(changes).length){
+    setDriveMeta('driveLocalDirty','0');
+    setDriveStatus('공용저장소 연결됨 · 최신 상태');
+    if(!silent)alert('변경된 자료가 없습니다.');
+    return;
+  }
+  const r=await publicPost('patch',authPayload({baseRevision:Number(remote.data?.serverRevision)||0,changes}),90000);
+  const stamp=Date.parse(r.updatedAt||'')||Date.now();
   const changedDuringSave=(Number(getDriveMeta('driveLocalUpdatedAt'))||0)>before;
   setDriveMeta('driveLastRemoteStamp',String(stamp));
   if(changedDuringSave){
     setDriveMeta('driveLocalDirty','1');
-    setDriveStatus('저장 중 추가 수정 감지 · 다음 동기화 대기');
+    setDriveStatus('전송 중 추가 수정 감지 · 다음 동기화 대기');
     scheduleAutoSync();
   }else{
     setDriveMeta('driveLocalDirty','0');
-    setDriveStatus('자동 동기화 완료 · '+new Date().toLocaleString());
+    setDriveStatus('변경분 동기화 완료 · '+new Date().toLocaleString());
   }
-  if(!silent)alert('공용저장소에 저장했습니다.');
+  if(!silent)alert('수정·추가·삭제된 항목만 공용저장소에 저장했습니다.');
 }
 async function syncNow(reason='auto'){
   if(!tokenValid()||syncBusy)return;syncBusy=true;
@@ -5549,7 +5629,7 @@ async function syncNow(reason='auto'){
       return;
     }
     const dirty=getDriveMeta('driveLocalDirty')==='1';
-    if(!remote.file){await pushLocal(null,true);return}
+    if(!remote.file){await pushLocal(null,true,{});return}
     const remoteChanged=remote.stamp>last+500;
     if(dirty&&remoteChanged){const useLocal=confirm('PC/휴대폰 양쪽에서 자료가 변경되었습니다.\n\n확인 = 이 기기의 자료를 공용저장소에 저장\n취소 = 공용저장소의 최신 자료를 이 기기에 적용');if(useLocal){
         const merged=sharedMergePayload(remote.data||{},localData());
@@ -5560,9 +5640,9 @@ async function syncNow(reason='auto'){
           projectSet('noWorkDays',JSON.stringify(merged.noWorkDays),p);
           sharedItemRestore(merged.workModeDrafts,p);
         }finally{applyingRemote=false}
-        await pushLocal(remote.file,true)
+        await pushLocal(remote.file,true,remote.data)
       }else{applyRemoteData(remote.data,remote.stamp);setDriveStatus('공용저장소 최신자료 적용 완료');alert('공용저장소의 최신 자료를 적용합니다.');location.reload()}}
-    else if(dirty){await pushLocal(remote.file,true)}else if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('공용저장소 최신자료 자동 반영');location.reload()}else {
+    else if(dirty){await pushLocal(remote.file,true,remote.data)}else if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('공용저장소 최신자료 자동 반영');location.reload()}else {
       const shared=(remote.data?.workModeDrafts||{})[SHARED_ITEM_NAMESPACE]||{};
       const hasUnsyncedItem=Object.keys(sharedItemExportDrafts({},currentProjectForAuth())[SHARED_ITEM_NAMESPACE]||{}).some(k=>!(k in shared));
       setDriveStatus(hasUnsyncedItem?'공용저장소 연결됨 · PC Item 기존 자료 공유는 「공용저장소 저장」 필요':'공용저장소 연결됨 · 최신 상태');
