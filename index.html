@@ -5464,26 +5464,44 @@ function makePublicRequestId(){
   try{const a=new Uint32Array(4);crypto.getRandomValues(a);rnd=Array.from(a).map(x=>x.toString(36)).join('')}catch(e){rnd=Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)}
   return 'urigong-'+Date.now()+'-'+(++publicStoreRequestSeq)+'-'+rnd;
 }
-function jsonpGet(action,extra={}){
+// 공용저장소 GET 응답은 일부 네트워크에서 일시적으로 차단될 수 있습니다.
+// GET/조각 조회만 재시도합니다. 쓰기 POST는 중복 전송하지 않습니다.
+function jsonpGet(action,extra={},timeoutMs=14000){
   const base=getPublicStoreUrl();
   const callback='__urigongJsonp_'+Date.now()+'_'+(++publicStoreRequestSeq);
   const params=new URLSearchParams({action:String(action||''),callback});
   Object.entries(extra||{}).forEach(([k,v])=>{if(v!==undefined&&v!==null)params.set(k,String(v))});
   return new Promise((resolve,reject)=>{
     const script=document.createElement('script');let done=false;
-    const timer=setTimeout(()=>finish(new Error('공용저장소 응답 시간이 초과되었습니다.')),20000);
-    function finish(err,value){if(done)return;done=true;clearTimeout(timer);try{delete window[callback]}catch(_){window[callback]=undefined}try{script.remove()}catch(_){}if(err)reject(err);else resolve(value)}
+    const timer=setTimeout(()=>finish(new Error('공용저장소 응답 대기 시간이 초과되었습니다.')),timeoutMs);
+    function finish(err,value){
+      if(done)return;done=true;clearTimeout(timer);
+      try{delete window[callback]}catch(_){window[callback]=undefined}
+      try{script.remove()}catch(_){}
+      if(err)reject(err);else resolve(value);
+    }
     window[callback]=(r)=>finish(null,r||{});
-    script.onerror=()=>finish(new Error('공용저장소 응답을 받지 못했습니다. 주소·접속 상태를 확인해 주세요. (전송 중 오류)')); 
+    script.onerror=()=>finish(new Error('공용저장소 응답을 받지 못했습니다. 주소·접속 상태를 확인해 주세요. (전송 중 오류)'));
     script.src=base+(base.includes('?')?'&':'?')+params.toString()+'&_t='+Date.now();
     document.head.appendChild(script);
   });
+}
+async function jsonpGetRetried(action,extra={},maxAttempts=3){
+  let lastError;
+  for(let i=0;i<maxAttempts;i++){
+    try{return await jsonpGet(action,extra,14000)}
+    catch(e){
+      lastError=e;
+      if(i+1<maxAttempts)await new Promise(resolve=>setTimeout(resolve,500+i*850));
+    }
+  }
+  throw lastError||new Error('공용저장소 응답을 확인하지 못했습니다.');
 }
 async function publicStoreReadChunked(status){
   if(!status||!Number.isInteger(status.count)||status.count<1||status.count>500)throw new Error('서버 응답 조각 정보가 잘못되었습니다.');
   const pieces=[];
   for(let i=0;i<status.count;i++){
-    const part=await jsonpGet('chunk',{requestId:status.requestId,index:i});
+    const part=await jsonpGetRetried('chunk',{requestId:status.requestId,index:i});
     if(!part||part.ok===false||part.index!==i||typeof part.chunk!=='string')throw new Error('공용저장소 응답 조각을 읽지 못했습니다.');
     pieces.push(part.chunk);
   }
@@ -5500,24 +5518,39 @@ async function publicStoreReadChunked(status){
   }else if(status.encoding!=='base64url')throw new Error('서버 응답 압축 형식이 올바르지 않습니다.');
   return JSON.parse(new TextDecoder('utf-8').decode(decodedBytes));
 }
+let publicStorePostQueue=Promise.resolve();
 async function publicPost(action,payload={},timeoutMs=75000){
-  const requestId=makePublicRequestId();
-  const body={action,requestId,acceptGzip:typeof DecompressionStream!=='undefined',...payload};
-  try{
-    await fetch(getPublicStoreUrl(),{method:'POST',mode:'no-cors',redirect:'follow',cache:'no-store',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
-  }catch(e){throw new Error('공용저장소 요청을 보내지 못했습니다. '+(e&&e.message?e.message:e))}
-  const deadline=Date.now()+timeoutMs;
-  let attempts=0;
-  while(Date.now()<deadline){
-    if(attempts>0)await new Promise(r=>setTimeout(r,Math.min(2200,600+attempts*200)));
-    attempts++;
-    const status=await jsonpGet('status',{requestId});
-    if(status.pending)continue;
-    const response=status.chunked?await publicStoreReadChunked(status):status;
-    if(response.ok===false)throw new Error(response.error||'공용저장소 요청 실패');
-    return response;
-  }
-  throw new Error('공용저장소 응답 시간 초과. 서버 로그와 웹앱 배포 버전을 확인해 주세요.');
+  const run=async()=>{
+    const requestId=makePublicRequestId();
+    const body={action,requestId,acceptGzip:typeof DecompressionStream!=='undefined',...payload};
+    try{
+      await fetch(getPublicStoreUrl(),{method:'POST',mode:'no-cors',redirect:'follow',cache:'no-store',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
+    }catch(e){throw new Error('공용저장소 요청을 보내지 못했습니다. '+(e&&e.message?e.message:e))}
+    const deadline=Date.now()+timeoutMs;
+    let attempts=0,lastGetError=null;
+    while(Date.now()<deadline){
+      if(attempts>0)await new Promise(r=>setTimeout(r,Math.min(2200,600+attempts*200)));
+      attempts++;
+      let status;
+      try{status=await jsonpGetRetried('status',{requestId},2);lastGetError=null}
+      catch(e){
+        lastGetError=e;
+        // POST의 실행 결과가 불확실합니다. 같은 POST를 재전송하지 않고 상태만 다시 조회.
+        if(Date.now()<deadline)continue;
+        break;
+      }
+      if(status.pending)continue;
+      const response=status.chunked?await publicStoreReadChunked(status):status;
+      if(response.ok===false)throw new Error(response.error||'공용저장소 요청 실패');
+      // 모호한 빈 응답을 성공으로 판정하지 않습니다.
+      if(response.ok!==true)throw new Error('공용저장소에서 정상적인 완료 응답을 받지 못했습니다. 저장 결과를 다시 확인해 주세요.');
+      return response;
+    }
+    throw new Error('공용저장소 응답 확인 실패. '+(lastGetError?.message||'서버 처리 결과를 확인할 수 없습니다.')+' 공용저장소 주소와 웹앱 배포 상태를 확인해 주세요.');
+  };
+  const pending=publicStorePostQueue.then(run,run);
+  publicStorePostQueue=pending.catch(()=>{});
+  return pending;
 }
 function authPayload(extra={}){
   return {deviceId:getDeviceId(),deviceToken:getDeviceToken(),project:currentProjectForAuth(),...extra};
@@ -5752,6 +5785,7 @@ async function pushLocal(file,silent=true,remoteKnown){
   if(!silent)alert('수정·추가·삭제된 항목만 공용저장소에 저장했습니다.');
 }
 async function syncNow(reason='auto'){
+  if(typeof reportCloseActionBusy!=='undefined'&&reportCloseActionBusy){if(getDriveMeta('driveLocalDirty')==='1')scheduleAutoSync();return}
   if(!tokenValid()||syncBusy)return;syncBusy=true;
   const slowNotice=setTimeout(()=>{
     if(syncBusy)setDriveStatus('공용저장소 응답 지연 · 동기화 진행 중 (기존 자료 보존)');
@@ -6341,31 +6375,101 @@ function askUnlockPasswordMasked(){
     input.focus();
   });
 }
+// 변경 즉시 클라우드에 한 건만 저장합니다. 마감해제의 성공은 서버 확인 이후에만 표시합니다.
+let reportCloseActionBusy=false;
 async function toggleReportClosed(date,site,trade,type='weekly',no=0){
   if(!canCloseReports())return alert('마감·마감해제는 마스터만 사용할 수 있습니다.');
-  const wt=type==='overtime'?'overtime':(type==='lunch'?'lunch':'weekly'), n=wt==='overtime'?(+no||1):0;
-  let reports=safeParseJSON(projectGet('reports'),[])||[];
-  let indexes=[];
-  reports.forEach((r,i)=>{if(r.date===date&&r.site===site&&r.trade===trade&&reportTypeOf(r)===wt&&reportOvertimeNoOf(r)===n)indexes.push(i)});
-  if(!indexes.length)return alert('해당 보고서를 찾을 수 없습니다.');
-  const ix=indexes[indexes.length-1], r=reports[ix];
-  if(r.closed===true){
-    try{
-      if(!ensurePublicStoreCredentials(true))return;
-      const pw=await askUnlockPasswordMasked();if(pw===null)return;await publicPost('verifyMasterPassword',authPayload({masterPassword:pw}))
-    }catch(e){return alert(e&&e.message?e.message:'마감 해제 권한 확인에 실패했습니다.')}
-    r.closed=false;delete r.closedAt;r.closedChangedAt=new Date().toISOString();reports[ix]=r;projectSet('reports',JSON.stringify(reports));markLocalChanged();if(tokenValid())scheduleAutoSync();alert('마감이 해제되었습니다. 이제 수정할 수 있습니다.');
-  }else{
+  if(reportCloseActionBusy)return alert('마감 상태를 공용저장소에 반영 중입니다. 완료 후 다시 시도해 주세요.');
+  const wt=type==='overtime'?'overtime':(type==='lunch'?'lunch':'weekly'),n=wt==='overtime'?(+no||1):0;
+  const current=safeParseJSON(projectGet('reports'),[])||[];
+  const key=sharedDeltaReportKey({date,site,trade,workType:wt,overtimeNo:n});
+  const localIndex=current.findLastIndex(r=>r?.date===date&&r.site===site&&r.trade===trade&&reportTypeOf(r)===wt&&reportOvertimeNoOf(r)===n);
+  if(localIndex<0)return alert('해당 보고서를 찾을 수 없습니다.');
+  const wantedClosed=current[localIndex].closed!==true;
+  if(!ensurePublicStoreCredentials(true))return;
+  if(wantedClosed){
     if(!confirm('이 보고서를 마감할까요?\n마감 후에는 수정·삭제·저장할 수 없습니다.'))return;
-    r.closed=true;r.closedAt=new Date().toISOString();r.closedChangedAt=r.closedAt;reports[ix]=r;projectSet('reports',JSON.stringify(reports));markLocalChanged();if(tokenValid())scheduleAutoSync();
   }
-  schedulePriorityCloudSync();
-  if($('date')&&$('site')&&$('trade')&&$('date').value===date&&$('site').value===site&&$('trade').value===trade&&currentWorkType===wt&&reportOvertimeNoOf({workType:wt,overtimeNo:n})===n){syncReportLockForCurrentDate()}
-  if(typeof photoApplyLockUI==='function')photoApplyLockUI();
-  if(Array.isArray(lastSearchResults))lastSearchResults.forEach(x=>{if(x?.r&&x.r.date===date&&x.r.site===site&&x.r.trade===trade&&x.workType===wt&&x.overtimeNo===n){x.r.closed=reports[ix].closed===true}});
-  if($('searchPage')&&$('searchPage').style.display!=='none')searchReports();
+  reportCloseActionBusy=true;
+  // Do not send unrelated automatic updates while checking/storing a lock change.
+  clearTimeout(syncTimer);
+  try{
+    if(syncBusy){
+      // 변경분 전송 중 동일 보고서가 재저장되는 것을 방지합니다.
+      const until=Date.now()+85000;
+      while(syncBusy&&Date.now()<until)await new Promise(r=>setTimeout(r,250));
+      if(syncBusy)throw new Error('이전 공용저장소 동기화가 진행 중입니다. 완료 후 다시 시도해 주세요.');
+    }
+    if(!wantedClosed){
+      const pw=await askUnlockPasswordMasked();
+      if(pw===null)return;
+      setDriveStatus('마감해제 권한 확인 중...');
+      await publicPost('verifyMasterPassword',authPayload({masterPassword:pw}));
+    }
+    setDriveStatus('공용저장소의 현재 마감 상태 확인 중...');
+    const remote=await fetchRemote(true);
+    if(!remote.file||!Array.isArray(remote.data?.reports)){
+      throw new Error('공용저장소에서 보고서 저장본을 확인하지 못했습니다. 자료를 먼저 확인해 주세요.');
+    }
+    const match=(remote.data.reports||[]).filter(r=>r?.date===date&&r.site===site&&r.trade===trade&&reportTypeOf(r)===wt&&reportOvertimeNoOf(r)===n);
+    const serverReport=match[match.length-1];
+    if(!serverReport)throw new Error('공용저장소에서 이 보고서를 찾지 못했습니다. 다른 기기 자료를 덮어쓰지 않도록 중단했습니다.');
+    if((serverReport.closed===true)===(wantedClosed)){
+      // 로컬 자료보다 서버 상태가 먼저 바뀌었을 수 있습니다.
+      throw new Error('공용저장소의 마감 상태가 이미 변경되어 있습니다. 「공용저장소 연결」로 최신자료를 확인한 후 다시 시도해 주세요.');
+    }
+    const changedAt=new Date().toISOString();
+    const updated={...serverReport,closed:wantedClosed,closedChangedAt:changedAt};
+    if(wantedClosed)updated.closedAt=changedAt;
+    else delete updated.closedAt;
+    setDriveStatus(wantedClosed?'공용저장소에 마감 저장 중...':'공용저장소에 마감해제 저장 중...');
+    let saved;
+    try{
+      saved=await publicPost('patch',authPayload({
+        baseRevision:Number(remote.data?.serverRevision)||0,
+        changes:{reports:{put:{[key]:updated},remove:[]}}
+      }),90000);
+    }catch(error){
+      // 서버 저장 후 응답만 유실되었다면 재전송하지 않고 서버를 재조회합니다.
+      try{
+        const check=await fetchRemote(true);
+        const confirmed=(check.data?.reports||[]).find(r=>sharedDeltaReportKey(r)===key);
+        if(!confirmed||confirmed.closed!==wantedClosed||confirmed.closedChangedAt!==changedAt)throw error;
+        saved={ok:true,revision:check.revision,updatedAt:new Date(check.stamp).toISOString()};
+      }catch(_){throw error}
+    }
+    // 서버 확정 뒤 로컬 저장. 다른 보고서/입력중인 자료는 건드리지 않습니다.
+    const pendingOtherChanges=getDriveMeta('driveLocalDirty')==='1';
+    const latest=safeParseJSON(projectGet('reports'),[])||[];
+    const ix=latest.findLastIndex(r=>sharedDeltaReportKey(r)===key);
+    if(ix>=0){
+      latest[ix]={...latest[ix],closed:wantedClosed,closedChangedAt:changedAt};
+      if(wantedClosed)latest[ix].closedAt=changedAt;
+      else delete latest[ix].closedAt;
+      projectSet('reports',JSON.stringify(latest));
+    }
+    // 공용저장소 전체 스냅샷을 덮어쓰지 않습니다. 기존 인원·사진 설명·Item 입력 자료를 유지.
+    // 다음 정기 동기화가 서버 변경분을 확인하도록 기준 리비전도 앞당기지 않습니다.
+    if(pendingOtherChanges){
+      setDriveMeta('driveLocalDirty','1');
+      setDriveStatus('마감 상태 공용저장소 저장 완료 · 다른 로컬 수정사항 동기화 대기');
+    }else{
+      setDriveStatus('마감 상태 공용저장소 저장 완료 · '+new Date().toLocaleString());
+    }
+    if($('date')&&$('site')&&$('trade')&&$('date').value===date&&$('site').value===site&&$('trade').value===trade&&currentWorkType===wt&&reportOvertimeNoOf({workType:wt,overtimeNo:n})===n)syncReportLockForCurrentDate();
+    if(typeof photoApplyLockUI==='function')photoApplyLockUI();
+    if(Array.isArray(lastSearchResults))lastSearchResults.forEach(x=>{if(x?.r&&x.r.date===date&&x.r.site===site&&x.r.trade===trade&&x.workType===wt&&x.overtimeNo===n){x.r.closed=wantedClosed}});
+    if($('searchPage')&&$('searchPage').style.display!=='none')searchReports();
+    alert(wantedClosed?'마감 상태가 공용저장소에 저장되었습니다.':'마감해제가 공용저장소에 저장되었습니다. 관리자도 최신자료를 불러오면 반영됩니다.'+(pendingOtherChanges?'\n다른 작성 중 자료는 동기화 대기 상태입니다.':''));
+  }catch(e){
+    console.error('보고서 마감 상태 변경 실패',e);
+    setDriveStatus('마감 상태 변경 실패 · 기존 자료 유지: '+(e.message||String(e)));
+    alert('공용저장소 저장이 확인되지 않아 마감 상태를 변경하지 않았습니다.\n'+(e.message||String(e)));
+  }finally{
+    reportCloseActionBusy=false;
+    if(getDriveMeta('driveLocalDirty')==='1'&&tokenValid())scheduleAutoSync();
+  }
 }
-
 function loadExactSavedReportForDate(targetDate){
   currentWorkType='weekly';currentOvertimeNo=0;
   const reports=normalizedReportsForRead().filter(r=>r.date===targetDate&&reportTypeOf(r)==='weekly');
@@ -6605,6 +6709,7 @@ function applyRemoteData(d,stamp){
     }
     setDriveMeta('driveLastRemoteRevision',String(Number(d?.serverRevision)||0));
     setDriveMeta('driveLastRemoteStamp',String(stamp||Date.now()));setDriveMeta('driveLocalDirty','0');setDriveMeta('driveLocalUpdatedAt',String(stamp||Date.now()));
+    setDriveMeta('driveLastFinishedLocalAt',String(Date.now()));
   }finally{applyingRemote=false}
 }
 
