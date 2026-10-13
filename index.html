@@ -5628,16 +5628,76 @@ function markLocalChanged(){
   scheduleAutoSync();
 }
 function scheduleAutoSync(){if(!tokenValid()||!canEditActiveProject())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow('auto'),2800)}
-async function fetchRemote(){
-  const r=await publicStoreCall('load');
-  // load 응답에 포함된 최신 기기권한을 함께 반영해 별도 ping 왕복을 없앤다.
-  if(r&&r.role){
-    saveDevicePermissionState(r);
-    applyDevicePermissions();
+// Fast clean read: check a tiny authenticated revision, then download only the
+// revision events not present locally. Initial reads, dirty edits and history
+// gaps are loaded through the original full snapshot path for safety.
+function mergeDownloadedDelta_(snapshot,events){
+  const data=JSON.parse(JSON.stringify(snapshot||{}));
+  const patchMap=(a,d)=>{
+    const out=(a&&typeof a==='object'&&!Array.isArray(a))?{...a}:{};
+    (d?.remove||[]).forEach(key=>{delete out[String(key)]});
+    Object.entries(d?.put||{}).forEach(([k,v])=>{out[k]=v});
+    return out;
+  };
+  const indexReports=reports=>{const map={};(reports||[]).forEach(r=>{if(r&&r.date)map[sharedDeltaReportKey(r)]=r});return map};
+  for(const event of events||[]){
+    const c=event.changes||{};
+    if(c.reports)data.reports=Object.values(patchMap(indexReports(data.reports),c.reports));
+    if(c.workModeDrafts){
+      const previous=data.workModeDrafts||{};
+      const updated=patchMap(previous,c.workModeDrafts);
+      for(const [name,changes] of Object.entries(c.workModeDrafts.nested||{})){
+        updated[name]=patchMap(previous[name]||{},changes);
+      }
+      data.workModeDrafts=updated;
+    }
+    if(c.noWorkDays)data.noWorkDays=patchMap(data.noWorkDays||{},c.noWorkDays);
+    for(const name of ['masters','currentDraft']){
+      if(Object.prototype.hasOwnProperty.call(c,name))data[name]=c[name];
+    }
+    data.serverRevision=Number(event.revision)||data.serverRevision;
   }
-  if(!r.exists)return {file:null,data:null,stamp:0};
+  return data;
+}
+function locallyCachedCloudSnapshot_(){
+  const p=currentProjectForAuth();
+  return {
+    reports:safeParseJSON(projectGet('reports',p),[])||[],
+    masters:safeParseJSON(projectGet('masters',p),null),
+    currentDraft:safeParseJSON(projectGet('currentDraft',p),null),
+    workModeDrafts:safeParseJSON(projectGet('workModeDrafts',p),{})||{},
+    noWorkDays:safeParseJSON(projectGet('noWorkDays',p),{})||{}
+  };
+}
+async function fetchRemote(forceFull=false){
+  const currentRevision=Number(getDriveMeta('driveLastRemoteRevision'))||0;
+  const previousStamp=Number(getDriveMeta('driveLastRemoteStamp'))||0;
+  const dirty=getDriveMeta('driveLocalDirty')==='1';
+  // Only confirmed clean snapshots are safe as bases for applying deltas.
+  if(!forceFull && !dirty && currentRevision>0 && previousStamp>0){
+    const head=await publicStoreCall('head');
+    if(head.role){saveDevicePermissionState(head);applyDevicePermissions()}
+    const rev=Number(head.revision)||0;
+    const stamp=Date.parse(head.updatedAt||'')||previousStamp;
+    if(!head.exists)return {file:null,data:null,stamp:0,revision:rev};
+    if(rev===currentRevision){
+      return {file:{id:'public-store',modifiedTime:head.updatedAt||''},data:null,stamp:previousStamp,revision:rev,unchanged:true};
+    }
+    if(rev>currentRevision){
+      const changes=await publicStoreCall('changesSince',{sinceRevision:currentRevision});
+      if(!changes.resetRequired && changes.revision===rev && Array.isArray(changes.events)){
+        const data=mergeDownloadedDelta_(locallyCachedCloudSnapshot_(),changes.events);
+        data.serverRevision=rev;
+        return {file:{id:'public-store',modifiedTime:head.updatedAt||''},data,stamp,revision:rev,incremental:true};
+      }
+    }
+    // The log has expired or is inconsistent: use the complete server snapshot.
+  }
+  const r=await publicStoreCall('load');
+  if(r&&r.role){saveDevicePermissionState(r);applyDevicePermissions()}
+  if(!r.exists)return {file:null,data:null,stamp:0,revision:0};
   const stamp=Date.parse(r.updatedAt||'')||Date.parse((r.data&&r.data.serverSavedAt)||'')||0;
-  return {file:{id:r.fileId||'public-store',modifiedTime:r.updatedAt||''},data:r.data,stamp};
+  return {file:{id:r.fileId||'public-store',modifiedTime:r.updatedAt||''},data:r.data,stamp,revision:Number(r.data?.serverRevision)||0};
 }
 function applyRemoteData(d,stamp){
   applyingRemote=true;
@@ -5651,6 +5711,7 @@ function applyRemoteData(d,stamp){
     // 공용저장소에서 이전 강제이월 데이터가 내려와도 복원하지 않는다.
     projectRemove('forcedCarryover',activeProject);
     purgeLegacyForcedCarryover();
+    setDriveMeta('driveLastRemoteRevision',String(Number(d?.serverRevision)||0));
     setDriveMeta('driveLastRemoteStamp',String(stamp||Date.now()));setDriveMeta('driveLocalDirty','0');setDriveMeta('driveLocalUpdatedAt',String(stamp||Date.now()));
     setDriveMeta('driveLastFinishedLocalAt',String(Date.now()));
   }finally{applyingRemote=false}
@@ -5677,6 +5738,7 @@ async function pushLocal(file,silent=true,remoteKnown){
   const stamp=Date.parse(r.updatedAt||'')||Date.now();
   const changedDuringSave=(Number(getDriveMeta('driveLocalUpdatedAt'))||0)>before;
   setDriveMeta('driveLastRemoteStamp',String(stamp));
+  setDriveMeta('driveLastRemoteRevision',String(Number(r.revision)||0));
   if(changedDuringSave){
     setDriveMeta('driveLocalDirty','1');
     setDriveStatus('전송 중 추가 수정 감지 · 다음 동기화 대기');
@@ -5697,18 +5759,23 @@ async function syncNow(reason='auto'){
     setDriveStatus('공용저장소에서 최신자료 확인 중...');
     const remote=await fetchRemote();
     const last=+(getDriveMeta('driveLastRemoteStamp')||0);
+    const previousRevision=Number(getDriveMeta('driveLastRemoteRevision'))||0;
+    const isRemoteChanged=!!remote.file && !remote.unchanged && (remote.revision>previousRevision || (!previousRevision&&remote.stamp>last+500));
+    // Upgrade from older clients: if the full snapshot is already known to be
+    // current, record its revision without forcing a second full download.
+    if(!previousRevision && !isRemoteChanged && remote.file && remote.revision>0 && getDriveMeta('driveLocalDirty')!=='1')setDriveMeta('driveLastRemoteRevision',String(remote.revision));
     if(!canEditActiveProject()){
       // 읽기전용 기기는 서버 자료를 읽기만 한다. 로컬 변경/업로드는 절대 수행하지 않는다.
       setDriveMeta('driveLocalDirty','0');
       if(!remote.file){setDriveStatus('읽기 전용 · 저장된 공용자료 없음');return}
-      const remoteChanged=remote.stamp>last+500;
-      if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('읽기 전용 · 최신자료 반영');if(reason!=='poll')location.reload()}
+      const remoteChanged=isRemoteChanged;
+      if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('읽기 전용 · 최신자료 반영');location.reload()}
       else setDriveStatus('읽기 전용 · 최신 상태');
       return;
     }
     const dirty=getDriveMeta('driveLocalDirty')==='1';
     if(!remote.file){await pushLocal(null,true,{});return}
-    const remoteChanged=remote.stamp>last+500;
+    const remoteChanged=isRemoteChanged;
     if(dirty&&remoteChanged){const useLocal=confirm('PC/휴대폰 양쪽에서 자료가 변경되었습니다.\n\n확인 = 이 기기의 자료를 공용저장소에 저장\n취소 = 공용저장소의 최신 자료를 이 기기에 적용');if(useLocal){
         const merged=sharedMergePayload(remote.data||{},localData());
         applyingRemote=true;
@@ -6535,6 +6602,7 @@ function applyRemoteData(d,stamp){
     if(Object.keys(remoteNoWork).length){
       projectSet('noWorkDays',JSON.stringify(sharedMergeNoWork(remoteNoWork,safeParseJSON(projectGet('noWorkDays',activeProject),{})||{})),activeProject);
     }
+    setDriveMeta('driveLastRemoteRevision',String(Number(d?.serverRevision)||0));
     setDriveMeta('driveLastRemoteStamp',String(stamp||Date.now()));setDriveMeta('driveLocalDirty','0');setDriveMeta('driveLocalUpdatedAt',String(stamp||Date.now()));
   }finally{applyingRemote=false}
 }
