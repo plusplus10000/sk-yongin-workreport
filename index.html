@@ -2548,6 +2548,56 @@ window.addEventListener('focus',function(){
   }
 }
 </style>
+
+<style>
+/* 2026-10-13: 기본정보 작업유형/상태/조작 버튼 폰트·크기·정렬 일치 */
+#writePage .basic-info-headingbar>.basic-actions-row .work-mode-btn,
+#writePage .basic-info-headingbar>.basic-actions-row .overtime-add-btn,
+#writePage .basic-info-headingbar>.basic-actions-row .mode-delete-btn,
+#writePage .basic-info-headingbar>.basic-actions-row #linkedCloseStatus,
+#writePage .basic-info-headingbar>.basic-actions-row #noWorkDayBtn,
+#writePage .basic-info-headingbar>.basic-actions-row #basicReportCloseBtn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  vertical-align:middle!important;
+  text-align:center!important;
+  font-family:Arial,'Noto Sans KR',sans-serif!important;
+  font-size:12px!important;
+  font-weight:800!important;
+  line-height:1.2!important;
+  letter-spacing:-.12px!important;
+  height:32px!important;
+  min-height:32px!important;
+  box-sizing:border-box!important;
+  padding-top:0!important;
+  padding-bottom:0!important;
+  white-space:nowrap!important;
+}
+#writePage .basic-info-headingbar>.basic-actions-row .work-mode-tabs-inline,
+#writePage .basic-info-headingbar>.basic-actions-row .mode-tab-wrap,
+#writePage .basic-info-headingbar>.basic-actions-row .basic-mode-line,
+#writePage .basic-info-headingbar>.basic-actions-row .basic-status-line{
+  align-items:center!important;
+}
+#writePage .basic-info-headingbar>.basic-actions-row .mode-delete-btn{
+  min-width:26px!important;
+  padding-left:6px!important;
+  padding-right:6px!important;
+}
+#writePage .basic-info-headingbar>.basic-actions-row #linkedCloseStatus{
+  margin:0!important;
+  padding-left:9px!important;
+  padding-right:9px!important;
+  flex:0 0 auto!important;
+}
+#writePage .basic-info-headingbar>.basic-actions-row #noWorkDayBtn,
+#writePage .basic-info-headingbar>.basic-actions-row #basicReportCloseBtn{
+  margin:0!important;
+  padding-left:10px!important;
+  padding-right:10px!important;
+}
+</style>
 </head>
 <body class="locked site-home-mode"><section id="siteHome" aria-label="현장 선택">
   <div class="site-home-inner site-home-simple">
