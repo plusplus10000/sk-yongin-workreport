@@ -4208,7 +4208,7 @@ function previewReportSection(tab){
   const managers=tab==='lunch'&&record.closed!==true?(lunchWeeklyManagers(date,site,trade)||data.managers||[]):(data.managers||[]);
   const title=tab==='weekly'?'주간작업보고':tab==='lunch'?'중식OT작업보고':currentModeLabel('overtime',record.overtimeNo||overtimeNo)+'작업보고';
   const start=tab==='lunch'?'11:00':tab==='weekly'?'07:00':'17:30';
-  const end=tab==='lunch'?'13:00':tab==='weekly'?'17:30':'20:00';
+  const end=tab==='lunch'?'13:00':tab==='weekly'?'17:30':'19:30';
   const d=new Date(date+'T00:00:00'),days='일월화수목금토';
   const ds=isNaN(d)?'':`${String(d.getFullYear()).slice(2)}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}(${days[d.getDay()]})`;
   const totals=Object.fromEntries((D.jobs||[]).map(j=>[j,0]));
@@ -4235,7 +4235,7 @@ function enforceFixedWorkHours(){
   if(!start||!end)return;
   const isLunch=(typeof currentWorkType!=='undefined'&&currentWorkType==='lunch');
   const overtime=(typeof currentWorkType!=='undefined'&&currentWorkType==='overtime');
-  const fixedStart=isLunch?'11:00':(overtime?'17:30':'07:00'),fixedEnd=isLunch?'13:00':(overtime?'20:00':'17:30');
+  const fixedStart=isLunch?'11:00':(overtime?'17:30':'07:00'),fixedEnd=isLunch?'13:00':(overtime?'19:30':'17:30');
   if(start.value!==fixedStart)start.value=fixedStart;
   if(end.value!==fixedEnd)end.value=fixedEnd;
   start.readOnly=true;end.readOnly=true;
@@ -4273,7 +4273,7 @@ function slackClosingLine(ds){
     });
   });
   if(!names.length)return base;
-  return `${base} [연장(~20:00) :${names.join(', ')}]${managers.length?' 근무:'+managers.join(', '):''}`;
+  return `${base} [연장(~19:30) :${names.join(', ')}]${managers.length?' 근무:'+managers.join(', '):''}`;
 }
 function slackReportText(){
   enforceFixedWorkHours();
@@ -6155,7 +6155,7 @@ function applyReportLike(r,type,no){
   if(r.site!==undefined)$('site').value=r.site;
   if(r.trade!==undefined)$('trade').value=r.trade;
   $('start').value=r.start||(currentWorkType==='overtime'?'17:30':(currentWorkType==='lunch'?'11:00':'07:30'));
-  $('end').value=r.end||(currentWorkType==='overtime'?'20:00':(currentWorkType==='lunch'?'13:00':'17:00'));
+  $('end').value=r.end||(currentWorkType==='overtime'?'19:30':(currentWorkType==='lunch'?'13:00':'17:00'));
   $('bpa').value=r.bpa||'';
   state=JSON.parse(JSON.stringify(r.state||{companies:[],equipment:[],areas:[],managers:[]}));
   const authoritativeSaved=findSavedReport(r.date||$('date').value,r.site||$('site').value,r.trade||$('trade').value,currentWorkType,currentOvertimeNo);
@@ -6229,7 +6229,7 @@ function createOvertime(){
   if(!base){
     base={date,site,trade,start:'07:30',end:'17:00',bpa:$('bpa').value||'',state:JSON.parse(JSON.stringify(state))};
   }
-  const o={date,site,trade,start:'17:30',end:'20:00',bpa:base.bpa||'',workType:'overtime',overtimeNo:next,closed:false,state:JSON.parse(JSON.stringify(base.state||state))};
+  const o={date,site,trade,start:'17:30',end:'19:30',bpa:base.bpa||'',workType:'overtime',overtimeNo:next,closed:false,state:JSON.parse(JSON.stringify(base.state||state))};
   const drafts=getModeDrafts();drafts[workModeKey(date,site,trade,'overtime',next)]=o;setModeDrafts(drafts);
   applyReportLike(o,'overtime',next);markLocalChanged();updateWorkModeTabs();selectPreviewTab('overtime');
 }
