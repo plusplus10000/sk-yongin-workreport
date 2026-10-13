@@ -6407,11 +6407,14 @@ function askUnlockPasswordMasked(){
     input.focus();
   });
 }
-// 변경 즉시 클라우드에 한 건만 저장합니다. 마감해제의 성공은 서버 확인 이후에만 표시합니다.
+// 마감/마감해제는 승인된 서버 저장 이후에만 로컬 잠금을 변경합니다.
+// 로컬과 서버가 동기화된 경우 서버 전체 load 왕복을 생략해 속도를 개선합니다.
+// 서버의 revision이 달라진 경우 전체 최신자료로 확인한 후 안전하게 한 번만 재시도합니다.
 let reportCloseActionBusy=false;
 async function toggleReportClosed(date,site,trade,type='weekly',no=0){
   if(!canCloseReports())return alert('마감·마감해제는 마스터만 사용할 수 있습니다.');
   if(reportCloseActionBusy)return alert('마감 상태를 공용저장소에 반영 중입니다. 완료 후 다시 시도해 주세요.');
+  const startedAt=Date.now();
   const wt=type==='overtime'?'overtime':(type==='lunch'?'lunch':'weekly'),n=wt==='overtime'?(+no||1):0;
   const current=safeParseJSON(projectGet('reports'),[])||[];
   const key=sharedDeltaReportKey({date,site,trade,workType:wt,overtimeNo:n});
@@ -6419,15 +6422,12 @@ async function toggleReportClosed(date,site,trade,type='weekly',no=0){
   if(localIndex<0)return alert('해당 보고서를 찾을 수 없습니다.');
   const wantedClosed=current[localIndex].closed!==true;
   if(!ensurePublicStoreCredentials(true))return;
-  if(wantedClosed){
-    if(!confirm('이 보고서를 마감할까요?\n마감 후에는 수정·삭제·저장할 수 없습니다.'))return;
-  }
+  if(wantedClosed && !confirm('이 보고서를 마감할까요?\n마감 후에는 수정·삭제·저장할 수 없습니다.'))return;
   reportCloseActionBusy=true;
-  // Do not send unrelated automatic updates while checking/storing a lock change.
   clearTimeout(syncTimer);
   try{
     if(syncBusy){
-      // 변경분 전송 중 동일 보고서가 재저장되는 것을 방지합니다.
+      setDriveStatus('진행 중인 동기화 완료 후 마감 상태를 변경합니다...');
       const until=Date.now()+85000;
       while(syncBusy&&Date.now()<until)await new Promise(r=>setTimeout(r,250));
       if(syncBusy)throw new Error('이전 공용저장소 동기화가 진행 중입니다. 완료 후 다시 시도해 주세요.');
@@ -6438,61 +6438,96 @@ async function toggleReportClosed(date,site,trade,type='weekly',no=0){
       setDriveStatus('마감해제 권한 확인 중...');
       await publicPost('verifyMasterPassword',authPayload({masterPassword:pw}));
     }
-    setDriveStatus('공용저장소의 현재 마감 상태 확인 중...');
-    const remote=await fetchRemote(true);
-    if(!remote.file||!Array.isArray(remote.data?.reports)){
-      throw new Error('공용저장소에서 보고서 저장본을 확인하지 못했습니다. 자료를 먼저 확인해 주세요.');
+
+    // 깨끗하게 동기화된 기준 리비전이 있으면, 전체 자료를 다운로드하지 않습니다.
+    // 서버 patch는 baseRevision을 검증하므로 다른 기기의 변경을 덮어쓰지 않습니다.
+    const knownRevision=Number(getDriveMeta('driveLastRemoteRevision'))||0;
+    const hasCleanBase=getDriveMeta('driveLocalDirty')!=='1'&&knownRevision>0&&Number(getDriveMeta('driveLastRemoteStamp'))>0;
+    let usedFastPath=hasCleanBase;
+    let serverReport=current[localIndex];
+    let baseRevision=knownRevision;
+    if(!hasCleanBase){
+      setDriveStatus('공용저장소 마감 상태 확인 중 (최초·미동기화 자료)...');
+      const remote=await fetchRemote(true);
+      if(!remote.file||!Array.isArray(remote.data?.reports))throw new Error('공용저장소에서 보고서 저장본을 확인하지 못했습니다.');
+      const match=remote.data.reports.filter(r=>sharedDeltaReportKey(r)===key);
+      serverReport=match[match.length-1];
+      if(!serverReport)throw new Error('공용저장소에서 이 보고서를 찾지 못했습니다. 다른 기기 자료를 덮어쓰지 않도록 중단했습니다.');
+      baseRevision=Number(remote.data?.serverRevision)||0;
     }
-    const match=(remote.data.reports||[]).filter(r=>r?.date===date&&r.site===site&&r.trade===trade&&reportTypeOf(r)===wt&&reportOvertimeNoOf(r)===n);
-    const serverReport=match[match.length-1];
-    if(!serverReport)throw new Error('공용저장소에서 이 보고서를 찾지 못했습니다. 다른 기기 자료를 덮어쓰지 않도록 중단했습니다.');
-    if((serverReport.closed===true)===(wantedClosed)){
-      // 로컬 자료보다 서버 상태가 먼저 바뀌었을 수 있습니다.
-      throw new Error('공용저장소의 마감 상태가 이미 변경되어 있습니다. 「공용저장소 연결」로 최신자료를 확인한 후 다시 시도해 주세요.');
-    }
+    if((serverReport.closed===true)===wantedClosed)throw new Error('공용저장소의 마감 상태가 이미 변경되었을 수 있습니다. 공용저장소 연결로 최신자료를 확인해 주세요.');
     const changedAt=new Date().toISOString();
-    const updated={...serverReport,closed:wantedClosed,closedChangedAt:changedAt};
-    if(wantedClosed)updated.closedAt=changedAt;
-    else delete updated.closedAt;
-    setDriveStatus(wantedClosed?'공용저장소에 마감 저장 중...':'공용저장소에 마감해제 저장 중...');
+    const updatedReport=(r)=>{
+      const updated={...r,closed:wantedClosed,closedChangedAt:changedAt};
+      if(wantedClosed)updated.closedAt=changedAt;else delete updated.closedAt;
+      return updated;
+    };
+    const sendPatch=async(base,report)=>publicPost('patch',authPayload({
+      baseRevision:base,changes:{reports:{put:{[key]:updatedReport(report)},remove:[]}}
+    }),90000);
+    setDriveStatus(wantedClosed?'공용저장소에 마감 반영 중...':'공용저장소에 마감해제 반영 중...');
     let saved;
     try{
-      saved=await publicPost('patch',authPayload({
-        baseRevision:Number(remote.data?.serverRevision)||0,
-        changes:{reports:{put:{[key]:updated},remove:[]}}
-      }),90000);
+      saved=await sendPatch(baseRevision,serverReport);
     }catch(error){
-      // 서버 저장 후 응답만 유실되었다면 재전송하지 않고 서버를 재조회합니다.
-      try{
-        const check=await fetchRemote(true);
-        const confirmed=(check.data?.reports||[]).find(r=>sharedDeltaReportKey(r)===key);
-        if(!confirmed||confirmed.closed!==wantedClosed||confirmed.closedChangedAt!==changedAt)throw error;
-        saved={ok:true,revision:check.revision,updatedAt:new Date(check.stamp).toISOString()};
-      }catch(_){throw error}
+      // 오직 '서버가 리비전 충돌을 명시'한 경우에만 재조회 후 한 번 재시도.
+      // 타임아웃/응답 유실 때는 중복 POST를 보내지 않습니다.
+      const definiteConflict=usedFastPath&&/(revision|버전\s*충돌|리비전|버전\s*불일치|conflict|최신\s*버전)/i.test(String(error?.message||''));
+      if(definiteConflict){
+        setDriveStatus('다른 기기 변경 감지 · 최신 상태 재확인 중...');
+        usedFastPath=false;
+        const remote=await fetchRemote(true);
+        const match=(remote.data?.reports||[]).filter(r=>sharedDeltaReportKey(r)===key);
+        const newest=match[match.length-1];
+        if(!newest)throw new Error('서버에서 해당 보고서를 찾지 못했습니다.');
+        if((newest.closed===true)===wantedClosed)throw new Error('다른 기기에서 마감 상태를 먼저 변경했습니다. 공용저장소 연결로 최신자료를 확인해 주세요.');
+        try{saved=await sendPatch(Number(remote.data?.serverRevision)||0,newest)}
+        catch(retryErr){
+          // 두 번째 요청까지 모호하면 아래 읽기 검증만 수행합니다.
+          error=retryErr;
+        }
+        if(saved){ /* 재시도 완료 */ }
+        else{
+          try{
+            const checked=await fetchRemote(true);
+            const r=(checked.data?.reports||[]).find(x=>sharedDeltaReportKey(x)===key);
+            if(!r||r.closed!==wantedClosed||r.closedChangedAt!==changedAt)throw error;
+            saved={ok:true,revision:checked.revision,updatedAt:new Date(checked.stamp).toISOString()};
+          }catch(_){throw error}
+        }
+      }else{
+        // 저장 후 응답만 사라진 경우, 같은 요청을 다시 보내지 않고 서버 읽기로 확인.
+        try{
+          const checked=await fetchRemote(true);
+          const r=(checked.data?.reports||[]).find(x=>sharedDeltaReportKey(x)===key);
+          if(!r||r.closed!==wantedClosed||r.closedChangedAt!==changedAt)throw error;
+          saved={ok:true,revision:checked.revision,updatedAt:new Date(checked.stamp).toISOString()};
+          usedFastPath=false;
+        }catch(_){throw error}
+      }
     }
-    // 서버 확정 뒤 로컬 저장. 다른 보고서/입력중인 자료는 건드리지 않습니다.
-    const pendingOtherChanges=getDriveMeta('driveLocalDirty')==='1';
+    // 서버가 성공을 확인한 시점에서만 해당 보고서의 잠금을 수정합니다.
     const latest=safeParseJSON(projectGet('reports'),[])||[];
     const ix=latest.findLastIndex(r=>sharedDeltaReportKey(r)===key);
     if(ix>=0){
       latest[ix]={...latest[ix],closed:wantedClosed,closedChangedAt:changedAt};
-      if(wantedClosed)latest[ix].closedAt=changedAt;
-      else delete latest[ix].closedAt;
+      if(wantedClosed)latest[ix].closedAt=changedAt;else delete latest[ix].closedAt;
       projectSet('reports',JSON.stringify(latest));
     }
-    // 공용저장소 전체 스냅샷을 덮어쓰지 않습니다. 기존 인원·사진 설명·Item 입력 자료를 유지.
-    // 다음 정기 동기화가 서버 변경분을 확인하도록 기준 리비전도 앞당기지 않습니다.
-    if(pendingOtherChanges){
-      setDriveMeta('driveLocalDirty','1');
-      setDriveStatus('마감 상태 공용저장소 저장 완료 · 다른 로컬 수정사항 동기화 대기');
-    }else{
-      setDriveStatus('마감 상태 공용저장소 저장 완료 · '+new Date().toLocaleString());
+    const pendingOtherChanges=getDriveMeta('driveLocalDirty')==='1';
+    if(usedFastPath && !pendingOtherChanges && Number(saved.revision)>0){
+      // 전체 서버 데이터가 이미 동기화되어 있었고 이 보고서만 변경됐습니다.
+      setDriveMeta('driveLastRemoteRevision',String(Number(saved.revision)));
+      setDriveMeta('driveLastRemoteStamp',String(Date.parse(saved.updatedAt||'')||Date.now()));
+      setDriveMeta('driveLastFinishedLocalAt',String(Date.now()));
     }
+    const seconds=((Date.now()-startedAt)/1000).toFixed(1);
+    setDriveStatus('마감 상태 공용저장소 저장 완료 · '+seconds+'초 · '+new Date().toLocaleString()+(pendingOtherChanges?' (기타 수정 동기화 대기)':''));
     if($('date')&&$('site')&&$('trade')&&$('date').value===date&&$('site').value===site&&$('trade').value===trade&&currentWorkType===wt&&reportOvertimeNoOf({workType:wt,overtimeNo:n})===n)syncReportLockForCurrentDate();
     if(typeof photoApplyLockUI==='function')photoApplyLockUI();
     if(Array.isArray(lastSearchResults))lastSearchResults.forEach(x=>{if(x?.r&&x.r.date===date&&x.r.site===site&&x.r.trade===trade&&x.workType===wt&&x.overtimeNo===n){x.r.closed=wantedClosed}});
     if($('searchPage')&&$('searchPage').style.display!=='none')searchReports();
-    alert(wantedClosed?'마감 상태가 공용저장소에 저장되었습니다.':'마감해제가 공용저장소에 저장되었습니다. 관리자도 최신자료를 불러오면 반영됩니다.'+(pendingOtherChanges?'\n다른 작성 중 자료는 동기화 대기 상태입니다.':''));
+    alert((wantedClosed?'마감':'마감해제')+'가 공용저장소에 저장되었습니다. (처리 '+seconds+'초)'+(!wantedClosed?'\n관리자도 최신자료를 불러오면 반영됩니다.':''));
   }catch(e){
     console.error('보고서 마감 상태 변경 실패',e);
     setDriveStatus('마감 상태 변경 실패 · 기존 자료 유지: '+(e.message||String(e)));
