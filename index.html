@@ -9,8 +9,6 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
 }
 @media(max-width:480px){.row{grid-template-columns:1fr}.card{padding:9px}.jobs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-
-/* Compact desktop layout: maximize viewport use and reduce vertical scrolling */
 @media(min-width:851px){
   header{height:46px;padding:0 14px;font-size:14px}
   .app{grid-template-columns:150px 1fr;height:calc(100vh - 46px);min-height:0}
@@ -49,7 +47,6 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
 .zone-master-row{display:grid;grid-template-columns:minmax(110px,1fr) minmax(150px,1.4fr) minmax(100px,1fr) auto;gap:6px;margin-bottom:6px}.zone-master-row input{width:100%}
 @media(max-width:600px){.zone-master-row{grid-template-columns:minmax(72px,1fr) minmax(105px,1.4fr) minmax(80px,1fr) auto;gap:4px}.zone-master-row input{min-width:0;font-size:12px;padding:6px 4px}.zone-master-row .btn{padding:5px 4px!important}.counter input{width:40px!important}.counter button{width:23px}}
 
-/* PC: 숫자 입력은 브라우저 기본 number spinner(위/아래 화살표) 사용 */
 @media(min-width:851px){
   .counter button{display:none!important}
   .counter{display:inline-block}
@@ -60,7 +57,6 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
   .manager-table td:nth-child(3) input{width:128px!important;min-width:128px!important;max-width:128px!important}
 }
 
-/* PC 담당자: 요청한 4열 표 형태. 모바일 스타일은 변경하지 않음 */
 @media(min-width:851px){
   .manager-scroll{overflow-x:hidden!important;padding-bottom:0!important}
   .manager-table{width:100%!important;min-width:0!important;table-layout:fixed!important}
@@ -73,7 +69,6 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
   .manager-table td:nth-child(4) .btn{padding:6px 8px!important}
 }
 
-/* PC 업체 인원: 직종명을 위, 숫자칸을 아래에 두는 7열 고정 배치 */
 @media(min-width:851px){
   .jobs{grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:5px!important;align-items:end}
   .jobs label{display:block!important;min-width:0!important;font-size:10px!important;line-height:1.2!important;white-space:nowrap!important;text-align:left!important}
@@ -83,7 +78,6 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
   .company-total{margin-left:auto!important}
 }
 
-/* 모바일 전용 보정: PC 레이아웃은 그대로 유지 */
 @media(max-width:850px){
   /* 담당자: 전화번호를 이름/직책과 비슷한 폭으로 타이트하게 */
   .manager-table{min-width:500px!important}
@@ -114,8 +108,6 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
   #equipments td:nth-child(4) .btn{padding:6px 7px!important;font-size:11px!important}
 }
 
-
-/* 모바일 장비표 최종 보정: 장비명 | 수량(- 숫자 +) | 삭제 */
 @media(max-width:850px){
   #equipments{display:block!important;width:100%!important}
   #equipments tr{display:grid!important;grid-template-columns:minmax(90px,1fr) 116px 48px!important;gap:6px!important;align-items:center!important;width:100%!important}
@@ -137,8 +129,6 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
   table:has(#equipments) thead{display:none!important}
 }
 
-
-/* 모바일 햄버거 메뉴 */
 .mobile-menu-btn{display:none;border:1px solid rgba(255,255,255,.45);background:transparent;color:#fff;border-radius:7px;width:38px;height:34px;font-size:22px;line-height:30px;cursor:pointer}
 .mobile-drawer,.mobile-overlay{display:none}
 @media(max-width:850px){
@@ -152,19 +142,15 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
   .mobile-drawer .drawer-title{font-weight:800;padding:8px 12px 12px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:6px}
 }
 
-/* 검색 결과: 엑셀형 데이터 표 */
 .search-toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:10px 0}.result-table-wrap{width:100%;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}.result-table{min-width:1050px;table-layout:auto;font-size:12px}.result-table th{position:sticky;top:0;z-index:1;background:#eaf3fd;white-space:nowrap}.result-table td{text-align:left;vertical-align:top;white-space:nowrap}.result-table .work-cell{white-space:normal;min-width:300px;line-height:1.45}.result-table .num-cell{text-align:right}.result-table tbody tr:hover{background:#f6faff}@media(max-width:850px){.result-table{min-width:980px}.search-toolbar .btn{font-size:12px}}
 .date-link-btn{border:0;background:transparent;color:#0672e8;text-decoration:underline;font:inherit;font-weight:700;cursor:pointer;padding:0;white-space:nowrap}.date-link-btn:hover{color:#004fa8}
 
-/* 간단 비밀번호 잠금 화면 */
 #passwordGate{position:fixed;inset:0;z-index:99999;background:#f4f8fc;display:none;align-items:center;justify-content:center;padding:20px}
 .password-box{width:min(92vw,360px);background:#fff;border:1px solid #dbe6f2;border-radius:14px;padding:24px;box-shadow:0 10px 30px #0002;text-align:center}
 .password-box h2{margin:0 0 8px;color:#12365f}.password-box p{font-size:13px;color:#66788c;margin:0 0 16px}.password-box input{width:100%;padding:12px;border:1px solid #cbd9e8;border-radius:8px;font-size:18px;margin-bottom:10px}.password-error{min-height:20px;color:#d22;font-size:13px;margin-top:8px}
 body.locked>header,body.locked>.app,body.locked>#mobileOverlay,body.locked>#mobileDrawer{visibility:hidden}
 body.locked>#siteHome{pointer-events:none}
 
-
-/* 2026-10-02: PC 왼쪽 메뉴 / 작업보고 미리보기 접기·펼치기 */
 @media(min-width:851px){
   .app{transition:grid-template-columns .2s ease}
   .app.sidebar-collapsed{grid-template-columns:42px 1fr}
@@ -188,8 +174,6 @@ body.locked>#siteHome{pointer-events:none}
 }
 @media(max-width:850px){.sidebar-toggle{display:none!important}.preview-toggle{margin-left:auto}}
 
-
-/* PC 기본정보 작업시간: 오후 시간이 잘리거나 접히지 않도록 폭만 보정 */
 @media(min-width:851px){
   #writePage .input-col > .card:first-child .row:first-of-type{
     grid-template-columns:minmax(90px,.85fr) minmax(90px,.85fr) minmax(150px,1.2fr) minmax(205px,1.65fr);
@@ -206,8 +190,6 @@ body.locked>#siteHome{pointer-events:none}
   }
 }
 
-
-/* 기본정보 반응형 정리: 기존 디자인 유지 */
 .basic-info-grid{display:grid;grid-template-columns:minmax(90px,1fr) minmax(90px,1fr) minmax(150px,1.35fr);gap:7px;align-items:end}
 .basic-info-grid .field{min-width:0}.basic-info-grid label{white-space:nowrap}
 .basic-info-grid input,.basic-info-grid select{min-width:0;width:100%}
@@ -237,13 +219,6 @@ body.locked>#siteHome{pointer-events:none}
   .time-pair{grid-template-columns:1fr 1fr}
 }
 
-
-/* 2026-10-02 최종 반응형 안정화
-   - 기존 블루 디자인 유지
-   - 기본정보: 3칸 + 2칸으로 안정적으로 정렬
-   - 작업시간 오전/오후 최소폭 확보
-   - BP사/삭제/관리 버튼이 카드 밖으로 튀어나가지 않도록 고정
-   - 중간 폭 PC에서는 미리보기 + 입력영역 2열로 자연스럽게 재배치 */
 @media(min-width:851px){
   .basic-info-grid{
     grid-template-columns:minmax(90px,1fr) minmax(90px,1fr) minmax(170px,1.35fr)!important;
@@ -301,7 +276,6 @@ body.locked>#siteHome{pointer-events:none}
   }
 }
 
-/* 일반 노트북/작게 줄인 PC: 미리보기 왼쪽 + 입력영역 오른쪽 한 열 */
 @media(min-width:851px) and (max-width:1350px){
   #writePage>.grid{
     grid-template-columns:minmax(280px,.72fr) minmax(560px,1.45fr)!important;
@@ -315,22 +289,18 @@ body.locked>#siteHome{pointer-events:none}
   .middle-col{grid-column:2!important;grid-row:2!important}
 }
 
-/* 아주 좁은 PC에서는 가로 스크롤 대신 입력영역 최소폭을 유지 */
 @media(min-width:851px) and (max-width:1020px){
   main{overflow:auto!important}
   #writePage>.grid{grid-template-columns:270px minmax(540px,1fr)!important}
   #writePage>.grid.preview-collapsed{grid-template-columns:42px minmax(540px,1fr)!important}
 }
 
-/* 모바일은 기존 모바일 배치 유지 */
 @media(max-width:850px){
   .basic-time,.basic-date{grid-column:1/-1!important}
   .basic-bpa{grid-column:1/2!important}
   #start,#end{min-width:0!important}
 }
 
-
-/* 업체별 사용 직종 관리 */
 .company-head .job-add-btn{margin-left:0}
 .job-item{position:relative}
 .job-label-row{display:flex;align-items:center;justify-content:space-between;gap:3px;min-width:0}
@@ -346,13 +316,11 @@ body.locked>#siteHome{pointer-events:none}
   .job-remove-btn{width:24px;height:24px;line-height:22px;flex-basis:24px}
 }
 
-
 .company-move-btn{width:27px;min-width:27px;padding:4px 2px!important;font-weight:900}
 .company-move-btn:disabled{opacity:.3;cursor:default}
 @media(max-width:850px){
   .company-move-btn{width:30px;min-width:30px}
 }
-
 
 .basic-action-buttons{display:flex;gap:6px;flex-wrap:nowrap;justify-content:flex-end;align-items:center}
 .basic-action-buttons .btn{white-space:nowrap}
@@ -361,8 +329,6 @@ body.locked>#siteHome{pointer-events:none}
 @media(max-width:1250px) and (min-width:851px){.basic-action-buttons{flex-wrap:wrap}}
 @media(max-width:850px){.basic-action-buttons{flex-wrap:wrap;justify-content:flex-start;width:100%}.preview-title-row{gap:8px!important}}
 
-
-/* 버튼/방향키 80% 컴팩트화 */
 .btn{padding:4px 7px!important;font-size:10.4px!important;border-radius:4px!important}
 .company-move-btn{width:22px!important;min-width:22px!important;height:23px!important;padding:1px!important;font-size:11px!important}
 .job-remove-btn{width:16px!important;height:16px!important;line-height:14px!important;flex-basis:16px!important;font-size:10px!important}
@@ -376,8 +342,6 @@ body.locked>#siteHome{pointer-events:none}
   .personnel-subtotal{font-size:12px!important;margin-left:8px!important}
 }
 
-
-/* 업체 헤더 자리 교환: 업체명 + 인원소계 / 우측에 순서·삭제·직종추가 */
 .company-head{display:flex!important;align-items:center!important;gap:8px!important}
 .company-head .company-name{flex:0 0 auto}
 .personnel-subtotal{margin-left:2px!important}
@@ -387,13 +351,10 @@ body.locked>#siteHome{pointer-events:none}
   .company-head-actions{margin-left:auto}
 }
 
-
 .total-inline{display:inline-flex;align-items:center;margin-left:7px;font-size:10px;font-weight:400;white-space:nowrap;line-height:1}
 .total-inline .total{font-size:12px;margin-left:3px;font-weight:800;color:#0672e8}
 @media(max-width:850px){.total-inline{margin-left:6px;font-size:10px}.total-inline .total{font-size:12px}}
 
-
-/* 금일 작업 내용: 구역정보 왼쪽 40%, 작업내용 오른쪽 */
 .area-layout{
   display:grid;
   grid-template-columns:minmax(120px,40%) minmax(0,1fr);
@@ -412,10 +373,9 @@ body.locked>#siteHome{pointer-events:none}
 .area-tasks{min-width:0;padding-top:0}
 .area-tasks .subtask{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto auto!important;gap:5px!important;align-items:center;margin:0 0 5px!important}
 .area-tasks .subtask input{width:100%!important;min-width:0!important}
-/* 기존 '하부 작업' 표시는 사용하지 않음 */
+
 .area .sub-title{display:none!important}
 
-/* 화면이 줄면 왼쪽 구역폭도 자연스럽게 줄이고, 아주 좁으면 위/아래 배치 */
 @media(min-width:1101px){
   .area-layout{grid-template-columns:minmax(130px,38%) minmax(0,1fr)}
 }
@@ -431,10 +391,6 @@ body.locked>#siteHome{pointer-events:none}
   .area-tasks{margin-top:2px}
 }
 
-
-/* 작업구역 배치 예외:
-   PC = 새 배치 유지
-   모바일 = 변경 전 모바일 형태 유지 */
 @media(max-width:850px){
   .area-layout{
     display:block!important;
@@ -493,8 +449,6 @@ body.locked>#siteHome{pointer-events:none}
   .area-tasks{margin-top:7px!important}
 }
 
-
-/* 상단 우측: 작업보고 작성 아래 작업 버튼 */
 .header-right{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:3px;margin-left:auto}
 .header-action-buttons{display:flex;align-items:center;justify-content:flex-end;gap:5px;white-space:nowrap}
 .header-action-buttons .btn{background:#fff;color:#0672e8;border-color:#c8d8ea}
@@ -504,8 +458,6 @@ body.locked>#siteHome{pointer-events:none}
   .mobile-basic-actions{display:flex!important;flex-wrap:wrap;justify-content:flex-start;width:100%}
 }
 
-
-/* 공용저장소 상태 박스: 좌측 연결상태 + 우측 작업버튼 */
 .drive-action-row{display:flex!important;align-items:center!important;gap:7px!important;width:100%!important}
 .drive-action-row .header-action-buttons{margin-left:auto!important;display:flex!important;align-items:center!important;gap:5px!important;white-space:nowrap!important}
 .drive-action-row .header-action-buttons .btn{background:#fff;color:#0672e8;border-color:#c8d8ea}
@@ -513,9 +465,6 @@ body.locked>#siteHome{pointer-events:none}
   .drive-action-row .header-action-buttons{display:none!important}
 }
 
-
-/* 작업구역-작업내용 매칭 복구
-   각 구역의 작업내용은 반드시 같은 .area 안의 오른쪽 열에 유지 */
 @media(min-width:851px){
   .area-layout{
     display:grid!important;
@@ -565,8 +514,6 @@ body.locked>#siteHome{pointer-events:none}
   }
 }
 
-
-/* ===== 금일 작업 내용: PC 매칭 최종 보정 ===== */
 @media (min-width:851px){
   #areas .area{
     display:block!important;
@@ -641,10 +588,7 @@ body.locked>#siteHome{pointer-events:none}
     box-sizing:border-box!important;
   }
 }
-/* 모바일은 이번 PC 매칭 변경에서 제외 */
 
-
-/* ===== 금일 작업내용 PC: 구역 compact + 작업내용 남은 폭 ===== */
 @media (min-width:851px){
   #areas .area .area-layout{
     display:grid!important;
@@ -695,15 +639,13 @@ body.locked>#siteHome{pointer-events:none}
   }
 }
 
-
-/* 업체 제목 바로 옆 총 투입인원 */
 .card .title:has(#grandTotal){justify-content:flex-start!important}
 .card .title:has(#grandTotal) .total-inline{
   margin-left:7px!important;
   margin-right:0!important;
   flex:0 0 auto!important;
 }
-/* 보고서 저장 버튼 강조 */
+
 .header-action-buttons button[onclick="saveReport()"],
 .mobile-basic-actions button[onclick="saveReport()"]{
   background:#f28c18!important;
@@ -718,8 +660,6 @@ body.locked>#siteHome{pointer-events:none}
   color:#fff!important;
 }
 
-
-/* 업체 입력 제목줄: 총 투입인원을 제목 바로 옆, 제목과 비슷한 글자 크기로 */
 .card .title:has(#grandTotal){
   display:flex!important;
   align-items:center!important;
@@ -751,8 +691,6 @@ body.locked>#siteHome{pointer-events:none}
   margin-left:auto!important;
 }
 
-
-/* 업체 입력의 관리자/기계공/배관공/용접공 등 직종명: 기존보다 1px 크게 */
 .jobs-grid label,
 .job label,
 .job-name,
@@ -760,8 +698,6 @@ body.locked>#siteHome{pointer-events:none}
   font-size:calc(1em + 1px)!important;
 }
 
-
-/* 작업일 입력: 보고서 저장 버튼과 같은 강조 스타일 */
 #date{
   background:#f28c18!important;
   border-color:#f28c18!important;
@@ -779,8 +715,6 @@ body.locked>#siteHome{pointer-events:none}
   cursor:pointer;
 }
 
-
-/* 작업일 전날/다음날 이동 */
 .date-nav{
   display:grid!important;
   grid-template-columns:auto minmax(0,1fr) auto!important;
@@ -802,11 +736,8 @@ body.locked>#siteHome{pointer-events:none}
   .date-nav-btn{height:38px!important;min-width:32px!important}
 }
 
-/* 보고서 저장 글씨 +1px */
 .header-action-buttons button[onclick="saveReport()"],.mobile-basic-actions button[onclick="saveReport()"]{font-size:11.4px!important}
 
-
-/* 기본정보 제목 오른쪽 전일자료 복사 */
 .basic-info-card>.title>.copy-yesterday-btn{
   margin-left:auto!important;
   background:#0878f9!important;
@@ -815,8 +746,6 @@ body.locked>#siteHome{pointer-events:none}
   font-weight:700!important;
 }
 
-
-/* 금일 작업내용: 넓은 창에서도 작업내용 글씨가 충분히 보이도록 원래형 반응 배치 */
 @media(min-width:851px){
  #areas .area .area-layout{display:grid!important;grid-template-columns:minmax(230px,32%) minmax(360px,1fr)!important;gap:8px!important;align-items:start!important;width:100%!important}
  #areas .area .area-meta{grid-column:1!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:auto auto!important;gap:4px!important}
@@ -828,14 +757,10 @@ body.locked>#siteHome{pointer-events:none}
 @media(min-width:851px) and (max-width:1150px){
  #areas .area .area-layout{grid-template-columns:minmax(210px,36%) minmax(300px,1fr)!important}
 }
-/* 숨김 담당자: 이름·직책·연락처 회색 + 숨김 버튼 중회색 */
+
 #managers tr.manager-hidden td:nth-child(-n+3) input{background:#e2e5e9!important;color:#6b7280!important;border-color:#c4c9cf!important}
 #managers .manager-hidden-btn{background:#777f89!important;border-color:#777f89!important;color:#fff!important;font-weight:700!important}
 
-
-/* 금일 작업 내용 최종 배치
-   1행: WWT + 위치 + 삭제
-   2행: 작업내용 */
 #areas .area .area-layout{
   display:block!important;
   width:100%!important;
@@ -893,8 +818,6 @@ body.locked>#siteHome{pointer-events:none}
   #areas .area .area-tasks{margin-top:5px!important}
 }
 
-
-/* 작업일 날짜는 YYYY-MM-DD 전체가 항상 보이도록 최소 폭 확보 */
 .basic-date .date-nav{
   display:grid!important;
   grid-template-columns:auto minmax(132px,1fr) auto!important;
@@ -923,8 +846,6 @@ body.locked>#siteHome{pointer-events:none}
   }
 }
 
-
-/* 작업일 조회 버튼: 하늘색 */
 .date-query-btn{
   background:#d9f0ff!important;
   border-color:#8fcdf5!important;
@@ -935,8 +856,6 @@ body.locked>#siteHome{pointer-events:none}
   background:#c7e9ff!important;
 }
 
-
-/* 업체 인원소계 0명: 담당자 숨김처럼 회색, 인원 입력 시 자동 원복 */
 #companies .company.company-zero{
   background:#eef0f2!important;
   border-color:#c9ced4!important;
@@ -952,21 +871,17 @@ body.locked>#siteHome{pointer-events:none}
   color:#6b7280!important;
 }
 
-
-/* 날짜 버튼 겹침 방지 */
 .basic-date .date-with-query{display:grid!important;grid-template-columns:minmax(200px,1fr) auto!important;gap:5px!important;align-items:center!important;width:100%!important;min-width:250px!important}
 .basic-date .date-nav{display:grid!important;grid-template-columns:28px minmax(132px,1fr) 28px!important;gap:4px!important;align-items:center!important;width:100%!important;min-width:200px!important}
 .basic-date .date-nav #date{width:100%!important;min-width:132px!important;box-sizing:border-box!important}
 .basic-date .date-nav-btn{width:28px!important;min-width:28px!important;padding:2px!important}
 .basic-date .date-query-btn{position:static!important;min-width:38px!important;white-space:nowrap!important;margin:0!important}
 @media(max-width:850px){.basic-date .date-nav{grid-template-columns:30px minmax(132px,1fr) 30px!important}}
-/* 작업내용 없는 구역 회색 */
+
 #areas .area.area-empty{background:#eef0f2!important;border-color:#c9ced4!important}
 #areas .area.area-empty .area-name-input,#areas .area.area-empty .area-location-input,#areas .area.area-empty .subtask input{background:#e2e5e9!important;color:#6b7280!important;border-color:#c4c9cf!important}
 #areas .area.area-empty .subtask>span{color:#6b7280!important}
 
-
-/* 기본정보 작업일 영역 폭 확보 + 날짜 버튼 반응형 최종 */
 @media(min-width:851px){
   .basic-info-grid{
     grid-template-columns:minmax(105px,.85fr) minmax(105px,.85fr) minmax(245px,1.55fr)!important;
@@ -1055,8 +970,6 @@ body.locked>#siteHome{pointer-events:none}
   .basic-date .date-query-btn{width:36px!important;min-width:36px!important;font-size:10px!important}
 }
 
-
-/* 창이 줄어도 조회 버튼이 가려지지 않도록 기본정보 카드 내부에서 유지 */
 .basic-info-card{min-width:0!important;overflow:visible!important}
 .basic-info-grid{min-width:0!important}
 .basic-date{min-width:0!important;overflow:visible!important}
@@ -1092,15 +1005,12 @@ body.locked>#siteHome{pointer-events:none}
   .basic-date .date-with-query{min-width:220px!important}
 }
 
-/* 금일 작업내용 +/- : 버튼 크기는 유지하고 글자만 더 크게 */
 #areas .area-tasks .subtask .btn{
   font-size:14px!important;
   font-weight:800!important;
   line-height:1!important;
 }
 
-
-/* ===== 모바일 전용: 직종 X / 0명 회색 / 고정 퀵바 ===== */
 .mobile-quickbar{display:none}
 @media(max-width:850px){
   /* 직종 숨김 X는 직종명 앞쪽 */
@@ -1169,14 +1079,11 @@ body.locked>#siteHome{pointer-events:none}
   }
 }
 
-
 @media(max-width:850px){
  #companies .job-item.mobile-job-zero{color:#7a8189!important}
  #companies .job-item.mobile-job-zero .counter input{background:#e2e5e9!important;color:#6b7280!important;border-color:#c4c9cf!important}
 }
 
-
-/* PC + 모바일 공통: 인원 0명인 개별 직종 회색, 1명 이상이면 자동 원복 */
 #companies .job-item.mobile-job-zero{
   color:#7a8189!important;
 }
@@ -1189,7 +1096,6 @@ body.locked>#siteHome{pointer-events:none}
   border-color:#c4c9cf!important;
 }
 
-/* PC + 모바일 공통: 담당자 표시/숨김 버튼을 담당자명 앞쪽에 배치 */
 #managers .manager-visibility-cell{
   width:1%!important;
   white-space:nowrap!important;
@@ -1199,7 +1105,6 @@ body.locked>#siteHome{pointer-events:none}
   white-space:nowrap!important;
 }
 
-
 #managers tr.manager-hidden td:nth-child(2) input,
 #managers tr.manager-hidden td:nth-child(3) input,
 #managers tr.manager-hidden td:nth-child(4) input{
@@ -1208,8 +1113,6 @@ body.locked>#siteHome{pointer-events:none}
   border-color:#c4c9cf!important;
 }
 
-
-/* 모바일 전용: 장비 표 제목과 입력칸 정렬 */
 @media(max-width:850px){
   #equipments{display:table-row-group!important}
   #equipments tr,
@@ -1257,14 +1160,12 @@ body.locked>#siteHome{pointer-events:none}
   #equipments td:nth-child(4) .btn{width:100%!important;min-width:0!important;padding-left:4px!important;padding-right:4px!important}
 }
 
-
-/* 모바일 장비 선택: datalist 대신 터치 선택 가능한 select 사용 / PC는 기존 입력 유지 */
 .equip-mobile-select{display:none}
 @media(max-width:850px){
   #equipments .equip-name-input{display:none!important}
   #equipments .equip-mobile-select{display:block!important;width:100%!important;min-width:0!important;height:38px!important;padding:6px 24px 6px 7px!important;border:1px solid #cbd9e8!important;border-radius:7px!important;background:#fff!important;color:#13233a!important;font-size:14px!important}
 }
-/* 모바일 장비 최종 정렬 수정: 3열 유지 + 선택 가능 */
+
 @media(max-width:850px){
   #equipments::before{content:none!important;display:none!important}
   #equipments{display:table-row-group!important;width:auto!important;border-spacing:0!important}
@@ -1290,8 +1191,6 @@ body.locked>#siteHome{pointer-events:none}
   #equipments td:nth-child(4) .btn{width:100%!important;min-width:0!important;padding:6px 2px!important;font-size:11px!important}
 }
 
-
-/* 담당자 표 최종 보정: 표시/숨김 칸 축소 + 삭제 칸 확보 */
 @media(min-width:851px){
   .manager-table{
     width:100%!important;
@@ -1338,8 +1237,6 @@ body.locked>#siteHome{pointer-events:none}
   }
 }
 
-
-/* ===== 현장 선택 홈 ===== */
 #siteHome{display:none;min-height:100vh;background:linear-gradient(180deg,#f9fcff 0%,#eef8ff 48%,#bfe7ff 100%);position:relative;overflow:hidden;padding:5vh 5vw 8vh}
 #siteHome::before,#siteHome::after{content:"";position:absolute;left:-8%;width:116%;height:230px;border-radius:50%;border:3px solid rgba(71,174,238,.22);transform:rotate(-3deg);pointer-events:none}
 #siteHome::before{top:37%;background:rgba(185,228,255,.22)}#siteHome::after{top:43%;background:rgba(98,196,255,.13);transform:rotate(3deg)}
@@ -1351,8 +1248,6 @@ body.locked>#siteHome{pointer-events:none}
 body.site-home-mode>header,body.site-home-mode>.app,body.site-home-mode>#mobileOverlay,body.site-home-mode>#mobileDrawer,body.site-home-mode>.mobile-quickbar{display:none!important}body.site-home-mode>#siteHome{display:block!important}
 @media(max-width:850px){#siteHome{padding:24px 14px 45px}.site-brand{margin:10px auto 50px}.site-drop{width:45px;height:57px;border-width:7px}.site-brand-name{font-size:22px}.site-select-title{margin:-28px 0 25px}.site-select-title strong{font-size:24px}.site-cards{grid-template-columns:1fr;gap:10px}.site-card{height:86px}.site-add{margin-top:10px;width:100%}}
 
-
-/* ===== 현장 선택 홈 최종: 로고/WORK DAILY REPORT 제거 ===== */
 #siteHome{
   padding:8vh 5vw 8vh!important;
   background:linear-gradient(180deg,#f9fcff 0%,#eef8ff 45%,#c9ebff 100%)!important;
@@ -1382,7 +1277,6 @@ body.site-home-mode>header,body.site-home-mode>.app,body.site-home-mode>#mobileO
   .site-select-title-simple strong{font-size:27px!important}
 }
 
-/* ===== 왼쪽 현장 트리 ===== */
 .project-tree-wrap{
   margin-top:8px;
   padding-top:8px;
@@ -1426,7 +1320,6 @@ body.site-home-mode>header,body.site-home-mode>.app,body.site-home-mode>#mobileO
 }
 .app.sidebar-collapsed .project-tree-wrap{display:none!important}
 
-/* 모바일 트리 */
 .mobile-project-tree{
   margin-top:8px;
   padding-top:8px;
@@ -1444,13 +1337,10 @@ body.site-home-mode>header,body.site-home-mode>.app,body.site-home-mode>#mobileO
   padding:10px!important;
 }
 
-
 .project-accent{display:inline-block;margin-left:6px;color:#f28b16;font-weight:900;font-size:calc(1em + 2px);letter-spacing:-.2px}
 .project-tree-node.current>.project-tree-head .nav-label{color:#ff9b1f!important;font-size:16px!important;font-weight:900!important}
 .project-tree-node.current>.project-tree-head .tree-caret{color:#ffb357!important}
 
-
-/* 현재 선택 현장 강조: 헤더 + 왼쪽 트리 */
 #projectAccent.project-accent{
   display:inline-block!important;
   margin-left:5px!important;
@@ -1472,8 +1362,6 @@ body.site-home-mode>header,body.site-home-mode>.app,body.site-home-mode>#mobileO
   font-size:16px!important;
 }
 
-
-/* ===== 보고서 마감 잠금 ===== */
 .report-close-btn{
   border:1px solid #8fbff5;background:#fff;color:#0672e8;
   border-radius:5px;padding:3px 7px;font-size:11px;font-weight:800;
@@ -1501,8 +1389,6 @@ body.report-is-closed #writePage textarea:disabled{
   .report-close-btn{padding:4px 6px;font-size:10.5px;margin-right:4px}
 }
 
-
-/* 기본정보 제목줄: 마감 상태 + 마감 버튼 */
 .basic-close-wrap{
   display:inline-flex;
   align-items:center;
@@ -1520,9 +1406,6 @@ body.report-is-closed #writePage textarea:disabled{
   .basic-close-status{font-size:10.5px}
 }
 
-
-
-/* ===== 2026-10-06 주간 / 연장 (index6 기준, 기존 UI 유지) ===== */
 .work-mode-tabs-inline{display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap;white-space:normal}
 .work-mode-btn,.overtime-add-btn{
   border:1px solid #8fbff5;background:#fff;color:#0672e8;border-radius:5px;
@@ -1549,14 +1432,10 @@ body.report-is-closed #writePage textarea:disabled{
   .result-table{min-width:1080px}
 }
 
-
-
-/* 중식OT는 연장 목록 바로 뒤에 배치하되 별도의 보고서로 구분합니다. */
 #workModeTabs .lunch-mode-btn{background:#fff9df!important;border-color:#e2c875!important;color:#6e5310!important}
 #workModeTabs .lunch-mode-btn.active{background:#ffe39a!important;border-color:#d3ac43!important;color:#6a4100!important}
 #writePage .lunch-managers-notice{font-size:11px;font-weight:600;color:#85610b;background:#fff8dd;border:1px solid #e8d99a;border-radius:5px;padding:3px 7px;margin-left:6px}
 
-/* ===== 로컬 폴더 백업 ===== */
 .local-backup-btn{white-space:nowrap!important}
 .local-backup-modal{display:none;position:fixed;inset:0;z-index:120000;background:rgba(13,31,52,.42);align-items:center;justify-content:center;padding:16px}
 .local-backup-modal.open{display:flex}
@@ -1572,8 +1451,6 @@ body.report-is-closed #writePage textarea:disabled{
 .local-backup-status{font-size:12px;font-weight:700;color:#075f9c;margin-top:9px;min-height:18px}
 @media(max-width:850px){.local-backup-box{padding:13px}.local-backup-actions .btn{flex:1 1 auto}}
 
-
-/* ===== 기기등록 / 관리자 보안 ===== */
 .device-gate-help{font-size:12px!important;line-height:1.55!important;margin:0 0 12px!important;color:#66788c!important}
 .device-gate-row{display:flex;gap:7px;align-items:center;margin-top:7px}.device-gate-row>*{min-width:0}.device-gate-row input{margin-bottom:0!important}.device-gate-row .btn{flex:0 0 auto}
 .device-gate-divider{height:1px;background:#e3ebf4;margin:13px 0}
@@ -1587,8 +1464,6 @@ body.report-is-closed #writePage textarea:disabled{
 .project-access-picker{display:grid;gap:6px;padding:9px;border:1px solid #dbe6f2;border-radius:8px;background:#f8fbff;margin:7px 0 10px}.project-permission-row{display:grid;grid-template-columns:minmax(100px,1fr) 86px 86px;gap:8px;align-items:center;padding:5px 7px;border:1px solid #e3ebf4;border-radius:7px;background:#fff}.project-permission-row.header{font-size:11px;font-weight:800;color:#5c7087;background:#eef5fb}.project-permission-row>span:first-child{font-weight:800;color:#12365f}.project-permission-row label{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-size:11px;font-weight:700;white-space:nowrap}.project-permission-row input{width:auto!important;margin:0!important}.device-project-editor{display:grid;gap:5px;min-width:285px}.device-project-editor .project-permission-row{grid-template-columns:minmax(86px,1fr) 72px 72px;padding:4px 5px}.device-project-editor input{width:auto!important}.readonly-badge{display:none;background:#fff2cc;border:1px solid #e6c65c;color:#795b00;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:800}.readonly-badge.visible{display:inline-block}.read-only-user:not(.site-master-readonly) #masterPage{display:none!important}
 @media(max-width:850px){.device-gate-row{align-items:stretch;flex-direction:column}.security-grid{grid-template-columns:1fr}.device-admin-list{font-size:11px}.device-project-editor{min-width:220px}}
 
-
-/* Slack/작업일보 미리보기 형식 탭 — PC·모바일 공통 */
 .preview-tabs{display:inline-flex;align-items:center;gap:3px;margin-left:4px;border-radius:6px;background:#eef4fa;padding:3px}
 .preview-tab{cursor:pointer;border:0;border-radius:5px;padding:5px 9px;color:#496279;background:transparent;font-size:12px;font-weight:700}
 .preview-tab.active{background:#0878f9;color:#fff}
@@ -1596,7 +1471,6 @@ body.report-is-closed #writePage textarea:disabled{
 @media(max-width:850px){.preview-title-row{flex-wrap:wrap!important}.preview-tabs{order:2}.preview-copy-btn{order:3}.preview-toggle{order:4}.preview-tab{font-size:12px;padding:7px 10px}}
 @media(min-width:851px){#writePage>.grid.preview-collapsed #slackPreview,#writePage>.grid.preview-collapsed .preview-tabs{display:none!important}}
 
-/* 2026-10-08: 구역 / 위치 / 자유 비고를 한 줄로 유지 (PC+모바일) */
 #areas .area .area-meta{display:grid!important;grid-template-columns:minmax(75px,1fr) minmax(105px,1.45fr) minmax(90px,1fr) auto!important;grid-template-rows:auto!important;gap:5px!important;align-items:center!important}
 #areas .area .area-name-input{grid-column:1!important;grid-row:1!important}
 #areas .area .area-location-input{grid-column:2!important;grid-row:1!important}
@@ -1605,14 +1479,12 @@ body.report-is-closed #writePage textarea:disabled{
 @media(max-width:850px){#areas .area .area-meta{grid-template-columns:minmax(66px,1fr) minmax(90px,1.4fr) minmax(72px,1fr) 38px!important;gap:3px!important}#areas .area .area-note-input{font-size:13px;padding:7px 4px!important}#areas .area .area-delete-btn{width:38px!important;min-width:38px!important;padding:5px 2px!important}}
 @media(max-width:400px){#areas .area .area-meta{grid-template-columns:minmax(63px,1fr) minmax(80px,1.2fr) minmax(64px,.9fr) 36px!important}#areas .area .area-delete-btn{width:36px!important;min-width:36px!important}}
 
-/* Slack 형식: 원본 줄 간격과 들여쓰기, PC/모바일 동일 */
 #slackPreview .slack-preview-line{display:block;white-space:pre-wrap;min-height:1.28em;margin:0;padding:0;line-height:1.28}
 #slackPreview{line-height:1.28!important;white-space:pre-wrap!important;font-size:14px!important;font-family:Arial,'Noto Sans KR',sans-serif!important}
 .slack-extra-fields{grid-template-columns:1fr;gap:5px;margin:5px 0;font-size:11px;font-weight:700}
 .slack-extra-fields label{display:flex;align-items:center;gap:6px}
 .slack-extra-fields input{flex:1;min-width:0;padding:5px;border:1px solid #cbd9e8;border-radius:5px;font-size:12px;font-weight:400}
 
-/* 2026-10-08: Slack 표시만 보정 — 고정 작업시간 / 체크 이미지 / 위험·특이사항 빨간색 */
 #slackFields label {color:#d32222!important;}
 #slackFields label:has(#slackRiskInput) {color:#13233a!important;}
 #slackFields input {color:#d32222!important;}
@@ -1621,21 +1493,18 @@ body.report-is-closed #writePage textarea:disabled{
 #slackPreview .slack-check-text {font-size:14px;vertical-align:baseline;user-select:text;-webkit-user-select:text;}
 #start:read-only,#end:read-only{cursor:default;}
 
-/* 미리보기의 복사 버튼을 접기/펼치기 화살표 바로 왼쪽에 고정 */
 .preview-title-row .preview-copy-btn{margin-left:auto!important;flex:0 0 auto!important;order:3!important}
 .preview-title-row .preview-toggle{margin-left:0!important;flex:0 0 auto!important;order:4!important}
 .preview-title-row .preview-title-text{order:1!important}
 .preview-title-row .preview-tabs{order:2!important}
 @media(max-width:850px){.preview-title-row .preview-copy-btn{margin-left:auto!important}}
 
-/* 2026-10-08 명일작업 및 출근관리: PC/모바일 공통 */
 #tomorrowAreas .area{margin:6px 0}
 .manager-table .manager-attendance-col{width:48px!important}
 #managers td.manager-attendance-cell{width:48px!important;min-width:48px!important;text-align:center!important}
 .manager-attendance-cell input{width:18px!important;height:18px!important;cursor:pointer;accent-color:#0878f9}
 @media(max-width:850px){.manager-table{min-width:565px!important}.manager-table .manager-attendance-col{width:48px!important}}
 
-/* 명일 작업도 금일 작업과 동일한 구역/위치/비고 구조 */
 #tomorrowAreas .area .area-layout{display:block!important;width:100%!important}
 #tomorrowAreas .area .area-meta{display:grid!important;grid-template-columns:minmax(90px,.85fr) minmax(145px,1.45fr) minmax(90px,1fr) auto!important;gap:5px!important;align-items:center!important;width:100%!important}
 #tomorrowAreas .area .area-name-input,#tomorrowAreas .area .area-location-input,#tomorrowAreas .area .area-note-input{grid-row:1!important;min-width:0!important;width:100%!important;box-sizing:border-box!important}
@@ -1648,7 +1517,6 @@ body.report-is-closed #writePage textarea:disabled{
 #tomorrowAreas .area .area-tasks .subtask input{width:100%!important;min-width:0!important}
 @media(max-width:600px){#tomorrowAreas .area .area-meta{grid-template-columns:minmax(80px,.85fr) minmax(100px,1.2fr) auto!important}#tomorrowAreas .area .area-note-input{grid-column:1 / span 2!important;grid-row:2!important}#tomorrowAreas .area .area-delete-btn{grid-column:3!important;grid-row:1!important}}
 
-/* 공사일보 엑셀: 앱 안의 시트별 미리보기 / 저장 / 인쇄 */
 #excelPage{width:100%;min-width:0}
 .excel-view-header{margin-bottom:0!important;border-radius:10px 10px 0 0!important}
 .excel-preview-date{font-size:13px;color:#35618b;font-weight:700;margin-left:auto}
@@ -1679,14 +1547,11 @@ body.report-is-closed #writePage textarea:disabled{
  .excel-real-sheet td{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
 }
 
-
-/* 공사일보 Remark(비고) 열: 미리보기에서 직접 편집. 원본 엑셀 서식 유지. */
 #excelPage .excel-fixed-cell.excel-remark-editable{cursor:text;user-select:text;overflow:auto;outline-offset:-2px;white-space:pre-wrap}
 #excelPage .excel-fixed-cell.excel-remark-editable:hover{outline:1px dashed #82aee0;outline-offset:-2px}
 #excelPage .excel-fixed-cell.excel-remark-editable:focus{outline:2px solid #0878f9;outline-offset:-2px;z-index:6;background-color:#fff8e9!important}
 @media print{#excelPage .excel-fixed-cell.excel-remark-editable,#excelPage .excel-fixed-cell.excel-remark-editable:focus{outline:0!important;overflow:hidden}}
 
-/* 엑셀 사진대지 미리보기 - 원본 크기 그대로. 브라우저 표 자동 확대/축소 방지 */
 .excel-sheet-preview{display:block!important;width:max-content!important;padding:16px!important;max-width:none!important;margin:0 auto!important}
 .excel-fixed-sheet{display:block;position:relative;overflow:hidden;background:#fff;font:10pt '맑은 고딕',Arial,sans-serif;box-sizing:content-box;flex:none}
 .excel-fixed-cell{position:absolute;box-sizing:border-box;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;word-break:keep-all;padding:2px 3px;display:flex;align-items:center;line-height:1.2;z-index:1}
@@ -1705,7 +1570,6 @@ body.report-is-closed #writePage textarea:disabled{
  .excel-fixed-cell{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
 }
 
-/* 2026-10-08 공사일보 시트 디자인·화면 확대: 원본 행열값을 보존 */
 #excelPage{display:none;width:100%;height:calc(100vh - 61px);min-height:480px;flex-direction:column;overflow:hidden}
 #excelPage.active{display:flex!important}
 #excelPage .excel-view-header{display:grid;grid-template-columns:minmax(180px,auto) minmax(0,1fr);align-items:center;gap:2px 12px;flex:0 0 auto;padding:7px 10px!important;margin:0!important;border-radius:7px 7px 0 0!important;box-shadow:none!important}
@@ -1738,7 +1602,6 @@ body.report-is-closed #writePage textarea:disabled{
  #excelPage .excel-sheet-preview{padding:0!important;margin:0!important}
 }
 
-/* 공사일보 엑셀: 주황색 날짜 조회는 미리보기 버튼 바로 왼쪽에 표시합니다. */
 #excelPage .excel-date-nav{display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;margin-right:4px;white-space:nowrap}
 #excelPage .excel-date-nav .excel-day-arrow,#excelPage .excel-date-nav input[type="date"]{height:29px!important;border:1px solid #eb850e!important;border-radius:5px!important;background:#f28c18!important;color:#fff!important;font-weight:800!important;box-sizing:border-box}
 #excelPage .excel-date-nav .excel-day-arrow{min-width:28px;padding:0 6px!important;cursor:pointer;font-size:11px}
@@ -1747,7 +1610,6 @@ body.report-is-closed #writePage textarea:disabled{
 #excelPage .excel-date-nav .excel-day-arrow:hover{background:#da790b!important}
 @media(max-width:850px){#excelPage .excel-date-nav input[type="date"]{width:139px!important;max-width:139px!important}#excelPage .excel-date-nav .excel-day-arrow{min-width:27px}#excelPage .excel-preview-toolbar{row-gap:6px!important}}
 
-/* 미리보기 전용: 인쇄용 원본 xlsx의 테두리/행높이/열너비는 일절 변경하지 않는다. */
 #excelPage .excel-zoom-controls{display:inline-flex;gap:2px;align-items:center;white-space:nowrap;border:1px solid #cbd9e9;border-radius:5px;padding:2px}
 #excelPage .excel-zoom-controls .btn{min-width:27px!important;font-size:13px!important;font-weight:800!important;padding:3px 5px!important}
 #excelPage .excel-zoom-controls .excel-zoom-percent{font-size:10px!important;min-width:44px!important;font-weight:600!important}
@@ -1758,7 +1620,6 @@ body.report-is-closed #writePage textarea:disabled{
 @media(max-width:850px){#excelPage .excel-zoom-controls .btn{min-width:29px!important}}
 @media print{#excelPage .excel-preview-border-overlay line{stroke:#59636e!important;stroke-width:1.6!important}}
 
-/* PC/모바일 공통: 데이터 현황 메뉴. 다른 작성 화면 스타일은 변경하지 않는다. */
 #dataPage{width:100%;max-width:100%;padding-bottom:12px}
 #dataPage .data-overview-head{padding:15px 17px!important}
 #dataPage .data-headline{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
@@ -1787,7 +1648,6 @@ body.report-is-closed #writePage textarea:disabled{
 #dataPage .data-empty-info{font-size:12px;color:#63748b;padding:12px 0 0;line-height:1.6}
 @media(max-width:850px){#dataPage .data-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}#dataPage .data-overview-head,#dataPage .data-table-card{padding:12px!important}#dataPage .data-kpi{padding:10px}#dataPage .data-tabs button{font-size:12px;padding:9px 10px}#dataPage .data-table-scroll{width:100%;overflow:auto}}
 
-
 #dataPage .data-tabs{display:none!important}
 #dataPage .data-table-card{display:none!important}
 #dataPage .data-dashboard{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:0 0 12px;width:100%}
@@ -1813,7 +1673,6 @@ body.report-is-closed #writePage textarea:disabled{
 @media (max-width:1200px){#dataPage .data-dashboard{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media (max-width:850px){#dataPage .data-dashboard{grid-template-columns:1fr;gap:8px}#dataPage .data-board-card .data-table-scroll{max-height:none}}
 
-/* 공사내용 Item: 날짜별 금일 실행 입력, 공사일보 미리보기와 같은 값 사용 */
 #excelPage .excel-preview-workspace{display:grid;grid-template-columns:292px minmax(0,1fr);min-height:0;flex:1 1 auto;overflow:hidden}
 #excelPage .excel-progress-panel{background:#fff;border:1px solid #d8e1eb;border-top:0;border-right:0;min-height:0;overflow-y:auto;padding:9px 8px}
 #excelPage .excel-preview-workspace>.excel-preview-shell{width:100%;margin:0!important;min-width:0}
@@ -1824,8 +1683,7 @@ body.report-is-closed #writePage textarea:disabled{
 .progress-editor .progress-row{display:grid;grid-template-columns:minmax(0,1fr) 72px;gap:5px;align-items:center;padding:5px 3px;border-bottom:1px solid #e2eaf4;min-height:37px}
 .progress-editor .progress-row.progress-group{background:#e9f8e7;font-weight:800;margin-top:7px;padding:7px 5px}
 .progress-editor .progress-row.progress-total{background:#fff2bc;font-weight:800;margin-top:7px;padding:7px 5px}
-/* 공사내용 Item: 업체별 인원과 동일하게 0은 회색, 입력값은 선명하게 구분합니다.
-   0인 항목도 계속 입력할 수 있으며 소계/Total 배경색은 유지합니다. */
+
 .progress-editor .progress-row:not(.progress-group):not(.progress-total){
   border:1px solid #dbe6f2;border-radius:6px;margin:4px 0;
   padding:5px 6px;transition:background-color .12s ease,border-color .12s ease;
@@ -1872,7 +1730,6 @@ body.report-is-closed #writePage textarea:disabled{
 #excelPage .excel-preview-workspace.photo-only{grid-template-columns:minmax(0,1fr)}
 @media(max-width:850px){#excelPage .excel-preview-workspace.photo-only{grid-template-rows:minmax(280px,1fr)}}
 
-/* 데이터: 일·주·월·년·사용자 지정기간과 전기 누계·기간 실적·누계 */
 #dataPage .data-range-controls select{border:1px solid #c6d7ea;border-radius:5px;padding:6px 8px;background:#fff;color:#12233d;font-size:13px;max-width:145px}
 #dataPage .data-custom-dates{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 #dataPage .data-custom-dates input{max-width:145px}
@@ -1886,7 +1743,6 @@ body.report-is-closed #writePage textarea:disabled{
 #dataPage .data-progress-summary td:nth-last-child(-n+3){text-align:right;font-variant-numeric:tabular-nums}
 @media(max-width:850px){#dataPage .data-range-controls{width:100%;justify-content:flex-start}#dataPage .data-range-controls select{max-width:132px}#dataPage .data-custom-dates input{max-width:136px}}
 
-/* 2026-10-08: 데이터 메뉴 날짜·탭 한 화면 배치 / 작성 담당자 표 제목 변경 */
 #dataPage .data-head-actions.data-range-controls{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0}
 #dataPage .data-period-picker{position:relative;flex:0 1 auto;min-width:145px;max-width:240px;height:33px;border-radius:6px;background:#f28c18;border:1px solid #e27b0b;display:flex;align-items:center;justify-content:center;overflow:hidden;box-sizing:border-box}
 #dataPage .data-period-picker #dataRangeBadge{color:#fff;font-size:12px;line-height:1.2;font-weight:800;white-space:nowrap;text-align:center;padding:0 9px;pointer-events:none;font-variant-numeric:tabular-nums}
@@ -1909,7 +1765,6 @@ body.report-is-closed #writePage textarea:disabled{
  #dataPage .data-tabs button{font-size:9px!important;letter-spacing:-.5px}
 }
 
-/* 2026-10-08: data page one-screen fit, period arrows, SNS header legibility. */
 #writePage .manager-table thead .manager-sns-heading{font-size:14px!important;font-weight:800!important;letter-spacing:.2px!important;text-transform:uppercase}
 #dataPage .data-overview-head{padding:8px 10px!important;margin-bottom:5px!important}
 #dataPage .data-table-card{padding:9px 10px!important;margin-bottom:6px!important}
@@ -1966,7 +1821,6 @@ body.report-is-closed #writePage textarea:disabled{
  #dataPage .data-overview-table th,#dataPage .data-overview-table td{font-size:9px!important;padding:5px 1px!important}
 }
 
-/* 데이터 강제이월: 숫자·테이블 1pt 확대, 화면 너비를 유지합니다. */
 #dataPage .data-headline .title{font-size:calc(18px + 1pt)!important}
 #dataPage .data-project-name,#dataPage .data-subtitle,#dataPage .data-head-actions label{font-size:calc(12px + 1pt)!important}
 #dataPage .data-kpi small,#dataPage .data-card-foot,#dataPage .data-empty-info{font-size:calc(11px + 1pt)!important}
@@ -2002,13 +1856,10 @@ body.report-is-closed #writePage textarea:disabled{
 .force-carry-dialog-actions{display:flex;gap:8px;justify-content:flex-end}
 @media(max-width:850px){#dataPage .data-board-card th,#dataPage .data-board-card td{font-size:calc(10px + 1pt)!important;padding:6px 3px!important}#dataPage .force-carry-input{max-width:58px;padding:4px 0}#dataPage .data-force-bar{justify-content:flex-start}}
 
-/* 강제이월 중 미사용 0 장비 항목 정리 버튼 (마스터에게만 노출) */
 #dataPage .data-board-card .data-card-title{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 #dataPage .data-board-card .data-card-title .data-add-row{margin-left:0}
 #dataPage .data-board-card .data-card-title .data-add-row:first-child{margin-left:auto}
 
-
-/* 2026-10-12 요청: 데이터 강제이월 열/도구는 화면에서만 숨김 (기록 보존) */
 .data-force-bar,.force-carry-toggle,.force-carry-input{display:none!important}
 .data-board-card:not(.progress-card):not(.equipment-card) .data-overview-table tr>th:nth-child(2),
 .data-board-card:not(.progress-card):not(.equipment-card) .data-overview-table tr>td:nth-child(2),
@@ -2023,10 +1874,9 @@ body.report-is-closed #writePage textarea:disabled{
 .progress-row:not(.progress-group){display:grid!important;grid-template-columns:minmax(0,1.4fr) minmax(76px,.55fr) minmax(0,1fr)!important;gap:5px;align-items:center}
 .progress-row .progress-name{min-width:0}
 @media(max-width:540px){.progress-row:not(.progress-group){grid-template-columns:minmax(0,1.3fr) minmax(65px,.6fr) minmax(0,.9fr)!important}.construction-remark-input{font-size:11px}}
-/* 공사일보 직종 이름 줄바꿈 억제 */
+
 .excel-fixed-sheet .excel-fixed-cell{word-break:keep-all}
 
-/* 2026-10-12: 데이터 5개 카드 한 줄, 기존 공사일보 경계 자체로 폭 조절 */
 @media(min-width:1201px){
  #dataPage .data-dashboard{grid-template-columns:repeat(4,minmax(0,0.83fr)) minmax(0,1.55fr)!important;gap:6px!important}
  #dataPage .data-dashboard>.progress-card{grid-column:auto!important;min-width:0!important}
@@ -2045,7 +1895,6 @@ body.report-is-closed #writePage textarea:disabled{
  #excelPage .excel-progress-panel{isolation:isolate}
 }
 
-/* 2026-10-12 공사일보 입력부 간격 조정: 기존 폰트 크기는 변경하지 않음 */
 #excelPage .construction-action-buttons{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:3px!important;margin:4px 0 5px!important;width:100%}
 #excelPage .construction-action-buttons .btn{min-width:0!important;white-space:normal!important;overflow-wrap:keep-all!important;word-break:keep-all!important;line-height:1.3!important;padding:5px 2px!important;min-height:39px!important;font-size:inherit!important}
 #excelPage .progress-editor .progress-editor-head{padding-bottom:4px!important}
@@ -2059,7 +1908,6 @@ body.report-is-closed #writePage textarea:disabled{
  #excelPage .excel-progress-panel.excel-edge-resizing::after{background:rgba(0,120,255,.08)!important}
 }
 
-/* 공사내용 Item: 항목명 전체 표시, 수치 열만 축소 (기존 글씨 크기 유지) */
 @media(min-width:1201px){
  #dataPage .data-board-card.progress-card .data-overview-table{table-layout:fixed!important;width:100%!important}
  #dataPage .data-board-card.progress-card .data-overview-table th:first-child,
@@ -2068,7 +1916,6 @@ body.report-is-closed #writePage textarea:disabled{
  #dataPage .data-board-card.progress-card .data-overview-table td:not(:first-child){width:13%!important;padding-left:1px!important;padding-right:1px!important;white-space:nowrap!important;font-variant-numeric:tabular-nums}
 }
 
-/* 요청한 공사일보 입력 패널 압축 (폰트 크기 유지) */
 #excelPage .progress-editor .progress-row:not(.progress-group):not(.progress-total){
   min-height:0!important;height:29px!important;margin:2px 0!important;padding:2px 5px!important;gap:3px!important;
 }
@@ -2087,7 +1934,6 @@ body.report-is-closed #writePage textarea:disabled{
 #excelZoomPercent{width:51px!important;min-width:51px!important;max-width:51px!important;text-align:center!important;font-weight:700!important;appearance:textfield!important;-moz-appearance:textfield!important;padding:3px 1px!important}
 #excelZoomPercent::-webkit-inner-spin-button,#excelZoomPercent::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 
-/* 날짜 왼쪽 공통 저장 버튼: 공사일보·사진대지 탭 동일 */
 #excelPage .construction-action-buttons{grid-template-columns:repeat(3,minmax(0,1fr))!important}
 #excelPage #excelSharedReportSaveBtn{font-weight:800!important;white-space:nowrap;min-height:29px}
 #excelPage #excelSharedReportSaveBtn:disabled{background:#969fa9!important;border-color:#969fa9!important;color:#fff!important;cursor:not-allowed}
@@ -2095,11 +1941,11 @@ body.report-is-closed #writePage textarea:disabled{
 #excelPage .excel-photo-editor.is-closed .photo-editor-caption{background:#e1e4e8!important;color:#737a84!important;border-color:#c7ccd2!important}
 #excelPage .excel-photo-slot.is-closed,#excelPage .photo-editor-thumb.is-closed{background:#edf0f3!important;cursor:default!important}
 #excelPage .excel-photo-caption[contenteditable="false"]{background:#edf0f3!important;color:#66717b!important}
-/* 엑셀 마감: 같은 상태/회색 스타일을 작업일보와 함께 사용 */
+
 #excelPage #excelReportCloseBtn{font-size:15.75px!important;min-height:34px!important;padding:6px 10px!important;flex:0 0 auto}
 #excelPage .excel-editor-closed .progress-row:not(.progress-group):not(.progress-total){background:#edf0f3!important}
 #excelPage .excel-editor-closed input:disabled,#excelPage .excel-editor-closed textarea:disabled{background:#e1e4e8!important;color:#737a84!important;border-color:#c7ccd2!important}
-/* 2026-10-12: 마감 상태 표시 유지, 마감 버튼만 1.5배 확대 */
+
 #linkedCloseStatus{font-size:11px;font-weight:700;color:#136a43;background:#eaf8f0;padding:5px 7px;border:1px solid #bde6cc;border-radius:5px;white-space:nowrap}
 #linkedCloseStatus.is-closed{color:#535d68;background:#e5e7eb;border-color:#bcc2cb}
 #writePage #basicReportCloseBtn{
@@ -2109,7 +1955,6 @@ body.report-is-closed #writePage textarea:disabled{
 }
 @media(max-width:850px){#linkedCloseStatus{white-space:normal;font-size:11px}}
 
-/* 검색 기간 및 페이지: 원본 레이아웃 보존 */
 .search-period-picks{display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center}
 .search-period-picks .btn.selected{background:#e0efff!important;color:#005fbf!important;border-color:#0878f9!important}
 .search-size-pick{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#12365f}
@@ -2118,13 +1963,11 @@ body.report-is-closed #writePage textarea:disabled{
 .search-pagination .btn{min-width:29px}
 .search-pagination .btn.selected{background:#0878f9!important;border-color:#0878f9!important;color:white!important}
 
-/* 명일 작업 내용 섹션에만 아주 연한 연노랑 색상 적용 (PC/모바일 공통) */
 #writePage .tomorrow-work-card{background:#fffdf0!important;border-color:#ede4ba!important}
 #writePage .tomorrow-work-card #tomorrowAreas .area{background:#fffbed!important;border-color:#ede5c7!important}
 #writePage .tomorrow-work-card #tomorrowAreas .area input,
 #writePage .tomorrow-work-card #tomorrowAreas .area select{background:#fffef8!important;border-color:#d9d5bf!important}
 
-/* 금일·명일 작업내용: 입력 줄 사이 세로 간격만 기존 5px -> 2.5px (50%) */
 #writePage #areas .area .area-tasks .subtask,
 #writePage #tomorrowAreas .area .area-tasks .subtask{
   margin-top:0!important;
@@ -2135,7 +1978,6 @@ body.report-is-closed #writePage textarea:disabled{
   margin-top:2.5px!important;
 }
 
-/* 금일·명일 작업내용 좌우 2열, 기존 입력영역/미리보기/담당자 기능 유지 */
 #writePage .daily-work-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:start;width:100%;min-width:0}
 #writePage .daily-work-columns>.card{min-width:0;margin:0!important}
 #writePage .daily-work-columns .title{gap:4px;flex-wrap:wrap}
@@ -2146,7 +1988,6 @@ body.report-is-closed #writePage textarea:disabled{
   #writePage .daily-work-columns{grid-template-columns:1fr;gap:6px}
 }
 
-/* 작업일보 PC 열 폭 조절: 미리보기 | 기본정보·업체·장비 | 금일·명일·담당자 */
 @media(min-width:1351px){
  #writePage>.grid:not(.preview-collapsed){grid-template-columns:minmax(220px,var(--work-preview-width,28%)) minmax(260px,var(--work-left-width,32%)) minmax(260px,1fr)!important;}
 }
@@ -2165,7 +2006,6 @@ body.report-is-closed #writePage textarea:disabled{
 @media(min-width:851px) and (max-width:1350px){#writePage .work-column-resizer[data-work-edge="second"]{display:none!important;}}
 @media(max-width:850px){#writePage .work-column-resizer{display:none!important;}}
 
-/* 사진대지 원본 이미지 — PC 로컬 폴더만 사용. 설명 텍스트만 공용저장소 연동 */
 #photoLocalControls{display:none;align-items:center;flex-wrap:wrap;gap:6px;padding:9px 12px;background:#f1f8ff;border:1px solid #cfe3fa;border-radius:7px;margin:8px 0;font-size:12px}
 #photoLocalStatus{font-size:12px;font-weight:600;color:#315270;flex-basis:100%}
 .excel-photo-slot{position:absolute;z-index:12;box-sizing:border-box;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;outline:0;border:2px dashed transparent;background:#ffffff05;color:#4b6580}
@@ -2179,7 +2019,6 @@ body.report-is-closed #writePage textarea:disabled{
 #photoLocalFolderLabel{font-size:12px;font-weight:600;color:#34576e;overflow-wrap:anywhere}
 #photoLocalControls .btn{white-space:nowrap}
 
-/* 사진대지: 좌측 별도 편집 패널 / 우측 원본 엑셀 미리보기. 기존 드래그 경계 그대로 사용 */
 #excelPage .excel-progress-panel>[hidden]{display:none!important}
 #excelPage .excel-photo-editor{font-size:12px;color:#17365d}
 #excelPage .photo-editor-title{font-weight:800;padding:5px 2px 8px;font-size:13px}
@@ -2198,22 +2037,21 @@ body.report-is-closed #writePage textarea:disabled{
 #excelPage .photo-editor-caption:disabled{background:#edf0f4;color:#7c8795}
 #excelPage .photo-editor-status{margin-top:8px;color:#61758b;font-size:11px;line-height:1.4}
 @media(max-width:850px){#excelPage .excel-preview-workspace.photo-editor-active{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto minmax(280px,1fr)!important}#excelPage .excel-preview-workspace.photo-editor-active .excel-progress-panel{max-height:340px}}
-/* 사진 번호가 들어 있는 노란색 A/E열은 사진 첨부영역에서 제외합니다. */
+
 #excelPage .excel-photo-slot{pointer-events:auto!important;z-index:15!important;outline:0}
 #excelPage .excel-photo-slot:focus-visible{outline:2px dashed #3687e8;outline-offset:-2px}
-/* 사진대지 설명 1~4: Ctrl+V의 복사 서식이 화면 글꼴을 바꾸지 않도록 고정. */
+
 #excelPage .excel-photo-caption{font-family:'맑은 고딕',Arial,sans-serif!important;line-height:1.2!important}
 #excelPage .excel-photo-caption *{font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;font-style:inherit!important;line-height:inherit!important;color:inherit!important}
 #excelPage .excel-photo-caption[contenteditable="true"]{cursor:text!important;user-select:text!important;outline-offset:-2px;white-space:pre-wrap}
 #excelPage .excel-photo-caption[contenteditable="true"]:focus{outline:2px solid #3687e8!important;background:#fffdea!important;z-index:7!important}
-#appMemoDialog[hidden]{display:none!important}
+
 #appMemoDialog{position:fixed;inset:0;z-index:9999;background:#091d3560;display:flex;align-items:flex-start;justify-content:center;padding:7vh 12px}
 #appMemoPanel{width:min(560px,96vw);background:#fff;border:1px solid #cbd9e8;border-radius:10px;padding:13px;box-shadow:0 14px 45px #0003;color:#18324a}
 #appMemoPanel header{position:static;box-shadow:none!important;display:flex;justify-content:space-between;align-items:center;height:auto;min-height:0;padding:0;background:none;color:#18324a}
 #appMemoBody{box-sizing:border-box;width:100%;min-height:230px;max-height:65vh;resize:vertical;padding:10px;font-size:14px;line-height:1.6;margin-top:10px;border:1px solid #becbda;border-radius:5px}
 .memo-small-btn{padding:4px 8px!important;font-size:11px!important;white-space:nowrap!important}
 
-/* 사진 폴더 안내와 기능은 사진대지 왼쪽 편집 패널 안에만 배치합니다. */
 #excelPage .excel-progress-panel #photoLocalControls{
   margin:0 0 8px!important;padding:7px!important;box-sizing:border-box;
   width:100%;flex-direction:column!important;align-items:stretch!important;
@@ -2227,13 +2065,12 @@ body.report-is-closed #writePage textarea:disabled{
   display:block;width:100%;font-size:11px!important;overflow-wrap:anywhere;flex-basis:auto!important;
 }
 #excelPage .excel-preview-workspace.photo-editor-active+.excel-help{display:none!important}
-/* 사진은 번호 열을 제외한 영역을 빈 공간 없이 채우고 가장자리만 필요한 만큼 자릅니다. */
+
 #excelPage .excel-photo-slot img{object-fit:fill!important;object-position:center!important}
 #excelPage .photo-editor-thumb img{object-fit:fill!important;object-position:center!important}
 #excelPage .excel-photo-slot{cursor:default!important;caret-color:transparent!important;user-select:none!important}
 #excelPage .photo-editor-thumb{cursor:default!important;caret-color:transparent!important;user-select:none!important}
 
-/* 메모장: 상단 작업보고 작성 왼쪽 버튼, 팝업 드래그 이동 및 네 면 크기 조절. 글꼴 크기 기존 고정. */
 header .header-right{flex-direction:row!important;align-items:center!important;justify-content:flex-end!important;gap:9px!important}
 header .header-right .memo-small-btn{flex:0 0 auto!important;margin:0!important}
 #appMemoDialog{display:block!important;padding:0!important;overflow:hidden!important;align-items:initial!important;justify-content:initial!important}
@@ -2246,14 +2083,11 @@ header .header-right .memo-small-btn{flex:0 0 auto!important;margin:0!important}
 #appMemoPanel .app-memo-foot{flex:0 0 auto}
 @media(max-width:600px){#appMemoPanel{left:2vw;top:5vh;min-width:250px;min-height:180px;width:96vw;height:70vh}}
 
-/* 2026-10-12: 미리보기 형식은 Slack → 주간 → 중식OT → 연장, PC/모바일 공통. */
 #writePage .preview-title-row{flex-wrap:wrap!important;column-gap:5px!important;row-gap:4px!important}
 #writePage .preview-tabs{flex-wrap:wrap;min-width:0;gap:2px;margin-left:0}
 #writePage .preview-tab{white-space:nowrap;padding:5px 7px}
 @media(max-width:540px){#writePage .preview-tabs{flex:0 1 auto}#writePage .preview-tab{font-size:12px;padding:6px 7px}}
 
-/* 현장별 단독 접속 관리 (2026-10-14) */
-/* 권한 확인 중에도 현장 화면은 표시하되, 입력/저장은 권한 확정까지 비활성화합니다. */
 #siteAccessHeader{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;white-space:nowrap}
 #siteAccessLabel{font-size:16px;font-weight:900;color:#e9fff0}
 body.site-access-readonly #siteAccessLabel{color:#ff6464}
@@ -2283,7 +2117,7 @@ window.addEventListener('focus',function(){
 });
 </script><script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <style>
-/* 2026-10-13: 기본 정보 버튼의 한 줄 정렬·균일한 규격 (데이터 로직 변경 없음) */
+
 #writePage .basic-info-card>.title.basic-info-headingbar{
   display:grid!important;
   grid-template-columns:minmax(0,1fr) auto!important;
@@ -2327,7 +2161,7 @@ window.addEventListener('focus',function(){
 #writePage .basic-info-headingbar>.copy-yesterday-btn span{display:block;white-space:nowrap}
 #writePage .basic-info-headingbar>.mobile-basic-actions{grid-column:1/-1;grid-row:auto}
 #writePage .basic-info-headingbar .mode-delete-btn:disabled{opacity:.55}
-/* 주간/중식OT/연장 미리보기 선택 상태도 동일한 분홍색 */
+
 #writePage .preview-tabs .preview-tab.active{
   background:#ffcad7!important;color:#861b42!important;border-color:#f2a1b6!important;
 }
@@ -2340,7 +2174,7 @@ window.addEventListener('focus',function(){
 }
 </style>
 <style>
-/* 2026-10-13: 전일자료 복사 + 주간자료 복사 (한 줄, 기존 버튼 규격 통일) */
+
 #writePage .basic-info-headingbar>.basic-copy-actions{
   grid-area:copy!important;
   display:flex!important;
@@ -2387,7 +2221,7 @@ window.addEventListener('focus',function(){
 }
 </style>
 <style>
-/* 2번 업체 입력: 세로 여백만 절약. 업체/직종/인원 데이터 및 증감 함수는 변경하지 않음. */
+
 #writePage .left-col>.card:has(>#companies){
   padding:6px 8px!important;
 }
@@ -2482,14 +2316,13 @@ window.addEventListener('focus',function(){
   }
 }
 
-/* 2번 영역의 소계·버튼·수량까지 글씨 크기를 약 1포인트 상향. */
 #writePage .left-col>.card:has(>#companies)>.title{font-size:calc(15px + 1pt)!important;}
 #writePage #companies .company{font-size:calc(11px + 1pt)!important;}
 #writePage #companies .company .job-label-row .job-name{font-size:calc(10px + 1pt)!important;}
 #writePage #companies .company-head-actions .btn{font-size:calc(10px + 1pt)!important;}
 </style>
 <style>
-/* 2026-10-13: 기본 정보 작업종류/상태 버튼을 한 줄로, 상태명만 간결하게. */
+
 #writePage .basic-info-card>.title.basic-info-headingbar{
   display:grid!important;
   grid-template-columns:minmax(0,1fr) auto!important;
@@ -2570,7 +2403,7 @@ window.addEventListener('focus',function(){
 </style>
 
 <style>
-/* 2026-10-13: 기본정보 작업유형/상태/조작 버튼 폰트·크기·정렬 일치 */
+
 #writePage .basic-info-headingbar>.basic-actions-row .work-mode-btn,
 #writePage .basic-info-headingbar>.basic-actions-row .overtime-add-btn,
 #writePage .basic-info-headingbar>.basic-actions-row .mode-delete-btn,
@@ -2619,7 +2452,7 @@ window.addEventListener('focus',function(){
 }
 </style>
 <style>
-/* 2026-10-13: 당일자료 초기화 버튼을 복사 버튼과 동일 규격으로 이동 */
+
 #writePage .basic-info-headingbar>.basic-copy-actions>.daily-reset-btn{
   color:#a04b25!important;
   background:#fff9f2!important;
@@ -2654,11 +2487,10 @@ window.addEventListener('focus',function(){
 </style>
 
 <style id="urigong-mode-colors-20261014">
-/* ④ 금일: 모든 모드에서 각각 독립 편집. ⑤ 명일: 주간만 편집, 중식·연장은 주간 내용 참조. */
+
 #writePage[data-work-mode="lunch"] .tomorrow-work-card,
 #writePage[data-work-mode="overtime"] .tomorrow-work-card{display:block!important;}
 
-/* 미리보기의 배경은 사용자가 선택한 미리보기 탭만 따릅니다. */
 #writePage[data-preview-mode="weekly"] .desktop-preview .card{background:#fff2f6!important;border-color:#efc5d1!important;}
 #writePage[data-preview-mode="lunch"] .desktop-preview .card{background:#ecf7ff!important;border-color:#b9def4!important;}
 #writePage[data-preview-mode="overtime"] .desktop-preview .card{background:#edf9ef!important;border-color:#bde2c4!important;}
@@ -2666,7 +2498,6 @@ window.addEventListener('focus',function(){
 #writePage[data-preview-mode="lunch"] #preview{background:#f2faff!important;border-color:#b9def4!important;}
 #writePage[data-preview-mode="overtime"] #preview{background:#f3fbf3!important;border-color:#bde2c4!important;}
 
-/* 왼쪽 미리보기 탭: 주간 분홍, 중식OT 하늘, 연장 초록 (선택 전에도 구별) */
 #writePage .preview-tabs #reportTab{background:#ffe8ef!important;color:#843956!important;}
 #writePage .preview-tabs #lunchTab{background:#e1f3ff!important;color:#23638d!important;}
 #writePage .preview-tabs #overtimeTab{background:#e0f5e3!important;color:#316b41!important;}
@@ -2674,7 +2505,6 @@ window.addEventListener('focus',function(){
 #writePage .preview-tabs #lunchTab.active{background:#bce7fc!important;color:#104a77!important;box-shadow:inset 0 0 0 1px #89c5e5!important;}
 #writePage .preview-tabs #overtimeTab.active{background:#bee9c7!important;color:#1d5c2d!important;box-shadow:inset 0 0 0 1px #8cca99!important;}
 
-/* 기본정보의 작업유형 버튼: 왼쪽 미리보기 버튼과 동일하게 색상을 대응. */
 #writePage .basic-info-headingbar #workModeTabs > .work-mode-btn{background:#ffe8ef!important;color:#843956!important;border-color:#e9b9c8!important;}
 #writePage .basic-info-headingbar #workModeTabs > .work-mode-btn.active{background:#f8c8d8!important;color:#712842!important;border-color:#db9cac!important;}
 #writePage .basic-info-headingbar #workModeTabs .lunch-tab-wrap .work-mode-btn,
@@ -2686,7 +2516,6 @@ window.addEventListener('focus',function(){
 #writePage .basic-info-headingbar #workModeTabs .mode-tab-wrap:not(.lunch-tab-wrap).active .work-mode-btn,
 #writePage .basic-info-headingbar #workModeTabs .mode-tab-wrap:not(.lunch-tab-wrap).active .mode-delete-btn{background:#bee9c7!important;color:#1d5c2d!important;border-color:#8cca99!important;}
 
-/* 미리보기의 복사하기/접기 버튼에도 현재 선택한 탭의 연한 색을 적용. */
 #writePage[data-preview-mode="weekly"] .desktop-preview .preview-copy-btn,
 #writePage[data-preview-mode="weekly"] .desktop-preview .preview-toggle{background:#ffe8ef!important;color:#843956!important;border-color:#e9b9c8!important;}
 #writePage[data-preview-mode="lunch"] .desktop-preview .preview-copy-btn,
@@ -2696,7 +2525,7 @@ window.addEventListener('focus',function(){
 </style>
 
 <style id="urigongTomorrowWeeklyReadonlyCSS">
-/* 주간 ⑤ 명일만 원본으로 편집. 중식·연장의 ④ 금일 입력 기능은 그대로 유지. */
+
 #writePage .tomorrow-work-card.weekly-tomorrow-reference{background:#edf0f3!important;border-color:#cbd3dc!important}
 #writePage .tomorrow-work-card.weekly-tomorrow-reference #tomorrowAreas .area{background:#e9edf1!important;border-color:#cbd3dc!important;opacity:1!important}
 #writePage .tomorrow-work-card.weekly-tomorrow-reference #tomorrowAreas .area input,
@@ -8689,7 +8518,7 @@ async function exportConstructionDaily(mode){
 <style>
 .no-work-action{background:#64748b!important;border-color:#64748b!important;color:#fff!important;margin-right:4px}
 .no-work-action.is-no-work{background:#475569!important;box-shadow:0 0 0 2px #cbd5e1 inset!important}
-/* 작업없음: 본래 화면 배치와 글자색을 유지하고, 업무 내용만 감춤 */
+
 body.is-no-work-day #writePage .input-col .card:not(.basic-info-card)>:not(.title){visibility:hidden!important;pointer-events:none!important}
 body.is-no-work-day #writePage .input-col .card:not(.basic-info-card) .title button{visibility:hidden!important;pointer-events:none!important}
 body.is-no-work-day #writePage .basic-time input,body.is-no-work-day #writePage .basic-bpa input{visibility:hidden!important;pointer-events:none!important}
@@ -8864,7 +8693,7 @@ async function saveExcelAndPhotoReport(){
  if(photoReportClosed(ctx))return alert('마감된 보고서입니다. 마감을 해제한 뒤 저장해 주세요.');
  if(constructionExcelSheetIndex===1){
   const focused=document.activeElement;
-  const ref=focused?.dataset?.captionRef || (focused?.classList?.contains('excel-photo-caption')?focused.title:null);
+  const ref=focused?.dataset?.captionRef;
   if(ref&&PHOTO_CAPTION_REFS.includes(ref)){
    // 설명을 입력한 채 저장을 눌러도 변경분을 먼저 저장합니다.
    photoStageCaption(ref,focused.value===undefined?focused.textContent:focused.value);
@@ -9181,11 +9010,14 @@ function photoUpdateEditorImages(photos){
 const photoCaptionPendingSaves=new Set();
 const photoCaptionDrafts=new Map();
 function photoCaptionDraftKey(ctx,ref){return photoContextKey(ctx)+'::'+ref;}
+function photoCaptionCell(ref){
+ return document.querySelector('#excelSheetPreview .excel-photo-caption[data-caption-ref="'+ref+'"]');
+}
 function photoStageCaption(ref,value){
  const ctx=photoContext(), key=photoCaptionDraftKey(ctx,ref);
  photoCaptionDrafts.set(key,String(value).slice(0,300));photoExcelDirty=true;
  document.querySelectorAll('#excelPhotoEditor .photo-editor-caption').forEach(a=>{if(a.dataset.captionRef===ref){if(document.activeElement!==a)a.value=String(value).slice(0,300);a.dataset.captionDirty='1';}});
- const cell=Array.from(document.querySelectorAll('#excelSheetPreview .excel-fixed-cell')).find(c=>c.title===ref);
+ const cell=photoCaptionCell(ref);
  if(cell&&document.activeElement!==cell)cell.textContent=String(value).slice(0,300);
 }
 
@@ -9215,7 +9047,7 @@ function photoSyncCaptionEditor(values){
   const pending=photoCaptionDrafts.get(photoCaptionDraftKey(photoContext(),ref));
   const shown=pending!==undefined?pending:String(value);
   if(input&&document.activeElement!==input){input.value=shown;if(pending!==undefined)input.dataset.captionDirty='1';}
-  const cell=Array.from(document.querySelectorAll('#excelSheetPreview .excel-fixed-cell')).find(x=>x.title===ref);
+  const cell=photoCaptionCell(ref);
   if(cell&&document.activeElement!==cell)cell.textContent=shown;
  }
 }
@@ -9285,7 +9117,7 @@ function photoCaptionCaptureVisibleSheet(ctx){
  for(const ref of PHOTO_CAPTION_REFS){
   const pending=photoCaptionDrafts.get(photoCaptionDraftKey(ctx,ref));
   const area=Array.from(editor.querySelectorAll('.photo-editor-caption')).find(el=>el.dataset.captionRef===ref);
-  const cell=Array.from(document.querySelectorAll('#excelSheetPreview .excel-photo-caption')).find(el=>el.title?.startsWith(ref+' ·'));
+  const cell=photoCaptionCell(ref);
   if(pending!==undefined)values[ref]=pending;
   else if(cell&&document.activeElement===cell)values[ref]=cell.textContent;
   else if(area)values[ref]=area.value;
@@ -9381,7 +9213,10 @@ function photoPasteCaptionPlainText(cell,event){
 }
 function photoMakeCaptionEditable(cell,ref){
  cell.contentEditable=photoCanEdit(photoContext())?'true':'false';
- cell.classList.add('excel-photo-caption');cell.title=ref+' · 사진 설명 직접 수정';
+ cell.classList.add('excel-photo-caption');
+ // title은 사용자 안내 문구이므로 식별자로 사용하지 않습니다.
+ cell.dataset.captionRef=ref;
+ cell.title=ref+' · 사진 설명 직접 수정';
  cell.setAttribute('aria-label','사진 '+(PHOTO_CAPTION_REFS.indexOf(ref)+1)+' 설명');
  if(cell.contentEditable==='false')return;
  cell.addEventListener('focus',()=>{photoActiveSlot=0});
@@ -9811,7 +9646,7 @@ function appMemoPersistGeometry(){
 
 
 <style id="mobileExcelContinuousScroll20261012">
-/* 모바일 공사일보 엑셀: Item 입력칸과 엑셀 시트를 연속된 한 페이지로 스크롤. PC 레이아웃은 변경하지 않습니다. */
+
 @media screen and (max-width:850px){
   #excelPage,#excelPage.active{
     height:auto!important;min-height:calc(100dvh - 65px)!important;
@@ -9959,9 +9794,14 @@ async function urigongSaveReportWorkflow(silent=false){
   }
   const changes=Array.from(photoCaptionDrafts.entries());
   const currentCtx=photoContext(),prefix=photoContextKey(currentCtx)+'::';
-  const visibleCaptions=photoCaptionCaptureVisibleSheet(currentCtx);
+  const changedCaptions=changes.filter(([key])=>key.startsWith(prefix)&&PHOTO_CAPTION_REFS.includes(key.slice(prefix.length)));
+  const visibleCaptions=changedCaptions.length?photoCaptionCaptureVisibleSheet(currentCtx):null;
   if(visibleCaptions){
-   if(!(await photoSaveCaptionSnapshot(currentCtx,visibleCaptions)))throw Error('사진 1~4 설명 저장에 실패했습니다.');
+   // 표시된 4칸을 동기화하되, 변경하지 않은 설명은 금일작업 기본값으로 덮어쓰지 않습니다.
+   const currentSaved=await photoGetCaptions(currentCtx);
+   const explicit={...currentSaved};
+   for(const [key,value] of changedCaptions)explicit[key.slice(prefix.length)]=value;
+   if(!(await photoSaveCaptionSnapshot(currentCtx,explicit)))throw Error('사진 1~4 설명 저장에 실패했습니다.');
   }else{
    // 사진대지가 닫힌 채 보고서를 저장하면, 그날 직접 수정한 설명만 저장합니다.
    for(const [key,val] of changes){
