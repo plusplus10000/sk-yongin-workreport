@@ -2228,8 +2228,8 @@ body.report-is-closed #writePage textarea:disabled{
 }
 #excelPage .excel-preview-workspace.photo-editor-active+.excel-help{display:none!important}
 /* 사진은 번호 열을 제외한 영역을 빈 공간 없이 채우고 가장자리만 필요한 만큼 자릅니다. */
-#excelPage .excel-photo-slot img{object-fit:cover!important;object-position:center!important}
-#excelPage .photo-editor-thumb img{object-fit:cover!important;object-position:center!important}
+#excelPage .excel-photo-slot img{object-fit:fill!important;object-position:center!important}
+#excelPage .photo-editor-thumb img{object-fit:fill!important;object-position:center!important}
 #excelPage .excel-photo-slot{cursor:default!important;caret-color:transparent!important;user-select:none!important}
 #excelPage .photo-editor-thumb{cursor:default!important;caret-color:transparent!important;user-select:none!important}
 
@@ -2860,7 +2860,7 @@ window.addEventListener('focus',function(){
       </div>
       <button id="excelNoWorkBtn" class="report-close-btn no-work-action" type="button" onclick="toggleNoWorkDay()">작업없음</button><button id="excelReportCloseBtn" class="report-close-btn excel-report-close-btn" type="button" title="해당 작업일의 주간 작업일보·공사일보 마감/해제" onclick="toggleExcelWeeklyReportClosed()">마감</button>
       <button class="btn primary" type="button" onclick="refreshConstructionExcelPreview()">▤ 미리보기</button>
-      <button class="btn" type="button" onclick="downloadConstructionExcelPreview()">↓ 엑셀 저장</button>
+      <button id="constructionExcelDownloadBtn" class="btn" type="button" onclick="downloadConstructionExcelPreview()" title="변경사항을 보고서로 저장한 뒤 공사일보 엑셀을 다운로드합니다.">↓ 엑셀 저장</button>
       <button class="btn" type="button" onclick="printConstructionExcelPreview()">▣ 인쇄</button>
       <button id="photoSheetCopyImageBtn" class="btn" type="button" style="display:none" onclick="copyPhotoSheetImage()" title="사진대지의 사진 4칸과 상세 설명 영역만 이미지로 복사">▣ 이미지 복사하기</button>
       <span class="excel-zoom-controls" aria-label="시트 미리보기 확대 축소">
@@ -2900,7 +2900,7 @@ window.addEventListener('focus',function(){
   <span id="photoLocalStatus" role="status" aria-live="polite">사진 서버를 먼저 연결하세요. 일반 공용저장소 연결과 별개입니다.</span>
 </div><div id="excelPhotoEditor" hidden aria-label="사진대지 서버 사진과 설명 입력"></div></aside>
   <div class="excel-preview-shell"><div id="excelSheetPreview" class="excel-sheet-preview" aria-label="현재 선택한 엑셀 시트"></div></div></div>
-  <p class="excel-help">미리보기는 실제 생성할 엑셀의 내용과 주요 서식을 보여줍니다. 엑셀 저장 시 두 시트가 모두 포함되며, 인쇄는 현재 선택한 시트만 출력합니다. 날짜나 작업내용을 수정한 경우 미리보기 버튼을 눌러 갱신해 주세요.</p>
+  <p class="excel-help">공사일보 화면에 들어가면 선택한 날짜의 미리보기를 자동 생성하고, 사진대지를 선택하면 사진은 따로 빠르게 불러옵니다. 미리보기 버튼은 필요할 때만 수동 새로고침하세요.</p>
 </section>
 <section id="dataPage" class="search-panel" aria-label="업체 인원 장비 담당자 데이터">
   <div class="card data-overview-head">
@@ -6667,7 +6667,7 @@ function loadCurrentDateReport(){
   if(!r)return alert(`해당 날짜/현장/공종의 ${currentModeLabel()} 작업일보가 없습니다.`);
   applyReportLike(r,currentWorkType,currentOvertimeNo);
 }
-function saveReport(){
+function saveReportWorkData(silent=false){
   if(isNoWorkDay($('date')?.value))return alert('작업없음 날짜는 보고서 내용을 저장하지 않습니다. 먼저 작업없음을 해제해 주세요.');
   if(!requireReportEditable())return;
   let reports=safeParseJSON(projectGet('reports'),[])||[];
@@ -6681,7 +6681,8 @@ function saveReport(){
   reports.push(obj);projectSet('reports',JSON.stringify(reports));
   const drafts=getModeDrafts();drafts[workModeKey(obj.date,obj.site,obj.trade,wt,no)]=makeCurrentModeDraft();setModeDrafts(drafts);
   autoSave();markLocalChanged();if(tokenValid())scheduleAutoSync();updateWorkModeTabs();syncReportLockForCurrentDate();
-  alert('보고서로 저장했습니다.'+(tokenValid()?'\n공용저장소 자동 동기화를 시작했습니다.':''));
+  if(!silent)alert('보고서로 저장했습니다.'+(tokenValid()?'\n공용저장소 자동 동기화를 시작했습니다.':''));
+  return true;
 }
 // 같은 날짜의 주간자료를 현재 중식OT/연장 작성칸에만 복사합니다.
 // 주간 원본·날짜·작업모드·작업시간·마감 기록은 변경하지 않습니다.
@@ -7443,7 +7444,7 @@ function updateConstructionExcelTextCell(ref,value,date,site,trade){
 }
 let constructionExcelPreviewBlob=null;
 let constructionExcelPreviewSheets=[];
-let constructionExcelSheetIndex=0;
+let constructionExcelSheetIndex=sessionStorage.getItem('urigongPhotoSheetLastSelected')==='1'?1:0;
 let constructionExcelPreviewBusy=false;
 let constructionExcelPreviewDate='';
 function openConstructionExcelPage(){
@@ -7585,6 +7586,7 @@ function excelPreviewCellStyle(cell,model){
 /* 엑셀 원본의 고정 행·열 좌표대로 배치. HTML table의 rowspan 자동 재계산으로 사진 크기가 틀어지는 문제 방지. */
 function selectConstructionExcelSheet(index){
   constructionExcelSheetIndex=index===1?1:0;
+  try{sessionStorage.setItem('urigongPhotoSheetLastSelected',String(constructionExcelSheetIndex));}catch(e){}
   for(let i=0;i<2;i++){
     const tab=document.getElementById('excelSheetTab'+i);
     tab.classList.toggle('active',i===constructionExcelSheetIndex);
@@ -7836,25 +7838,56 @@ async function refreshConstructionExcelPreview(){
     if(area)area.textContent='미리보기를 표시하지 못했습니다. '+e.message;
   }finally{constructionExcelPreviewBusy=false;if(area)area.classList.remove('is-loading');}
 }
+// 공사일보 엑셀 전용: 미저장 변경사항을 먼저 보고서로 저장한 뒤 다운로드합니다.
+// 검색결과 엑셀, 기존 엑셀 양식 및 마감/읽기전용의 조회 동작은 변경하지 않습니다.
+let urigongExcelDownloadBusy=false;
 async function downloadConstructionExcelPreview(){
-  if(!constructionExcelPreviewBlob){alert('미리보기 버튼으로 엑셀을 먼저 만들어 주세요.');return;}
-  try{await photoFlushCaptionEditsBeforeDownload()}catch(e){alert(e.message);return;}
-  if(photoFolderAccessError){alert('사진 서버 오류로 사진이 누락될 수 있습니다. 사진대지의 「사진 다시 불러오기」를 누른 뒤 엑셀을 다운로드하세요.\n'+photoFolderAccessError);return;}
-  // 사진은 사진 전용 서버에서, 사진 상세 설명은 기존 공용저장소에서 받아 Excel에 반영합니다.
-  if(constructionExcelRemarkDirty||photoExcelDirty){
-    try{
-      // 입력한 비고 및 사진이 최종 다운로드 파일에 반영되도록 다시 만듭니다.
-      const updated=await exportConstructionDaily('preview');
-      if(!updated)return;
-      constructionExcelPreviewBlob=updated;
-      if(photoFolderAccessError)throw Error('사진 서버 조회에 실패해 사진이 누락될 수 있습니다. '+photoFolderAccessError);
-      constructionExcelRemarkDirty=false;photoExcelDirty=false;
-    }catch(e){console.error(e);alert('엑셀 다운로드를 중단했습니다. '+e.message);return;}
+ if(urigongExcelDownloadBusy)return;
+ if(constructionExcelPreviewBusy){alert('공사일보 미리보기 생성 중입니다. 잠시 후 다시 시도해 주세요.');return;}
+ if(urigongReportSaveBusy){alert('보고서 저장이 진행 중입니다. 완료 후 다시 시도해 주세요.');return;}
+ urigongExcelDownloadBusy=true;
+ const button=document.getElementById('constructionExcelDownloadBtn');
+ const status=document.getElementById('excelPreviewStatus');
+ const originalLabel=button?.textContent||'↓ 엑셀 저장';
+ if(button){button.disabled=true;button.textContent='저장·다운로드 중…';}
+ try{
+  const reportKey=urigongReportKey();
+  // 작업일보 값/사진/사진 설명이 달라졌을 때에만 저장합니다. 저장이 없으면 양식과 기존 자료는 읽기 전용입니다.
+  if(urigongHasUnsaved()){
+   if(!canEditActiveProject()||isNoWorkDay($('date')?.value)||isCurrentStoredReportClosed()){
+    throw Error('미저장 변경사항이 있으나 읽기전용·작업없음·마감 상태여서 저장할 수 없습니다. 다운로드를 중단했습니다.');
+   }
+   if(status)status.textContent='미저장 보고서·사진 저장 중…';
+   const saved=await urigongSaveReportWorkflow(true);
+   if(saved!==true){if(status)status.textContent='보고서 저장 실패 · 엑셀 다운로드 취소';return;}
+   if(urigongHasUnsaved())throw Error('저장되지 않은 변경사항이 남아 있습니다. 다운로드를 중단했습니다.');
+   if(reportKey!==urigongReportKey())throw Error('저장 중 작업일·현장이 변경됐습니다. 다운로드를 다시 시도해 주세요.');
+   // 저장 전 화면으로 남지 않도록, 저장이 성공한 데이터로 두 시트 미리보기도 갱신합니다.
+   if(status)status.textContent='보고서 저장 완료 · 엑셀 미리보기 갱신 중…';
+   await refreshConstructionExcelPreview();
+   if(!constructionExcelPreviewSheets.length||reportKey!==urigongReportKey()){
+    throw Error('저장된 자료로 미리보기를 갱신하지 못해 다운로드를 중단했습니다.');
+   }
   }
-  if(photoFolderAccessError){alert('사진 서버 조회 오류로 사진이 누락될 수 있어 엑셀 다운로드를 중단했습니다. '+photoFolderAccessError);return;}
-  const url=URL.createObjectURL(constructionExcelPreviewBlob),a=document.createElement('a');
-  a.href=url;a.download='용인 Y-1 미래이슈물질 공사일보_'+constructionExcelPreviewDate.slice(2).replace(/-/g,'.')+'.xlsx';
-  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+  // 저장 대상이 없는 마감/읽기전용 보고서는 서버 자료 변경 없이 다운로드합니다.
+  await photoFlushCaptionEditsBeforeDownload();
+  if(photoFolderAccessError){
+   throw Error('사진 서버 오류로 사진이 누락될 수 있어 다운로드를 중단했습니다. 사진 다시 불러오기를 눌러 확인해 주세요. '+photoFolderAccessError);
+  }
+  if(reportKey!==urigongReportKey())throw Error('작업일·현장이 바뀌었습니다. 다시 다운로드해 주세요.');
+  if(status)status.textContent='저장된 공사일보·사진으로 엑셀 생성 중…';
+  // 화면용 미리보기 Blob에는 사진 바이너리가 없으므로 다운로드 시에만 사진 원본을 포함해 생성합니다.
+  const exported=await exportConstructionDaily('download');
+  if(exported===null)throw Error('사진 설명 저장이 완료되지 않아 다운로드가 중단되었습니다.');
+  if(status)status.textContent='공사일보 엑셀 다운로드 요청 완료';
+ }catch(e){
+  console.error('공사일보 저장 후 엑셀 다운로드 오류',e);
+  if(status)status.textContent='다운로드 중단 · '+(e?.message||e);
+  alert('공사일보 엑셀 다운로드를 완료하지 못했습니다.\n'+(e?.message||e));
+ }finally{
+  urigongExcelDownloadBusy=false;
+  if(button){button.disabled=false;button.textContent=originalLabel;}
+ }
 }
 function printConstructionExcelPreview(){
   if(!constructionExcelPreviewSheets.length){alert('미리보기를 먼저 만들어 주세요.');return;}
@@ -7934,10 +7967,8 @@ async function photoImageCopyBlob(){
       const x=parseFloat(slot.style.left)||0,y=parseFloat(slot.style.top)||0;
       const w=parseFloat(slot.style.width)||0,h=parseFloat(slot.style.height)||0;
       if(x>=width||y>=height||w<=0||h<=0)continue;
-      const scale=Math.max(w/picture.naturalWidth,h/picture.naturalHeight);
-      const srcW=w/scale,srcH=h/scale;
-      const sx=(picture.naturalWidth-srcW)/2,sy=(picture.naturalHeight-srcH)/2;
-      ctx.drawImage(picture,sx,sy,srcW,srcH,x,y,w,h);
+      // 화면과 동일하게 원본 전체를 가로·세로로 늘려 표시하며 잘라내지 않습니다.
+      ctx.drawImage(picture,0,0,picture.naturalWidth,picture.naturalHeight,x,y,w,h);
     }catch(e){console.warn('사진대지 이미지 복사: 사진 디코딩 실패',e);throw Error('사진 '+slot.dataset.photoSlot+'를 이미지로 변환하지 못했습니다.');}
   }
   // 기존 미리보기의 테두리 오버레이만 다시 그립니다. 선택/삭제 버튼 등은 포함하지 않습니다.
@@ -8390,14 +8421,21 @@ async function exportConstructionDaily(mode){
     zip.file(stylePath,new XMLSerializer().serializeToString(stylesDoc));
   }
   zip.file(path,new XMLSerializer().serializeToString(doc));
-  await photoAttachToExcelZip(zip,date,site,trade);
+  // 미리보기 화면은 로컬 시트 먼저 렌더링합니다. 사진은 사진대지에서 별도로 비동기 표시합니다.
+  // 실제 XLSX 다운로드만 사진 원본을 넣어 생성합니다.
+  if(mode!=='preview')await photoAttachToExcelZip(zip,date,site,trade);
   // 미리보기는 유지하되 다운로드 파일에서는 사진 조회 실패를 절대 숨기지 않습니다.
   if(mode!=='preview'&&photoFolderAccessError)throw Error('사진 서버 조회 오류로 사진이 누락될 수 있어 엑셀 다운로드를 중단했습니다. '+photoFolderAccessError);
   const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
   if(mode==='preview')return blob;
   const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='용인 Y-1 미래이슈물질 공사일보_'+date.slice(2).replace(/-/g,'.')+'.xlsx';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
   if(tomorrowTasks.length>8||allManagers.length>6)alert('명일 작업 또는 담당자가 엑셀 양식의 표시 가능한 행 수를 초과했습니다. 초과분은 일부 표시되지 않을 수 있습니다.');
- }catch(e){console.error(e);alert('공사일보 엑셀 출력 오류: '+e.message)}
+ }catch(e){
+  console.error(e);
+  // 다운로드 실패를 호출한 자동 저장 흐름에 전달해야 완료로 잘못 표시되지 않습니다.
+  if(mode==='download')throw e;
+  alert('공사일보 엑셀 출력 오류: '+e.message);
+ }
 }
 </script>
 
@@ -8628,12 +8666,11 @@ async function saveExcelAndPhotoReport(){
   const ref=focused?.dataset?.captionRef || (focused?.classList?.contains('excel-photo-caption')?focused.title:null);
   if(ref&&PHOTO_CAPTION_REFS.includes(ref)){
    // 설명을 입력한 채 저장을 눌러도 변경분을 먼저 저장합니다.
-   const result=await photoSaveCaption(ref,focused.value===undefined?focused.textContent:focused.value,ctx);
-   if(result===false)return;
+   photoStageCaption(ref,focused.value===undefined?focused.textContent:focused.value);
   }
  }
- // 기존 보고서 저장, 자동 동기화 로직은 그대로 호출합니다.
- saveReport();
+ // 변경 사진을 먼저 서버에 저장하고, 성공했을 때만 보고서 저장을 완료합니다.
+ return await saveReport();
 }
 /* 사진 원본 전용 로컬 저장소. 사진 설명 텍스트만 기존 공용저장소 동기화 범위에 저장합니다. */
 const PHOTO_LOCAL_DIRECTORY_NAME='우리공일보_사진대지_전용';
@@ -8700,8 +8737,9 @@ async function photoSaveServerSettings(){
   const {url,secret}=photoServerConfig();
   photoStatus('사진 전용 서버 연결을 확인하고 있어요…');
   const ping=await photoJsonp('ping');if(!ping.ok)throw Error('사진 서버 응답을 확인하지 못했습니다.');
+  if(photoStaged.size)throw Error('미저장 사진이 있습니다. 보고서를 먼저 저장한 뒤 사진 서버 연결 설정을 변경하세요.');
   localStorage.setItem(PHOTO_REMOTE_URL_KEY,url);localStorage.setItem(PHOTO_REMOTE_SECRET_KEY,secret);
-  photoInitServerInputs();photoMemory.clear();photoExcelDirty=true;photoFolderAccessError='';
+  photoInitServerInputs();photoMemory.clear();photoMemoryFetchedAt.clear();photoServerKnown.clear();photoExcelDirty=true;photoFolderAccessError='';
   photoStatus('사진 전용 서버 연결됨 · 현장별 최신 '+ping.keep+'개 사진 작업일 보관 · 일반 데이터와 분리');
   if(constructionExcelSheetIndex===1)await loadPhotoSheet(true);
  }catch(e){photoStatus('사진 전용 서버 연결 실패: '+e.message);alert('사진 전용 서버에 연결하지 못했습니다.\n'+e.message)}
@@ -8867,7 +8905,7 @@ function photoRenderEditor(){
  const editAllowed=photoCanEdit(photoContext());
  host.className='excel-photo-editor';host.classList.toggle('is-closed',!editAllowed);host.dataset.photoLockState=editAllowed?'edit':'locked';host.replaceChildren();
  const header=document.createElement('div');header.className='photo-editor-title';header.textContent='사진대지 · 사진 및 설명 입력';host.appendChild(header);
- const help=document.createElement('div');help.className='photo-editor-help';help.textContent='사진 1~4의 칸에서 마우스 오른쪽 버튼 → 붙여넣기를 누르거나, 칸을 선택한 뒤 Ctrl+V로 캡처 사진을 붙여넣으세요. 왼쪽 노란색 번호 칸은 사진 범위에 포함되지 않습니다. 설명은 아래 입력칸에서 수정합니다. 사진 원본은 PC 로컬 전용 폴더에만 저장되며, 사진 상세 설명 글자만 날짜별로 공용저장소에 동기화됩니다.';host.appendChild(help);
+ const help=document.createElement('div');help.className='photo-editor-help';help.textContent='사진 1~4의 칸에서 마우스 오른쪽 버튼 → 붙여넣기를 누르거나, 칸을 선택한 뒤 Ctrl+V로 캡처 사진을 붙여넣으세요. 왼쪽 노란색 번호 칸은 사진 범위에 포함되지 않습니다. 설명은 아래 입력칸에서 수정합니다. 붙여넣은 사진은 즉시 표시·최적화되며, 「보고서 저장」을 누를 때 변경된 사진만 전용 서버에 저장됩니다. 사진 설명은 기존 공용저장소에 동기화됩니다.';host.appendChild(help);
  const model=constructionExcelPreviewSheets?.[1];
  for(let slot=1;slot<=4;slot++){
   const card=document.createElement('div');card.className='photo-editor-card';card.dataset.photoSlot=String(slot);card.tabIndex=0;
@@ -8879,10 +8917,12 @@ function photoRenderEditor(){
   const thumb=document.createElement('div');thumb.className='photo-editor-thumb';thumb.dataset.photoThumb=String(slot);thumb.contentEditable=editAllowed?'true':'false';thumb.classList.toggle('is-closed',!editAllowed);thumb.spellcheck=false;thumb.setAttribute('aria-label','사진 '+slot+' · 오른쪽 클릭해 붙여넣기');thumb.title='우클릭 → 붙여넣기 또는 클릭 후 Ctrl+V';thumb.textContent='우클릭 → 붙여넣기 / Ctrl+V';thumb.addEventListener('pointerdown',()=>photoEditorSelect(slot));thumb.addEventListener('contextmenu',()=>{photoEditorSelect(slot);thumb.focus()});thumb.addEventListener('click',()=>{photoEditorSelect(slot);thumb.focus()});thumb.addEventListener('beforeinput',e=>{if(e.inputType!=='insertFromPaste')e.preventDefault()});card.appendChild(thumb);
   const label=document.createElement('label');label.className='photo-editor-caption-label';label.htmlFor='photoLeftCaption'+slot;label.textContent='사진 '+slot+' 상세 내용';card.appendChild(label);
   const area=document.createElement('textarea');area.className='photo-editor-caption';area.id='photoLeftCaption'+slot;area.dataset.captionRef=PHOTO_CAPTION_REFS[slot-1];area.rows=2;area.disabled=!editAllowed;
-  const node=model?.map?.get(PHOTO_CAPTION_REFS[slot-1]);area.value=node?excelPreviewFormat(node,model,PHOTO_CAPTION_REFS[slot-1]):'';
+  const node=model?.map?.get(PHOTO_CAPTION_REFS[slot-1]);
+  const draft=photoCaptionDrafts.get(photoCaptionDraftKey(photoContext(),PHOTO_CAPTION_REFS[slot-1]));
+  area.value=draft!==undefined?draft:(node?excelPreviewFormat(node,model,PHOTO_CAPTION_REFS[slot-1]):'');
+  if(draft!==undefined)area.dataset.captionDirty='1';
   area.addEventListener('focus',()=>photoEditorSelect(slot));
-  area.addEventListener('input',()=>{area.dataset.captionDirty='1';photoExcelDirty=true;});
-  area.addEventListener('change',()=>void photoCommitCaption(area));
+  area.addEventListener('input',()=>photoStageCaption(PHOTO_CAPTION_REFS[slot-1],area.value));
   card.appendChild(area);
   card.addEventListener('focus',e=>{if(e.target===card)photoEditorSelect(slot)});
   card.addEventListener('click',e=>{if(e.target===card)photoEditorSelect(slot)});
@@ -8900,6 +8940,16 @@ function photoUpdateEditorImages(photos){
  });
 }
 const photoCaptionPendingSaves=new Set();
+const photoCaptionDrafts=new Map();
+function photoCaptionDraftKey(ctx,ref){return photoContextKey(ctx)+'::'+ref;}
+function photoStageCaption(ref,value){
+ const ctx=photoContext(), key=photoCaptionDraftKey(ctx,ref);
+ photoCaptionDrafts.set(key,String(value).slice(0,300));photoExcelDirty=true;
+ document.querySelectorAll('#excelPhotoEditor .photo-editor-caption').forEach(a=>{if(a.dataset.captionRef===ref){if(document.activeElement!==a)a.value=String(value).slice(0,300);a.dataset.captionDirty='1';}});
+ const cell=Array.from(document.querySelectorAll('#excelSheetPreview .excel-fixed-cell')).find(c=>c.title===ref);
+ if(cell&&document.activeElement!==cell)cell.textContent=String(value).slice(0,300);
+}
+
 function photoTrackCaptionSave(task){
  const pending=Promise.resolve(task);photoCaptionPendingSaves.add(pending);
  pending.finally(()=>photoCaptionPendingSaves.delete(pending)).catch(()=>{});
@@ -8909,10 +8959,11 @@ async function photoCommitCaption(area){
  if(!area||area.disabled||area.dataset.captionDirty!=='1')return true;
  const current=area.value,ctx=photoContext();
  const saved=await photoTrackCaptionSave(photoSaveCaption(area.dataset.captionRef,current,ctx));
- if(saved&&area.value===current)delete area.dataset.captionDirty;
+ if(saved&&area.value===current){delete area.dataset.captionDirty;photoCaptionDrafts.delete(photoCaptionDraftKey(ctx,area.dataset.captionRef));}
  return saved===true;
 }
 async function photoFlushCaptionEditsBeforeDownload(){
+ if(photoCaptionDrafts.size)throw Error('저장하지 않은 사진 설명이 있습니다. 「보고서 저장」 후 다운로드해 주세요.');
  const dirty=Array.from(document.querySelectorAll('#excelPhotoEditor .photo-editor-caption[data-caption-dirty="1"]'));
  for(const area of dirty){if(!(await photoCommitCaption(area)))throw Error('사진 상세 설명을 저장하지 못해 엑셀 다운로드를 중단했습니다.');}
  const pending=Array.from(photoCaptionPendingSaves);
@@ -8922,9 +8973,11 @@ function photoSyncCaptionEditor(values){
  for(const [ref,value] of Object.entries(values||{})){
   if(!PHOTO_CAPTION_REFS.includes(ref))continue;
   const input=document.querySelector('#excelPhotoEditor .photo-editor-caption[data-caption-ref="'+ref+'"]');
-  if(input&&document.activeElement!==input)input.value=String(value);
+  const pending=photoCaptionDrafts.get(photoCaptionDraftKey(photoContext(),ref));
+  const shown=pending!==undefined?pending:String(value);
+  if(input&&document.activeElement!==input){input.value=shown;if(pending!==undefined)input.dataset.captionDirty='1';}
   const cell=Array.from(document.querySelectorAll('#excelSheetPreview .excel-fixed-cell')).find(x=>x.title===ref);
-  if(cell&&document.activeElement!==cell)cell.textContent=String(value);
+  if(cell&&document.activeElement!==cell)cell.textContent=shown;
  }
 }
 // 사진 원본 파일은 별도 사진 서버에 보관합니다. 사진 4칸의 설명 텍스트는
@@ -9032,38 +9085,58 @@ function photoMakeCaptionEditable(cell,ref){
  cell.addEventListener('blur',()=>{
   // 기존에 서식 있는 글자가 들어왔더라도 저장 전에 순수 텍스트로 정규화합니다.
   const value=cell.textContent;cell.textContent=value;
-  const ctx=photoContext();
-  void photoTrackCaptionSave(photoSaveCaption(ref,value,ctx));
+  photoStageCaption(ref,value);
  });
  cell.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();cell.blur()}});
 }
+const photoRemoteInflight=new Map();
+const photoMemoryFetchedAt=new Map();
+const PHOTO_CACHE_TTL=90000; // 같은 날짜를 반복해서 열 때 90초 동안 불필요한 서버 요청 생략
 async function photoGetDay(ctx,force=false){
- const key=photoContextKey(ctx);
- if(!force&&photoMemory.has(key))return photoMemory.get(key);
- const result=[null,null,null,null];
- const list=await photoJsonp('list',{project:ctx.project,site:ctx.site,trade:ctx.trade,date:ctx.date});
- for(const slot of list.slots||[]){
-  if(!Number.isInteger(slot)||slot<1||slot>4)continue;
-  const item=await photoJsonp('get',{project:ctx.project,site:ctx.site,trade:ctx.trade,date:ctx.date,slot:String(slot)});
-  if(item.data&&!/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(item.data))throw Error('사진 서버가 잘못된 이미지 형식을 반환했습니다.');
-  result[slot-1]=item.data||null;
- }
- // Date-aware memory cache only: never write base64 photos to localStorage or shared work report JSON.
- if(photoMemory.size>=3)photoMemory.delete(photoMemory.keys().next().value);
- photoMemory.set(key,result);return result;
+ const key=photoContextKey(ctx),cached=photoMemory.get(key);
+ if(!force&&cached&&Date.now()-(photoMemoryFetchedAt.get(key)||0)<PHOTO_CACHE_TTL){photoOverlayDrafts(ctx,cached);return cached;}
+ if(photoRemoteInflight.has(key))return photoRemoteInflight.get(key);
+ const task=(async()=>{
+  const result=[null,null,null,null];
+  const list=await photoJsonp('list',{project:ctx.project,site:ctx.site,trade:ctx.trade,date:ctx.date});
+  const slots=[...new Set((list.slots||[]).filter(slot=>Number.isInteger(slot)&&slot>=1&&slot<=4))];
+  // 파일 4장을 순서대로 요청하지 않고 동시에 요청합니다.
+  const items=await Promise.all(slots.map(slot=>photoJsonp('get',{project:ctx.project,site:ctx.site,trade:ctx.trade,date:ctx.date,slot:String(slot)})));
+  slots.forEach((slot,i)=>{
+   const data=items[i]?.data||null;
+   if(data&&!/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(data))throw Error('사진 서버가 잘못된 이미지 형식을 반환했습니다.');
+   result[slot-1]=data;
+  });
+  photoRememberServerSlots(ctx,result);
+  photoOverlayDrafts(ctx,result); // 미저장 사진을 서버 이전 사진이 덮지 못하게 보호
+  if(!photoMemory.has(key)&&photoMemory.size>=3){const oldest=photoMemory.keys().next().value;photoMemory.delete(oldest);photoMemoryFetchedAt.delete(oldest);}
+  photoMemory.set(key,result);photoMemoryFetchedAt.set(key,Date.now());
+  return result;
+ })();
+ photoRemoteInflight.set(key,task);
+ try{return await task;}finally{if(photoRemoteInflight.get(key)===task)photoRemoteInflight.delete(key);}
 }
 function photoReadDataURL(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(Error('사진 읽기 실패'));r.readAsDataURL(file)})}
 async function loadPhotoSheet(force=false){
  if(constructionExcelSheetIndex!==1)return;
  const ctx=photoContext(),key=photoContextKey(ctx);photoPendingSheetKey=key;
  photoInitServerInputs();
- photoStatus('사진 전용 서버에서 '+ctx.date+' 사진 불러오는 중…');
+ const cached=photoMemory.get(key);
+ if(cached){photoOverlayDrafts(ctx,cached);photoPaintSlots(cached);photoStatus(ctx.date+' 사진 '+cached.filter(Boolean).length+'장 · 저장된 미리보기 즉시 표시');}
+ else photoStatus('사진 전용 서버에서 '+ctx.date+' 사진 불러오는 중…');
+ if(!force&&cached&&Date.now()-(photoMemoryFetchedAt.get(key)||0)<PHOTO_CACHE_TTL){photoFolderAccessError='';photoStagedStatus();return;}
  try{
-  const photos=await photoGetDay(ctx,true);
+  const photos=await photoGetDay(ctx,force);
   if(photoPendingSheetKey!==key||constructionExcelSheetIndex!==1)return;
-  photoPaintSlots(photos);photoFolderAccessError='';photoExcelDirty=true;
-  photoStatus(ctx.date+' 사진 '+photos.filter(Boolean).length+'장 · 전용 서버에서 불러옴 · 최신 5개 사진 작업일 유지');
- }catch(e){if(photoPendingSheetKey!==key)return;photoFolderAccessError=e.message;photoPaintSlots(null);photoStatus('사진 조회 실패: '+e.message)}
+  photoOverlayDrafts(ctx,photos);photoPaintSlots(photos);photoFolderAccessError='';photoExcelDirty=true;
+  if(photoStaged.size)photoStagedStatus();
+  else photoStatus(ctx.date+' 사진 '+photos.filter(Boolean).length+'장 · 전용 서버에서 불러옴 · 최신 5개 사진 작업일 유지');
+ }catch(e){
+  if(photoPendingSheetKey!==key)return;
+  photoFolderAccessError=e.message;
+  if(!cached)photoPaintSlots(null);
+  photoStatus('사진 조회 실패 · 기존 화면 유지: '+e.message);
+ }
 }
 function photoDrawSlots(sheet,colLeft,rowTop){
  const ctx=photoContext();
@@ -9082,7 +9155,9 @@ function photoDrawSlots(sheet,colLeft,rowTop){
   block.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault()}});
   sheet.appendChild(block);
  });
- photoPaintSlots(photoMemory.get(photoContextKey(ctx))||null);
+ const photos=photoMemory.get(photoContextKey(ctx))||null;
+ if(photos)photoOverlayDrafts(ctx,photos);
+ photoPaintSlots(photos);
 }
 function photoPaintSlots(photos){
  photoUpdateEditorImages(photos);
@@ -9091,7 +9166,7 @@ function photoPaintSlots(photos){
   const slot=Number(block.dataset.photoSlot),data=photos?.[slot-1];block.replaceChildren();
   if(data){const img=document.createElement('img');img.alt='사진 '+slot;img.src=data;block.appendChild(img);
    if(photoCanEdit(ctx)){
-    const remove=document.createElement('button');remove.type='button';remove.className='excel-photo-remove';remove.textContent='삭제';remove.title='사진 전용 서버에서 이 날짜 사진 한 장만 영구삭제';remove.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();photoRemove(slot)});block.appendChild(remove);
+    const remove=document.createElement('button');remove.type='button';remove.className='excel-photo-remove';remove.textContent='삭제';remove.title='사진 삭제 예약 · 「보고서 저장」 시 서버 반영';remove.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();photoRemove(slot)});block.appendChild(remove);
    }
   }else{const hint=document.createElement('span');hint.className='excel-photo-hint';hint.textContent='우클릭 → 붙여넣기 / Ctrl+V';block.appendChild(hint)}
  });
@@ -9114,51 +9189,138 @@ function photoPaste(e,slot){
  const file=Array.from(e.clipboardData?.items||[]).find(x=>x.kind==='file'&&x.type.startsWith('image/'))?.getAsFile();
  if(!file)return;e.preventDefault();photoStoreFile(slot,file);
 }
+// 사진은 붙여넣기 즉시 로컬 화면에 표시하고, 저장 버튼을 누를 때만 전용 서버로 전송합니다.
+// 서버용 파일은 사진칸 원본과 별도이며, 최대 크기/화질을 적응형으로 조정합니다.
+const photoStaged = new Map(); // context+slot -> {ctx,slot,op,data,processing,tempUrl,version,file}
+const photoServerKnown = new Map(); // context -> 서버가 보유한 슬롯 번호
+let photoStageVersion=0;
+let photoSavingBatch=false;
+function photoStageKey(ctx,slot){return photoContextKey(ctx)+'::'+slot;}
+function photoOverlayDrafts(ctx,photos){
+ if(!photos)return photos;
+ const key=photoContextKey(ctx);
+ for(const record of photoStaged.values()){
+  if(photoContextKey(record.ctx)!==key)continue;
+  photos[record.slot-1]=record.op==='remove'?null:(record.data||record.tempUrl||null);
+ }
+ return photos;
+}
+function photoStagedStatus(){
+ const n=photoStaged.size;
+ if(n)photoStatus('미저장 사진 '+n+'장 · 「보고서 저장」을 누르면 전용 서버에 반영됩니다.');
+}
+function photoDropStaged(record){
+ photoStaged.delete(photoStageKey(record.ctx,record.slot));
+ if(record.tempUrl)URL.revokeObjectURL(record.tempUrl);
+}
+function photoRememberServerSlots(ctx,photos){
+ const key=photoContextKey(ctx);
+ // 메모리에 임시 이미지가 덮이기 전 서버 응답만 따로 기록합니다.
+ photoServerKnown.set(key,new Set(photos.map((x,i)=>x?i+1:0).filter(Boolean)));
+}
 async function photoEncode(file){
  if(!/^image\/(png|jpeg|webp)$/.test(file.type))throw Error('PNG/JPG/WebP 사진만 사용할 수 있습니다');
- const uri=URL.createObjectURL(file),img=new Image();
- try{await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(Error('이미지를 열 수 없습니다'));img.src=uri});
-  const factor=Math.min(1,1500/Math.max(img.naturalWidth,img.naturalHeight));
-  const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*factor));canvas.height=Math.max(1,Math.round(img.naturalHeight*factor));
-  canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-  return canvas.toDataURL('image/jpeg',0.78);
- }finally{URL.revokeObjectURL(uri)}
+ let source=null,srcUrl=null;
+ try{
+  if(typeof createImageBitmap==='function')source=await createImageBitmap(file);
+  else{
+   srcUrl=URL.createObjectURL(file);source=new Image();
+   await new Promise((resolve,reject)=>{source.onload=resolve;source.onerror=()=>reject(Error('이미지를 열 수 없습니다'));source.src=srcUrl;});
+  }
+  const width=source.width||source.naturalWidth,height=source.height||source.naturalHeight;
+  if(!width||!height)throw Error('이미지 해상도가 올바르지 않습니다');
+  const widths=[1600,1400,1200,1000];const qualities=[.83,.77,.69,.61];
+  let output=null;
+  for(const maxSide of widths){
+   const ratio=Math.min(1,maxSide/Math.max(width,height));
+   const cv=document.createElement('canvas');cv.width=Math.max(1,Math.round(width*ratio));cv.height=Math.max(1,Math.round(height*ratio));
+   const pen=cv.getContext('2d',{alpha:false});if(!pen)throw Error('이미지 압축 기능을 사용할 수 없습니다');
+   pen.fillStyle='#fff';pen.fillRect(0,0,cv.width,cv.height);pen.drawImage(source,0,0,cv.width,cv.height);
+   for(const q of qualities){
+    const blob=await new Promise((resolve,reject)=>cv.toBlob(b=>b?resolve(b):reject(Error('이미지 압축 실패')),'image/jpeg',q));
+    output=blob;
+    // Base64 전송 때 약 4/3배이므로 600KB 미만 파일을 권장합니다.
+    if(blob.size<=580000)break;
+   }
+   if(output&&output.size<=580000)break;
+  }
+  if(!output||output.size>700000)throw Error('사진 용량 최적화에 실패했습니다. 더 작은 사진을 사용해 주세요.');
+  const data=await photoReadDataURL(output);
+  if(!String(data).startsWith('data:image/jpeg;base64,')||data.length>950000)throw Error('전송 허용 크기를 초과했습니다.');
+  return data;
+ }finally{try{source?.close?.()}catch(e){}if(srcUrl)URL.revokeObjectURL(srcUrl);}
 }
 function photoJpegBlob(uri){const m=String(uri).match(/^data:image\/jpeg;base64,(.+)$/);if(!m)throw Error('JPEG 사진 변환에 실패했습니다');return new Blob([Uint8Array.from(atob(m[1]),c=>c.charCodeAt(0))],{type:'image/jpeg'})}
 async function photoStoreFile(slot,file){
  const ctx=photoContext();if(!photoCanEdit(ctx))return alert('마감·작업없음 또는 읽기 전용인 날짜에는 사진을 수정할 수 없습니다.');
  if(!/^\d{4}-\d{2}-\d{2}$/.test(ctx.date))return alert('사진대지 날짜를 먼저 선택해 주세요.');
  if(!Number.isInteger(slot)||slot<1||slot>4)return;
- const key=photoContextKey(ctx)+'::'+slot;
- if(photoRemotePending.has(key))return alert('같은 사진칸의 저장이 진행 중입니다.');
- photoRemotePending.add(key);
- try{
-  photoStatus('사진 '+slot+' 전용 서버 업로드 중…');
-  const data=await photoEncode(file);
-  if(data.length>950000)throw Error('사진 압축 후에도 용량이 큽니다. 크기를 줄여 다시 시도해 주세요.');
-  if(!photoCanEdit(ctx))throw Error('마감 상태가 변경되어 사진 업로드를 중단했습니다.');
-  await photoRemotePost('put',ctx,slot,data);
-  const dayKey=photoContextKey(ctx),photos=photoMemory.get(dayKey)||[null,null,null,null];
-  photos[slot-1]=data;photoMemory.set(dayKey,photos);photoExcelDirty=true;
-  if(dayKey===photoContextKey(photoContext())&&constructionExcelSheetIndex===1)photoPaintSlots(photos);
-  photoStatus('사진 '+slot+' 서버 저장 완료 · 기존 보고서 데이터는 변경하지 않았습니다.');
- }catch(e){photoStatus('사진 서버 저장 실패: '+e.message);alert('사진을 서버에 저장하지 못했습니다.\n'+e.message)}
- finally{photoRemotePending.delete(key)}
+ if(photoSavingBatch)return alert('보고서 저장 중에는 사진을 변경할 수 없습니다. 잠시 기다려 주세요.');
+ const key=photoStageKey(ctx,slot),old=photoStaged.get(key);
+ if(old)photoDropStaged(old);
+ const version=++photoStageVersion,tempUrl=URL.createObjectURL(file);
+ const record={ctx:{...ctx},slot,op:'put',data:null,tempUrl,file,version,processing:null};
+ photoStaged.set(key,record);
+ const photos=photoMemory.get(photoContextKey(ctx))||[null,null,null,null];
+ photos[slot-1]=tempUrl;photoMemory.set(photoContextKey(ctx),photos);photoExcelDirty=true;
+ if(photoContextKey(ctx)===photoContextKey(photoContext())&&constructionExcelSheetIndex===1)photoPaintSlots(photos);
+ photoStatus('사진 '+slot+' 즉시 표시 · 서버용 용량 최적화 중 (아직 미저장)');
+ record.processing=(async()=>{
+  try{
+   const data=await photoEncode(file);
+   if(photoStaged.get(key)!==record)return; // 압축 중 사진을 새로 붙여넣었을 때 옛 결과 무시
+   record.data=data;record.file=null;
+   const current=photoMemory.get(photoContextKey(ctx))||[null,null,null,null];
+   current[slot-1]=data;photoMemory.set(photoContextKey(ctx),current);
+   if(photoContextKey(ctx)===photoContextKey(photoContext())&&constructionExcelSheetIndex===1)photoPaintSlots(current);
+   photoStagedStatus();
+  }catch(e){if(photoStaged.get(key)===record){record.error=e;photoStatus('사진 '+slot+' 압축 실패 · 저장 전 다시 붙여넣어 주세요: '+e.message);alert('사진 '+slot+' 압축 실패: '+e.message);}}
+  finally{if(record.tempUrl){URL.revokeObjectURL(record.tempUrl);record.tempUrl=null;}}
+ })();
 }
 async function photoRemove(slot){
  const ctx=photoContext();if(!photoCanEdit(ctx))return alert('마감·작업없음 또는 읽기 전용인 날짜에는 사진을 삭제할 수 없습니다.');
- if(!confirm('사진 전용 서버의 '+ctx.date+' 사진 '+slot+'만 영구삭제할까요?\n기존 보고서, 마감, 공정률, 사진 설명은 삭제되지 않습니다.'))return;
- const key=photoContextKey(ctx)+'::'+slot;
- if(photoRemotePending.has(key))return alert('같은 사진칸을 처리 중입니다.');
- photoRemotePending.add(key);
+ if(photoSavingBatch)return alert('보고서 저장 중에는 사진을 변경할 수 없습니다.');
+ if(!confirm(ctx.date+' 사진 '+slot+'을 삭제 예약할까요?\n「보고서 저장」 시 사진 전용 서버에 반영됩니다.'))return;
+ const key=photoStageKey(ctx,slot),old=photoStaged.get(key);
+ const known=photoServerKnown.get(photoContextKey(ctx));
+ const shouldRemove=known?known.has(slot):true; // 서버 상태를 모르면 지우지 않고 먼저 확인해야 합니다.
+ if(old)photoDropStaged(old);
+ if(shouldRemove)photoStaged.set(key,{ctx:{...ctx},slot,op:'remove',data:null,version:++photoStageVersion});
+ const photos=photoMemory.get(photoContextKey(ctx))||[null,null,null,null];photos[slot-1]=null;photoMemory.set(photoContextKey(ctx),photos);
+ photoExcelDirty=true;if(photoContextKey(ctx)===photoContextKey(photoContext())&&constructionExcelSheetIndex===1)photoPaintSlots(photos);
+ photoStagedStatus();
+ if(!shouldRemove)photoStatus('아직 서버에 올리지 않은 사진을 화면에서 취소했습니다.');
+}
+async function photoFlushStaged(){
+ if(photoSavingBatch)throw Error('사진 저장이 이미 진행 중입니다.');
+ if(!photoStaged.size)return 0;
+ photoSavingBatch=true;
+ let completed=0;
  try{
-  photoStatus('사진 '+slot+' 전용 서버 영구삭제 중…');
-  await photoRemotePost('remove',ctx,slot);
-  const dayKey=photoContextKey(ctx),photos=photoMemory.get(dayKey)||[null,null,null,null];photos[slot-1]=null;photoMemory.set(dayKey,photos);
-  photoExcelDirty=true;if(dayKey===photoContextKey(photoContext())&&constructionExcelSheetIndex===1)photoPaintSlots(photos);
-  photoStatus('사진 '+slot+' 영구삭제 완료 · 다른 데이터는 변경하지 않았습니다.');
- }catch(e){photoStatus('사진 영구삭제 실패: '+e.message);alert('사진 서버 삭제 실패: '+e.message)}
- finally{photoRemotePending.delete(key)}
+  // 서버의 기존 사진이 인식되지 않은 상태에서 삭제 요청하지 않도록 확인합니다.
+  const records=Array.from(photoStaged.values());
+  for(const record of records){
+   if(record.processing)await record.processing;
+   if(record.error)throw Error('사진 '+record.slot+' 용량 최적화 실패: '+record.error.message);
+   if(record.op==='put'&&!record.data)throw Error('사진 '+record.slot+' 압축이 아직 완료되지 않았습니다.');
+   if(!photoCanEdit(record.ctx))throw Error('마감/읽기전용 상태라 사진을 저장할 수 없습니다.');
+   photoStatus('사진 서버 저장 중 '+(completed+1)+'/'+records.length+' · 페이지를 닫지 마세요.');
+   // 반드시 사진 전용 API만 호출하며 본문에 일반 일보 데이터를 섞지 않습니다.
+   if(record.op==='remove'){
+    const known=photoServerKnown.get(photoContextKey(record.ctx));
+    if(!known){const remote=await photoGetDay(record.ctx,true);photoRememberServerSlots(record.ctx,remote);}
+    if(photoServerKnown.get(photoContextKey(record.ctx))?.has(record.slot))await photoRemotePost('remove',record.ctx,record.slot);
+   } else await photoRemotePost('put',record.ctx,record.slot,record.data);
+   const set=photoServerKnown.get(photoContextKey(record.ctx))||new Set();
+   if(record.op==='remove')set.delete(record.slot);else set.add(record.slot);
+   photoServerKnown.set(photoContextKey(record.ctx),set);
+   if(photoStaged.get(photoStageKey(record.ctx,record.slot))===record)photoDropStaged(record);
+   completed++;
+  }
+  photoStatus('변경 사진 '+completed+'장 서버 저장 완료 · 작업일보 데이터와 별도로 보관');
+  return completed;
+ }finally{photoSavingBatch=false;}
 }
 async function photoPrune(root){
  // 보호 표식이 있는 전용 폴더 안의, 이 앱이 만든 jpg 파일만 삭제.
@@ -9205,7 +9367,7 @@ async function photoAttachToExcelZip(zip,date,site,trade){
    }
    zip.file(path,new XMLSerializer().serializeToString(doc));
   }
-  photos=await photoGetDay(ctx,false);photoFolderAccessError='';}catch(e){
+  photos=await photoGetDay(ctx,false);photoOverlayDrafts(ctx,photos);photoFolderAccessError='';}catch(e){
    photoFolderAccessError=e.message;
    photoStatus('사진 전용 서버 접근 오류: '+e.message);
    // 기존 공사일보 미리보기 자체를 차단하지 않습니다. 엑셀 다운로드는 별도 차단합니다.
@@ -9407,6 +9569,167 @@ function urigongCloseDiagnostic(){
 function urigongExpandDiagnostic(){const p=document.querySelector('.urigong-diagnostic-panel');if(p){p.style.width='calc(100vw - 28px)';p.style.height='calc(100dvh - 28px)'}}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('urigongDiagnosticShade')?.hidden){e.preventDefault();urigongCloseDiagnostic()}});
 document.getElementById('urigongDiagnosticShade').addEventListener('click',e=>{if(e.target.id==='urigongDiagnosticShade')urigongCloseDiagnostic()});
+</script>
+
+
+<style id="urigongPendingSaveStyles">
+#urigongPendingSaveShade[hidden]{display:none!important}
+#urigongPendingSaveShade{position:fixed;inset:0;z-index:180000;background:rgba(15,23,42,.58);display:grid;place-items:center;padding:18px}
+#urigongPendingSaveDialog{width:min(420px,100%);background:#fff;color:#193047;border-radius:13px;padding:21px;box-shadow:0 14px 50px #0005;line-height:1.5}
+#urigongPendingSaveDialog h3{margin:0 0 10px;font-size:18px;color:#994d00}
+#urigongPendingSaveDialog p{font-size:13px;margin:0 0 16px}
+#urigongPendingSaveDialog .choices{display:grid;gap:9px}
+#urigongPendingSaveDialog button{padding:11px 12px;border-radius:8px;border:1px solid #cbd5e1;font-weight:750;cursor:pointer;background:#fff;font-size:13px}
+#urigongPendingSaveDialog #urigongPendingSaveYes{background:#0878f9;border-color:#0878f9;color:white}
+#urigongPendingSaveDialog #urigongPendingSaveDiscard{color:#9a3412;border-color:#f3c4a7}
+#urigongPendingSaveDialog small{display:block;margin-top:12px;color:#64748b;line-height:1.5}
+</style>
+<div id="urigongPendingSaveShade" hidden><div id="urigongPendingSaveDialog" role="dialog" aria-modal="true" aria-labelledby="urigongPendingSaveTitle" tabindex="-1">
+<h3 id="urigongPendingSaveTitle">⚠ 저장하지 않은 변경사항이 있습니다</h3>
+<p>사진이나 보고서 입력값이 변경되었습니다. 이동하기 전에 저장하시겠습니까?</p>
+<div class="choices"><button type="button" id="urigongPendingSaveYes">저장하고 이동</button><button type="button" id="urigongPendingSaveDiscard">저장하지 않고 이동</button><button type="button" id="urigongPendingSaveCancel">취소 · 계속 편집</button></div>
+<small>사진은 「보고서 저장」을 누를 때만 사진 전용 서버에 업로드되거나 삭제됩니다.</small>
+</div></div>
+<script id="urigongPhotoDeferredReportSaving">
+// 보고서 데이터는 기존 모드별 저장소를 사용하고, 사진은 별도의 인증된 사진 API로만 저장합니다.
+let urigongReportBaseline='';
+let urigongReportBaselineKey='';
+let urigongNavBypass=false;
+let urigongReportSaveBusy=false;
+let urigongPendingDialogBusy=false;
+let urigongSkippingDraft=false;
+const urigongOriginalStashModeDraft=stashModeDraft;
+stashModeDraft=function(){if(urigongSkippingDraft)return;return urigongOriginalStashModeDraft.apply(this,arguments)};
+const urigongOriginalAutoSave=autoSave;
+autoSave=function(){if(urigongSkippingDraft)return;return urigongOriginalAutoSave.apply(this,arguments)};
+function urigongReportKey(){return [activeProjectName(),$('date')?.value||'', $('site')?.value||'', $('trade')?.value||'',currentWorkType,currentOvertimeNo].join('||')}
+function urigongReportSnapshot(){
+ try{return JSON.stringify({start:$('start')?.value||'',end:$('end')?.value||'',bpa:$('bpa')?.value||'',state,slackExtra:currentSlackExtra()});}
+ catch(e){return '';}
+}
+function urigongResetBaseline(){urigongReportBaselineKey=urigongReportKey();urigongReportBaseline=urigongReportSnapshot();}
+function urigongHasUnsaved(){
+ if(photoStaged.size>0||photoCaptionDrafts.size>0)return true;
+ if(document.querySelector('#excelPhotoEditor [data-caption-dirty="1"]'))return true;
+ if(!urigongReportBaseline||urigongReportBaselineKey!==urigongReportKey())return false;
+ return urigongReportSnapshot()!==urigongReportBaseline;
+}
+function urigongPendingSavePrompt(){
+ return new Promise(resolve=>{
+  const shade=document.getElementById('urigongPendingSaveShade');
+  if(!shade)return resolve('cancel');
+  shade.hidden=false;shade.querySelector('#urigongPendingSaveDialog').focus();
+  let done=false;
+  function end(choice){if(done)return;done=true;shade.hidden=true;yes.removeEventListener('click',accept);discard.removeEventListener('click',reject);cancel.removeEventListener('click',stop);document.removeEventListener('keydown',esc,true);resolve(choice);}
+  function accept(){end('save')}function reject(){end('discard')}function stop(){end('cancel')}
+  function esc(e){if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();end('cancel')}}
+  const yes=document.getElementById('urigongPendingSaveYes'),discard=document.getElementById('urigongPendingSaveDiscard'),cancel=document.getElementById('urigongPendingSaveCancel');
+  yes.addEventListener('click',accept);discard.addEventListener('click',reject);cancel.addEventListener('click',stop);document.addEventListener('keydown',esc,true);
+ });
+}
+async function urigongSaveReportWorkflow(silent=false){
+ if(urigongReportSaveBusy){alert('보고서 저장이 이미 진행 중입니다.');return false;}
+ if(!canEditActiveProject()||isNoWorkDay($('date')?.value)||!requireReportEditable())return false;
+ urigongReportSaveBusy=true;
+ const allButtons=Array.from(document.querySelectorAll('button[onclick="saveReport()"],#excelSharedReportSaveBtn'));
+ allButtons.forEach(b=>b.disabled=true);
+ try{
+  const active=document.activeElement;
+  if(active?.classList?.contains('excel-photo-caption')){
+   const ref=PHOTO_CAPTION_REFS.find(x=>active.title?.startsWith(x+' ·'));
+   if(ref)photoStageCaption(ref,active.textContent);
+  }
+  const changes=Array.from(photoCaptionDrafts.entries());
+  const currentCtx=photoContext(),prefix=photoContextKey(currentCtx)+'::';
+  for(const [key,val] of changes){
+   if(!key.startsWith(prefix))continue;
+   const ref=key.slice(prefix.length);
+   if(!PHOTO_CAPTION_REFS.includes(ref))continue;
+   if(!(await photoSaveCaption(ref,val,currentCtx)))throw Error('사진 설명 '+ref+' 저장에 실패했습니다.');
+   if(photoCaptionDrafts.get(key)===val)photoCaptionDrafts.delete(key);
+   const textarea=document.querySelector('#excelPhotoEditor .photo-editor-caption[data-caption-ref="'+ref+'"]');
+   if(textarea&&!photoCaptionDrafts.has(key))delete textarea.dataset.captionDirty;
+  }
+  const uploaded=await photoFlushStaged();
+  const saved=saveReportWorkData(true);
+  if(saved!==true)throw Error('보고서 입력값 저장을 완료하지 못했습니다.');
+  urigongResetBaseline();
+  if(!silent)alert('보고서 저장 완료'+(uploaded?' · 사진 '+uploaded+'장 서버 반영':'')+(tokenValid()?'\n일반 보고서 공용저장소 자동 동기화 중':'\n현재 기기에 저장됨'));
+  return true;
+ }catch(e){
+  photoStatus('미저장 항목이 남아 있습니다 · 보고서 저장 실패: '+e.message);
+  alert('보고서 저장을 완료하지 못했습니다.\n'+e.message+'\n이 화면에서 다시 저장해 주세요.');
+  return false;
+ }finally{urigongReportSaveBusy=false;allButtons.forEach(b=>b.disabled=false);}
+}
+async function saveReport(){return await urigongSaveReportWorkflow(false)}
+function urigongDiscardUnsaved(){
+ // 사진 서버에 DELETE 요청을 보내지 않고, 이 화면의 미저장 목록만 취소합니다.
+ for(const record of photoStaged.values())photoDropStaged(record);
+ photoStaged.clear();photoCaptionDrafts.clear();
+ const drafts=getModeDrafts(),key=currentModeKey();delete drafts[key];setModeDrafts(drafts);
+ const saved=findSavedReport($('date')?.value,$('site')?.value,$('trade')?.value,currentWorkType,currentOvertimeNo);
+ urigongSkippingDraft=true;
+ try{
+  if(saved){applyReportLike(saved,currentWorkType,currentOvertimeNo)}
+  else{
+   state={companies:[],equipment:[],areas:[],tomorrowAreas:[],managers:[]};
+   $('start').value=currentWorkType==='overtime'?'17:30':'07:30';
+   $('end').value=currentWorkType==='overtime'?'19:30':'17:00';
+   $('bpa').value='';render();
+  }
+  photoMemory.clear();photoExcelDirty=true;
+  urigongResetBaseline();
+ }finally{urigongSkippingDraft=false;}
+}
+async function urigongGuardNavigation(action){
+ if(urigongPendingDialogBusy||urigongReportSaveBusy)return;
+ if(!urigongHasUnsaved()){action();setTimeout(urigongResetBaseline,90);return;}
+ urigongPendingDialogBusy=true;
+ try{
+  const choice=await urigongPendingSavePrompt();
+  if(choice==='cancel')return;
+  if(choice==='save'){const ok=await urigongSaveReportWorkflow(true);if(!ok)return;}
+  if(choice==='discard')urigongDiscardUnsaved();
+  action();setTimeout(urigongResetBaseline,90);
+ }finally{urigongPendingDialogBusy=false;}
+}
+function urigongReplayNav(el){
+ urigongNavBypass=true;
+ try{el.click()}finally{urigongNavBypass=false;}
+}
+// 메뉴/탭/현장/보고서 종류/날짜 이동을 이벤트 실행 전에 차단합니다.
+const urigongNavigationPattern=/^(?:showPage|mobileGo|goWritePage|goSiteHome|enterProject(?:Page)?|openConstructionExcelPage|selectConstructionExcelSheet|switchWorkMode|moveWorkDate|shiftExcelPreviewDay|selectExcelPreviewDate|loadCurrentDateReport|openSearchReport|openReportFromSearch|searchOpenReport|jumpToReport)\s*\(/;
+document.addEventListener('click',function(event){
+ if(urigongNavBypass||urigongPendingDialogBusy||urigongReportSaveBusy)return;
+ const el=event.target.closest?.('button[onclick],a[onclick]');if(!el)return;
+ const handler=(el.getAttribute('onclick')||'').trim();
+ if(!urigongNavigationPattern.test(handler))return;
+ if(!urigongHasUnsaved())return;
+ event.preventDefault();event.stopImmediatePropagation();
+ void urigongGuardNavigation(()=>urigongReplayNav(el));
+},true);
+function urigongGuardChange(e,oldValue){
+ if(urigongNavBypass||!urigongHasUnsaved())return;
+ const field=e.target,requested=field.value;
+ field.value=oldValue;
+ e.preventDefault();e.stopImmediatePropagation();
+ void urigongGuardNavigation(()=>{
+  urigongNavBypass=true;
+  try{field.value=requested;field.dispatchEvent(new Event('change',{bubbles:true}));}
+  finally{urigongNavBypass=false;}
+ });
+}
+document.addEventListener('change',function(e){
+ if(e.target?.id==='date')urigongGuardChange(e,lastLoadedWorkDate||$('date').value);
+ if(e.target?.id==='excelDatePicker')urigongGuardChange(e,$('date')?.value||'');
+},true);
+// 브라우저가 제공하는 표준 확인창: 페이지 새로고침/닫기 시 파일 손실 방지.
+window.addEventListener('beforeunload',function(e){
+ if(urigongSkippingDraft||!urigongHasUnsaved())return;
+ e.preventDefault();e.returnValue='';
+});
+window.addEventListener('DOMContentLoaded',()=>setTimeout(urigongResetBaseline,180));
 </script>
 
 </body></html>
