@@ -2696,6 +2696,14 @@ window.addEventListener('focus',function(){
 #writePage[data-preview-mode="overtime"] .desktop-preview .preview-copy-btn,
 #writePage[data-preview-mode="overtime"] .desktop-preview .preview-toggle{background:#e0f5e3!important;color:#316b41!important;border-color:#a9d6b2!important;}
 </style>
+
+<style id="urigongWeeklyAreasReadonlyCSS">
+/* 중식OT/연장: 같은 날 주간 금일 작업내용 참조 · 저장 원본 불변 */
+#areas.weekly-areas-reference .area{background:#edf0f3!important;border:1px solid #cbd3dc!important;opacity:.88}
+#areas.weekly-areas-reference input,#areas.weekly-areas-reference select{background:#e1e5ea!important;color:#596577!important;-webkit-text-fill-color:#596577!important;border-color:#bdc6d1!important;cursor:default!important;opacity:1!important}
+#areas.weekly-areas-reference button{background:#e1e5ea!important;color:#8793a0!important;border-color:#c9d0da!important;cursor:not-allowed!important;opacity:.6!important}
+#areas .weekly-areas-empty{padding:12px 10px;color:#65758a;background:#eef1f4;border-radius:6px;font-size:12px}
+</style>
 </head>
 <body class="locked site-home-mode">
 <div id="siteAccessBackdrop" role="dialog" aria-modal="true" aria-label="현장 접속 알림">
@@ -2945,13 +2953,6 @@ window.addEventListener('focus',function(){
   </div>
   <div class="excel-preview-workspace"><aside class="excel-progress-panel" aria-label="공사내용 또는 사진대지 편집 입력"><div id="excelProgressEditor"></div>  <div id="photoLocalControls" role="region" aria-label="사진 전용 구글 드라이브 저장">
   <b>사진대지 · 전용 서버 저장 (일반 작업일보와 완전 분리)</b>
-  <label style="display:block;width:100%;font-weight:600;font-size:12px">사진 전용 웹앱 주소
-    <input id="photoServerUrl" type="url" autocomplete="off" spellcheck="false" placeholder="https://script.google.com/macros/s/.../exec" style="display:block;width:100%;box-sizing:border-box;padding:6px;border:1px solid #cbd6e2;border-radius:5px" />
-  </label>
-  <label style="display:block;width:100%;font-weight:600;font-size:12px">사진 서버 전용 인증키
-    <input id="photoServerSecret" type="password" autocomplete="off" placeholder="photoSetup 실행 로그의 PHOTO_API_KEY" style="display:block;width:100%;box-sizing:border-box;padding:6px;border:1px solid #cbd6e2;border-radius:5px" />
-  </label>
-  <button type="button" class="btn primary" onclick="photoSaveServerSettings()">사진 서버 연결·설정 저장</button>
   <button type="button" class="btn" onclick="loadPhotoSheet(true)">사진 다시 불러오기</button>
   <section id="photoMasterManager" style="display:none;width:100%;padding:9px;border:1px solid #d3dbe8;border-radius:7px;background:#f6f8fc" aria-label="마스터 사진 전용 폴더 확인">
    <strong style="display:block;margin-bottom:6px">마스터 전용 · 서버 사진폴더 확인</strong>
@@ -3012,6 +3013,14 @@ window.addEventListener('focus',function(){
     <div style="font-size:11px;color:#66788c;line-height:1.45;margin-top:-5px;margin-bottom:7px">현장마다 읽기전용 또는 관리전용을 선택할 수 있습니다. 읽기전용은 조회·검색·엑셀만 가능하고, 관리전용은 작성·수정·삭제·기준정보 변경이 가능합니다. <b>마감·마감해제는 마스터만 가능합니다.</b> 기기등록 관리와 마스터 비밀번호 변경도 마스터만 가능합니다.</div>
     <div class="security-actions"><button class="btn primary" type="button" onclick="loadDeviceAdminList()">등록기기 조회</button><button class="btn" type="button" onclick="createDeviceRegistrationCode()">1회용 등록코드 생성</button></div>
     <div id="registrationCodeBox" class="registration-code-box"></div>
+    <section id="photoSharedMasterSettings" style="margin:12px 0;padding:10px;border:1px solid #cad8e9;border-radius:7px;background:#f3f7fc">
+      <strong style="color:#193d64">사진 서버 · 전체 등록기기 일괄설정</strong>
+      <p style="font-size:11px;margin:6px 0;color:#5e6d7e">한 번 저장하면 기존 등록기기와 새 등록기기에 공통 적용됩니다. 일반 관리자에게 설정칸은 표시하지 않습니다.</p>
+      <label style="display:block;font-size:12px;margin:7px 0">사진 전용 웹앱 주소<input id="photoServerUrl" type="url" autocomplete="off" spellcheck="false" placeholder="https://script.google.com/macros/s/.../exec" style="display:block;width:100%;box-sizing:border-box;padding:6px;border:1px solid #bfcde0;border-radius:5px"></label>
+      <label style="display:block;font-size:12px;margin:7px 0">사진 서버 인증키<input id="photoServerSecret" type="password" autocomplete="off" placeholder="사진 서버 PHOTO_API_KEY" style="display:block;width:100%;box-sizing:border-box;padding:6px;border:1px solid #bfcde0;border-radius:5px"></label>
+      <button class="btn primary" type="button" onclick="photoSaveServerSettings()">전체 등록기기 연결 설정 저장</button>
+      <span id="photoSharedSettingsStatus" role="status" style="display:block;font-size:11px;margin-top:6px;color:#51647e"></span>
+    </section>
     <div id="deviceAdminStatus" style="font-size:12px;color:#53657a;min-height:18px"></div>
     <div id="deviceAdminListWrap"></div>
     <div class="device-gate-divider"></div>
@@ -4080,10 +4089,37 @@ function updateAreaEmptyStyle(i){
  if(!a||!el)return;
  el.classList.toggle('area-empty',!(a.tasks||[]).some(t=>(t||'').trim()));
 }
+function weeklyAreasForReference(date=$('date')?.value,site=$('site')?.value,trade=$('trade')?.value){
+  const weekly=lunchWeeklySource(date,site,trade);
+  return Array.isArray(weekly?.state?.areas)?weekly.state.areas:[];
+}
 function renderAreas(){
-  normalizeZones();
-  const zones=(D.zones||[]).filter(z=>z&&z.zone);
-  $('areas').innerHTML=state.areas.map((a,i)=>{
+   normalizeZones();
+   const zones=(D.zones||[]).filter(z=>z&&z.zone);
+   const areasHost=$('areas');
+   const linked=currentWorkType==='lunch'||currentWorkType==='overtime';
+   const addButton=areasHost?.closest('.card')?.querySelector('.title button');
+   if(addButton){addButton.disabled=linked;addButton.style.display=linked?'none':'';}
+   areasHost.classList.toggle('weekly-areas-reference',linked);
+   if(linked){
+     // Only the weekly source is rendered, without mutating or saving lunch/overtime areas.
+     const linkedAreas=weeklyAreasForReference();
+     const options=zones.map(z=>`<option value="${esc(z.zone)}">${esc(z.zone)}</option>`).join('');
+     areasHost.innerHTML=linkedAreas.length?linkedAreas.map(a=>{
+       const tasks=Array.isArray(a.tasks)&&a.tasks.length?a.tasks:[''];
+       const known=zones.some(z=>z.zone===a.zone);
+       return `<div class="area weekly-linked-area ${!tasks.some(t=>String(t||'').trim())?'area-empty':''}">
+         <div class="area-layout"><div class="area-meta">
+           <select class="area-name-input" disabled aria-label="주간 구역 · 읽기전용"><option value="">구역명</option>${!known&&a.zone?`<option selected>${esc(a.zone)}</option>`:''}${options.replace('value="'+esc(a.zone)+'"','value="'+esc(a.zone)+'" selected')}</select>
+           <input class="area-location-input" readonly disabled value="${esc(a.loc||a.location||'')}" placeholder="위치">
+           <input class="area-note-input" readonly disabled value="${esc(a.note||'')}" placeholder="비고">
+           <button type="button" class="btn area-delete-btn" disabled>삭제</button>
+         </div><div class="area-tasks">${tasks.map((t,j)=>`<div class="subtask"><span>${j+1}.</span><input readonly disabled value="${esc(t)}" placeholder="작업내용"><button class="btn" disabled>−</button><button class="btn" disabled>+</button></div>`).join('')}</div></div>
+       </div>`;
+     }).join(''):'<div class="weekly-areas-empty">같은 날짜의 주간 작업내용이 아직 없습니다.</div>';
+     return;
+   }
+   areasHost.innerHTML=state.areas.map((a,i)=>{
     if(a.zone===undefined)a.zone=a.name||'';
     if(a.loc===undefined)a.loc=a.location||'';
     if(a.note===undefined)a.note='';
@@ -4109,7 +4145,7 @@ function renderAreas(){
     </div>`;
   }).join('');
 }
-function addArea(){state.areas.push({zone:'',loc:'',note:'',tasks:['']});renderAreas()} function addTask(i){state.areas[i].tasks.push('');renderAreas()} function removeTask(i,k){if(state.areas[i].tasks.length>1)state.areas[i].tasks.splice(k,1);else state.areas[i].tasks[0]='';renderAreas();updatePreview()}
+function addArea(){if(currentWorkType!=='weekly')return;state.areas.push({zone:'',loc:'',note:'',tasks:['']});renderAreas()} function addTask(i){if(currentWorkType!=='weekly')return;state.areas[i].tasks.push('');renderAreas()} function removeTask(i,k){if(currentWorkType!=='weekly')return;if(state.areas[i].tasks.length>1)state.areas[i].tasks.splice(k,1);else state.areas[i].tasks[0]='';renderAreas();updatePreview()}
 function ensureTomorrowAreas(){
   if(!Array.isArray(state.tomorrowAreas))state.tomorrowAreas=[];
   return state.tomorrowAreas;
@@ -4309,7 +4345,7 @@ function previewReportSection(tab){
   (D.jobs||[]).forEach(j=>{if(totals[j]>0)lines.push(`   - ${j} : ${totals[j]}명`)});
   const eq=(data.equipment||[]).filter(e=>e.name&&e.qty>0).map(e=>`${e.name}-${e.qty}대`);
   lines.push('',`2) 장비 : ${eq.length?eq.join(', '):'-'}`,'','3) 금일 작업 내용');
-  (data.areas||[]).forEach(a=>{
+  (tab==='weekly'?data.areas||[]:weeklyAreasForReference(date,site,trade)).forEach(a=>{
     const tasks=(a.tasks||[]).filter(x=>String(x||'').trim());
     if((a.zone||a.loc)&&tasks.length){
       lines.push(`- [${[a.zone,a.loc].map(v=>String(v||'').trim()).filter(Boolean).join('  ')}]`);
@@ -5673,7 +5709,7 @@ async function publicPost(action,payload={},timeoutMs=75000){
   };
   // 현장 접속권 조회/유지/강제종료는 대용량 보고서 동기화 큐를 기다리지 않습니다.
   // 서버에서는 LockService와 세션 검사로 편집권을 계속 보호합니다.
-  if(['siteLockEnter','siteLockPulse','siteLockRequest','siteLockMasterForce'].includes(action))return run();
+  if(['siteLockEnter','siteLockPulse','siteLockRequest','siteLockMasterForce','photoSharedConfigGet','photoSharedConfigSet'].includes(action))return run();
   const pending=publicStorePostQueue.then(run,run);
   publicStorePostQueue=pending.catch(()=>{});
   return pending;
@@ -6118,7 +6154,10 @@ async function initDeviceGate(){
 }
 
 function openDeviceAdminDialog(focusChange=false){
-  if(getDeviceRole()!=='admin')return alert('관리자 기기에서만 사용할 수 있습니다.');const m=$('deviceAdminModal');if(m){m.classList.add('open');m.setAttribute('aria-hidden','false')}if(focusChange)setTimeout(()=>$('changeMasterNew')?.focus(),50);else setTimeout(()=>$('deviceAdminPassword')?.focus(),50)
+  if(getDeviceRole()!=='admin')return alert('관리자 기기에서만 사용할 수 있습니다.');
+  photoInitServerInputs();
+  if(tokenValid())void photoSharedEnsureReady().then(()=>photoInitServerInputs()).catch(()=>{});
+  const m=$('deviceAdminModal');if(m){m.classList.add('open');m.setAttribute('aria-hidden','false')}if(focusChange)setTimeout(()=>$('changeMasterNew')?.focus(),50);else setTimeout(()=>$('deviceAdminPassword')?.focus(),50)
 }
 function closeDeviceAdminDialog(){const m=$('deviceAdminModal');if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true')}['deviceAdminPassword','changeMasterNew','changeMasterNew2'].forEach(id=>{if($(id))$(id).value=''});const c=$('registrationCodeBox');if(c){c.classList.remove('show');c.textContent=''}}
 function adminPasswordValue(){return (($('deviceAdminPassword')&&$('deviceAdminPassword').value)||'')}
@@ -6708,11 +6747,12 @@ function reportText(){
   if(currentWorkType==='weekly'){
     return formatSection(state,state.managers,'주간작업보고',$('start').value,$('end').value);
   }
+  const linkedState={...state,areas:weeklyAreasForReference(date,site,trade)};
   if(currentWorkType==='lunch'){
     const lunchManagers=(currentReportLocked?null:lunchWeeklyManagers(date,site,trade))||state.managers||[];
-    return formatSection(state,lunchManagers,'중식OT작업보고','11:00','13:00');
+    return formatSection(linkedState,lunchManagers,'중식OT작업보고','11:00','13:00');
   }
-  return formatSection(state,state.managers,currentModeLabel()+'작업보고',$('start').value,$('end').value);
+  return formatSection(linkedState,state.managers,currentModeLabel()+'작업보고',$('start').value,$('end').value);
 }
 function moveWorkDate(days){
   const el=$('date');if(!el)return;
@@ -8796,21 +8836,46 @@ const PHOTO_REMOTE_DEFAULT_URL='https://script.google.com/macros/s/AKfycby8DNgTx
 const PHOTO_REMOTE_SECRET_KEY='urigongPhotoOnlyServerKeyV1';
 let photoRemoteSeq=0;
 let photoRemotePending=new Set();
+let photoSharedConfig=null;
+let photoSharedConfigFetch=null;
+let photoSharedConfigFetchedAt=0;
+async function photoSharedEnsureReady(force=false){
+  // Master may configure the initial key before central registration.
+  if(!force&&photoSharedConfig&&Date.now()-photoSharedConfigFetchedAt<60*1000)return photoSharedConfig;
+  if(!tokenValid())throw Error('먼저 기기등록을 완료해 주세요.');
+  if(photoSharedConfigFetch)return photoSharedConfigFetch;
+  photoSharedConfigFetch=(async()=>{
+    const result=await publicPost('photoSharedConfigGet',authPayload({}),25000);
+    if(result.config&&result.config.url&&result.config.secret){
+      photoSharedConfig={url:result.config.url,secret:result.config.secret};
+      photoSharedConfigFetchedAt=Date.now();
+    }
+    return photoSharedConfig;
+  })();
+  try{return await photoSharedConfigFetch;}finally{photoSharedConfigFetch=null;}
+}
+function photoSharedMasterStatus(message){
+  const el=document.getElementById('photoSharedSettingsStatus');if(el)el.textContent=message||'';
+}
 function photoServerConfig(){
- const url=(document.getElementById('photoServerUrl')?.value||localStorage.getItem(PHOTO_REMOTE_URL_KEY)||PHOTO_REMOTE_DEFAULT_URL).trim();
- const secret=(document.getElementById('photoServerSecret')?.value||localStorage.getItem(PHOTO_REMOTE_SECRET_KEY)||'').trim();
+ const master=typeof isMasterDevice==='function'&&isMasterDevice();
+ const url=(master?(document.getElementById('photoServerUrl')?.value||photoSharedConfig?.url||localStorage.getItem(PHOTO_REMOTE_URL_KEY)||PHOTO_REMOTE_DEFAULT_URL):(photoSharedConfig?.url||'')).trim();
+ const secret=(master?(document.getElementById('photoServerSecret')?.value||photoSharedConfig?.secret||localStorage.getItem(PHOTO_REMOTE_SECRET_KEY)||''):(photoSharedConfig?.secret||'')).trim();
  if(!/^https:\/\/script\.google\.com\/macros\/s\/[^/?#]+\/exec$/.test(url))throw Error('사진 전용 Apps Script 웹앱 /exec 주소를 입력하세요.');
- if(secret.length<40)throw Error('사진 전용 서버 인증키를 입력하세요.');
+ if(secret.length<40)throw Error('마스터가 사진 서버 연결을 일괄설정해야 합니다.');
  return {url,secret};
 }
 function photoInitServerInputs(){
+ const master=typeof isMasterDevice==='function'&&isMasterDevice();
  const u=document.getElementById('photoServerUrl'),k=document.getElementById('photoServerSecret');
- if(u&&!u.value)u.value=localStorage.getItem(PHOTO_REMOTE_URL_KEY)||PHOTO_REMOTE_DEFAULT_URL;
- if(k&&!k.value)k.value=localStorage.getItem(PHOTO_REMOTE_SECRET_KEY)||'';
+ if(master){
+   if(u&&!u.value)u.value=photoSharedConfig?.url||localStorage.getItem(PHOTO_REMOTE_URL_KEY)||PHOTO_REMOTE_DEFAULT_URL;
+   if(k&&!k.value)k.value=photoSharedConfig?.secret||localStorage.getItem(PHOTO_REMOTE_SECRET_KEY)||'';
+ }
  const label=document.getElementById('photoLocalFolderLabel');
- if(label)label.textContent=(localStorage.getItem(PHOTO_REMOTE_URL_KEY)&&localStorage.getItem(PHOTO_REMOTE_SECRET_KEY))?'사진 전용 서버 설정됨 (일반 공용저장소와 별도)':'사진 전용 서버 연결 필요';
+ if(label)label.textContent=photoSharedConfig?'사진 전용 서버 중앙설정 적용됨 · 모든 등록기기 공통':'사진 전용 서버 중앙설정 확인 필요';
  const adminPanel=document.getElementById('photoMasterManager');
- if(adminPanel)adminPanel.style.display=(typeof isMasterDevice==='function'&&isMasterDevice())?'block':'none';
+ if(adminPanel)adminPanel.style.display=master?'block':'none';
 }
 function photoJsonp(action,args={}){
  const {url,secret}=photoServerConfig();
@@ -8827,6 +8892,7 @@ function photoJsonp(action,args={}){
 }
 function photoRemoteRequestId(){return 'p'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,12)}
 async function photoRemotePost(action,ctx,slot,data){
+ await photoSharedEnsureReady();
  const {url,secret}=photoServerConfig();
  const requestId=photoRemoteRequestId();
  const body={action,requestId,secret,project:ctx.project,site:ctx.site,trade:ctx.trade,date:ctx.date,slot};
@@ -8845,19 +8911,27 @@ async function photoRemotePost(action,ctx,slot,data){
 }
 async function photoSaveServerSettings(){
  try{
+  if(!isMasterDevice())throw Error('마스터만 전체 기기의 사진 서버 설정을 변경할 수 있습니다.');
+  const pw=adminPasswordValue();if(!pw)throw Error('기기등록 관리 상단에 마스터 비밀번호를 입력해 주세요.');
   const {url,secret}=photoServerConfig();
-  photoStatus('사진 전용 서버 연결을 확인하고 있어요…');
+  photoSharedMasterStatus('사진 전용 서버 연결과 인증을 확인하고 있습니다…');
   const ping=await photoJsonp('ping');if(!ping.ok)throw Error('사진 서버 응답을 확인하지 못했습니다.');
-  if(photoStaged.size)throw Error('미저장 사진이 있습니다. 보고서를 먼저 저장한 뒤 사진 서버 연결 설정을 변경하세요.');
+  if(photoStaged.size)throw Error('미저장 사진이 있습니다. 보고서를 먼저 저장해 주세요.');
+  const result=await publicPost('photoSharedConfigSet',authPayload({masterPassword:pw,url,secret}),30000);
+  if(!result?.saved)throw Error('사진 서버 공통설정 저장 확인 실패');
+  photoSharedConfig={url,secret};photoSharedConfigFetchedAt=Date.now();
+  // Master setup remains accessible on this machine; other devices load it from authenticated server.
   localStorage.setItem(PHOTO_REMOTE_URL_KEY,url);localStorage.setItem(PHOTO_REMOTE_SECRET_KEY,secret);
   photoInitServerInputs();photoMemory.clear();photoMemoryFetchedAt.clear();photoServerKnown.clear();photoExcelDirty=true;photoFolderAccessError='';
+  photoSharedMasterStatus('공통 설정 저장 완료 · 기존/신규 등록기기에 자동 적용');
   photoStatus('사진 전용 서버 연결됨 · 현장별 최신 '+ping.keep+'개 사진 작업일 보관 · 일반 데이터와 분리');
   if(constructionExcelSheetIndex===1)await loadPhotoSheet(true);
- }catch(e){photoStatus('사진 전용 서버 연결 실패: '+e.message);alert('사진 전용 서버에 연결하지 못했습니다.\n'+e.message)}
+ }catch(e){photoSharedMasterStatus('저장 실패: '+e.message);photoStatus('사진 전용 서버 연결 실패: '+e.message);alert('사진 전용 서버 설정을 저장하지 못했습니다.\n'+e.message)}
 }
 // 마스터 전용 폴더 조회/수동 정리. 일반 보고서 클라우드와 별도 API·인증키·저장소.
 let photoMasterShown=[];
 async function photoMasterPost(action,ctx,extra={}){
+ await photoSharedEnsureReady();
  if(typeof isMasterDevice!=='function'||!isMasterDevice())throw Error('마스터 기기에서만 사용할 수 있습니다.');
  const masterSecret=(document.getElementById('photoMasterSecret')?.value||'').trim();
  if(!masterSecret)throw Error('사진폴더 마스터 관리키를 먼저 입력해 주세요.');
@@ -9213,7 +9287,8 @@ function photoPrefetchCurrentExcelDay(){
  if(!document.getElementById('excelPage')||document.getElementById('excelPage').style.display==='none')return;
  const ctx=photoContext(),key=photoContextKey(ctx);
  if(!/^\d{4}-\d{2}-\d{2}$/.test(ctx.date)||!ctx.site||!ctx.trade)return;
- // 연결이 없는 기기에서는 인증키를 요구하는 팝업을 띄우지 않습니다.
+ // 일반 등록기기는 중앙설정이 로드되면 별도 입력 없이 사진 조회를 시작합니다.
+ if(!photoSharedConfig){void photoSharedEnsureReady().then(()=>{if(photoSharedConfig)photoPrefetchCurrentExcelDay()}).catch(()=>{});return;}
  try{photoServerConfig();}catch(_){return;}
  if(photoRemoteInflight.has(key))return;
  if(photoMemory.has(key)&&Date.now()-(photoMemoryFetchedAt.get(key)||0)<PHOTO_CACHE_TTL)return;
@@ -9225,6 +9300,7 @@ async function photoGetDay(ctx,force=false){
  if(!force&&cached&&Date.now()-(photoMemoryFetchedAt.get(key)||0)<PHOTO_CACHE_TTL){photoOverlayDrafts(ctx,cached);return cached;}
  if(photoRemoteInflight.has(key))return photoRemoteInflight.get(key);
  const task=(async()=>{
+  await photoSharedEnsureReady();
   const result=[null,null,null,null];
   // 기존: 목록 요청 1회 완료 후 사진 요청 → 서버 통신을 두 번 연속 기다림.
   // 개선: 사진 1~4번을 한 번에 병렬 조회. 서버의 get은 사진이 없을 때도 data:null로 응답합니다.
@@ -9562,7 +9638,7 @@ async function photoAttachToExcelZip(zip,date,site,trade){
  }
  zip.file(typesPath,new XMLSerializer().serializeToString(tdoc));
 }
-document.addEventListener('DOMContentLoaded',()=>{photoInitServerInputs()});
+document.addEventListener('DOMContentLoaded',()=>{photoInitServerInputs();setTimeout(()=>{if(tokenValid())photoSharedEnsureReady().then(()=>photoInitServerInputs()).catch(()=>{});},600)});
 </script>
 
 <div id="appMemoDialog" hidden role="dialog" aria-modal="true" aria-label="일자 관계없는 메모장" onclick="if(event.target===this)appMemoClose()"><div id="appMemoPanel"><header><strong>🗒 메모장 · 날짜와 관계없이 마지막 편집 내용</strong><button type="button" class="btn" onclick="appMemoClose()">닫기 ×</button></header><textarea id="appMemoBody" placeholder="일자와 관계없이 마지막으로 입력한 메모가 유지됩니다." oninput="appMemoSave()"></textarea><div class="app-memo-foot" style="font-size:11px;color:#68798a;margin-top:5px">입력 즉시 이 브라우저에 저장됩니다. 다른 PC에는 자동 공유되지 않습니다.</div></div></div>
@@ -9867,7 +9943,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(urigongResetBaseline,1
    서버 Code.gs의 siteLock* 라우팅 적용/웹앱 재배포 전에는 서버가 기능을 거부하므로 접속을 차단합니다.
    기존 작업일보/사진대지 데이터에 대한 임의 삭제는 없습니다.
  */
-const siteAccessSessionId=sessionStorage.getItem('urigongSiteAccessSession')||('s_'+(typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID().replaceAll('-',''):Array.from({length:4},()=>Math.random().toString(36).slice(2)).join('').slice(0,32)));
+let siteAccessSessionId=sessionStorage.getItem('urigongSiteAccessSession')||('s_'+(typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID().replaceAll('-',''):Array.from({length:4},()=>Math.random().toString(36).slice(2)).join('').slice(0,32)));
 sessionStorage.setItem('urigongSiteAccessSession',siteAccessSessionId);
 let siteAccessMode='none',siteAccessProject='',siteAccessOwner='',siteAccessTimer=null,siteAccessBusy=false,siteAccessNavigating=false,siteAccessLastRequest='';
 const SITE_ACCESS_HANDOFF='urigongSiteAccessHandoff';
@@ -9957,11 +10033,20 @@ function siteAccessStartPulse(){
    if(!tokenValid()||!siteAccessProject||!siteAccessHasActive())return;
    try{
      if(siteAccessMode==='edit'){
-       const r=await publicPost('siteLockPulse',authPayload({project:siteAccessProject,siteSessionId:siteAccessSessionId}),19000);
+       const pulseProject=siteAccessProject;
+       const r=await publicPost('siteLockPulse',authPayload({project:pulseProject,siteSessionId:siteAccessSessionId}),19000);
+       if(pulseProject!==siteAccessProject||siteAccessMode!=='edit')return;
        if(r.mode!=='edit'){
          siteAccessMode='lost';siteAccessRender();siteAccessStopPulse();
-         await siteShowDialog('접속권 종료','다른 사용자 또는 마스터에 의해 접속이 종료됐습니다. 이 기기에서는 저장할 수 없습니다.');
-         // 앱 내 임시 변경은 손실되지 않도록 홈 이동을 강제하지 않습니다.
+         // No page navigation before server has revoked editing rights.
+         await siteShowDialog('현장 접속 종료',r.forced?'마스터에 의해 접속이 종료되었습니다.\n현장 선택 화면으로 이동합니다.':'현장 접속권이 종료되거나 만료되었습니다.\n현장 선택 화면으로 이동합니다.');
+         sessionStorage.removeItem(SITE_ACCESS_HANDOFF);
+         sessionStorage.removeItem('siteAccessOwnerProject');
+         // 종료된 세션 ID는 다시 사용하지 않음. 다음 직접 입장 시 서버에서 새 권한 요청.
+         siteAccessSessionId='s_'+(typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID().replaceAll('-',''):Array.from({length:4},()=>Math.random().toString(36).slice(2)).join('').slice(0,32));
+         sessionStorage.setItem('urigongSiteAccessSession',siteAccessSessionId);
+         siteAccessProject='';siteAccessOwner='';siteAccessMode='none';siteAccessNavigating=false;
+         siteOriginalGoSiteHome();siteAccessRender();
          return;
        }
        if(r.message&&r.message.id!==siteAccessLastRequest){
