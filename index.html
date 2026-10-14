@@ -2251,6 +2251,26 @@ header .header-right .memo-small-btn{flex:0 0 auto!important;margin:0!important}
 #writePage .preview-tabs{flex-wrap:wrap;min-width:0;gap:2px;margin-left:0}
 #writePage .preview-tab{white-space:nowrap;padding:5px 7px}
 @media(max-width:540px){#writePage .preview-tabs{flex:0 1 auto}#writePage .preview-tab{font-size:12px;padding:6px 7px}}
+
+/* 현장별 단독 접속 관리 (2026-10-14) */
+body:not(.site-home-mode):not(.site-access-ready) .app{visibility:hidden!important}
+#siteAccessHeader{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;white-space:nowrap}
+#siteAccessLabel{font-size:16px;font-weight:900;color:#e9fff0}
+body.site-access-readonly #siteAccessLabel{color:#ff6464}
+body:not(.site-access-ready) #siteAccessLabel{color:#ff6464}
+#siteAccessRequestBtn{font-size:11px;border-radius:5px;border:1px solid #ff9d9d;background:#fff3f3;color:#ac2132;padding:4px 7px;cursor:pointer;font-weight:800}
+#siteAccessBackdrop{position:fixed;inset:0;background:rgba(15,32,54,.48);z-index:100100;display:none;align-items:center;justify-content:center;padding:16px}
+#siteAccessBackdrop.open{display:flex}
+#siteAccessDialog{background:white;border-radius:12px;padding:22px;width:min(94vw,420px);box-shadow:0 12px 40px #0003;color:#24364b}
+#siteAccessDialog h3{margin:0 0 12px;font-size:18px;color:#17365c}
+#siteAccessDialog p{white-space:pre-wrap;line-height:1.65;font-size:13px}
+#siteAccessDialog textarea{width:100%;min-height:94px;box-sizing:border-box;border:1px solid #afc7e4;border-radius:8px;padding:10px;font-size:14px}
+#siteAccessDialog .actions{display:flex;justify-content:flex-end;gap:7px;margin-top:13px}
+#siteAccessDialog button{cursor:pointer;border-radius:6px;padding:8px 12px;border:1px solid #92bce9;background:#fff;color:#1463a8;font-weight:700}
+#siteAccessDialog button.primary{background:#0e75e6;color:#fff}
+button.site-access-force{font-size:10px!important;padding:4px!important;white-space:nowrap}
+body.site-access-readonly #excelPage .excel-photo-slot{cursor:default}
+@media(max-width:850px){#siteAccessHeader{position:static;transform:none;margin-left:auto}#siteAccessLabel{font-size:12px}#siteAccessRequestBtn{font-size:10px;padding:3px}header{gap:4px}}
 </style><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
 // 다른 탭에서 변경된 동일 현장 보고서 마감 상태 즉시 조회
 window.addEventListener('storage',function(e){
@@ -2677,7 +2697,11 @@ window.addEventListener('focus',function(){
 #writePage[data-preview-mode="overtime"] .desktop-preview .preview-toggle{background:#e0f5e3!important;color:#316b41!important;border-color:#a9d6b2!important;}
 </style>
 </head>
-<body class="locked site-home-mode"><section id="siteHome" aria-label="현장 선택">
+<body class="locked site-home-mode">
+<div id="siteAccessBackdrop" role="dialog" aria-modal="true" aria-label="현장 접속 알림">
+  <div id="siteAccessDialog"><h3 id="siteAccessDialogTitle">알림</h3><p id="siteAccessDialogMsg"></p><div id="siteAccessDialogEntry"></div><div class="actions" id="siteAccessDialogActions"></div></div>
+</div>
+<section id="siteHome" aria-label="현장 선택">
   <div class="site-home-inner site-home-simple">
     <div class="site-select-title site-select-title-simple">
       <strong>Select Site</strong>
@@ -2738,7 +2762,7 @@ window.addEventListener('focus',function(){
     <button class="btn primary" type="button" style="width:100%" onclick="setupMasterPasswordFromGate()">마스터 비밀번호 초기 설정</button>
   </div>
   <div id="passwordError" class="password-error"></div>
-</div></div><header><div><button class="site-home-btn" type="button" onclick="goSiteHome()">⌂ 현장선택 홈가기</button>⛑ <span id="appTitleDisplay">작업일보</span><span id="projectAccent" class="project-accent"></span></div><div class="header-right"><button type="button" class="btn memo-small-btn" onclick="appMemoOpen()" title="날짜와 무관한 메모장">🗒 메모장</button><div id="topDate">작업보고 작성</div></div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
+</div></div><header><div><button class="site-home-btn" type="button" onclick="goSiteHome()">⌂ 현장선택 홈가기</button>⛑ <span id="appTitleDisplay">작업일보</span><span id="projectAccent" class="project-accent"></span></div><div id="siteAccessHeader" aria-live="polite"><b id="siteAccessLabel">접속 확인 중</b><button id="siteAccessRequestBtn" type="button" onclick="siteOpenRequest()" style="display:none">작업종료 요청</button></div><div class="header-right"><button type="button" class="btn memo-small-btn" onclick="appMemoOpen()" title="날짜와 무관한 메모장">🗒 메모장</button><div id="topDate">작업보고 작성</div></div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
 <nav id="mobileDrawer" class="mobile-drawer" aria-label="모바일 메뉴">
   <div class="drawer-title"><span id="mobileAppTitle">작업일보</span> · 메뉴</div>
@@ -2873,7 +2897,7 @@ window.addEventListener('focus',function(){
 </div>
 </aside><main>
 <section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 마스터가 마감을 해제한 뒤 수정할 수 있습니다.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ 공용저장소 연결</button><button class="btn" type="button" onclick="saveToDrive()">공용저장소 저장</button><button class="btn" type="button" onclick="loadFromDrive()">공용저장소 불러오기</button><button class="btn public-store-diagnostic-btn" type="button" onclick="diagnosePublicStoreConnection()" title="서버 연결만 확인하고 자료는 저장하거나 변경하지 않습니다.">통신진단</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 기기 인증 확인 중</b><span id="readOnlyBadge" class="readonly-badge">읽기 전용</span><button class="btn local-backup-btn" type="button" onclick="openLocalBackupDialog()">로컬백업</button><div class="header-action-buttons"><button class="btn" type="button" onclick="openConstructionExcelPage()" style="background:#138b70;color:white;border-color:#138b70">📥 공사일보 엑셀</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div class="grid"><div class="input-col left-col">
-<div class="card basic-info-card"><div class="title basic-info-headingbar"><span class="basic-title-name"><span class="n">1</span>기본 정보</span><div class="basic-actions-row"><div class="basic-mode-line"><span id="workModeTabs" class="work-mode-tabs-inline"></span></div><span class="basic-close-wrap basic-status-line"><span id="linkedCloseStatus" class="linked-close-status" aria-live="polite">작성중</span><button id="noWorkDayBtn" class="report-close-btn no-work-action" type="button" onclick="toggleNoWorkDay()">작업없음</button><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span></div><span class="basic-copy-actions"><button class="btn daily-reset-btn" type="button" onclick="resetDailyData()" title="현재 보고서의 인원·장비 수량·금일 작업내용 초기화">당일자료 초기화</button><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><button class="btn primary copy-weekly-btn" type="button" onclick="copySameDayWeeklyData()">주간자료 복사</button></span><span class="basic-action-buttons mobile-basic-actions"><button class="btn" type="button" onclick="openConstructionExcelPage()" style="background:#138b70;color:white;border-color:#138b70">📥 공사일보 엑셀</button><button class="btn" onclick="saveReport()">보고서 저장</button></span></div><div class="basic-info-grid">
+<div class="card basic-info-card"><div class="title basic-info-headingbar"><span class="basic-title-name"><span class="n">1</span>기본 정보</span><div class="basic-actions-row"><div class="basic-mode-line"><span id="workModeTabs" class="work-mode-tabs-inline"></span></div><span class="basic-close-wrap basic-status-line"><button id="noWorkDayBtn" class="report-close-btn no-work-action" type="button" onclick="toggleNoWorkDay()">작업없음</button><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span></div><span class="basic-copy-actions"><button class="btn daily-reset-btn" type="button" onclick="resetDailyData()" title="현재 보고서의 인원·장비 수량·금일 작업내용 초기화">당일자료 초기화</button><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><button class="btn primary copy-weekly-btn" type="button" onclick="copySameDayWeeklyData()">주간자료 복사</button></span><span class="basic-action-buttons mobile-basic-actions"><button class="btn" type="button" onclick="openConstructionExcelPage()" style="background:#138b70;color:white;border-color:#138b70">📥 공사일보 엑셀</button><button class="btn" onclick="saveReport()">보고서 저장</button></span></div><div class="basic-info-grid">
 <div class="field basic-site"><label>현장</label><select id="site"></select></div>
 <div class="field basic-trade"><label>공종</label><select id="trade"></select></div>
 <div class="field basic-date"><label>작업일</label><div class="date-with-query"><div class="date-nav">
@@ -5652,7 +5676,7 @@ async function publicPost(action,payload={},timeoutMs=75000){
   return pending;
 }
 function authPayload(extra={}){
-  return {deviceId:getDeviceId(),deviceToken:getDeviceToken(),project:currentProjectForAuth(),...extra};
+  return {deviceId:getDeviceId(),deviceToken:getDeviceToken(),project:currentProjectForAuth(),siteSessionId:(typeof siteAccessSessionId==='string'?siteAccessSessionId:''),...extra};
 }
 async function publicStoreCall(action,data){
   if(!ensurePublicStoreCredentials(true))throw new Error('기기등록이 필요합니다.');
@@ -5969,7 +5993,7 @@ function schedulePermissionRefresh(){
 function applyDevicePermissions(){
   const registered=tokenValid(), role=getDeviceRole(), master=role==='admin', siteAdmin=role==='site_admin';
   const activePerm=master?'manage':projectPermission(currentProjectForAuth());
-  const readonly=registered&&!master&&activePerm!=='manage';
+  const readonly=registered&&((!master&&activePerm!=='manage')||(typeof siteAccessHasActive==='function'&&siteAccessHasActive()&&siteAccessMode!=='edit'));
   const mode=master?'master':(readonly?'readonly':(activePerm==='manage'?'siteadmin':'guest'));
   document.body.classList.toggle('read-only-user',readonly);
   const badge=$('readOnlyBadge');
@@ -6093,7 +6117,7 @@ function renderDeviceAdminList(devices){
     const manageCount=Object.values(perms).filter(v=>v==='manage').length,readCount=Object.values(perms).filter(v=>v==='read').length;
     const role=master?'마스터':(manageCount?`관리 ${manageCount} · 읽기 ${readCount}`:`읽기전용 ${readCount}`);
     const editor=master?'<b>전체 현장 · 마스터</b>':`<div class="device-project-editor"><div class="project-permission-row header"><span>현장</span><span>읽기</span><span>관리</span></div>${PROJECTS.map(p=>`<div class="project-permission-row"><span>${esc(p)}</span><label><input type="checkbox" data-device-id="${esc(d.deviceId)}" data-project="${esc(p)}" data-project-mode="read" ${perms[p]==='read'?'checked':''} onclick="toggleProjectPermissionChoice(this)">읽기</label><label><input type="checkbox" data-device-id="${esc(d.deviceId)}" data-project="${esc(p)}" data-project-mode="manage" ${perms[p]==='manage'?'checked':''} onclick="toggleProjectPermissionChoice(this)">관리</label></div>`).join('')}<button class="btn" type="button" onclick="updateRegisteredDeviceProjects('${esc(d.deviceId)}')">권한저장</button></div>`;
-    return `<tr><td>${esc(d.label||d.deviceId)}${own?' <b>(현재)</b>':''}</td><td><b>${esc(role)}</b><div style="font-size:10px;color:#66788c;margin-top:3px">마감은 마스터만</div></td><td>${editor}</td><td>${esc(last)}</td><td>${own?'-':`<button class="btn" type="button" onclick="revokeRegisteredDevice('${esc(d.deviceId)}')">차단</button>`}</td></tr>`
+    return `<tr><td>${esc(d.label||d.deviceId)}${own?' <b>(현재)</b>':''}</td><td><b>${esc(role)}</b><div style="font-size:10px;color:#66788c;margin-top:3px">마감은 마스터만</div></td><td>${editor}</td><td>${esc(last)}</td><td>${own?'-':`<button class="btn" type="button" onclick="revokeRegisteredDevice('${esc(d.deviceId)}')">차단</button><button class="btn site-access-force" type="button" onclick="siteMasterForce('${esc(d.deviceId)}')" title="등록 차단 없이 현장 접속만 강제 종료">접속상태 강제종료</button>`}</td></tr>`
   }).join('')+'</tbody></table>';
 }
 async function createDeviceRegistrationCode(){
@@ -9818,4 +9842,129 @@ window.addEventListener('beforeunload',function(e){
 window.addEventListener('DOMContentLoaded',()=>setTimeout(urigongResetBaseline,180));
 </script>
 
+
+<script>
+/* === 현장별 단독 접속 클라이언트 ===
+   서버 Code.gs의 siteLock* 라우팅 적용/웹앱 재배포 전에는 서버가 기능을 거부하므로 접속을 차단합니다.
+   기존 작업일보/사진대지 데이터에 대한 임의 삭제는 없습니다.
+ */
+const siteAccessSessionId=sessionStorage.getItem('urigongSiteAccessSession')||('s_'+(typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID().replaceAll('-',''):Array.from({length:4},()=>Math.random().toString(36).slice(2)).join('').slice(0,32)));
+sessionStorage.setItem('urigongSiteAccessSession',siteAccessSessionId);
+let siteAccessMode='none',siteAccessProject='',siteAccessOwner='',siteAccessTimer=null,siteAccessBusy=false,siteAccessNavigating=false,siteAccessLastRequest='';
+function siteAccessHasActive(){return !!sessionStorage.getItem('activeProject')&&sessionStorage.getItem('openProjectAfterReload')==='1'}
+function siteShowDialog(title,msg,textarea=false,actions=null){
+ return new Promise(resolve=>{
+   const overlay=document.getElementById('siteAccessBackdrop');
+   document.getElementById('siteAccessDialogTitle').textContent=title;
+   document.getElementById('siteAccessDialogMsg').textContent=msg;
+   const entry=document.getElementById('siteAccessDialogEntry');entry.replaceChildren();
+   if(textarea){const ta=document.createElement('textarea');ta.placeholder='작업자에게 전달할 메모를 입력하세요';ta.maxLength=500;entry.appendChild(ta);setTimeout(()=>ta.focus(),10)}
+   const buttons=document.getElementById('siteAccessDialogActions');buttons.replaceChildren();
+   (actions||[{value:'ok',label:'확인',primary:true}]).forEach(a=>{const button=document.createElement('button');button.type='button';button.textContent=a.label;if(a.primary)button.classList.add('primary');button.addEventListener('click',()=>{const val=textarea?entry.querySelector('textarea')?.value||'':'';overlay.classList.remove('open');resolve({action:a.value,memo:val})});buttons.appendChild(button)});
+   overlay.classList.add('open');
+ });
+}
+function siteAccessRender(){
+ const active=siteAccessHasActive(), header=document.getElementById('siteAccessHeader'),label=document.getElementById('siteAccessLabel'),btn=document.getElementById('siteAccessRequestBtn');
+ if(header)header.style.display=active?'flex':'none';
+ const isRead=active&&siteAccessMode==='readonly';
+ document.body.classList.toggle('site-access-readonly',isRead);
+ document.body.classList.toggle('site-access-ready',!active||['edit','readonly'].includes(siteAccessMode));
+ if(label)label.textContent=siteAccessMode==='edit'?'권한 : 편집중':(isRead?'권한 : 읽기전용':(siteAccessMode==='lost'?'권한 : 접속종료':'접속 확인 중'));
+ if(btn)btn.style.display=isRead&&siteAccessCanRequest(siteAccessProject)&&!!siteAccessOwner?'':'none';
+ if(typeof applyDevicePermissions==='function'&&active)applyDevicePermissions();
+}
+function siteAccessStopPulse(){if(siteAccessTimer){clearInterval(siteAccessTimer);siteAccessTimer=null}}
+function siteAccessFastRelease(project=siteAccessProject){
+ if(!project||siteAccessMode!=='edit'||!tokenValid())return;
+ const body={action:'siteLockRelease',requestId:makePublicRequestId(),deviceId:getDeviceId(),deviceToken:getDeviceToken(),project,siteSessionId:siteAccessSessionId};
+ try{const blob=new Blob([JSON.stringify(body)],{type:'text/plain;charset=UTF-8'});if(navigator.sendBeacon?.(getPublicStoreUrl(),blob))return}catch(e){}
+ try{fetch(getPublicStoreUrl(),{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(body)}).catch(()=>{})}catch(e){}
+}
+async function siteAccessEnter(project){
+ if(!tokenValid())throw new Error('등록기기 인증 및 공용저장소 연결이 필요합니다.');
+ const r=await publicPost('siteLockEnter',authPayload({project,siteSessionId:siteAccessSessionId}),19000);
+ if(!r||!['edit','readonly','blocked'].includes(r.mode))throw new Error('접속권 확인 응답이 올바르지 않습니다. 공용저장소 Code.gs를 업데이트했는지 확인해 주세요.');
+ return r;
+}
+function siteAccessOwnerMessage(owner){return `[${owner||'다른 사용자'}]가 작업중입니다. 작업종료를 요청해주세요.`}
+function siteAccessCanRequest(project){return getDeviceRole()==='site_admin'&&projectPermission(project)==='manage'}
+const siteOriginalEnterProjectPage=enterProjectPage;
+enterProjectPage=async function(project,page){
+ if(siteAccessBusy)return;
+ if(tokenValid()&&!canAccessProject(project)){alert('해당 현장 조회권한이 없습니다.');return}
+ if(siteAccessProject===project&&['edit','readonly'].includes(siteAccessMode)&&siteAccessHasActive())return siteOriginalEnterProjectPage(project,page);
+ siteAccessBusy=true;
+ try{
+   const r=await siteAccessEnter(project);
+   if(r.mode==='blocked'){await siteShowDialog(project+' · 접속 불가',siteAccessOwnerMessage(r.owner));return}
+   if(r.mode==='readonly'&&r.owner&&siteAccessCanRequest(project))await siteShowDialog(project+' · 읽기전용',siteAccessOwnerMessage(r.owner)+'\n관리자는 읽기전용으로 접속합니다.');
+   if(siteAccessProject&&siteAccessProject!==project&&siteAccessMode==='edit')siteAccessFastRelease(siteAccessProject);
+   siteAccessProject=project;siteAccessMode=r.mode;siteAccessOwner=r.owner||'';
+   sessionStorage.setItem('siteAccessOwnerProject',project);
+   siteAccessRender();siteAccessStartPulse();
+   siteAccessNavigating=!(siteAccessHasActive()&&sessionStorage.getItem('activeProject')===project);
+   siteOriginalEnterProjectPage(project,page);
+ }catch(e){await siteShowDialog('접속 확인 실패',e.message+'\n데이터 충돌 방지를 위해 접속을 중단했습니다.');}
+ finally{siteAccessBusy=false}
+};
+const siteOriginalGoSiteHome=goSiteHome;
+goSiteHome=function(){siteOriginalGoSiteHome();siteAccessRender()};
+const siteOriginalCanEdit=canEditActiveProject;
+canEditActiveProject=function(){return siteOriginalCanEdit()&&(!siteAccessHasActive()||(siteAccessMode==='edit'&&siteAccessProject===sessionStorage.getItem('activeProject')))};
+const siteOriginalCanEditProject=canEditProject;
+canEditProject=function(project){return siteOriginalCanEditProject(project)&&(!siteAccessHasActive()||project!==sessionStorage.getItem('activeProject')||siteAccessMode==='edit')};
+function siteAccessStartPulse(){
+ siteAccessStopPulse();
+ siteAccessTimer=setInterval(async()=>{
+   if(!tokenValid()||!siteAccessProject||!siteAccessHasActive())return;
+   try{
+     if(siteAccessMode==='edit'){
+       const r=await publicPost('siteLockPulse',authPayload({project:siteAccessProject,siteSessionId:siteAccessSessionId}),19000);
+       if(r.mode!=='edit'){
+         siteAccessMode='lost';siteAccessRender();siteAccessStopPulse();
+         await siteShowDialog('접속권 종료','다른 사용자 또는 마스터에 의해 접속이 종료됐습니다. 이 기기에서는 저장할 수 없습니다.');
+         // 앱 내 임시 변경은 손실되지 않도록 홈 이동을 강제하지 않습니다.
+         return;
+       }
+       if(r.message&&r.message.id!==siteAccessLastRequest){
+         siteAccessLastRequest=r.message.id;
+         await siteShowDialog('작업종료 요청 도착',`[${r.message.from}]가 [${r.message.to}]에게 작업종료를 요청합니다.\n\n메모 : ${r.message.memo}\n\n보고서를 저장한 뒤 이 창을 닫아주세요.`,false,[{value:'ok',label:'확인',primary:true}]);
+       }
+     }
+   }catch(e){console.warn('현장 접속 확인 실패:',e.message);}
+ },16000);
+}
+async function siteOpenRequest(){
+ if(siteAccessMode!=='readonly'||!siteAccessOwner||!siteAccessProject||!siteAccessCanRequest(siteAccessProject))return;
+ const r=await siteShowDialog('작업종료 요청',`현재 작업자: [${siteAccessOwner}]\n전달할 메모를 입력하세요.`,true,[{value:'cancel',label:'취소'},{value:'send',label:'요청 보내기',primary:true}]);
+ if(r.action!=='send')return;
+ if(!r.memo.trim())return alert('메모를 입력해 주세요.');
+ try{await publicPost('siteLockRequest',authPayload({project:siteAccessProject,siteSessionId:siteAccessSessionId,memo:r.memo.trim()}),19000);await siteShowDialog('전송 완료','작업종료 요청을 전송했습니다. 상대방이 창을 닫을 때까지 읽기전용 상태로 유지됩니다.');}
+ catch(e){await siteShowDialog('전송 실패',e.message)}
+}
+async function siteMasterForce(targetId){
+ if(!isMasterDevice())return alert('마스터 전용 기능입니다.');
+ const pw=adminPasswordValue();if(!pw)return setDeviceAdminStatus('먼저 마스터 비밀번호를 입력하세요.');
+ if(!confirm('선택한 기기의 현장 접속을 강제로 종료할까요?\n기기 차단 또는 기존 데이터 삭제는 하지 않습니다.'))return;
+ try{const r=await publicPost('siteLockMasterForce',authPayload({masterPassword:pw,targetDeviceId:targetId}),25000);setDeviceAdminStatus(r.ended?'접속상태 강제종료: '+r.projects.join(', '):'이 기기가 점유한 현장이 없습니다.');await loadDeviceAdminList()}
+ catch(e){setDeviceAdminStatus('강제종료 실패: '+e.message)}
+}
+window.addEventListener('pagehide',()=>{if(!siteAccessNavigating)siteAccessFastRelease()});
+window.addEventListener('DOMContentLoaded',async()=>{
+ if(!siteAccessHasActive()){siteAccessRender();return}
+ const project=sessionStorage.getItem('activeProject');
+ try{
+   const r=await siteAccessEnter(project);
+   if(r.mode==='blocked'){
+     siteAccessMode='blocked';siteAccessRender();
+     await siteShowDialog('다른 사용자 접속 중',siteAccessOwnerMessage(r.owner));
+     siteOriginalGoSiteHome();siteAccessRender();return;
+   }
+   if(r.mode==='readonly'&&r.owner&&siteAccessCanRequest(project))await siteShowDialog('읽기전용 입장',siteAccessOwnerMessage(r.owner)+'\n관리자는 조회만 할 수 있습니다.');
+   siteAccessProject=project;siteAccessMode=r.mode;siteAccessOwner=r.owner||'';
+   siteAccessRender();siteAccessStartPulse();
+ }catch(e){siteAccessMode='blocked';siteAccessRender();await siteShowDialog('현장 접속 실패','공용저장소에 연결할 수 없습니다.\n'+e.message+'\n기존 데이터를 보호하기 위해 현장 진입을 중단했습니다.');siteOriginalGoSiteHome();siteAccessRender()}
+});
+</script>
 </body></html>
