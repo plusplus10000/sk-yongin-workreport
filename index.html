@@ -2632,6 +2632,50 @@ window.addEventListener('focus',function(){
   #writePage .basic-info-headingbar>.basic-copy-actions>.btn{font-size:12px!important;padding:0 7px!important;}
 }
 </style>
+
+<style id="urigong-mode-colors-20261014">
+/* 주간만 명일 작업 내용을 입력할 수 있도록 화면에서만 숨김; 데이터는 보존. */
+#writePage[data-work-mode="lunch"] .tomorrow-work-card,
+#writePage[data-work-mode="overtime"] .tomorrow-work-card{display:none!important;}
+#writePage[data-work-mode="lunch"] .daily-work-columns,
+#writePage[data-work-mode="overtime"] .daily-work-columns{grid-template-columns:minmax(0,1fr)!important;}
+
+/* 미리보기의 배경은 사용자가 선택한 미리보기 탭만 따릅니다. */
+#writePage[data-preview-mode="weekly"] .desktop-preview .card{background:#fff2f6!important;border-color:#efc5d1!important;}
+#writePage[data-preview-mode="lunch"] .desktop-preview .card{background:#ecf7ff!important;border-color:#b9def4!important;}
+#writePage[data-preview-mode="overtime"] .desktop-preview .card{background:#edf9ef!important;border-color:#bde2c4!important;}
+#writePage[data-preview-mode="weekly"] #preview{background:#fff6f9!important;border-color:#efc5d1!important;}
+#writePage[data-preview-mode="lunch"] #preview{background:#f2faff!important;border-color:#b9def4!important;}
+#writePage[data-preview-mode="overtime"] #preview{background:#f3fbf3!important;border-color:#bde2c4!important;}
+
+/* 왼쪽 미리보기 탭: 주간 분홍, 중식OT 하늘, 연장 초록 (선택 전에도 구별) */
+#writePage .preview-tabs #reportTab{background:#ffe8ef!important;color:#843956!important;}
+#writePage .preview-tabs #lunchTab{background:#e1f3ff!important;color:#23638d!important;}
+#writePage .preview-tabs #overtimeTab{background:#e0f5e3!important;color:#316b41!important;}
+#writePage .preview-tabs #reportTab.active{background:#f8c8d8!important;color:#712842!important;box-shadow:inset 0 0 0 1px #db9cac!important;}
+#writePage .preview-tabs #lunchTab.active{background:#bce7fc!important;color:#104a77!important;box-shadow:inset 0 0 0 1px #89c5e5!important;}
+#writePage .preview-tabs #overtimeTab.active{background:#bee9c7!important;color:#1d5c2d!important;box-shadow:inset 0 0 0 1px #8cca99!important;}
+
+/* 기본정보의 작업유형 버튼: 왼쪽 미리보기 버튼과 동일하게 색상을 대응. */
+#writePage .basic-info-headingbar #workModeTabs > .work-mode-btn{background:#ffe8ef!important;color:#843956!important;border-color:#e9b9c8!important;}
+#writePage .basic-info-headingbar #workModeTabs > .work-mode-btn.active{background:#f8c8d8!important;color:#712842!important;border-color:#db9cac!important;}
+#writePage .basic-info-headingbar #workModeTabs .lunch-tab-wrap .work-mode-btn,
+#writePage .basic-info-headingbar #workModeTabs .lunch-tab-wrap .mode-delete-btn{background:#e1f3ff!important;color:#23638d!important;border-color:#abd5eb!important;}
+#writePage .basic-info-headingbar #workModeTabs .lunch-tab-wrap.active .work-mode-btn,
+#writePage .basic-info-headingbar #workModeTabs .lunch-tab-wrap.active .mode-delete-btn{background:#bce7fc!important;color:#104a77!important;border-color:#89c5e5!important;}
+#writePage .basic-info-headingbar #workModeTabs .mode-tab-wrap:not(.lunch-tab-wrap) .work-mode-btn,
+#writePage .basic-info-headingbar #workModeTabs .mode-tab-wrap:not(.lunch-tab-wrap) .mode-delete-btn{background:#e0f5e3!important;color:#316b41!important;border-color:#a9d6b2!important;}
+#writePage .basic-info-headingbar #workModeTabs .mode-tab-wrap:not(.lunch-tab-wrap).active .work-mode-btn,
+#writePage .basic-info-headingbar #workModeTabs .mode-tab-wrap:not(.lunch-tab-wrap).active .mode-delete-btn{background:#bee9c7!important;color:#1d5c2d!important;border-color:#8cca99!important;}
+
+/* 미리보기의 복사하기/접기 버튼에도 현재 선택한 탭의 연한 색을 적용. */
+#writePage[data-preview-mode="weekly"] .desktop-preview .preview-copy-btn,
+#writePage[data-preview-mode="weekly"] .desktop-preview .preview-toggle{background:#ffe8ef!important;color:#843956!important;border-color:#e9b9c8!important;}
+#writePage[data-preview-mode="lunch"] .desktop-preview .preview-copy-btn,
+#writePage[data-preview-mode="lunch"] .desktop-preview .preview-toggle{background:#e1f3ff!important;color:#23638d!important;border-color:#abd5eb!important;}
+#writePage[data-preview-mode="overtime"] .desktop-preview .preview-copy-btn,
+#writePage[data-preview-mode="overtime"] .desktop-preview .preview-toggle{background:#e0f5e3!important;color:#316b41!important;border-color:#a9d6b2!important;}
+</style>
 </head>
 <body class="locked site-home-mode"><section id="siteHome" aria-label="현장 선택">
   <div class="site-home-inner site-home-simple">
@@ -4200,6 +4244,9 @@ let activePreviewTab='weekly';
 function selectPreviewTab(tab){
   document.querySelectorAll('#writePage .preview-tab').forEach(b=>{b.disabled=false;delete b.dataset.roleDisabled;delete b.dataset.reportLockDisabled});
   activePreviewTab=['slack','weekly','lunch','overtime'].includes(tab)?tab:'weekly';
+  // 미리보기 탭 전환은 보고서 작성 모드나 저장 데이터와 독립적입니다.
+  const writePage=document.getElementById('writePage');
+  if(writePage)writePage.dataset.previewMode=activePreviewTab;
   initSlackFields();
   const isSlack=activePreviewTab==='slack';
   if($('slackFields'))$('slackFields').style.display=isSlack?'grid':'none';
@@ -6233,6 +6280,9 @@ function updateWorkModeTabs(){
   });
   h+=`<button type="button" class="overtime-add-btn" onclick="createOvertime()" title="연장 작업일보 추가" aria-label="연장 작업일보 추가">[+]</button>`;
   host.innerHTML=h;
+  // 표시 모드만 분리합니다. 명일 작업의 원본 데이터는 삭제/초기화하지 않습니다.
+  const writePage=document.getElementById('writePage');
+  if(writePage)writePage.dataset.workMode=currentWorkType==='lunch'?'lunch':(currentWorkType==='overtime'?'overtime':'weekly');
 }
 function applyReportLike(r,type,no){
   if(!r)return false;
@@ -6462,11 +6512,19 @@ async function toggleReportClosed(date,site,trade,type='weekly',no=0){
     // 깨끗하게 동기화된 기준 리비전이 있으면, 전체 자료를 다운로드하지 않습니다.
     // 서버 patch는 baseRevision을 검증하므로 다른 기기의 변경을 덮어쓰지 않습니다.
     const knownRevision=Number(getDriveMeta('driveLastRemoteRevision'))||0;
-    const hasCleanBase=getDriveMeta('driveLocalDirty')!=='1'&&knownRevision>0&&Number(getDriveMeta('driveLastRemoteStamp'))>0;
-    let usedFastPath=hasCleanBase;
+    const sameActiveReport=$('date')?.value===date&&$('site')?.value===site&&$('trade')?.value===trade&&currentWorkType===wt&&currentOvertimeNo===n;
+    // 보고서 본문·사진의 미저장 편집이 남은 경우에는 마감 속도보다 데이터 보호를 우선합니다.
+    if(wantedClosed&&sameActiveReport&&typeof urigongHasUnsaved==='function'&&urigongHasUnsaved()){
+      throw new Error('저장하지 않은 보고서 또는 사진이 있습니다. 먼저 「보고서 저장」을 눌러 주세요.');
+    }
+    // 서버 리비전이 확정돼 있으면 다른 로컬 항목이 동기화 대기 중이더라도
+    // 목표 보고서 한 건만 CAS patch로 전송할 수 있습니다. 충돌 때는 아래에서 서버 조회합니다.
+    // 최초 연결 또는 기준 리비전 없는 기기만 전체 load를 실행합니다.
+    const hasRevisionBase=knownRevision>0&&Number(getDriveMeta('driveLastRemoteStamp'))>0;
+    let usedFastPath=hasRevisionBase;
     let serverReport=current[localIndex];
     let baseRevision=knownRevision;
-    if(!hasCleanBase){
+    if(!hasRevisionBase){
       setDriveStatus('공용저장소 마감 상태 확인 중 (최초·미동기화 자료)...');
       const remote=await fetchRemote(true);
       if(!remote.file||!Array.isArray(remote.data?.reports))throw new Error('공용저장소에서 보고서 저장본을 확인하지 못했습니다.');
@@ -6535,11 +6593,12 @@ async function toggleReportClosed(date,site,trade,type='weekly',no=0){
       projectSet('reports',JSON.stringify(latest));
     }
     const pendingOtherChanges=getDriveMeta('driveLocalDirty')==='1';
-    if(usedFastPath && !pendingOtherChanges && Number(saved.revision)>0){
-      // 전체 서버 데이터가 이미 동기화되어 있었고 이 보고서만 변경됐습니다.
+    if(usedFastPath && Number(saved.revision)>0){
+      // CAS 성공으로 확정된 리비전입니다. 다른 로컬 미동기화 항목은 dirty로 유지합니다.
+      // 이 리비전을 반영해야 다음 동기화가 우리 자신의 마감을 외부 충돌로 오인하지 않습니다.
       setDriveMeta('driveLastRemoteRevision',String(Number(saved.revision)));
       setDriveMeta('driveLastRemoteStamp',String(Date.parse(saved.updatedAt||'')||Date.now()));
-      setDriveMeta('driveLastFinishedLocalAt',String(Date.now()));
+      if(!pendingOtherChanges)setDriveMeta('driveLastFinishedLocalAt',String(Date.now()));
     }
     const seconds=((Date.now()-startedAt)/1000).toFixed(1);
     setDriveStatus('마감 상태 공용저장소 저장 완료 · '+seconds+'초 · '+new Date().toLocaleString()+(pendingOtherChanges?' (기타 수정 동기화 대기)':''));
@@ -7747,7 +7806,13 @@ function selectConstructionExcelSheet(index){
   if(model.sheet===2)photoDrawSlots(sheet,colLeft,rowTop);
   area.appendChild(sheet);
   fitConstructionExcelPreview();
-  if(model.sheet===2){void loadPhotoSheet(false);void photoLoadCaptions(false);}
+  if(model.sheet===2){
+    const ctx=photoContext();
+    const fast=photoCaptionMemory.get(photoContextKey(ctx))||photoCloudCaptions(ctx);
+    photoSyncCaptionEditor(fast); // 사진이 아직 내려오지 않아도 아래 설명은 즉시 표시
+    void loadPhotoSheet(false);
+    void photoLoadCaptions(false);
+  }
 }
 let constructionExcelZoomSteps=0;
 let constructionExcelManualZoom=1; // 최초 공사일보 엑셀 미리보기는 100%로 표시
@@ -7821,6 +7886,9 @@ async function refreshConstructionExcelPreview(){
   try{
     constructionExcelPreviewDate=$('date').value;
     updateExcelPreviewNavDate();
+    // 사진 서버 조회는 엑셀 양식 생성과 병렬로 시작합니다.
+    // 사용자에게 사진대지가 보일 때까지 목록+사진 왕복을 연달아 기다리지 않도록 합니다.
+    if(typeof photoPrefetchCurrentExcelDay==='function')photoPrefetchCurrentExcelDay();
     const blob=await exportConstructionDaily('preview');
     if(!blob)throw new Error('엑셀 생성이 완료되지 않았습니다.');
     const sheets=await parseConstructionExcelForPreview(blob);
@@ -8902,7 +8970,10 @@ function photoEditorSelect(slot){
 }
 function photoRenderEditor(){
  const host=document.getElementById('excelPhotoEditor');if(!host)return;
- const editAllowed=photoCanEdit(photoContext());
+ const ctx=photoContext(),ctxKey=photoContextKey(ctx);
+ // 설명은 사진 원본 다운로드를 기다리지 않고 기존 공용저장소 캐시에서 즉시 표시합니다.
+ const immediateCaptions=photoCaptionMemory.get(ctxKey)||photoCloudCaptions(ctx);
+ const editAllowed=photoCanEdit(ctx);
  host.className='excel-photo-editor';host.classList.toggle('is-closed',!editAllowed);host.dataset.photoLockState=editAllowed?'edit':'locked';host.replaceChildren();
  const header=document.createElement('div');header.className='photo-editor-title';header.textContent='사진대지 · 사진 및 설명 입력';host.appendChild(header);
  const help=document.createElement('div');help.className='photo-editor-help';help.textContent='사진 1~4의 칸에서 마우스 오른쪽 버튼 → 붙여넣기를 누르거나, 칸을 선택한 뒤 Ctrl+V로 캡처 사진을 붙여넣으세요. 왼쪽 노란색 번호 칸은 사진 범위에 포함되지 않습니다. 설명은 아래 입력칸에서 수정합니다. 붙여넣은 사진은 즉시 표시·최적화되며, 「보고서 저장」을 누를 때 변경된 사진만 전용 서버에 저장됩니다. 사진 설명은 기존 공용저장소에 동기화됩니다.';host.appendChild(help);
@@ -8918,8 +8989,9 @@ function photoRenderEditor(){
   const label=document.createElement('label');label.className='photo-editor-caption-label';label.htmlFor='photoLeftCaption'+slot;label.textContent='사진 '+slot+' 상세 내용';card.appendChild(label);
   const area=document.createElement('textarea');area.className='photo-editor-caption';area.id='photoLeftCaption'+slot;area.dataset.captionRef=PHOTO_CAPTION_REFS[slot-1];area.rows=2;area.disabled=!editAllowed;
   const node=model?.map?.get(PHOTO_CAPTION_REFS[slot-1]);
-  const draft=photoCaptionDrafts.get(photoCaptionDraftKey(photoContext(),PHOTO_CAPTION_REFS[slot-1]));
-  area.value=draft!==undefined?draft:(node?excelPreviewFormat(node,model,PHOTO_CAPTION_REFS[slot-1]):'');
+  const draft=photoCaptionDrafts.get(photoCaptionDraftKey(ctx,PHOTO_CAPTION_REFS[slot-1]));
+  const cached=immediateCaptions[PHOTO_CAPTION_REFS[slot-1]];
+  area.value=draft!==undefined?draft:(cached!==undefined?cached:(node?excelPreviewFormat(node,model,PHOTO_CAPTION_REFS[slot-1]):''));
   if(draft!==undefined)area.dataset.captionDirty='1';
   area.addEventListener('focus',()=>photoEditorSelect(slot));
   area.addEventListener('input',()=>photoStageCaption(PHOTO_CAPTION_REFS[slot-1],area.value));
@@ -9056,6 +9128,8 @@ async function photoSaveCaption(ref,value,ctx){
 async function photoLoadCaptions(force=false){
  if(constructionExcelSheetIndex!==1)return;
  const ctx=photoContext(),key=photoContextKey(ctx);
+ // 화면과 왼쪽 입력칸은 이미 로컬 캐시 텍스트로 동기화했습니다.
+ // 과거 로컬 폴더에서 처음 가져오는 경우만 비동기 복구합니다.
  try{
   const values=await photoGetCaptions(ctx,force);
   if(constructionExcelSheetIndex!==1||photoContextKey(photoContext())!==key)return;
@@ -9092,15 +9166,27 @@ function photoMakeCaptionEditable(cell,ref){
 const photoRemoteInflight=new Map();
 const photoMemoryFetchedAt=new Map();
 const PHOTO_CACHE_TTL=90000; // 같은 날짜를 반복해서 열 때 90초 동안 불필요한 서버 요청 생략
+function photoPrefetchCurrentExcelDay(){
+ if(!document.getElementById('excelPage')||document.getElementById('excelPage').style.display==='none')return;
+ const ctx=photoContext(),key=photoContextKey(ctx);
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(ctx.date)||!ctx.site||!ctx.trade)return;
+ // 연결이 없는 기기에서는 인증키를 요구하는 팝업을 띄우지 않습니다.
+ try{photoServerConfig();}catch(_){return;}
+ if(photoRemoteInflight.has(key))return;
+ if(photoMemory.has(key)&&Date.now()-(photoMemoryFetchedAt.get(key)||0)<PHOTO_CACHE_TTL)return;
+ // 실패는 사진대지 진입 시 화면에 안내되며, 미리보기 양식을 막지 않습니다.
+ void photoGetDay(ctx,false).catch(()=>{});
+}
 async function photoGetDay(ctx,force=false){
  const key=photoContextKey(ctx),cached=photoMemory.get(key);
  if(!force&&cached&&Date.now()-(photoMemoryFetchedAt.get(key)||0)<PHOTO_CACHE_TTL){photoOverlayDrafts(ctx,cached);return cached;}
  if(photoRemoteInflight.has(key))return photoRemoteInflight.get(key);
  const task=(async()=>{
   const result=[null,null,null,null];
-  const list=await photoJsonp('list',{project:ctx.project,site:ctx.site,trade:ctx.trade,date:ctx.date});
-  const slots=[...new Set((list.slots||[]).filter(slot=>Number.isInteger(slot)&&slot>=1&&slot<=4))];
-  // 파일 4장을 순서대로 요청하지 않고 동시에 요청합니다.
+  // 기존: 목록 요청 1회 완료 후 사진 요청 → 서버 통신을 두 번 연속 기다림.
+  // 개선: 사진 1~4번을 한 번에 병렬 조회. 서버의 get은 사진이 없을 때도 data:null로 응답합니다.
+  // 서버 Code.gs나 다른 공용저장소 API를 변경하지 않습니다.
+  const slots=[1,2,3,4];
   const items=await Promise.all(slots.map(slot=>photoJsonp('get',{project:ctx.project,site:ctx.site,trade:ctx.trade,date:ctx.date,slot:String(slot)})));
   slots.forEach((slot,i)=>{
    const data=items[i]?.data||null;
