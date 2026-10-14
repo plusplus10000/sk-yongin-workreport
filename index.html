@@ -2896,7 +2896,7 @@ window.addEventListener('focus',function(){
    <div id="photoMasterResults" style="max-height:240px;overflow-y:auto"></div>
   </section>
   <span id="photoLocalFolderLabel">사진 서버 별도 연결 필요</span>
-  <span class="photo-local-warning">사진 원본은 기존 작업일보 데이터와 다른 Apps Script 및 <strong>전용 Google Drive 폴더</strong>에 보관합니다. 현장·공종별 사진 등록일 기준 최근 5작업일의 사진만 유지하며, 그 이전 사진은 <strong>영구삭제</strong>됩니다. 기존 PC 사진폴더는 자동 변경·삭제하지 않습니다.</span>
+  <span class="photo-local-warning">사진 원본은 기존 작업일보 데이터와 다른 Apps Script 및 <strong>전용 Google Drive 폴더</strong>에 보관합니다. 현장별 사진이 있는 최신 5개 작업일의 사진만 보관하고, 그보다 오래된 사진은 사진 전용 서버에서 <strong>매일 자동 영구삭제</strong>합니다. (서버의 자동 정리 설정 필요) 기존 PC 사진폴더는 자동 변경·삭제하지 않습니다.</span>
   <span id="photoLocalStatus" role="status" aria-live="polite">사진 서버를 먼저 연결하세요. 일반 공용저장소 연결과 별개입니다.</span>
 </div><div id="excelPhotoEditor" hidden aria-label="사진대지 서버 사진과 설명 입력"></div></aside>
   <div class="excel-preview-shell"><div id="excelSheetPreview" class="excel-sheet-preview" aria-label="현재 선택한 엑셀 시트"></div></div></div>
@@ -8702,7 +8702,7 @@ async function photoSaveServerSettings(){
   const ping=await photoJsonp('ping');if(!ping.ok)throw Error('사진 서버 응답을 확인하지 못했습니다.');
   localStorage.setItem(PHOTO_REMOTE_URL_KEY,url);localStorage.setItem(PHOTO_REMOTE_SECRET_KEY,secret);
   photoInitServerInputs();photoMemory.clear();photoExcelDirty=true;photoFolderAccessError='';
-  photoStatus('사진 전용 서버 연결됨 · 최근 '+ping.keep+'작업일 사진만 유지 · 일반 데이터와 분리');
+  photoStatus('사진 전용 서버 연결됨 · 현장별 최신 '+ping.keep+'개 사진 작업일 보관 · 일반 데이터와 분리');
   if(constructionExcelSheetIndex===1)await loadPhotoSheet(true);
  }catch(e){photoStatus('사진 전용 서버 연결 실패: '+e.message);alert('사진 전용 서버에 연결하지 못했습니다.\n'+e.message)}
 }
@@ -8888,7 +8888,7 @@ function photoRenderEditor(){
   card.addEventListener('click',e=>{if(e.target===card)photoEditorSelect(slot)});
   host.appendChild(card);
  }
- const foot=document.createElement('div');foot.className='photo-editor-status';foot.textContent='사진 원본은 별도 구글 드라이브 사진 전용 서버에 최근 5작업일만 저장합니다. 사진 설명 글자는 기존 공용저장소에 날짜별로 동기화되며, 사진 원본의 삭제 대상에 포함되지 않습니다. 좌우 폭은 경계선을 드래그해 조절할 수 있습니다.';host.appendChild(foot);
+ const foot=document.createElement('div');foot.className='photo-editor-status';foot.textContent='사진 원본은 별도 구글 드라이브 사진 전용 서버에 현장별 최신 5개 사진 작업일만 보관합니다. 서버에서 매일 오래된 사진을 자동으로 영구삭제합니다. 사진 설명 글자는 기존 공용저장소에 날짜별로 동기화되며, 사진 원본의 삭제 대상에 포함되지 않습니다. 좌우 폭은 경계선을 드래그해 조절할 수 있습니다.';host.appendChild(foot);
  photoEditorSelect(photoActiveSlot>=1&&photoActiveSlot<=4?photoActiveSlot:1);
  photoUpdateEditorImages(photoMemory.get(photoContextKey(photoContext()))||null);
 }
@@ -9062,7 +9062,7 @@ async function loadPhotoSheet(force=false){
   const photos=await photoGetDay(ctx,true);
   if(photoPendingSheetKey!==key||constructionExcelSheetIndex!==1)return;
   photoPaintSlots(photos);photoFolderAccessError='';photoExcelDirty=true;
-  photoStatus(ctx.date+' 사진 '+photos.filter(Boolean).length+'장 · 전용 서버에서 불러옴 · 최근 5작업일만 저장');
+  photoStatus(ctx.date+' 사진 '+photos.filter(Boolean).length+'장 · 전용 서버에서 불러옴 · 최신 5개 사진 작업일 유지');
  }catch(e){if(photoPendingSheetKey!==key)return;photoFolderAccessError=e.message;photoPaintSlots(null);photoStatus('사진 조회 실패: '+e.message)}
 }
 function photoDrawSlots(sheet,colLeft,rowTop){
