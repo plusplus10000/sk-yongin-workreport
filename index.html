@@ -1584,7 +1584,7 @@ body.report-is-closed #writePage textarea:disabled{
 .security-grid{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:end}.security-grid .field{min-width:0}.security-grid .field input{width:100%}.security-actions{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0}.registration-code-box{display:none;padding:12px;border:1px solid #f0b6c6;background:#fff1f5;border-radius:8px;font-weight:800;font-size:18px;color:#851f3d;text-align:center;margin:10px 0}.registration-code-box.show{display:block}
 .device-admin-list{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}.device-admin-list th,.device-admin-list td{border:1px solid #dbe6f2;padding:7px;text-align:left}.device-admin-list th{background:#f2f7fc}.device-admin-list td:last-child{text-align:center;white-space:nowrap}
 .admin-only-security{display:none!important}.admin-only-security.visible{display:inline-block!important}
-.project-access-picker{display:grid;gap:6px;padding:9px;border:1px solid #dbe6f2;border-radius:8px;background:#f8fbff;margin:7px 0 10px}.project-permission-row{display:grid;grid-template-columns:minmax(100px,1fr) 86px 86px;gap:8px;align-items:center;padding:5px 7px;border:1px solid #e3ebf4;border-radius:7px;background:#fff}.project-permission-row.header{font-size:11px;font-weight:800;color:#5c7087;background:#eef5fb}.project-permission-row>span:first-child{font-weight:800;color:#12365f}.project-permission-row label{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-size:11px;font-weight:700;white-space:nowrap}.project-permission-row input{width:auto!important;margin:0!important}.device-project-editor{display:grid;gap:5px;min-width:285px}.device-project-editor .project-permission-row{grid-template-columns:minmax(86px,1fr) 72px 72px;padding:4px 5px}.device-project-editor input{width:auto!important}.readonly-badge{display:none;background:#fff2cc;border:1px solid #e6c65c;color:#795b00;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:800}.readonly-badge.visible{display:inline-block}.read-only-user #masterPage{display:none!important}
+.project-access-picker{display:grid;gap:6px;padding:9px;border:1px solid #dbe6f2;border-radius:8px;background:#f8fbff;margin:7px 0 10px}.project-permission-row{display:grid;grid-template-columns:minmax(100px,1fr) 86px 86px;gap:8px;align-items:center;padding:5px 7px;border:1px solid #e3ebf4;border-radius:7px;background:#fff}.project-permission-row.header{font-size:11px;font-weight:800;color:#5c7087;background:#eef5fb}.project-permission-row>span:first-child{font-weight:800;color:#12365f}.project-permission-row label{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-size:11px;font-weight:700;white-space:nowrap}.project-permission-row input{width:auto!important;margin:0!important}.device-project-editor{display:grid;gap:5px;min-width:285px}.device-project-editor .project-permission-row{grid-template-columns:minmax(86px,1fr) 72px 72px;padding:4px 5px}.device-project-editor input{width:auto!important}.readonly-badge{display:none;background:#fff2cc;border:1px solid #e6c65c;color:#795b00;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:800}.readonly-badge.visible{display:inline-block}.read-only-user:not(.site-master-readonly) #masterPage{display:none!important}
 @media(max-width:850px){.device-gate-row{align-items:stretch;flex-direction:column}.security-grid{grid-template-columns:1fr}.device-admin-list{font-size:11px}.device-project-editor{min-width:220px}}
 
 
@@ -2253,7 +2253,7 @@ header .header-right .memo-small-btn{flex:0 0 auto!important;margin:0!important}
 @media(max-width:540px){#writePage .preview-tabs{flex:0 1 auto}#writePage .preview-tab{font-size:12px;padding:6px 7px}}
 
 /* 현장별 단독 접속 관리 (2026-10-14) */
-body:not(.site-home-mode):not(.site-access-ready) .app{visibility:hidden!important}
+/* 권한 확인 중에도 현장 화면은 표시하되, 입력/저장은 권한 확정까지 비활성화합니다. */
 #siteAccessHeader{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;white-space:nowrap}
 #siteAccessLabel{font-size:16px;font-weight:900;color:#e9fff0}
 body.site-access-readonly #siteAccessLabel{color:#ff6464}
@@ -3240,7 +3240,7 @@ function loadProjectStore(name){
 function enterProject(name){enterProjectPage(name,'write')}
 function enterProjectPage(name,page){
   if(tokenValid()&&!canAccessProject(name)){alert('이 기기에는 '+name+' 현장 조회권한이 없습니다.');return}
-  if(page==='master'&&!canEditProject(name)){alert('이 현장의 설정 변경 권한이 없습니다.');return}
+  if(page==='master'&&!canEditProject(name)&&!isMasterDevice()){alert('이 현장의 설정 변경 권한이 없습니다.');return}
   const old=sessionStorage.getItem('activeProject');
 
   if(old===name){
@@ -5090,7 +5090,7 @@ function renderDataPage(){
 
 
 function showPage(p,b){
-  if(p==='master'&&!canEditProject(activeProjectName())){p='search';b=null}
+  if(p==='master'&&!canEditProject(activeProjectName())&&!isMasterDevice()){p='search';b=null}
   autoSave();
   if(sessionStorage.getItem('activeProject'))sessionStorage.setItem('activeProjectPage',p);
   document.querySelectorAll('aside button').forEach(x=>x.classList.remove('active'));
@@ -5671,6 +5671,9 @@ async function publicPost(action,payload={},timeoutMs=75000){
     }
     throw new Error('공용저장소 응답 확인 실패. '+(lastGetError?.message||'서버 처리 결과를 확인할 수 없습니다.')+' 공용저장소 주소와 웹앱 배포 상태를 확인해 주세요.');
   };
+  // 현장 접속권 조회/유지/강제종료는 대용량 보고서 동기화 큐를 기다리지 않습니다.
+  // 서버에서는 LockService와 세션 검사로 편집권을 계속 보호합니다.
+  if(['siteLockEnter','siteLockPulse','siteLockRequest','siteLockMasterForce'].includes(action))return run();
   const pending=publicStorePostQueue.then(run,run);
   publicStorePostQueue=pending.catch(()=>{});
   return pending;
@@ -5977,7 +5980,7 @@ function updateAdminSecurityButtons(){
 function applyProjectAccessUI(){
   const master=isMasterDevice(), allowed=getDeviceProjects();
   document.querySelectorAll('.project-tree-node[data-project-node]').forEach(node=>{const p=node.getAttribute('data-project-node');node.style.display=(master||allowed.includes(p))?'':'none'});
-  document.querySelectorAll('.project-tree-children button[data-page="master"]').forEach(btn=>{const p=btn.getAttribute('data-project');btn.style.display=canEditProject(p)?'':'none'});
+  document.querySelectorAll('.project-tree-children button[data-page="master"]').forEach(btn=>{const p=btn.getAttribute('data-project');btn.style.display=(canEditProject(p)||master)?'':'none'});
   document.querySelectorAll('#siteHome .site-card').forEach(btn=>{
     const oc=btn.getAttribute('onclick')||'';const m=oc.match(/enterProjectPage\('([^']+)'/);
     if(m)btn.style.display=(master||allowed.includes(m[1]))?'':'none';
@@ -5999,7 +6002,7 @@ function applyDevicePermissions(){
   const badge=$('readOnlyBadge');
   if(badge){const active=currentProjectForAuth(),perm=projectPermission(active);badge.classList.toggle('visible',!master&&registered);badge.textContent=perm==='manage'?'관리전용':'읽기 전용'}
   applyProjectAccessUI();updateAdminSecurityButtons();
-  document.querySelectorAll('.report-close-btn').forEach(el=>{const allow=canCloseReports();el.style.display=allow?'':'none';el.disabled=!allow});
+  document.querySelectorAll('.report-close-btn').forEach(el=>{const allow=canCloseReports()&&canEditActiveProject();el.style.display=allow?'':'none';el.disabled=!allow});
 
   const allowed=getDeviceProjects();
   if(!master&&registered&&allowed.length===0){
@@ -6007,8 +6010,9 @@ function applyDevicePermissions(){
     showDeviceGate('이 기기에 허용된 현장이 없습니다. 관리자에게 새 6자리 등록코드를 받거나 관리자 로그인을 해주세요.');lastPermissionMode=mode;return;
   }
 
-  if(master||canEditActiveProject()){
-    if(lastPermissionMode==='readonly'){
+  if(canEditActiveProject()){
+    document.querySelectorAll('#masterPage [data-site-master-readonly-disabled="1"]').forEach(el=>{el.disabled=false;delete el.dataset.siteMasterReadonlyDisabled});
+    if(lastPermissionMode==='readonly'||document.querySelector('[data-role-disabled="1"]')){
       document.querySelectorAll('[data-role-disabled="1"]').forEach(el=>{if(!(typeof currentReportLocked!=='undefined'&&currentReportLocked&&el.closest&&el.closest('#writePage'))){el.disabled=false}delete el.dataset.roleDisabled});
     }
     document.querySelectorAll('button[onclick="saveMasters()"], .mobile-quickbar .quick-save').forEach(el=>{el.style.display=canEditActiveProject()?'':'none'});
@@ -6020,6 +6024,21 @@ function applyDevicePermissions(){
     lastPermissionMode=mode;return;
   }
 
+  // 읽기전용 마스터도 '설정 → 기기등록 관리 → 접속상태 강제종료'에 접근할 수 있어야 합니다.
+  // 기준정보 저장과 입력은 금지하되 기기 관리(별도 서버 인증)는 열어 둡니다.
+  const masterPage=$('masterPage');
+  if(masterPage){
+    const lockMasterFields=readonly && master;
+    masterPage.querySelectorAll('input,select,textarea').forEach(el=>{
+      if(lockMasterFields){if(!el.disabled){el.dataset.siteMasterReadonlyDisabled='1';el.disabled=true}}
+      else if(el.dataset.siteMasterReadonlyDisabled==='1'){el.disabled=false;delete el.dataset.siteMasterReadonlyDisabled}
+    });
+    masterPage.querySelectorAll('button').forEach(el=>{
+      const allowed=el.id==='deviceAdminBtn'||el.id==='masterPasswordBtn'||el.classList.contains('public-store-diagnostic-btn')||el.getAttribute('onclick')==='connectGoogleDrive()';
+      if(lockMasterFields&&!allowed){if(!el.disabled){el.dataset.siteMasterReadonlyDisabled='1';el.disabled=true}}
+      else if(el.dataset.siteMasterReadonlyDisabled==='1'){el.disabled=false;delete el.dataset.siteMasterReadonlyDisabled}
+    });
+  }
   const write=$('writePage');
   if(write){
     write.querySelectorAll('input,select,textarea').forEach(el=>{if(readonly){el.dataset.roleDisabled='1';el.disabled=true}else if(el.dataset.roleDisabled==='1'){el.disabled=false;delete el.dataset.roleDisabled}});
@@ -9851,6 +9870,21 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(urigongResetBaseline,1
 const siteAccessSessionId=sessionStorage.getItem('urigongSiteAccessSession')||('s_'+(typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID().replaceAll('-',''):Array.from({length:4},()=>Math.random().toString(36).slice(2)).join('').slice(0,32)));
 sessionStorage.setItem('urigongSiteAccessSession',siteAccessSessionId);
 let siteAccessMode='none',siteAccessProject='',siteAccessOwner='',siteAccessTimer=null,siteAccessBusy=false,siteAccessNavigating=false,siteAccessLastRequest='';
+const SITE_ACCESS_HANDOFF='urigongSiteAccessHandoff';
+function siteAccessMakeHandoff(project,mode,owner){
+  // 현장 변경에 의한 location.reload 직후 서버 확인을 중복하지 않도록 1회 인계.
+  // 서버 저장·변경은 별도의 세션 검사를 거치므로 이 표시만으로 편집 권한을 얻지 못합니다.
+  sessionStorage.setItem(SITE_ACCESS_HANDOFF,JSON.stringify({project,mode,owner:owner||'',sid:siteAccessSessionId,at:Date.now()}));
+}
+function siteAccessTakeHandoff(project){
+  const raw=sessionStorage.getItem(SITE_ACCESS_HANDOFF);sessionStorage.removeItem(SITE_ACCESS_HANDOFF);
+  if(!raw)return null;
+  try{
+    const obj=JSON.parse(raw);
+    if(obj.project!==project||obj.sid!==siteAccessSessionId||Date.now()-obj.at>90000||!['edit','readonly'].includes(obj.mode))return null;
+    return obj;
+  }catch(e){return null}
+}
 function siteAccessHasActive(){return !!sessionStorage.getItem('activeProject')&&sessionStorage.getItem('openProjectAfterReload')==='1'}
 function siteShowDialog(title,msg,textarea=false,actions=null){
  return new Promise(resolve=>{
@@ -9869,6 +9903,7 @@ function siteAccessRender(){
  if(header)header.style.display=active?'flex':'none';
  const isRead=active&&siteAccessMode==='readonly';
  document.body.classList.toggle('site-access-readonly',isRead);
+ document.body.classList.toggle('site-master-readonly',isRead&&isMasterDevice());
  document.body.classList.toggle('site-access-ready',!active||['edit','readonly'].includes(siteAccessMode));
  if(label)label.textContent=siteAccessMode==='edit'?'권한 : 편집중':(isRead?'권한 : 읽기전용':(siteAccessMode==='lost'?'권한 : 접속종료':'접속 확인 중'));
  if(btn)btn.style.display=isRead&&siteAccessCanRequest(siteAccessProject)&&!!siteAccessOwner?'':'none';
@@ -9889,6 +9924,7 @@ async function siteAccessEnter(project){
 }
 function siteAccessOwnerMessage(owner){return `[${owner||'다른 사용자'}]가 작업중입니다. 작업종료를 요청해주세요.`}
 function siteAccessCanRequest(project){return getDeviceRole()==='site_admin'&&projectPermission(project)==='manage'}
+function siteAccessShouldWarn(project){return isMasterDevice()||siteAccessCanRequest(project)}
 const siteOriginalEnterProjectPage=enterProjectPage;
 enterProjectPage=async function(project,page){
  if(siteAccessBusy)return;
@@ -9898,12 +9934,13 @@ enterProjectPage=async function(project,page){
  try{
    const r=await siteAccessEnter(project);
    if(r.mode==='blocked'){await siteShowDialog(project+' · 접속 불가',siteAccessOwnerMessage(r.owner));return}
-   if(r.mode==='readonly'&&r.owner&&siteAccessCanRequest(project))await siteShowDialog(project+' · 읽기전용',siteAccessOwnerMessage(r.owner)+'\n관리자는 읽기전용으로 접속합니다.');
+   if(r.mode==='readonly'&&r.owner&&siteAccessShouldWarn(project))await siteShowDialog(project+' · 읽기전용',siteAccessOwnerMessage(r.owner)+(isMasterDevice()?'\n마스터는 읽기전용으로 접속합니다. 강제종료는 설정 → 기기등록 관리에서 할 수 있습니다.':'\n관리자는 읽기전용으로 접속합니다.'));
    if(siteAccessProject&&siteAccessProject!==project&&siteAccessMode==='edit')siteAccessFastRelease(siteAccessProject);
    siteAccessProject=project;siteAccessMode=r.mode;siteAccessOwner=r.owner||'';
    sessionStorage.setItem('siteAccessOwnerProject',project);
    siteAccessRender();siteAccessStartPulse();
    siteAccessNavigating=!(siteAccessHasActive()&&sessionStorage.getItem('activeProject')===project);
+   if(siteAccessNavigating)siteAccessMakeHandoff(project,r.mode,r.owner||'');
    siteOriginalEnterProjectPage(project,page);
  }catch(e){await siteShowDialog('접속 확인 실패',e.message+'\n데이터 충돌 방지를 위해 접속을 중단했습니다.');}
  finally{siteAccessBusy=false}
@@ -9947,13 +9984,33 @@ async function siteMasterForce(targetId){
  if(!isMasterDevice())return alert('마스터 전용 기능입니다.');
  const pw=adminPasswordValue();if(!pw)return setDeviceAdminStatus('먼저 마스터 비밀번호를 입력하세요.');
  if(!confirm('선택한 기기의 현장 접속을 강제로 종료할까요?\n기기 차단 또는 기존 데이터 삭제는 하지 않습니다.'))return;
- try{const r=await publicPost('siteLockMasterForce',authPayload({masterPassword:pw,targetDeviceId:targetId}),25000);setDeviceAdminStatus(r.ended?'접속상태 강제종료: '+r.projects.join(', '):'이 기기가 점유한 현장이 없습니다.');await loadDeviceAdminList()}
- catch(e){setDeviceAdminStatus('강제종료 실패: '+e.message)}
+ try{
+   const r=await publicPost('siteLockMasterForce',authPayload({masterPassword:pw,targetDeviceId:targetId}),25000);
+   setDeviceAdminStatus(r.ended?'접속상태 강제종료: '+r.projects.join(', '):'이 기기가 점유한 현장이 없습니다.');
+   if(r.ended&&Array.isArray(r.projects)&&r.projects.includes(siteAccessProject)&&siteAccessMode==='readonly'){
+     // 강제종료 '확인' 자체가 편집권을 탈취하지 않으며, 서버에서 새로운 접속권을 받아야 합니다.
+     try{
+       const access=await siteAccessEnter(siteAccessProject);
+       if(access.mode==='edit'){
+         siteAccessMode='edit';siteAccessOwner=access.owner||'';
+         siteAccessRender();siteAccessStartPulse();
+         setDeviceAdminStatus('기존 접속 종료 및 현재 현장 편집권 확보 완료');
+       }else setDeviceAdminStatus('강제종료 완료 · 다른 사용자가 편집권을 먼저 획득하여 읽기전용 상태입니다.');
+     }catch(e){setDeviceAdminStatus('강제종료 완료 · 편집권 확인 실패: '+e.message)}
+   }
+   await loadDeviceAdminList();
+ }catch(e){setDeviceAdminStatus('강제종료 실패: '+e.message)}
 }
 window.addEventListener('pagehide',()=>{if(!siteAccessNavigating)siteAccessFastRelease()});
 window.addEventListener('DOMContentLoaded',async()=>{
- if(!siteAccessHasActive()){siteAccessRender();return}
+ if(!siteAccessHasActive()){sessionStorage.removeItem(SITE_ACCESS_HANDOFF);siteAccessRender();return}
  const project=sessionStorage.getItem('activeProject');
+ const handoff=siteAccessTakeHandoff(project);
+ if(handoff){
+   siteAccessProject=project;siteAccessMode=handoff.mode;siteAccessOwner=handoff.owner;
+   siteAccessRender();siteAccessStartPulse();
+   return;
+ }
  try{
    const r=await siteAccessEnter(project);
    if(r.mode==='blocked'){
@@ -9961,7 +10018,8 @@ window.addEventListener('DOMContentLoaded',async()=>{
      await siteShowDialog('다른 사용자 접속 중',siteAccessOwnerMessage(r.owner));
      siteOriginalGoSiteHome();siteAccessRender();return;
    }
-   if(r.mode==='readonly'&&r.owner&&siteAccessCanRequest(project))await siteShowDialog('읽기전용 입장',siteAccessOwnerMessage(r.owner)+'\n관리자는 조회만 할 수 있습니다.');
+   // 최초 현장 선택 경고는 enterProjectPage에서 한 번만 표시합니다.
+   // 수동 새로고침에서 동일 안내를 재표시하지 않습니다.
    siteAccessProject=project;siteAccessMode=r.mode;siteAccessOwner=r.owner||'';
    siteAccessRender();siteAccessStartPulse();
  }catch(e){siteAccessMode='blocked';siteAccessRender();await siteShowDialog('현장 접속 실패','공용저장소에 연결할 수 없습니다.\n'+e.message+'\n기존 데이터를 보호하기 위해 현장 진입을 중단했습니다.');siteOriginalGoSiteHome();siteAccessRender()}
