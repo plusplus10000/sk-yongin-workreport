@@ -2654,11 +2654,9 @@ window.addEventListener('focus',function(){
 </style>
 
 <style id="urigong-mode-colors-20261014">
-/* 주간만 명일 작업 내용을 입력할 수 있도록 화면에서만 숨김; 데이터는 보존. */
+/* ④ 금일: 모든 모드에서 각각 독립 편집. ⑤ 명일: 주간만 편집, 중식·연장은 주간 내용 참조. */
 #writePage[data-work-mode="lunch"] .tomorrow-work-card,
-#writePage[data-work-mode="overtime"] .tomorrow-work-card{display:none!important;}
-#writePage[data-work-mode="lunch"] .daily-work-columns,
-#writePage[data-work-mode="overtime"] .daily-work-columns{grid-template-columns:minmax(0,1fr)!important;}
+#writePage[data-work-mode="overtime"] .tomorrow-work-card{display:block!important;}
 
 /* 미리보기의 배경은 사용자가 선택한 미리보기 탭만 따릅니다. */
 #writePage[data-preview-mode="weekly"] .desktop-preview .card{background:#fff2f6!important;border-color:#efc5d1!important;}
@@ -2697,12 +2695,14 @@ window.addEventListener('focus',function(){
 #writePage[data-preview-mode="overtime"] .desktop-preview .preview-toggle{background:#e0f5e3!important;color:#316b41!important;border-color:#a9d6b2!important;}
 </style>
 
-<style id="urigongWeeklyAreasReadonlyCSS">
-/* 중식OT/연장: 같은 날 주간 금일 작업내용 참조 · 저장 원본 불변 */
-#areas.weekly-areas-reference .area{background:#edf0f3!important;border:1px solid #cbd3dc!important;opacity:.88}
-#areas.weekly-areas-reference input,#areas.weekly-areas-reference select{background:#e1e5ea!important;color:#596577!important;-webkit-text-fill-color:#596577!important;border-color:#bdc6d1!important;cursor:default!important;opacity:1!important}
-#areas.weekly-areas-reference button{background:#e1e5ea!important;color:#8793a0!important;border-color:#c9d0da!important;cursor:not-allowed!important;opacity:.6!important}
-#areas .weekly-areas-empty{padding:12px 10px;color:#65758a;background:#eef1f4;border-radius:6px;font-size:12px}
+<style id="urigongTomorrowWeeklyReadonlyCSS">
+/* 주간 ⑤ 명일만 원본으로 편집. 중식·연장의 ④ 금일 입력 기능은 그대로 유지. */
+#writePage .tomorrow-work-card.weekly-tomorrow-reference{background:#edf0f3!important;border-color:#cbd3dc!important}
+#writePage .tomorrow-work-card.weekly-tomorrow-reference #tomorrowAreas .area{background:#e9edf1!important;border-color:#cbd3dc!important;opacity:1!important}
+#writePage .tomorrow-work-card.weekly-tomorrow-reference #tomorrowAreas .area input,
+#writePage .tomorrow-work-card.weekly-tomorrow-reference #tomorrowAreas .area select{background:#e1e5ea!important;color:#596577!important;-webkit-text-fill-color:#596577!important;border-color:#bdc6d1!important;cursor:default!important;opacity:1!important}
+#writePage .tomorrow-work-card.weekly-tomorrow-reference button{background:#e1e5ea!important;color:#8793a0!important;border-color:#c9d0da!important;cursor:not-allowed!important;opacity:.7!important}
+#writePage .tomorrow-work-card.weekly-tomorrow-reference .weekly-tomorrow-empty{padding:12px 10px;color:#65758a;background:#e5e9ee;border-radius:6px;font-size:12px}
 </style>
 </head>
 <body class="locked site-home-mode">
@@ -4097,28 +4097,11 @@ function renderAreas(){
    normalizeZones();
    const zones=(D.zones||[]).filter(z=>z&&z.zone);
    const areasHost=$('areas');
-   const linked=currentWorkType==='lunch'||currentWorkType==='overtime';
+   // ④ 금일 작업내용은 주간·중식·연장 각각의 state.areas를 수정하는 원래 방식.
+   // 기존 버전의 weekly-areas-reference가 남아 있지 않도록 정리합니다.
+   areasHost.classList.remove('weekly-areas-reference');
    const addButton=areasHost?.closest('.card')?.querySelector('.title button');
-   if(addButton){addButton.disabled=linked;addButton.style.display=linked?'none':'';}
-   areasHost.classList.toggle('weekly-areas-reference',linked);
-   if(linked){
-     // Only the weekly source is rendered, without mutating or saving lunch/overtime areas.
-     const linkedAreas=weeklyAreasForReference();
-     const options=zones.map(z=>`<option value="${esc(z.zone)}">${esc(z.zone)}</option>`).join('');
-     areasHost.innerHTML=linkedAreas.length?linkedAreas.map(a=>{
-       const tasks=Array.isArray(a.tasks)&&a.tasks.length?a.tasks:[''];
-       const known=zones.some(z=>z.zone===a.zone);
-       return `<div class="area weekly-linked-area ${!tasks.some(t=>String(t||'').trim())?'area-empty':''}">
-         <div class="area-layout"><div class="area-meta">
-           <select class="area-name-input" disabled aria-label="주간 구역 · 읽기전용"><option value="">구역명</option>${!known&&a.zone?`<option selected>${esc(a.zone)}</option>`:''}${options.replace('value="'+esc(a.zone)+'"','value="'+esc(a.zone)+'" selected')}</select>
-           <input class="area-location-input" readonly disabled value="${esc(a.loc||a.location||'')}" placeholder="위치">
-           <input class="area-note-input" readonly disabled value="${esc(a.note||'')}" placeholder="비고">
-           <button type="button" class="btn area-delete-btn" disabled>삭제</button>
-         </div><div class="area-tasks">${tasks.map((t,j)=>`<div class="subtask"><span>${j+1}.</span><input readonly disabled value="${esc(t)}" placeholder="작업내용"><button class="btn" disabled>−</button><button class="btn" disabled>+</button></div>`).join('')}</div></div>
-       </div>`;
-     }).join(''):'<div class="weekly-areas-empty">같은 날짜의 주간 작업내용이 아직 없습니다.</div>';
-     return;
-   }
+   if(addButton){addButton.style.display='';addButton.disabled=false;}
    areasHost.innerHTML=state.areas.map((a,i)=>{
     if(a.zone===undefined)a.zone=a.name||'';
     if(a.loc===undefined)a.loc=a.location||'';
@@ -4145,7 +4128,9 @@ function renderAreas(){
     </div>`;
   }).join('');
 }
-function addArea(){if(currentWorkType!=='weekly')return;state.areas.push({zone:'',loc:'',note:'',tasks:['']});renderAreas()} function addTask(i){if(currentWorkType!=='weekly')return;state.areas[i].tasks.push('');renderAreas()} function removeTask(i,k){if(currentWorkType!=='weekly')return;if(state.areas[i].tasks.length>1)state.areas[i].tasks.splice(k,1);else state.areas[i].tasks[0]='';renderAreas();updatePreview()}
+function addArea(){if(!requireReportEditable())return;state.areas.push({zone:'',loc:'',note:'',tasks:['']});renderAreas();updatePreview()}
+function addTask(i){if(!requireReportEditable())return;state.areas[i].tasks.push('');renderAreas();updatePreview()}
+function removeTask(i,k){if(!requireReportEditable())return;if(state.areas[i].tasks.length>1)state.areas[i].tasks.splice(k,1);else state.areas[i].tasks[0]='';renderAreas();updatePreview()}
 function ensureTomorrowAreas(){
   if(!Array.isArray(state.tomorrowAreas))state.tomorrowAreas=[];
   return state.tomorrowAreas;
@@ -4154,6 +4139,36 @@ function renderTomorrowAreas(){
   const host=$('tomorrowAreas');if(!host)return;
   normalizeZones();
   const zones=(D.zones||[]).filter(z=>z&&z.zone);
+  const readonly=currentWorkType==='lunch'||currentWorkType==='overtime';
+  const card=host.closest('.tomorrow-work-card');
+  if(card){
+    card.classList.toggle('weekly-tomorrow-reference',readonly);
+    // 이 두 버튼은 조회 모드에서 동작하지 않고, 주간 모드에서는 원래 기능 복원.
+    card.querySelectorAll('.title button').forEach(btn=>{
+      btn.disabled=readonly;
+      if(readonly)btn.title='주간의 명일 작업내용을 참조합니다. 중식·연장에서는 수정할 수 없습니다.';
+      else btn.removeAttribute('title');
+    });
+  }
+  if(readonly){
+    // ⑤ 명일 작업내용을 같은 날짜·현장·공종의 주간 원본에서만 읽습니다.
+    // 중식·연장 state.tomorrowAreas 및 주간 저장본은 절대 변경하지 않습니다.
+    const weekly=lunchWeeklySource($('date')?.value,$('site')?.value,$('trade')?.value);
+    const areas=Array.isArray(weekly?.state?.tomorrowAreas)?weekly.state.tomorrowAreas:[];
+    host.innerHTML=areas.length?areas.map(a=>{
+      const tasks=Array.isArray(a.tasks)&&a.tasks.length?a.tasks:[''];
+      const options=zones.map(z=>`<option value="${esc(z.zone)}" ${z.zone===a.zone?'selected':''}>${esc(z.zone)}</option>`).join('');
+      const unknown=a.zone&&!zones.some(z=>z.zone===a.zone)?`<option value="${esc(a.zone)}" selected>${esc(a.zone)}</option>`:'';
+      return `<div class="area weekly-linked-tomorrow ${!tasks.some(t=>String(t||'').trim())?'area-empty':''}">
+        <div class="area-layout"><div class="area-meta">
+          <select class="area-name-input" disabled aria-label="주간 명일 구역 · 읽기전용"><option value="">구역명</option>${unknown}${options}</select>
+          <input class="area-location-input" readonly disabled value="${esc(a.loc||a.location||'')}" placeholder="위치">
+          <input class="area-note-input" readonly disabled value="${esc(a.note||'')}" placeholder="비고">
+          <button type="button" class="btn area-delete-btn" disabled>삭제</button>
+        </div><div class="area-tasks">${tasks.map((t,j)=>`<div class="subtask"><span>${j+1}.</span><input readonly disabled value="${esc(t)}" placeholder="명일 작업내용"><button type="button" class="btn" disabled>−</button><button type="button" class="btn" disabled>+</button></div>`).join('')}</div></div></div>`;
+    }).join(''):'<div class="weekly-tomorrow-empty">같은 날짜의 주간 명일 작업내용이 아직 없습니다.</div>';
+    return;
+  }
   const areas=ensureTomorrowAreas();
   host.innerHTML=areas.map((a,i)=>{
     if(a.zone===undefined)a.zone=a.name||'';
@@ -4172,6 +4187,7 @@ function renderTomorrowAreas(){
   }).join('');
 }
 function applyTomorrowZone(i,v){
+  if(currentWorkType!=='weekly'||!requireReportEditable())return;
   const area=ensureTomorrowAreas()[i];if(!area)return;
   const z=(D.zones||[]).find(x=>x.zone===v);
   area.zone=v;
@@ -4180,8 +4196,9 @@ function applyTomorrowZone(i,v){
   renderTomorrowAreas();updatePreview();
 }
 
-function addTomorrowArea(){ensureTomorrowAreas().push({zone:'',note:'',loc:'',tasks:['']});renderTomorrowAreas();updatePreview()}
+function addTomorrowArea(){if(currentWorkType!=='weekly'||!requireReportEditable())return;ensureTomorrowAreas().push({zone:'',note:'',loc:'',tasks:['']});renderTomorrowAreas();updatePreview()}
 function copyTodayToTomorrow(){
+  if(currentWorkType!=='weekly'||!requireReportEditable())return;
   const source=(state.areas||[]).map(a=>({zone:a.zone||'',loc:a.loc||'',note:a.note||'',tasks:[...(a.tasks||[])]}));
   if(!source.length){alert('복사할 금일 작업내용이 없습니다.');return;}
   const existing=(state.tomorrowAreas||[]).some(a=>(a.tasks||[]).some(t=>String(t||'').trim()));
@@ -4345,7 +4362,7 @@ function previewReportSection(tab){
   (D.jobs||[]).forEach(j=>{if(totals[j]>0)lines.push(`   - ${j} : ${totals[j]}명`)});
   const eq=(data.equipment||[]).filter(e=>e.name&&e.qty>0).map(e=>`${e.name}-${e.qty}대`);
   lines.push('',`2) 장비 : ${eq.length?eq.join(', '):'-'}`,'','3) 금일 작업 내용');
-  (tab==='weekly'?data.areas||[]:weeklyAreasForReference(date,site,trade)).forEach(a=>{
+  (data.areas||[]).forEach(a=>{
     const tasks=(a.tasks||[]).filter(x=>String(x||'').trim());
     if((a.zone||a.loc)&&tasks.length){
       lines.push(`- [${[a.zone,a.loc].map(v=>String(v||'').trim()).filter(Boolean).join('  ')}]`);
@@ -6747,12 +6764,11 @@ function reportText(){
   if(currentWorkType==='weekly'){
     return formatSection(state,state.managers,'주간작업보고',$('start').value,$('end').value);
   }
-  const linkedState={...state,areas:weeklyAreasForReference(date,site,trade)};
   if(currentWorkType==='lunch'){
     const lunchManagers=(currentReportLocked?null:lunchWeeklyManagers(date,site,trade))||state.managers||[];
-    return formatSection(linkedState,lunchManagers,'중식OT작업보고','11:00','13:00');
+    return formatSection(state,lunchManagers,'중식OT작업보고','11:00','13:00');
   }
-  return formatSection(linkedState,state.managers,currentModeLabel()+'작업보고',$('start').value,$('end').value);
+  return formatSection(state,state.managers,currentModeLabel()+'작업보고',$('start').value,$('end').value);
 }
 function moveWorkDate(days){
   const el=$('date');if(!el)return;
@@ -6930,7 +6946,38 @@ function applyRemoteData(d,stamp){
       projectSet('reports',JSON.stringify(sharedMergeReports(d.reports,existing.filter(r=>r?.closed===true))),activeProject);
     }
     if(d.currentDraft)projectSet('currentDraft',JSON.stringify(d.currentDraft),activeProject);
-    if(d.workModeDrafts){projectSet('workModeDrafts',JSON.stringify(d.workModeDrafts),activeProject);sharedItemRestore(d.workModeDrafts,activeProject)}
+    if(d.workModeDrafts){
+      const localDrafts=safeParseJSON(projectGet('workModeDrafts',activeProject),{})||{};
+      const received={...d.workModeDrafts};
+      const rCaptions=received[PHOTO_CAPTION_CLOUD_NAMESPACE]||{};
+      const lCaptions=localDrafts[PHOTO_CAPTION_CLOUD_NAMESPACE]||{};
+      const mergedCaptions={...rCaptions};
+      let newerLocalCaption=false;
+      for(const [key,localRecord] of Object.entries(lCaptions)){
+        if(!localRecord||typeof localRecord!=='object')continue;
+        const remoteRecord=rCaptions[key];
+        if(!remoteRecord||(Number(localRecord.__updatedAt)||0)>(Number(remoteRecord.__updatedAt)||0)){
+          mergedCaptions[key]=photoCaptionNewest(remoteRecord,localRecord);
+          newerLocalCaption=true;
+        }
+      }
+      // 안전 복사본도 현재 현장만 복원. 다른 현장이나 다른 날짜 데이터는 절대 지우지 않습니다.
+      const currentCtx=photoContext();
+      if(currentCtx.project===activeProject){
+        const key=photoContextKey(currentCtx),backup=photoCaptionBackupRead(currentCtx);
+        const existing=mergedCaptions[key];
+        if(Object.keys(backup).length&&(!existing||(Number(backup.__updatedAt)||0)>(Number(existing.__updatedAt)||0))){
+          mergedCaptions[key]=photoCaptionNewest(existing,backup);newerLocalCaption=true;
+        }
+      }
+      received[PHOTO_CAPTION_CLOUD_NAMESPACE]=mergedCaptions;
+      projectSet('workModeDrafts',JSON.stringify(received),activeProject);
+      sharedItemRestore(received,activeProject);
+      if(newerLocalCaption&&canEditActiveProject()){
+        setDriveMeta('driveLocalDirty','1');
+        setTimeout(()=>scheduleAutoSync(),0);
+      }
+    }
     // 작업없음은 작업일보 데이터와 별도로 저장된다. 모든 기기에서 동일한 날짜 상태를 내려받는다.
     // 키가 없는 과거 서버 자료는 기존 로컬 자료를 함부로 삭제하지 않는다.
     const remoteNoWork=sharedMergeNoWork(d.noWorkDays||{},d.workModeDrafts?.[SHARED_NOWORK_NAMESPACE]||{});
@@ -6938,7 +6985,10 @@ function applyRemoteData(d,stamp){
       projectSet('noWorkDays',JSON.stringify(sharedMergeNoWork(remoteNoWork,safeParseJSON(projectGet('noWorkDays',activeProject),{})||{})),activeProject);
     }
     setDriveMeta('driveLastRemoteRevision',String(Number(d?.serverRevision)||0));
-    setDriveMeta('driveLastRemoteStamp',String(stamp||Date.now()));setDriveMeta('driveLocalDirty','0');setDriveMeta('driveLocalUpdatedAt',String(stamp||Date.now()));
+    setDriveMeta('driveLastRemoteStamp',String(stamp||Date.now()));
+    const keepCaptionDirty=getDriveMeta('driveLocalDirty')==='1';
+    setDriveMeta('driveLocalDirty',keepCaptionDirty?'1':'0');
+    setDriveMeta('driveLocalUpdatedAt',String(keepCaptionDirty?Date.now():(stamp||Date.now())));
     setDriveMeta('driveLastFinishedLocalAt',String(Date.now()));
   }finally{applyingRemote=false}
 }
@@ -7891,7 +7941,7 @@ function selectConstructionExcelSheet(index){
   fitConstructionExcelPreview();
   if(model.sheet===2){
     const ctx=photoContext();
-    const fast=photoCaptionMemory.get(photoContextKey(ctx))||photoCloudCaptions(ctx);
+    const fast=photoCaptionNewest(photoCloudCaptions(ctx),photoCaptionMemory.get(photoContextKey(ctx)));
     photoSyncCaptionEditor(fast); // 사진이 아직 내려오지 않아도 아래 설명은 즉시 표시
     void loadPhotoSheet(false);
     void photoLoadCaptions(false);
@@ -9089,7 +9139,7 @@ function photoRenderEditor(){
  const host=document.getElementById('excelPhotoEditor');if(!host)return;
  const ctx=photoContext(),ctxKey=photoContextKey(ctx);
  // 설명은 사진 원본 다운로드를 기다리지 않고 기존 공용저장소 캐시에서 즉시 표시합니다.
- const immediateCaptions=photoCaptionMemory.get(ctxKey)||photoCloudCaptions(ctx);
+ const immediateCaptions=photoCaptionNewest(photoCloudCaptions(ctx),photoCaptionMemory.get(ctxKey));
  const editAllowed=photoCanEdit(ctx);
  host.className='excel-photo-editor';host.classList.toggle('is-closed',!editAllowed);host.dataset.photoLockState=editAllowed?'edit':'locked';host.replaceChildren();
  const header=document.createElement('div');header.className='photo-editor-title';header.textContent='사진대지 · 사진 및 설명 입력';host.appendChild(header);
@@ -9173,28 +9223,91 @@ function photoSyncCaptionEditor(values){
 // 이미 공용저장소가 동기화하는 workModeDrafts 내부에 별도 이름공간으로 저장합니다.
 // 새로운 서버 배포나 이미지 업로드 없이 날짜/현장/공종별로 공유됩니다.
 const PHOTO_CAPTION_CLOUD_NAMESPACE='__urigongPhotoCaptionTextV1__';
-function photoCloudCaptions(ctx){
- const drafts=getModeDrafts(),bucket=drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]||{};
- const record=bucket[photoContextKey(ctx)];
- const out={};
+// 사진 상세 설명은 작업내용에서 최초 표시값만 제안하고, 이후에는 별도의 날짜별 값이 우선입니다.
+// 공용저장소 응답이 늦게 도착해도 직접 작성한 설명이 소실되지 않도록 이 기기에 좁은 범위의 안전 복사본을 둡니다.
+const PHOTO_CAPTION_BACKUP_PREFIX='urigongPhotoCaptionBackupV2::';
+function photoCaptionBackupKey(ctx){return PHOTO_CAPTION_BACKUP_PREFIX+photoContextKey(ctx)}
+function photoCaptionNormalize(record){
+ const result={};
  if(record&&typeof record==='object'&&!Array.isArray(record)){
   for(const ref of PHOTO_CAPTION_REFS){
-   if(Object.prototype.hasOwnProperty.call(record,ref))out[ref]=String(record[ref]??'').slice(0,300);
+   if(Object.prototype.hasOwnProperty.call(record,ref))result[ref]=String(record[ref]??'').replace(/\r/g,'').slice(0,300);
   }
+  if(Object.keys(result).length)result.__updatedAt=Number(record.__updatedAt)||0;
  }
- return out;
+ return result;
+}
+function photoCaptionBackupRead(ctx){
+ try{return photoCaptionNormalize(safeParseJSON(localStorage.getItem(photoCaptionBackupKey(ctx)),null))}
+ catch(e){console.warn('사진 설명 안전 복사본 조회 생략',e);return {}}
+}
+function photoCaptionBackupWrite(ctx,record){
+ try{localStorage.setItem(photoCaptionBackupKey(ctx),JSON.stringify(photoCaptionNormalize(record)))}
+ catch(e){console.warn('사진 설명 안전 복사본 저장 제한',e)}
+}
+function photoCaptionNewest(a,b){
+ const one=photoCaptionNormalize(a),two=photoCaptionNormalize(b);
+ if(!Object.keys(one).length)return two;
+ if(!Object.keys(two).length)return one;
+ // 시간 정보가 같으면 공용저장소 값이 우선, 빈 항목은 이전 값으로 채웁니다.
+ const latest=(Number(two.__updatedAt)||0)>(Number(one.__updatedAt)||0)?two:one;
+ const other=latest===one?two:one;
+ return {...other,...latest,__updatedAt:Math.max(Number(one.__updatedAt)||0,Number(two.__updatedAt)||0)};
+}
+function photoCloudCaptions(ctx){
+ const drafts=getModeDrafts(),bucket=drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]||{};
+ const stored=photoCaptionNormalize(bucket[photoContextKey(ctx)]);
+ return photoCaptionNewest(stored,photoCaptionBackupRead(ctx));
 }
 function photoWriteCloudCaptions(ctx,values){
  const drafts=getModeDrafts();
- const bucket=(drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]&&typeof drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]==='object'&&!Array.isArray(drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]))?drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]:{};
- const key=photoContextKey(ctx),old=bucket[key]||{},next={...old};
+ const bucket=(drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]&&typeof drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]==='object'&&!Array.isArray(drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]))?{...drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]}:{};
+ const key=photoContextKey(ctx);
+ const old=photoCaptionNewest(bucket[key],photoCaptionBackupRead(ctx));
+ const next={...old};
  for(const ref of PHOTO_CAPTION_REFS){
   if(Object.prototype.hasOwnProperty.call(values,ref))next[ref]=String(values[ref]??'').replace(/\r/g,'').slice(0,300);
  }
-  next.__updatedAt=Date.now();bucket[key]=next;drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]=bucket;
+ next.__updatedAt=Math.max(Date.now(),(Number(old.__updatedAt)||0)+1);
+ // 별도 안전 복사본부터 기록해 서버 동기화 중 날짜를 바꿔도 최신 설명을 유지합니다.
+ photoCaptionBackupWrite(ctx,next);
+ bucket[key]=next;drafts[PHOTO_CAPTION_CLOUD_NAMESPACE]=bucket;
  setModeDrafts(drafts);
  photoCaptionMemory.set(key,{...next});
- markLocalChanged(); // 기존 보고서의 공용저장소 자동 동기화를 재사용합니다.
+ markLocalChanged(); // 기존 공용저장소 변경분 자동 동기화를 재사용합니다.
+}
+function photoCaptionCaptureVisibleSheet(ctx){
+ const page=document.getElementById('excelPage');
+ const editor=document.getElementById('excelPhotoEditor');
+ if(constructionExcelSheetIndex!==1||!page||page.style.display==='none'||!editor||editor.hidden)return null;
+ if(photoContextKey(photoContext())!==photoContextKey(ctx))return null;
+ const values={};
+ for(const ref of PHOTO_CAPTION_REFS){
+  const pending=photoCaptionDrafts.get(photoCaptionDraftKey(ctx,ref));
+  const area=Array.from(editor.querySelectorAll('.photo-editor-caption')).find(el=>el.dataset.captionRef===ref);
+  const cell=Array.from(document.querySelectorAll('#excelSheetPreview .excel-photo-caption')).find(el=>el.title?.startsWith(ref+' ·'));
+  if(pending!==undefined)values[ref]=pending;
+  else if(cell&&document.activeElement===cell)values[ref]=cell.textContent;
+  else if(area)values[ref]=area.value;
+  else if(cell)values[ref]=cell.textContent;
+ }
+ return Object.keys(values).length===PHOTO_CAPTION_REFS.length?values:null;
+}
+async function photoSaveCaptionSnapshot(ctx,values){
+ if(!photoCanEdit(ctx))return false;
+ const old=await photoGetCaptions(ctx);
+ // 사진 1~4 모두 사진별 저장값으로 확정합니다. 금일 작업내용 기본문구는 이후 덮어쓰지 않습니다.
+ photoWriteCloudCaptions(ctx,{...old,...values});
+ photoExcelDirty=true;
+ photoSyncCaptionEditor(values);
+ for(const ref of PHOTO_CAPTION_REFS){
+  const key=photoCaptionDraftKey(ctx,ref),captured=String(values[ref]??'').slice(0,300);
+  if(photoCaptionDrafts.get(key)===captured)photoCaptionDrafts.delete(key);
+  const area=document.querySelector('#excelPhotoEditor .photo-editor-caption[data-caption-ref="'+ref+'"]');
+  if(area&&!photoCaptionDrafts.has(key))delete area.dataset.captionDirty;
+ }
+ photoStatus('사진 1~4 설명이 각각 저장되었습니다 · 공용저장소 동기화 중');
+ return true;
 }
 // 과거 버전에서 이미 PC 폴더에 저장했던 설명을 한 번 읽어올 수 있게만 남깁니다.
 async function photoCaptionFileName(ctx){
@@ -9215,10 +9328,10 @@ async function photoReadLegacyLocalCaptions(ctx){
 }
 async function photoGetCaptions(ctx,force=false){
  const key=photoContextKey(ctx);
- if(!force&&photoCaptionMemory.has(key))return photoCaptionMemory.get(key);
+ // 메모리 캐시를 무조건 믿지 않습니다. 서버·로컬에서 더 최근 기록이 있으면 우선합니다.
  const cloud=photoCloudCaptions(ctx);
- const hasCloud=PHOTO_CAPTION_REFS.some(ref=>Object.prototype.hasOwnProperty.call(cloud,ref));
- let record=cloud;
+ let record=photoCaptionNewest(cloud,force?{}:photoCaptionMemory.get(key));
+ const hasCloud=PHOTO_CAPTION_REFS.some(ref=>Object.prototype.hasOwnProperty.call(record,ref));
  if(!hasCloud){
   const legacy=await photoReadLegacyLocalCaptions(ctx);
   if(Object.keys(legacy).length){
@@ -9559,7 +9672,7 @@ async function photoAssertMarker(root){
 }
 async function photoAttachToExcelZip(zip,date,site,trade){
  const ctx={project:activeProjectName(),date,site,trade};let photos;
- try{const captions=await photoGetCaptions(ctx,false);
+ try{const captions=await photoGetCaptions(ctx,true);
   if(Object.keys(captions).length&&zip.file('xl/worksheets/sheet2.xml')){
    const path='xl/worksheets/sheet2.xml',doc=new DOMParser().parseFromString(await zip.file(path).async('string'),'application/xml');
    const ns='http://schemas.openxmlformats.org/spreadsheetml/2006/main';
@@ -9846,14 +9959,20 @@ async function urigongSaveReportWorkflow(silent=false){
   }
   const changes=Array.from(photoCaptionDrafts.entries());
   const currentCtx=photoContext(),prefix=photoContextKey(currentCtx)+'::';
-  for(const [key,val] of changes){
-   if(!key.startsWith(prefix))continue;
-   const ref=key.slice(prefix.length);
-   if(!PHOTO_CAPTION_REFS.includes(ref))continue;
-   if(!(await photoSaveCaption(ref,val,currentCtx)))throw Error('사진 설명 '+ref+' 저장에 실패했습니다.');
-   if(photoCaptionDrafts.get(key)===val)photoCaptionDrafts.delete(key);
-   const textarea=document.querySelector('#excelPhotoEditor .photo-editor-caption[data-caption-ref="'+ref+'"]');
-   if(textarea&&!photoCaptionDrafts.has(key))delete textarea.dataset.captionDirty;
+  const visibleCaptions=photoCaptionCaptureVisibleSheet(currentCtx);
+  if(visibleCaptions){
+   if(!(await photoSaveCaptionSnapshot(currentCtx,visibleCaptions)))throw Error('사진 1~4 설명 저장에 실패했습니다.');
+  }else{
+   // 사진대지가 닫힌 채 보고서를 저장하면, 그날 직접 수정한 설명만 저장합니다.
+   for(const [key,val] of changes){
+    if(!key.startsWith(prefix))continue;
+    const ref=key.slice(prefix.length);
+    if(!PHOTO_CAPTION_REFS.includes(ref))continue;
+    if(!(await photoSaveCaption(ref,val,currentCtx)))throw Error('사진 설명 '+ref+' 저장에 실패했습니다.');
+    if(photoCaptionDrafts.get(key)===val)photoCaptionDrafts.delete(key);
+    const textarea=document.querySelector('#excelPhotoEditor .photo-editor-caption[data-caption-ref="'+ref+'"]');
+    if(textarea&&!photoCaptionDrafts.has(key))delete textarea.dataset.captionDirty;
+   }
   }
   const uploaded=await photoFlushStaged();
   const saved=saveReportWorkData(true);
@@ -10027,10 +10146,12 @@ const siteOriginalCanEdit=canEditActiveProject;
 canEditActiveProject=function(){return siteOriginalCanEdit()&&(!siteAccessHasActive()||(siteAccessMode==='edit'&&siteAccessProject===sessionStorage.getItem('activeProject')))};
 const siteOriginalCanEditProject=canEditProject;
 canEditProject=function(project){return siteOriginalCanEditProject(project)&&(!siteAccessHasActive()||project!==sessionStorage.getItem('activeProject')||siteAccessMode==='edit')};
+let siteAccessPulseInFlight=false;
 function siteAccessStartPulse(){
  siteAccessStopPulse();
  siteAccessTimer=setInterval(async()=>{
-   if(!tokenValid()||!siteAccessProject||!siteAccessHasActive())return;
+   if(!tokenValid()||!siteAccessProject||!siteAccessHasActive()||siteAccessPulseInFlight)return;
+   siteAccessPulseInFlight=true;
    try{
      if(siteAccessMode==='edit'){
        const pulseProject=siteAccessProject;
@@ -10055,6 +10176,7 @@ function siteAccessStartPulse(){
        }
      }
    }catch(e){console.warn('현장 접속 확인 실패:',e.message);}
+   finally{siteAccessPulseInFlight=false;}
  },16000);
 }
 async function siteOpenRequest(){
