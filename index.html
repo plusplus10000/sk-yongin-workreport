@@ -1434,7 +1434,6 @@ body.report-is-closed #writePage textarea:disabled{
 
 #workModeTabs .lunch-mode-btn{background:#fff9df!important;border-color:#e2c875!important;color:#6e5310!important}
 #workModeTabs .lunch-mode-btn.active{background:#ffe39a!important;border-color:#d3ac43!important;color:#6a4100!important}
-#writePage .lunch-managers-notice{font-size:11px;font-weight:600;color:#85610b;background:#fff8dd;border:1px solid #e8d99a;border-radius:5px;padding:3px 7px;margin-left:6px}
 
 .local-backup-btn{white-space:nowrap!important}
 .local-backup-modal{display:none;position:fixed;inset:0;z-index:120000;background:rgba(13,31,52,.42);align-items:center;justify-content:center;padding:16px}
@@ -4073,13 +4072,8 @@ function renderManagers(){
     if(linked){addButton.disabled=true;addButton.dataset.lunchLinked='1';addButton.title='중식OT 담당자는 주간 담당자와 자동으로 연결됩니다.'}
     else if(addButton.dataset.lunchLinked==='1'){delete addButton.dataset.lunchLinked;addButton.disabled=false;addButton.removeAttribute('title')}
   }
-  const title=card?.querySelector('.title');
-  let notice=title?.querySelector('.lunch-managers-notice');
-  if(linked){
-    if(!notice){notice=document.createElement('span');notice.className='lunch-managers-notice';title?.append(notice)}
-    notice.textContent='주간 담당자 자동 연결';
-    $('managers').querySelectorAll('button,input').forEach(el=>{el.disabled=true});
-  }else if(notice)notice.remove();
+  // 중식OT 담당자 주간 연동/입력 잠금은 유지하고 중복 안내 배지만 숨깁니다.
+  if(linked)$('managers').querySelectorAll('button,input').forEach(el=>{el.disabled=true});
 }
 function selectManager(i,name){if(currentWorkType==='lunch'&&lunchWeeklyManagers()!==null)return;let m=(D.managers||[]).find(x=>x[0]===name);if(m){state.managers[i]=[m[0]||'',m[1]||'',m[2]||'',state.managers[i][3]!==false,state.managers[i][4]===true];renderManagers();updatePreview()}}
 function toggleManager(i){if(currentWorkType==='lunch'&&lunchWeeklyManagers()!==null)return;state.managers[i][3]=state.managers[i][3]===false?true:false;renderManagers();updatePreview()}
@@ -5561,7 +5555,7 @@ async function publicPost(action,payload={},timeoutMs=75000){
   return pending;
 }
 function authPayload(extra={}){
-  return {deviceId:getDeviceId(),deviceToken:getDeviceToken(),project:currentProjectForAuth(),siteSessionId:(typeof siteAccessSessionId==='string'?siteAccessSessionId:''),...extra};
+  return {deviceId:getDeviceId(),deviceToken:getDeviceToken(),project:currentProjectForAuth(),siteSessionId:(typeof siteAccessSessionId==='string'?siteAccessSessionId:''),sitePageId:(typeof siteAccessPageId==='string'?siteAccessPageId:''),...extra};
 }
 async function publicStoreCall(action,data){
   if(!ensurePublicStoreCredentials(true))throw new Error('기기등록이 필요합니다.');
@@ -5793,6 +5787,8 @@ async function pushLocal(file,silent=true,remoteKnown){
   if(!silent)alert('수정·추가·삭제된 항목만 공용저장소에 저장했습니다.');
 }
 async function syncNow(reason='auto'){
+  // 현장 접속권이 확인되기 전에 자동 동기화가 로컬 미저장 상태를 읽기전용으로 초기화하지 않도록 대기.
+  if(typeof siteAccessHasActive==='function'&&siteAccessHasActive()&&typeof siteAccessMode!=='undefined'&&!['edit','readonly'].includes(siteAccessMode))return;
   if(typeof reportCloseActionBusy!=='undefined'&&reportCloseActionBusy){if(getDriveMeta('driveLocalDirty')==='1')scheduleAutoSync();return}
   if(!tokenValid()||syncBusy)return;syncBusy=true;
   const slowNotice=setTimeout(()=>{
@@ -9902,6 +9898,8 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(urigongResetBaseline,1
    서버 Code.gs의 siteLock* 라우팅 적용/웹앱 재배포 전에는 서버가 기능을 거부하므로 접속을 차단합니다.
    기존 작업일보/사진대지 데이터에 대한 임의 삭제는 없습니다.
  */
+// 각 새 문서에 고유한 식별자 부여. 이전 문서가 늦게 전송한 종료 신호는 서버가 무시한다.
+let siteAccessPageId='p_'+(typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID().replaceAll('-',''):Array.from({length:4},()=>Math.random().toString(36).slice(2)).join('').slice(0,32));
 let siteAccessSessionId=sessionStorage.getItem('urigongSiteAccessSession')||('s_'+(typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID().replaceAll('-',''):Array.from({length:4},()=>Math.random().toString(36).slice(2)).join('').slice(0,32)));
 sessionStorage.setItem('urigongSiteAccessSession',siteAccessSessionId);
 let siteAccessMode='none',siteAccessProject='',siteAccessOwner='',siteAccessTimer=null,siteAccessBusy=false,siteAccessNavigating=false,siteAccessLastRequest='';
@@ -9947,13 +9945,13 @@ function siteAccessRender(){
 function siteAccessStopPulse(){if(siteAccessTimer){clearInterval(siteAccessTimer);siteAccessTimer=null}}
 function siteAccessFastRelease(project=siteAccessProject){
  if(!project||siteAccessMode!=='edit'||!tokenValid())return;
- const body={action:'siteLockRelease',requestId:makePublicRequestId(),deviceId:getDeviceId(),deviceToken:getDeviceToken(),project,siteSessionId:siteAccessSessionId};
+ const body={action:'siteLockRelease',requestId:makePublicRequestId(),deviceId:getDeviceId(),deviceToken:getDeviceToken(),project,siteSessionId:siteAccessSessionId,sitePageId:siteAccessPageId};
  try{const blob=new Blob([JSON.stringify(body)],{type:'text/plain;charset=UTF-8'});if(navigator.sendBeacon?.(getPublicStoreUrl(),blob))return}catch(e){}
  try{fetch(getPublicStoreUrl(),{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(body)}).catch(()=>{})}catch(e){}
 }
 async function siteAccessEnter(project){
  if(!tokenValid())throw new Error('등록기기 인증 및 공용저장소 연결이 필요합니다.');
- const r=await publicPost('siteLockEnter',authPayload({project,siteSessionId:siteAccessSessionId}),19000);
+ const r=await publicPost('siteLockEnter',authPayload({project,siteSessionId:siteAccessSessionId,sitePageId:siteAccessPageId}),19000);
  if(!r||!['edit','readonly','blocked'].includes(r.mode))throw new Error('접속권 확인 응답이 올바르지 않습니다. 공용저장소 Code.gs를 업데이트했는지 확인해 주세요.');
  return r;
 }
@@ -9995,15 +9993,29 @@ function siteAccessStartPulse(){
    try{
      if(siteAccessMode==='edit'){
        const pulseProject=siteAccessProject;
-       const r=await publicPost('siteLockPulse',authPayload({project:pulseProject,siteSessionId:siteAccessSessionId}),19000);
+       const r=await publicPost('siteLockPulse',authPayload({project:pulseProject,siteSessionId:siteAccessSessionId,sitePageId:siteAccessPageId}),19000);
        if(pulseProject!==siteAccessProject||siteAccessMode!=='edit')return;
        if(r.mode!=='edit'){
+         // 서버 응답이 도착했을 때 실제 편집권이 없으면 즉시 쓰기를 차단한다.
          siteAccessMode='lost';siteAccessRender();siteAccessStopPulse();
-         // No page navigation before server has revoked editing rights.
-         await siteShowDialog('현장 접속 종료',r.forced?'마스터에 의해 접속이 종료되었습니다.\n현장 선택 화면으로 이동합니다.':'현장 접속권이 종료되거나 만료되었습니다.\n현장 선택 화면으로 이동합니다.');
+         let recovered=null;
+         // 강제종료나 다른 페이지가 편집권을 인계받은 경우에는 자동 재입장하지 않는다.
+         // 일반 만료/통신 지연인 경우에만 서버 LockService 아래에서 새로 접속권을 확인한다.
+         if(!r.forced&&r.reason!=='replaced'){
+           try{recovered=await siteAccessEnter(pulseProject)}
+           catch(err){console.warn('접속권 재확인 실패:',err.message)}
+           if(pulseProject!==sessionStorage.getItem('activeProject')||!siteAccessHasActive())return;
+           if(recovered&&['edit','readonly'].includes(recovered.mode)){
+             siteAccessProject=pulseProject;siteAccessMode=recovered.mode;siteAccessOwner=recovered.owner||'';
+             siteAccessRender();siteAccessStartPulse();
+             if(recovered.mode==='readonly')await siteShowDialog('현장 읽기전용 전환',siteAccessOwnerMessage(recovered.owner)+'\n기존 작업 내용은 편집할 수 없습니다.');
+             return;
+           }
+         }
+         await siteShowDialog('현장 접속 종료',r.forced?'마스터에 의해 접속이 종료되었습니다.\n현장 선택 화면으로 이동합니다.':(r.reason==='replaced'?'다른 화면에서 이 현장의 접속권을 이어받았습니다.\n현장 선택 화면으로 이동합니다.':'현장 접속권이 만료되었거나 다른 사용자가 편집을 시작했습니다.\n현장 선택 화면으로 이동합니다.'));
          sessionStorage.removeItem(SITE_ACCESS_HANDOFF);
          sessionStorage.removeItem('siteAccessOwnerProject');
-         // 종료된 세션 ID는 다시 사용하지 않음. 다음 직접 입장 시 서버에서 새 권한 요청.
+         // 종료된 세션 ID는 재사용하지 않는다. 강제종료 후 편집권 자동 탈취 방지.
          siteAccessSessionId='s_'+(typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID().replaceAll('-',''):Array.from({length:4},()=>Math.random().toString(36).slice(2)).join('').slice(0,32));
          sessionStorage.setItem('urigongSiteAccessSession',siteAccessSessionId);
          siteAccessProject='';siteAccessOwner='';siteAccessMode='none';siteAccessNavigating=false;
@@ -10053,11 +10065,10 @@ window.addEventListener('DOMContentLoaded',async()=>{
  if(!siteAccessHasActive()){sessionStorage.removeItem(SITE_ACCESS_HANDOFF);siteAccessRender();return}
  const project=sessionStorage.getItem('activeProject');
  const handoff=siteAccessTakeHandoff(project);
- if(handoff){
-   siteAccessProject=project;siteAccessMode=handoff.mode;siteAccessOwner=handoff.owner;
-   siteAccessRender();siteAccessStartPulse();
-   return;
- }
+ // 인계 데이터는 잠정 표시용이며 새로운 페이지가 서버에서 편집권을 재확인해야 한다.
+ // 서버는 이 요청에서 pageId를 갱신하므로, 이전 페이지의 지연된 해제 요청은 무시된다.
+ siteAccessProject=project;siteAccessMode='none';siteAccessOwner=handoff?.owner||'';
+ siteAccessRender();
  try{
    const r=await siteAccessEnter(project);
    if(r.mode==='blocked'){
