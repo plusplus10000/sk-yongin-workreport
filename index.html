@@ -2626,6 +2626,27 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
   border-color:#eab780!important;
 }
 </style>
+<style id="urigong-equipment-manager-row-20261016">
+/* 장비와 담당자를 기존 6번 담당자 자리에서 한 줄로 배치. 내부 양식은 기존 그대로 유지. */
+#writePage .equipment-managers-row {
+  display:grid;
+  grid-template-columns:minmax(0, 42fr) minmax(0, 58fr);
+  gap:8px;
+  align-items:start;
+  width:100%;
+  min-width:0;
+}
+#writePage .equipment-managers-row > .card {min-width:0; margin:0;}
+#writePage .equipment-managers-row > .card:first-child {overflow-x:auto;}
+/* PC의 좁은 폭에서도 담당자 입력칸을 억지로 압축하지 않고 가로 스크롤 사용. */
+@media(min-width:851px) {
+  #writePage .equipment-managers-row .manager-scroll {overflow-x:auto!important;overflow-y:hidden!important;}
+  #writePage .equipment-managers-row .manager-table {min-width:620px!important;}
+}
+@media(max-width:850px) {
+  #writePage .equipment-managers-row {grid-template-columns:minmax(0,1fr);gap:8px;}
+}
+</style>
 </head>
 <body class="locked site-home-mode">
 <div id="siteAccessBackdrop" role="dialog" aria-modal="true" aria-label="현장 접속 알림">
@@ -2839,11 +2860,13 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
 <div class="field basic-bpa"><label>BP사</label><input id="bpa" value="더오포"></div>
 </div></div>
 <div class="card"><div class="title"><span><span class="n">2</span>업체 입력 (공종별 인원)</span><span class="total-inline">총 투입인원 <span class="total" id="grandTotal">0명</span></span><button class="btn primary" onclick="addCompany()">+ 업체 입력</button></div><div id="companies"></div></div>
-<div class="card"><div class="title"><span><span class="n">3</span>장비</span><button class="btn primary" onclick="addEquipment()">+ 장비 추가</button></div><table><thead><tr><th>장비명</th><th>수량(대)</th><th>비고</th><th>삭제</th></tr></thead><tbody id="equipments"></tbody></table></div>
-</div><div class="input-col middle-col"><div class="daily-work-columns"><div class="card"><div class="title"><span><span class="n">4</span>금일 작업 내용</span><button class="btn primary" onclick="addArea()">+ 구역 추가</button></div><div id="areas"></div></div>
-<div class="card tomorrow-work-card"><div class="title"><span><span class="n">5</span>명일 작업 내용</span><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button class="btn" type="button" onclick="copyTodayToTomorrow()">금일작업내용 복사하기</button><button class="btn primary" onclick="addTomorrowArea()">+ 구역 추가</button></span></div><div id="tomorrowAreas"></div></div>
+
+</div><div class="input-col middle-col"><div class="daily-work-columns"><div class="card"><div class="title"><span><span class="n">3</span>금일 작업 내용</span><button class="btn primary" onclick="addArea()">+ 구역 추가</button></div><div id="areas"></div></div>
+<div class="card tomorrow-work-card"><div class="title"><span><span class="n">4</span>명일 작업 내용</span><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button class="btn" type="button" onclick="copyTodayToTomorrow()">금일작업내용 복사하기</button><button class="btn primary" onclick="addTomorrowArea()">+ 구역 추가</button></span></div><div id="tomorrowAreas"></div></div>
 </div>
-<div class="card"><div class="title"><span><span class="n">6</span>담당자</span><button class="btn" onclick="addManager()">+ 담당자 추가</button></div><div class="manager-scroll"><table class="manager-table"><colgroup><col class="manager-visibility-col"><col class="manager-attendance-col"><col class="manager-name-col"><col class="manager-role-col"><col class="manager-phone-col"><col class="manager-action-col"></colgroup><thead><tr><th class="manager-sns-heading">SNS</th><th>공사일보</th><th>이름</th><th>직책</th><th>전화번호</th><th>관리</th></tr></thead><tbody id="managers"></tbody></table></div></div>
+<div class="equipment-managers-row"><div class="card"><div class="title"><span><span class="n">5</span>장비</span><button class="btn primary" onclick="addEquipment()">+ 장비 추가</button></div><table><thead><tr><th>장비명</th><th>수량(대)</th><th>비고</th><th>삭제</th></tr></thead><tbody id="equipments"></tbody></table></div>
+<div class="card"><div class="title"><span><span class="n">6</span>담당자</span><button class="btn primary" onclick="addManager()">+ 담당자 추가</button></div><div class="manager-scroll"><table class="manager-table"><colgroup><col class="manager-visibility-col"><col class="manager-attendance-col"><col class="manager-name-col"><col class="manager-role-col"><col class="manager-phone-col"><col class="manager-action-col"></colgroup><thead><tr><th class="manager-sns-heading">SNS</th><th>공사일보</th><th>이름</th><th>직책</th><th>전화번호</th><th>관리</th></tr></thead><tbody id="managers"></tbody></table></div></div>
+</div>
 </div>
 <div class="desktop-preview"><div class="card"><div class="title preview-title-row"><span class="preview-title-text">미리보기</span><span class="preview-tabs" role="tablist" aria-label="미리보기 형식"><button type="button" class="preview-tab" id="slackTab" role="tab" aria-selected="false" onclick="selectPreviewTab('slack')">Slack</button><button type="button" class="preview-tab active" id="reportTab" role="tab" aria-selected="true" onclick="selectPreviewTab('weekly')">주간</button><button type="button" class="preview-tab" id="lunchTab" role="tab" aria-selected="false" onclick="selectPreviewTab('lunch')">중식OT</button><button type="button" class="preview-tab" id="overtimeTab" role="tab" aria-selected="false" onclick="selectPreviewTab('overtime')">연장</button></span><button class="btn preview-copy-btn" onclick="copyPreview()">복사하기</button><button class="btn preview-toggle" type="button" title="미리보기 접기/펼치기" onclick="togglePreview()">◀</button></span></div><div id="preview" class="preview" contenteditable="true"></div><div id="slackFields" class="slack-extra-fields" style="display:none"><label>주요위험요소 <input id="slackRiskInput" type="text" oninput="saveSlackFields()" placeholder="주요위험요소"></label><label>특이사항 <input id="slackSpecialInput" type="text" oninput="saveSlackFields()" placeholder="특이사항"></label></div><div id="slackPreview" class="preview" role="tabpanel" contenteditable="true" style="display:none"></div></div></div></div></section>
 <section id="excelPage" class="search-panel" aria-label="공사일보 엑셀 미리보기">
