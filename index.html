@@ -2484,7 +2484,27 @@ window.addEventListener('focus',function(){
   #writePage .basic-info-headingbar>.basic-copy-actions>.btn{font-size:12px!important;padding:0 7px!important;}
 }
 </style>
-
+<style id="urigong-report-actions-right-and-excel-weekly-status-20261015">
+/* 기본정보(1번) 공통 버튼 정렬: 주간·중식OT·연장 등 모든 작업모드 */
+#writePage .basic-info-headingbar>.basic-actions-row>.basic-status-line{
+  margin-left:auto!important; margin-right:0!important; justify-content:flex-end!important;
+}
+/* 공사일보/사진대지는 별도 마감 버튼 없이 주간일보 기준 읽기 전용 상태를 안내 */
+#excelPage .excel-preview-toolbar{flex-wrap:wrap!important;}
+#excelPage .excel-close-guidance{
+  display:inline-flex;align-items:center;box-sizing:border-box;min-height:29px;
+  max-width:min(310px,100%);padding:4px 7px;border-radius:5px;
+  border:1px solid #bde6cc;background:#eaf8f0;color:#136a43;
+  font-size:11px;font-weight:800;line-height:1.35;white-space:normal;overflow-wrap:break-word;
+}
+#excelPage .excel-close-guidance.is-locked{background:#fff2f2;color:#a32632;border-color:#e9bfc3;}
+#excelPage .excel-close-guidance.is-no-work{background:#f2f3f5;color:#576273;border-color:#cbd2d9;}
+#excelPage .excel-close-guidance.is-readonly{background:#fff5e5;color:#8c560e;border-color:#ecd2a6;}
+@media(max-width:850px){
+  #writePage .basic-info-headingbar>.basic-actions-row>.basic-status-line{margin-left:auto!important;}
+  #excelPage .excel-close-guidance{max-width:100%;font-size:11px;}
+}
+</style>
 <style id="urigong-mode-colors-20261014">
 
 #writePage[data-work-mode="lunch"] .tomorrow-work-card,
@@ -2756,13 +2776,13 @@ window.addEventListener('focus',function(){
   <div class="excel-view-header card">
     <div class="title"><span><span class="n">▤</span>공사일보 엑셀</span><span id="excelPreviewDate" class="excel-preview-date"></span></div>
     <div class="excel-preview-toolbar">
+      <span id="excelWeeklyCloseGuidance" class="excel-close-guidance" role="status" aria-live="polite">주간일보 마감 상태 확인 중…</span>
       <button id="excelSharedReportSaveBtn" class="btn primary" type="button" onclick="saveExcelAndPhotoReport()" title="공사일보·사진대지 공통 보고서 저장">보고서 저장</button>
       <div class="excel-date-nav" role="group" aria-label="공사일보 조회 날짜 이동">
         <button type="button" class="excel-day-arrow" title="전날 공사일보" aria-label="전날 공사일보" onclick="shiftExcelPreviewDay(-1)">◀</button>
         <input id="excelDatePicker" type="date" aria-label="공사일보 조회 날짜" title="공사일보 조회 날짜" onchange="selectExcelPreviewDate(this.value)">
         <button type="button" class="excel-day-arrow" title="다음날 공사일보" aria-label="다음날 공사일보" onclick="shiftExcelPreviewDay(1)">▶</button>
       </div>
-      <button id="excelNoWorkBtn" class="report-close-btn no-work-action" type="button" onclick="toggleNoWorkDay()">작업없음</button><button id="excelReportCloseBtn" class="report-close-btn excel-report-close-btn" type="button" title="해당 작업일의 주간 작업일보·공사일보 마감/해제" onclick="toggleExcelWeeklyReportClosed()">마감</button>
       <button class="btn primary" type="button" onclick="refreshConstructionExcelPreview()">▤ 미리보기</button>
       <button id="constructionExcelDownloadBtn" class="btn" type="button" onclick="downloadConstructionExcelPreview()" title="변경사항을 보고서로 저장한 뒤 공사일보 엑셀을 다운로드합니다.">↓ 엑셀 저장</button>
       <button class="btn" type="button" onclick="printConstructionExcelPreview()">▣ 인쇄</button>
@@ -8558,6 +8578,7 @@ function updateNoWorkUI(){
  const slack=$('slackPreview');if(slack&&active)slack.textContent='작업없음';
  const status=$('linkedCloseStatus');if(status&&active)status.textContent='작업없음';
  const excelStatus=$('excelPreviewStatus');if(excelStatus&&active)excelStatus.textContent='작업없음';
+ if(typeof updateExcelReportStateLabel==='function')updateExcelReportStateLabel();
 }
 // 데이터가 저장된 날짜를 실수로 '작업없음' 처리하는 것을 방지합니다.
 // 날짜별 작업없음은 현장 전체에 적용되므로 현재 공종뿐 아니라 모든 보고서를 확인합니다.
@@ -8896,8 +8917,30 @@ function photoReportClosed(ctx){
  return weeklyClosed||(same&&isCurrentStoredReportClosed());
 }
 function photoCanEdit(ctx){return canEditActiveProject()&&!isNoWorkDay(ctx.date)&&!photoReportClosed(ctx)}
+/* 공사일보 엑셀·사진대지는 선택일의 주간보고서 상태를 문구로 안내합니다.
+ * 기존 권한/마감/사진 저장 검증은 photoCanEdit(), photoReportClosed() 그대로 유지합니다. */
+function updateExcelReportStateLabel(ctx){
+ const label=document.getElementById('excelWeeklyCloseGuidance');
+ if(!label)return;
+ ctx=ctx||photoContext();
+ const noWork=!!(ctx.date&&isNoWorkDay(ctx.date));
+ const weeklyClosed=!!(ctx.date&&isStoredReportClosed(ctx.date,ctx.site,ctx.trade,'weekly',0));
+ const otherModeClosed=!weeklyClosed&&!!(ctx.date&&photoReportClosed(ctx));
+ const readonly=!canEditActiveProject();
+ label.classList.toggle('is-no-work',noWork);
+ label.classList.toggle('is-locked',!noWork&&(weeklyClosed||otherModeClosed));
+ label.classList.toggle('is-readonly',!noWork&&!weeklyClosed&&!otherModeClosed&&readonly);
+ if(noWork)label.textContent='해당 날짜가 작업없음 처리되어 수정할 수 없습니다.';
+ else if(weeklyClosed)label.textContent='주간일보가 마감되어 수정할 수 없습니다.';
+ else if(otherModeClosed){
+   const modeName=currentWorkType==='lunch'?'중식OT':currentWorkType==='overtime'?'연장':'현재 보고서';
+   label.textContent=modeName+' 보고서가 마감되어 수정할 수 없습니다.';
+ }else if(readonly)label.textContent='읽기 전용 권한으로 수정할 수 없습니다.';
+ else label.textContent='주간일보 수정 가능';
+}
 function photoApplyLockUI(){
  const ctx=photoContext(),editable=photoCanEdit(ctx);
+ updateExcelReportStateLabel(ctx);
  const save=document.getElementById('excelSharedReportSaveBtn');
  if(save){save.disabled=!editable;save.title=editable?'공사일보·사진대지 공통 보고서 저장':'마감 또는 읽기 전용 · 저장 불가';}
  if(constructionExcelSheetIndex!==1)return;
