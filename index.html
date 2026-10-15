@@ -2569,16 +2569,19 @@ window.addEventListener('focus',function(){
 #writePage .mobile-basic-actions>button[onclick="openConstructionExcelPage()"]:hover{
   background:#eef5ff!important;border-color:#78afea!important;
 }
-/* 작성 화면만 헤더에 저장 버튼 노출. 기존 저장 함수를 그대로 사용 */
+/* 작업일보 작성 및 공사일보 엑셀(사진대지 포함)에서 헤더 저장 버튼 노출 */
 body>header .header-report-save-btn{display:none!important;}
-body.urigong-write-page>header .header-report-save-btn{
+body.urigong-write-page>header .header-report-save-btn,
+body.urigong-excel-page>header .header-report-save-btn{
   display:inline-flex!important;align-items:center;justify-content:center;
   flex:0 0 auto!important;margin:0!important;white-space:nowrap!important;
   background:#f28c18!important;border:1px solid #f28c18!important;color:#fff!important;
   border-radius:4px!important;padding:4px 8px!important;font-size:11px!important;font-weight:800!important;
 }
-body.urigong-write-page>header .header-report-save-btn:hover:not(:disabled){background:#df7808!important;border-color:#df7808!important;}
-body.urigong-write-page>header .header-report-save-btn:disabled{opacity:.5!important;cursor:not-allowed!important;}
+body.urigong-write-page>header .header-report-save-btn:hover:not(:disabled),
+body.urigong-excel-page>header .header-report-save-btn:hover:not(:disabled){background:#df7808!important;border-color:#df7808!important;}
+body.urigong-write-page>header .header-report-save-btn:disabled,
+body.urigong-excel-page>header .header-report-save-btn:disabled{opacity:.5!important;cursor:not-allowed!important;}
 body>header .header-right{margin-left:auto!important;gap:6px!important;align-items:center!important;justify-content:flex-end!important;}
 body>header #topDate{order:0;margin-right:6px;white-space:nowrap;}
 body>header .memo-small-btn{order:1;}
@@ -2606,7 +2609,8 @@ body>header .header-report-save-btn{order:2;}
 <style id="urigong-closed-white-orange-20261015">
 /* 마감된 주간·중식OT·연장 작업일보의 헤더 저장 버튼:
    저장 기능은 잠금 상태를 그대로 유지하고 표시만 흰색/주황색으로 조정합니다. */
-body.urigong-write-page.report-is-closed>header #headerReportSaveBtn:disabled{
+body.urigong-write-page.report-is-closed>header #headerReportSaveBtn:disabled,
+body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disabled{
   background:#fff!important;
   color:#e87500!important;
   -webkit-text-fill-color:#e87500!important;
@@ -2688,7 +2692,7 @@ body.urigong-write-page.report-is-closed>header #headerReportSaveBtn:disabled{
     <button class="btn primary" type="button" style="width:100%" onclick="setupMasterPasswordFromGate()">마스터 비밀번호 초기 설정</button>
   </div>
   <div id="passwordError" class="password-error"></div>
-</div></div><header><div><button class="site-home-btn" type="button" onclick="goSiteHome()">⌂ 현장선택 홈가기</button>⛑ <span id="appTitleDisplay">작업일보</span><span id="projectAccent" class="project-accent"></span></div><div id="siteAccessHeader" aria-live="polite"><b id="siteAccessLabel">접속 확인 중</b><button id="siteAccessRequestBtn" type="button" onclick="siteOpenRequest()" style="display:none">작업종료 요청</button></div><div class="header-right"><div id="topDate">작업보고 작성</div><button type="button" class="btn memo-small-btn" onclick="appMemoOpen()" title="날짜와 무관한 메모장">🗒 메모장</button><button id="headerReportSaveBtn" class="btn header-report-save-btn" type="button" onclick="saveReport()" title="현재 작업일보 저장">보고서 저장</button></div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
+</div></div><header><div><button class="site-home-btn" type="button" onclick="goSiteHome()">⌂ 현장선택 홈가기</button>⛑ <span id="appTitleDisplay">작업일보</span><span id="projectAccent" class="project-accent"></span></div><div id="siteAccessHeader" aria-live="polite"><b id="siteAccessLabel">접속 확인 중</b><button id="siteAccessRequestBtn" type="button" onclick="siteOpenRequest()" style="display:none">작업종료 요청</button></div><div class="header-right"><div id="topDate">작업보고 작성</div><button type="button" class="btn memo-small-btn" onclick="appMemoOpen()" title="날짜와 무관한 메모장">🗒 메모장</button><button id="headerReportSaveBtn" class="btn header-report-save-btn" type="button" onclick="urigongHeaderReportSave()" title="현재 작업일보 저장">보고서 저장</button></div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
 <nav id="mobileDrawer" class="mobile-drawer" aria-label="모바일 메뉴">
   <div class="drawer-title"><span id="mobileAppTitle">작업일보</span> · 메뉴</div>
@@ -3654,6 +3658,7 @@ function applyReportLockUI(locked){
   // 헤더로 이동한 저장 버튼도 기존 입력란과 동일하게 마감/작업없음/권한 잠금을 적용합니다.
   const headerSave=$('headerReportSaveBtn');
   if(headerSave)headerSave.disabled=currentReportLocked||!canEditActiveProject()||isNoWorkDay($('date')?.value);
+  urigongSyncHeaderSaveStatus();
 
   const preview=$('preview');
   if(preview)preview.contentEditable=currentReportLocked?'false':'true';
@@ -5058,18 +5063,48 @@ function renderDataPage(){
 }
 
 
+/* 2026-10-15: 상단 보고서 저장은 작성/엑셀/사진대지 모두 노출하되,
+ * 화면별 기존 저장 절차와 마감·작업없음·읽기전용 보호를 그대로 적용합니다. */
+function urigongSyncHeaderSaveStatus(){
+  const btn=document.getElementById('headerReportSaveBtn');
+  if(!btn)return;
+  const excel=document.body.classList.contains('urigong-excel-page');
+  let locked;
+  let closed=false;
+  if(excel&&typeof photoContext==='function'&&typeof photoCanEdit==='function'){
+    const ctx=photoContext();
+    locked=!photoCanEdit(ctx);
+    closed=!!(ctx.date&&photoReportClosed(ctx));
+  }else{
+    locked=!!(currentReportLocked||!canEditActiveProject()||isNoWorkDay(document.getElementById('date')?.value));
+  }
+  document.body.classList.toggle('urigong-excel-closed',excel&&closed);
+  const busy=typeof urigongReportSaveBusy!=='undefined'&&urigongReportSaveBusy;
+  btn.disabled=!!(locked||busy);
+  btn.title=locked?'마감·작업없음 또는 읽기 전용 · 저장할 수 없습니다.':
+    excel?'공사일보·사진대지 공통 보고서 저장':'현재 작업일보 저장';
+}
+async function urigongHeaderReportSave(){
+  if(document.body.classList.contains('urigong-excel-page')){
+    return await saveExcelAndPhotoReport();
+  }
+  return await saveReport();
+}
+
 function showPage(p,b){
   if(p==='master'&&!canEditProject(activeProjectName())&&!isMasterDevice()){p='search';b=null}
   autoSave();
   if(sessionStorage.getItem('activeProject'))sessionStorage.setItem('activeProjectPage',p);
-  // 헤더 저장 버튼은 작업일보 작성 화면에서만 표시합니다.
+  // 같은 헤더 저장 버튼을 작업일보 작성과 공사일보 엑셀/사진대지에서 공유합니다.
   document.body.classList.toggle('urigong-write-page',p==='write');
+  document.body.classList.toggle('urigong-excel-page',p==='excel');
   document.querySelectorAll('aside button').forEach(x=>x.classList.remove('active'));
   if(b)b.classList.add('active');
   ['write','excel','data','search','master'].forEach(x=>$(x+'Page').style.display=x===p?(x==='excel'?'flex':'block'):'none');
   if(p==='data'){const workDate=$('date')?.value||getTodayLocalDate();const d=$('dataDate');if(d)d.value=workDate;if($('dataPeriod')?.value==='custom'){if($('dataFrom'))$('dataFrom').value=workDate;if($('dataTo'))$('dataTo').value=workDate;}renderDataPage();}
   if(p==='excel'){updateExcelPreviewNavDate();Promise.resolve().then(()=>refreshConstructionExcelPreview());}
   refreshProjectTree();
+  urigongSyncHeaderSaveStatus();
 
   // 검색 화면은 들어갈 때마다 reports 저장소를 다시 읽어 즉시 갱신
   // 작업화면에서 마감을 풀고 이동해도 예전 회색 버튼이 남지 않게 한다.
@@ -5991,6 +6026,7 @@ function applyDevicePermissions(){
   document.body.classList.toggle('read-only-user',readonly);
   const headerSave=document.getElementById('headerReportSaveBtn');
   if(headerSave)headerSave.disabled=readonly||!canEditActiveProject()||(typeof currentReportLocked!=='undefined'&&currentReportLocked)||isNoWorkDay(document.getElementById('date')?.value);
+  urigongSyncHeaderSaveStatus();
   const badge=$('readOnlyBadge');
   if(badge){const active=currentProjectForAuth(),perm=projectPermission(active);badge.classList.toggle('visible',!master&&registered);badge.textContent=perm==='manage'?'관리전용':'읽기 전용'}
   applyProjectAccessUI();updateAdminSecurityButtons();
@@ -9020,6 +9056,7 @@ function photoApplyLockUI(){
  updateExcelReportStateLabel(ctx);
  const save=document.getElementById('excelSharedReportSaveBtn');
  if(save){save.disabled=!editable;save.title=editable?'공사일보·사진대지 공통 보고서 저장':'마감 또는 읽기 전용 · 저장 불가';}
+ urigongSyncHeaderSaveStatus();
  if(constructionExcelSheetIndex!==1)return;
  const editor=document.getElementById('excelPhotoEditor');
  if(!editor||editor.hidden)return;
@@ -9957,7 +9994,7 @@ async function urigongSaveReportWorkflow(silent=false){
   photoStatus('미저장 항목이 남아 있습니다 · 보고서 저장 실패: '+e.message);
   alert('보고서 저장을 완료하지 못했습니다.\n'+e.message+'\n이 화면에서 다시 저장해 주세요.');
   return false;
- }finally{urigongReportSaveBusy=false;allButtons.forEach(b=>b.disabled=false);}
+ }finally{urigongReportSaveBusy=false;allButtons.forEach(b=>b.disabled=false);urigongSyncHeaderSaveStatus();}
 }
 async function saveReport(){return await urigongSaveReportWorkflow(false)}
 function urigongDiscardUnsaved(){
