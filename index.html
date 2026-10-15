@@ -2603,6 +2603,25 @@ body>header .header-report-save-btn{order:2;}
   .mobile-drawer.open{top:84px!important;height:calc(100dvh - 84px)!important;}
 }
 </style>
+<style id="urigong-closed-white-orange-20261015">
+/* 마감된 주간·중식OT·연장 작업일보의 헤더 저장 버튼:
+   저장 기능은 잠금 상태를 그대로 유지하고 표시만 흰색/주황색으로 조정합니다. */
+body.urigong-write-page.report-is-closed>header #headerReportSaveBtn:disabled{
+  background:#fff!important;
+  color:#e87500!important;
+  -webkit-text-fill-color:#e87500!important;
+  border-color:#eab780!important;
+  opacity:1!important;
+  box-shadow:none!important;
+  cursor:not-allowed!important;
+}
+/* 공사일보 엑셀/사진대지의 마감 상태 안내도 같은 색상으로 통일합니다. */
+#excelPage #excelWeeklyCloseGuidance.is-locked{
+  background:#fff!important;
+  color:#e87500!important;
+  border-color:#eab780!important;
+}
+</style>
 </head>
 <body class="locked site-home-mode">
 <div id="siteAccessBackdrop" role="dialog" aria-modal="true" aria-label="현장 접속 알림">
