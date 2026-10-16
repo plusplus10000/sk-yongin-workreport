@@ -2781,6 +2781,35 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
   }
 }
 </style>
+<style id="urigong-equip-delete-inline-20261016">
+/* PC 5번 장비: 비고 폭을 조금 줄여 삭제 버튼을 한 줄로 표시합니다.
+   행 높이는 6번 담당자와 같은 기본 35px을 유지하고, 카드 총높이는 고정하지 않습니다. */
+@media (min-width:851px) {
+  #writePage .equipment-managers-row .card:first-child > table {
+    width:100%!important;
+    table-layout:fixed!important;
+  }
+  #writePage .equipment-managers-row .card:first-child > table th:nth-child(1),
+  #writePage .equipment-managers-row #equipments td:nth-child(1) {width:42%!important;}
+  #writePage .equipment-managers-row .card:first-child > table th:nth-child(2),
+  #writePage .equipment-managers-row #equipments td:nth-child(2) {width:17%!important;}
+  #writePage .equipment-managers-row .card:first-child > table th:nth-child(4),
+  #writePage .equipment-managers-row #equipments td:nth-child(4) {width:62px!important;}
+  #writePage .equipment-managers-row #equipments td:nth-child(3) {min-width:0!important;}
+  #writePage .equipment-managers-row #equipments td:nth-child(4) .btn {
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    white-space:nowrap!important;
+    word-break:keep-all!important;
+    overflow-wrap:normal!important;
+    width:100%!important;
+    min-width:0!important;
+    height:28px!important;
+    padding:3px 2px!important;
+  }
+}
+</style>
 </head>
 <body class="locked site-home-mode">
 <div id="siteAccessBackdrop" role="dialog" aria-modal="true" aria-label="현장 접속 알림">
