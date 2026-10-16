@@ -435,6 +435,7 @@ body.locked>#siteHome{pointer-events:none}
 .drive-action-row .header-action-buttons .btn{background:#fff;color:#0672e8;border-color:#c8d8ea}
 @media(max-width:850px){
   .drive-action-row .header-action-buttons{display:none!important}
+  #excelQuickBarMount .header-action-buttons{display:flex!important;flex:0 0 100%;justify-content:flex-end!important}
 }
 
 @media(min-width:851px){
@@ -2498,11 +2499,11 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
 @media(min-width:851px){
   #writePage .work-manager-card .manager-scroll{width:100%!important;min-width:0!important;overflow-x:hidden!important;overflow-y:visible!important;padding-bottom:0!important}
   #writePage .work-manager-card .manager-table{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important}
-  #writePage .work-manager-card .manager-visibility-col{width:48px!important}
+  #writePage .work-manager-card .manager-visibility-col{width:55px!important}
   #writePage .work-manager-card .manager-attendance-col{width:43px!important}
   #writePage .work-manager-card .manager-name-col{width:19%!important}
   #writePage .work-manager-card .manager-role-col{width:19%!important}
-  #writePage .work-manager-card .manager-phone-col{width:auto!important}
+  #writePage .work-manager-card .manager-phone-col{width:27%!important}
   #writePage .work-manager-card .manager-action-col{width:48px!important}
   #writePage .work-manager-card .manager-table th{padding:5px 1px!important;font-size:12px!important;letter-spacing:-.25px!important;white-space:nowrap!important;overflow:hidden!important}
   #writePage .work-manager-card .manager-table td{padding:3px 2px!important;min-width:0!important;width:auto!important;box-sizing:border-box!important;overflow:hidden!important;white-space:nowrap!important}
@@ -2757,7 +2758,7 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
 </div>
 </div>
 </aside><main>
-<section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 마스터가 마감을 해제한 뒤 수정할 수 있습니다.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ 공용저장소 연결</button><button class="btn" type="button" onclick="saveToDrive()">공용저장소 저장</button><button class="btn" type="button" onclick="loadFromDrive()">공용저장소 불러오기</button><button class="btn public-store-diagnostic-btn" type="button" onclick="diagnosePublicStoreConnection()" title="서버 연결만 확인하고 자료는 저장하거나 변경하지 않습니다.">통신진단</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 기기 인증 확인 중</b><span id="readOnlyBadge" class="readonly-badge">읽기 전용</span><button class="btn local-backup-btn" type="button" onclick="openLocalBackupDialog()">로컬백업</button><div class="header-action-buttons"><button class="btn" type="button" onclick="openConstructionExcelPage()">📥 공사일보 엑셀</button></div></div><div class="grid"><div class="input-col left-col">
+<section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 마스터가 마감을 해제한 뒤 수정할 수 있습니다.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ 공용저장소 연결</button><button class="btn" type="button" onclick="saveToDrive()">공용저장소 저장</button><button class="btn" type="button" onclick="loadFromDrive()">공용저장소 불러오기</button><button class="btn public-store-diagnostic-btn" type="button" onclick="diagnosePublicStoreConnection()" title="서버 연결만 확인하고 자료는 저장하거나 변경하지 않습니다.">통신진단</button><button class="btn local-backup-btn" type="button" onclick="openLocalBackupDialog()">로컬백업</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 기기 인증 확인 중</b><span id="readOnlyBadge" class="readonly-badge">읽기 전용</span><div class="header-action-buttons"><button class="btn" type="button" onclick="openConstructionExcelPage()">📥 공사일보 엑셀</button></div></div><div class="grid"><div class="input-col left-col">
 <div class="card basic-info-card"><div class="title basic-info-headingbar"><span class="basic-title-name"><span class="n">1</span>기본 정보</span><div class="basic-actions-row"><div class="basic-mode-line"><span id="workModeTabs" class="work-mode-tabs-inline"></span></div><span class="basic-close-wrap basic-status-line"><button id="noWorkDayBtn" class="report-close-btn no-work-action" type="button" onclick="toggleNoWorkDay()">작업없음</button><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span></div><span class="basic-copy-actions"><button class="btn daily-reset-btn" type="button" onclick="resetDailyData()" title="현재 보고서의 인원·장비 수량·금일 작업내용 초기화">당일자료 초기화</button><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><button class="btn primary copy-weekly-btn" type="button" onclick="copySameDayWeeklyData()">주간자료 복사</button></span><span class="basic-action-buttons mobile-basic-actions"><button class="btn" type="button" onclick="openConstructionExcelPage()">📥 공사일보 엑셀</button></span></div><div class="basic-info-grid">
 <div class="field basic-site"><label>현장</label><select id="site"></select></div>
 <div class="field basic-trade"><label>공종</label><select id="trade"></select></div>
@@ -2780,6 +2781,7 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
 </div><div class="input-col extra-col"></div>
 <div class="desktop-preview"><div class="card"><div class="title preview-title-row"><span class="preview-title-text">미리보기</span><span class="preview-tabs" role="tablist" aria-label="미리보기 형식"><button type="button" class="preview-tab" id="slackTab" role="tab" aria-selected="false" onclick="selectPreviewTab('slack')">Slack</button><button type="button" class="preview-tab active" id="reportTab" role="tab" aria-selected="true" onclick="selectPreviewTab('weekly')">주간</button><button type="button" class="preview-tab" id="lunchTab" role="tab" aria-selected="false" onclick="selectPreviewTab('lunch')">중식OT</button><button type="button" class="preview-tab" id="overtimeTab" role="tab" aria-selected="false" onclick="selectPreviewTab('overtime')">연장</button></span><button class="btn preview-copy-btn" onclick="copyPreview()">복사하기</button><button class="btn preview-toggle" type="button" title="미리보기 접기/펼치기" onclick="togglePreview()">◀</button></span></div><div id="preview" class="preview" contenteditable="true"></div><div id="slackFields" class="slack-extra-fields" style="display:none"><label>주요위험요소 <input id="slackRiskInput" type="text" oninput="saveSlackFields()" placeholder="주요위험요소"></label><label>특이사항 <input id="slackSpecialInput" type="text" oninput="saveSlackFields()" placeholder="특이사항"></label></div><div id="slackPreview" class="preview" role="tabpanel" contenteditable="true" style="display:none"></div></div></div></div></section>
 <section id="excelPage" class="search-panel" aria-label="공사일보 엑셀 미리보기">
+  <div id="excelQuickBarMount" aria-label="공용저장소 메뉴"></div>
   <div class="excel-view-header card">
     <div class="title"><span><span class="n">▤</span>공사일보 엑셀</span><span id="excelPreviewDate" class="excel-preview-date"></span></div>
     <div class="excel-preview-toolbar">
@@ -5024,6 +5026,24 @@ async function urigongHeaderReportSave(){
   return await saveReport();
 }
 
+function urigongPlaceSharedDriveBar(page){
+  const bar=document.getElementById('driveQuickBar');
+  const excelMount=document.getElementById('excelQuickBarMount');
+  const workGrid=document.querySelector('#writePage > .grid');
+  if(!bar||!excelMount||!workGrid)return;
+  if(page==='excel'){
+    if(bar.parentNode!==excelMount)excelMount.appendChild(bar);
+  }else if(bar.parentNode!==workGrid.parentNode||bar.nextElementSibling!==workGrid){
+    workGrid.parentNode.insertBefore(bar,workGrid);
+  }
+  const jump=bar.querySelector('.header-action-buttons button');
+  if(jump){
+    const onExcel=page==='excel';
+    jump.textContent=onExcel?'✎ 작업보고 작성':'📥 공사일보 엑셀';
+    jump.setAttribute('onclick',onExcel?'goWritePage()':'openConstructionExcelPage()');
+    jump.title=onExcel?'작업일보 작성 화면으로 이동':'공사일보 엑셀 화면으로 이동';
+  }
+}
 function showPage(p,b){
   if(p==='master'&&!canEditProject(activeProjectName())&&!isMasterDevice()){p='search';b=null}
   autoSave();
@@ -5034,6 +5054,7 @@ function showPage(p,b){
   document.querySelectorAll('aside button').forEach(x=>x.classList.remove('active'));
   if(b)b.classList.add('active');
   ['write','excel','data','search','master'].forEach(x=>$(x+'Page').style.display=x===p?(x==='excel'?'flex':'block'):'none');
+  urigongPlaceSharedDriveBar(p);
   if(p==='data'){const workDate=$('date')?.value||getTodayLocalDate();const d=$('dataDate');if(d)d.value=workDate;if($('dataPeriod')?.value==='custom'){if($('dataFrom'))$('dataFrom').value=workDate;if($('dataTo'))$('dataTo').value=workDate;}renderDataPage();}
   if(p==='excel'){updateExcelPreviewNavDate();Promise.resolve().then(()=>refreshConstructionExcelPreview());}
   refreshProjectTree();
