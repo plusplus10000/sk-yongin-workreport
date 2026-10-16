@@ -37,6 +37,7 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
   .area-head input{height:28px;padding:5px}
   .subtask{margin:4px 0;gap:4px;align-items:center}
   .subtask input{height:28px;padding:5px}
+  .desktop-preview{position:sticky;top:0;height:calc(100vh - 60px)}
   .desktop-preview .card{height:100%;display:flex;flex-direction:column;margin:0}
   .preview{min-height:0;flex:1;overflow:auto;line-height:1.48;font-size:12px;padding:10px}
   #writePage>.grid>.input-col{min-width:0;padding-bottom:4px}
@@ -58,6 +59,7 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
 
 @media(min-width:851px){
   .manager-scroll{overflow-x:hidden!important;padding-bottom:0!important}
+  .manager-table{width:100%!important;min-width:0!important;table-layout:fixed!important}
   .manager-table .manager-name-col{width:28%!important}
   .manager-table .manager-role-col{width:28%!important}
   .manager-table .manager-phone-col{width:29%!important}
@@ -98,29 +100,32 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
   #equipments th:nth-child(1){width:38%!important}
   #equipments th:nth-child(2){width:42%!important}
   #equipments th:nth-child(4){width:20%!important}
-  #equipments td:nth-child(1) input{min-width:90px!important}
-  #equipments td:nth-child(2){white-space:nowrap!important}
+  #equipments td:nth-child(1) input{width:100%!important;min-width:90px!important}
+  #equipments td:nth-child(2){white-space:nowrap!important;overflow:visible!important}
   #equipments .counter{display:inline-flex!important;width:auto!important;gap:3px!important}
   #equipments .counter button{display:inline-block!important;width:27px!important;height:30px!important;flex:0 0 27px!important}
   #equipments .counter input[type=number]{width:48px!important;min-width:48px!important;max-width:48px!important;height:30px!important;flex:0 0 48px!important}
-  #equipments td:nth-child(4) .btn{padding:6px 7px!important}
+  #equipments td:nth-child(4) .btn{padding:6px 7px!important;font-size:11px!important}
 }
 
 @media(max-width:850px){
   #equipments{display:block!important;width:100%!important}
   #equipments tr{display:grid!important;grid-template-columns:minmax(90px,1fr) 116px 48px!important;gap:6px!important;align-items:center!important;width:100%!important}
-  #equipments td{display:block!important;width:auto!important;padding:5px 2px!important;border:0!important}
+  #equipments td{display:block!important;width:auto!important;min-width:0!important;padding:5px 2px!important;border:0!important}
+  #equipments td:nth-child(3){display:none!important}
   #equipments td:nth-child(1) input{width:100%!important;min-width:0!important;max-width:none!important;height:32px!important}
-  #equipments td:nth-child(2){width:116px!important;min-width:116px!important}
-  #equipments .counter{grid-template-columns:28px 52px 28px!important;gap:4px!important;width:116px!important}
-  #equipments .counter button{width:28px!important;min-width:28px!important;max-width:28px!important;height:32px!important}
-  #equipments .counter input[type=number]{width:52px!important;min-width:52px!important;max-width:52px!important;height:32px!important;padding:3px 2px!important}
+  #equipments td:nth-child(2){width:116px!important;min-width:116px!important;overflow:visible!important}
+  #equipments .counter{display:grid!important;grid-template-columns:28px 52px 28px!important;gap:4px!important;width:116px!important;align-items:center!important}
+  #equipments .counter button{display:block!important;width:28px!important;min-width:28px!important;max-width:28px!important;height:32px!important;padding:0!important}
+  #equipments .counter input[type=number]{display:block!important;width:52px!important;min-width:52px!important;max-width:52px!important;height:32px!important;padding:3px 2px!important;text-align:center!important}
   #equipments td:nth-child(4){width:48px!important;min-width:48px!important;text-align:right!important}
-  #equipments td:nth-child(4) .btn{width:46px!important;min-width:46px!important;padding:6px 3px!important}
+  #equipments td:nth-child(4) .btn{width:46px!important;min-width:46px!important;padding:6px 3px!important;font-size:11px!important}
   #equipments{border-collapse:separate!important;border-spacing:0 4px!important}
   #equipments tr{border:1px solid #d8e3ef!important;border-radius:7px!important;padding:3px!important;background:#fff!important}
   #equipments + datalist{display:none}
-  #equipments::before{content:"장비명        수량(대)       삭제";display:block!important;white-space:pre!important;font-weight:700!important;font-size:11px!important;text-align:left!important;padding:5px 7px!important;background:#eef4fa!important;border:1px solid #d8e3ef!important;border-radius:5px!important;margin-bottom:3px!important} 
+  #equipments::before{content:"장비명        수량(대)       삭제";display:block!important;white-space:pre!important;font-weight:700!important;font-size:11px!important;text-align:left!important;padding:5px 7px!important;background:#eef4fa!important;border:1px solid #d8e3ef!important;border-radius:5px!important;margin-bottom:3px!important}
+  #equipments{ } 
+  #equipments.parent{} 
   table:has(#equipments) thead{display:none!important}
 }
 
@@ -206,6 +211,7 @@ body.locked>#siteHome{pointer-events:none}
   .basic-date,.basic-time{grid-column:1/-1}
   .basic-bpa{grid-column:1/2}
   .time-pair{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #start,#end{min-width:0!important}
 }
 @media(max-width:480px){
   .basic-info-grid{grid-template-columns:1fr}
@@ -216,6 +222,7 @@ body.locked>#siteHome{pointer-events:none}
 @media(min-width:851px){
   .basic-info-grid{
     grid-template-columns:minmax(90px,1fr) minmax(90px,1fr) minmax(170px,1.35fr)!important;
+    gap:7px!important;
     align-items:end!important;
   }
   .basic-site,.basic-trade,.basic-date{grid-column:auto!important}
@@ -388,22 +395,43 @@ body.locked>#siteHome{pointer-events:none}
   .area-layout{
     display:block!important;
   }
+  .area-meta{
+    display:grid!important;
+    grid-template-columns:minmax(90px,.85fr) minmax(150px,1.45fr) 46px!important;
+    gap:5px!important;
+    align-items:center!important;
+  }
   .area-name-input{
+    grid-column:1!important;
+    grid-row:1!important;
     width:100%!important;
     min-width:0!important;
   }
   .area-location-input{
+    grid-column:2!important;
+    grid-row:1!important;
     width:100%!important;
     min-width:0!important;
   }
   .area-delete-btn{
+    grid-column:3!important;
+    grid-row:1!important;
     align-self:center!important;
     width:46px!important;
     min-width:46px!important;
   }
   .area-tasks{
+    display:block!important;
     margin-top:7px!important;
     padding-top:0!important;
+  }
+  .area-tasks::before{
+    content:"하부 작업";
+    display:block;
+    font-size:11px;
+    font-weight:700;
+    color:#60758a;
+    margin:0 0 4px 0;
   }
   .area-tasks .subtask{
     display:grid!important;
@@ -435,7 +463,6 @@ body.locked>#siteHome{pointer-events:none}
 .drive-action-row .header-action-buttons .btn{background:#fff;color:#0672e8;border-color:#c8d8ea}
 @media(max-width:850px){
   .drive-action-row .header-action-buttons{display:none!important}
-  #excelQuickBarMount .header-action-buttons{display:flex!important;flex:0 0 100%;justify-content:flex-end!important}
 }
 
 @media(min-width:851px){
@@ -494,54 +521,107 @@ body.locked>#siteHome{pointer-events:none}
     box-sizing:border-box!important;
   }
   #areas .area .area-layout{
+    display:grid!important;
     grid-template-columns:minmax(150px,40%) minmax(0,60%)!important;
     column-gap:10px!important;
     row-gap:0!important;
+    align-items:start!important;
+    width:100%!important;
   }
   #areas .area .area-meta{
+    grid-column:1!important;
     grid-row:1!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-rows:auto auto!important;
     gap:5px!important;
+    min-width:0!important;
+    width:100%!important;
   }
   #areas .area .area-name-input{
+    grid-column:1!important;
+    grid-row:1!important;
     display:block!important;
+    width:100%!important;
+    min-width:0!important;
     box-sizing:border-box!important;
   }
   #areas .area .area-location-input{
+    grid-column:1!important;
+    grid-row:2!important;
     display:block!important;
+    width:100%!important;
+    min-width:0!important;
     box-sizing:border-box!important;
   }
-  #areas .area .area-tasks{
-    grid-row:1!important;
+  #areas .area .area-delete-btn{
+    grid-column:2!important;
+    grid-row:1 / span 2!important;
+    align-self:stretch!important;
   }
+  #areas .area .area-tasks{
+    grid-column:2!important;
+    grid-row:1!important;
+    display:block!important;
+    visibility:visible!important;
+    opacity:1!important;
+    min-width:0!important;
+    width:100%!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  #areas .area .area-tasks::before{content:none!important;display:none!important}
   #areas .area .area-tasks .subtask{
+    display:grid!important;
     visibility:visible!important;
     grid-template-columns:22px minmax(0,1fr) auto auto!important;
     gap:5px!important;
+    align-items:center!important;
+    width:100%!important;
     margin:0 0 5px!important;
   }
   #areas .area .area-tasks .subtask input{
+    display:block!important;
+    visibility:visible!important;
+    width:100%!important;
+    min-width:0!important;
     box-sizing:border-box!important;
   }
 }
 
 @media (min-width:851px){
   #areas .area .area-layout{
+    display:grid!important;
     grid-template-columns:clamp(125px,16vw,210px) minmax(0,1fr)!important;
+    gap:8px!important;
+    align-items:start!important;
+    width:100%!important;
   }
   #areas .area .area-meta{
+    grid-column:1!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-rows:auto auto!important;
+    gap:4px!important;
     width:100%!important;
     min-width:0!important;
   }
-  #areas .area .area-name-input{min-width:0!important;
+  #areas .area .area-name-input{
+    grid-column:1!important;grid-row:1!important;width:100%!important;min-width:0!important;
   }
-  #areas .area .area-location-input{min-width:0!important;
+  #areas .area .area-location-input{
+    grid-column:1!important;grid-row:2!important;width:100%!important;min-width:0!important;
   }
-  #areas .area .area-delete-btn{align-self:stretch!important;
+  #areas .area .area-delete-btn{
+    grid-column:2!important;grid-row:1 / span 2!important;align-self:stretch!important;
   }
   #areas .area .area-tasks{
+    grid-column:2!important;
     display:block!important;
     visibility:visible!important;
     opacity:1!important;
+    width:100%!important;
+    min-width:0!important;
     margin:0!important;
     padding:0!important;
   }
@@ -558,8 +638,12 @@ body.locked>#siteHome{pointer-events:none}
     display:block!important;visibility:visible!important;width:100%!important;min-width:0!important;
   }
 }
+
+.card .title:has(#grandTotal){justify-content:flex-start!important}
 .card .title:has(#grandTotal) .total-inline{
   margin-left:7px!important;
+  margin-right:0!important;
+  flex:0 0 auto!important;
 }
 
 .header-action-buttons button[onclick="saveReport()"],
@@ -682,21 +766,31 @@ body.locked>#siteHome{pointer-events:none}
   width:100%!important;
 }
 #areas .area .area-meta{
+  display:grid!important;
   grid-template-columns:minmax(90px,.85fr) minmax(150px,1.45fr) auto!important;
+  grid-template-rows:auto!important;
+  gap:5px!important;
+  align-items:center!important;
   width:100%!important;
 }
 #areas .area .area-name-input{
+  grid-column:1!important;
+  grid-row:1!important;
   width:100%!important;
   min-width:0!important;
 }
 #areas .area .area-location-input{
+  grid-column:2!important;
+  grid-row:1!important;
   width:100%!important;
   min-width:0!important;
 }
 #areas .area .area-delete-btn{
   grid-column:3!important;
+  grid-row:1!important;
   align-self:center!important;
   width:auto!important;
+  min-width:38px!important;
 }
 #areas .area .area-tasks{
   display:block!important;
@@ -725,14 +819,23 @@ body.locked>#siteHome{pointer-events:none}
 }
 
 .basic-date .date-nav{
+  display:grid!important;
   grid-template-columns:auto minmax(132px,1fr) auto!important;
+  gap:4px!important;
+  align-items:center!important;
+  width:100%!important;
   min-width:205px!important;
 }
 .basic-date .date-nav #date{
+  width:100%!important;
+  min-width:132px!important;
+  box-sizing:border-box!important;
+  font-size:12px!important;
   padding-left:8px!important;
   padding-right:5px!important;
 }
 @media(max-width:850px){
+  .basic-date{min-width:0!important}
   .basic-date .date-nav{
     grid-template-columns:32px minmax(132px,1fr) 32px!important;
     min-width:204px!important;
@@ -768,10 +871,11 @@ body.locked>#siteHome{pointer-events:none}
   color:#6b7280!important;
 }
 
-.basic-date .date-with-query{grid-template-columns:minmax(200px,1fr) auto!important;gap:5px!important;min-width:250px!important}
-.basic-date .date-nav{grid-template-columns:28px minmax(132px,1fr) 28px!important;min-width:200px!important}
-.basic-date .date-nav #date{min-width:132px!important}
-.basic-date .date-nav-btn{padding:2px!important}
+.basic-date .date-with-query{display:grid!important;grid-template-columns:minmax(200px,1fr) auto!important;gap:5px!important;align-items:center!important;width:100%!important;min-width:250px!important}
+.basic-date .date-nav{display:grid!important;grid-template-columns:28px minmax(132px,1fr) 28px!important;gap:4px!important;align-items:center!important;width:100%!important;min-width:200px!important}
+.basic-date .date-nav #date{width:100%!important;min-width:132px!important;box-sizing:border-box!important}
+.basic-date .date-nav-btn{width:28px!important;min-width:28px!important;padding:2px!important}
+.basic-date .date-query-btn{position:static!important;min-width:38px!important;white-space:nowrap!important;margin:0!important}
 @media(max-width:850px){.basic-date .date-nav{grid-template-columns:30px minmax(132px,1fr) 30px!important}}
 
 #areas .area.area-empty{background:#eef0f2!important;border-color:#c9ced4!important}
@@ -786,13 +890,16 @@ body.locked>#siteHome{pointer-events:none}
   .basic-date{min-width:245px!important;overflow:visible!important}
 }
 .basic-date .date-with-query{
+  display:grid!important;
   grid-template-columns:minmax(0,1fr) 38px!important;
   column-gap:5px!important;
   align-items:center!important;
+  width:100%!important;
   min-width:0!important;
   overflow:visible!important;
 }
 .basic-date .date-nav{
+  display:grid!important;
   grid-template-columns:28px minmax(118px,1fr) 28px!important;
   gap:4px!important;
   align-items:center!important;
@@ -827,6 +934,8 @@ body.locked>#siteHome{pointer-events:none}
   position:static!important;
   align-items:center!important;
   justify-content:center!important;
+  width:38px!important;
+  min-width:38px!important;
   height:27px!important;
   padding:0 4px!important;
   margin:0!important;
@@ -1005,18 +1114,25 @@ body.locked>#siteHome{pointer-events:none}
 }
 
 @media(max-width:850px){
+  #equipments{display:table-row-group!important}
   #equipments tr,
   #equipments tr:hover{display:table-row!important}
 
   /* 비고는 모바일에서만 숨김 */
   #equipments td:nth-child(3),
   #equipments~* td:nth-child(3){display:none!important}
+  table:has(#equipments) thead th:nth-child(3){display:none!important}
 
   table:has(#equipments){
+    width:100%!important;
+    table-layout:fixed!important;
     border-collapse:separate!important;
     border-spacing:0 5px!important;
   }
-  table:has(#equipments) thead th{box-sizing:border-box!important}
+  table:has(#equipments) thead{display:table-header-group!important}
+  table:has(#equipments) thead tr{display:table-row!important}
+  table:has(#equipments) thead th{display:table-cell!important;box-sizing:border-box!important}
+  table:has(#equipments) thead th:nth-child(3){display:none!important}
 
   table:has(#equipments) thead th:nth-child(1),
   #equipments td:nth-child(1){width:46%!important}
@@ -1029,19 +1145,25 @@ body.locked>#siteHome{pointer-events:none}
   table:has(#equipments) thead th:nth-child(2),
   table:has(#equipments) thead th:nth-child(4){text-align:center!important}
 
-  #equipments td{box-sizing:border-box!important}
+  #equipments td{box-sizing:border-box!important;vertical-align:middle!important}
+  #equipments td:nth-child(2){text-align:center!important}
+  #equipments td:nth-child(4){text-align:center!important}
   #equipments .counter{
+    width:100%!important;
+    display:grid!important;
     grid-template-columns:40px minmax(44px,1fr) 40px!important;
     gap:5px!important;
+    align-items:center!important;
   }
   #equipments .counter button,
   #equipments .counter input{width:100%!important;min-width:0!important;box-sizing:border-box!important}
-  #equipments td:nth-child(4) .btn{padding-left:4px!important;padding-right:4px!important}
+  #equipments td:nth-child(4) .btn{width:100%!important;min-width:0!important;padding-left:4px!important;padding-right:4px!important}
 }
 
 .equip-mobile-select{display:none}
 @media(max-width:850px){
-  #equipments .equip-mobile-select{height:38px!important;padding:6px 24px 6px 7px!important;border:1px solid #cbd9e8!important;border-radius:7px!important;background:#fff!important;color:#13233a!important;font-size:14px!important}
+  #equipments .equip-name-input{display:none!important}
+  #equipments .equip-mobile-select{display:block!important;width:100%!important;min-width:0!important;height:38px!important;padding:6px 24px 6px 7px!important;border:1px solid #cbd9e8!important;border-radius:7px!important;background:#fff!important;color:#13233a!important;font-size:14px!important}
 }
 
 @media(max-width:850px){
@@ -1216,7 +1338,7 @@ body.site-home-mode>header,body.site-home-mode>.app,body.site-home-mode>#mobileO
 }
 
 .project-accent{display:inline-block;margin-left:6px;color:#f28b16;font-weight:900;font-size:calc(1em + 2px);letter-spacing:-.2px}
-.project-tree-node.current>.project-tree-head .nav-label{color:#ff9b1f!important;font-size:16px!important}
+.project-tree-node.current>.project-tree-head .nav-label{color:#ff9b1f!important;font-size:16px!important;font-weight:900!important}
 .project-tree-node.current>.project-tree-head .tree-caret{color:#ffb357!important}
 
 #projectAccent.project-accent{
@@ -1394,7 +1516,7 @@ body.report-is-closed #writePage textarea:disabled{
 #tomorrowAreas .area .area-tasks .subtask input{width:100%!important;min-width:0!important}
 @media(max-width:600px){#tomorrowAreas .area .area-meta{grid-template-columns:minmax(80px,.85fr) minmax(100px,1.2fr) auto!important}#tomorrowAreas .area .area-note-input{grid-column:1 / span 2!important;grid-row:2!important}#tomorrowAreas .area .area-delete-btn{grid-column:3!important;grid-row:1!important}}
 
-#excelPage{min-width:0}
+#excelPage{width:100%;min-width:0}
 .excel-view-header{margin-bottom:0!important;border-radius:10px 10px 0 0!important}
 .excel-preview-date{font-size:13px;color:#35618b;font-weight:700;margin-left:auto}
 .excel-preview-toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:8px 0 12px}
@@ -1416,8 +1538,9 @@ body.report-is-closed #writePage textarea:disabled{
  body{background:#fff!important}
  body>header,body>#siteHome,body>#mobileOverlay,body>#mobileDrawer,.mobile-quickbar,.app>aside,#writePage,#searchPage,#masterPage,#dataPage,.excel-view-header,.excel-help{display:none!important}
  .app,.app main{display:block!important;width:100%!important;height:auto!important;overflow:visible!important;margin:0!important;padding:0!important}
+ #excelPage{display:block!important}
  .excel-preview-shell{padding:0!important;border:0!important;max-height:none!important;min-height:0!important;overflow:visible!important;background:#fff!important}
- .excel-sheet-preview{display:block!important;box-shadow:none!important;width:100%!important}
+ .excel-sheet-preview{display:block!important;box-shadow:none!important;padding:0!important;margin:0!important;width:100%!important}
  .excel-real-sheet{zoom:0.7;break-inside:avoid}
  #excelSheetPreview[data-sheet="2"] .excel-real-sheet{zoom:0.55}
  .excel-real-sheet td{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
@@ -1457,7 +1580,7 @@ body.report-is-closed #writePage textarea:disabled{
 #excelPage #excelPreviewStatus{max-width:230px;font-size:10px;color:#718096;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
 #excelPage .excel-sheet-tabs{grid-column:1/-1;gap:3px;border-bottom:1px solid #9fb2c7;margin-top:4px}
 #excelPage .excel-sheet-tab{font-size:11px;padding:5px 13px;border-radius:5px 5px 0 0}
-#excelPage .excel-preview-shell{flex:1 1 0!important;min-height:0!important;height:auto!important;max-height:none!important;overflow:auto!important;padding:6px 8px!important;border:1px solid #d8e1eb!important;border-top:0!important;overscroll-behavior:contain}
+#excelPage .excel-preview-shell{flex:1 1 0!important;min-height:0!important;height:auto!important;max-height:none!important;overflow:auto!important;background:#fff!important;padding:6px 8px!important;border:1px solid #d8e1eb!important;border-top:0!important;overscroll-behavior:contain}
 #excelPage .excel-sheet-preview{margin:0 auto!important;padding:3px!important;box-shadow:none!important;background:#fff!important;min-width:0}
 #excelPage .excel-fixed-sheet{background:#fff!important}
 #excelPage .excel-fixed-grid{display:none!important}
@@ -1521,13 +1644,13 @@ body.report-is-closed #writePage textarea:disabled{
 #dataPage .data-overview-table td:first-child{text-align:left}
 #dataPage .data-overview-table tbody tr:nth-child(even){background:#f9fcff}
 #dataPage .data-overview-table tbody tr.data-total{background:#e8f2fe;font-weight:800}
-#dataPage .data-empty-info{padding:12px 0 0;line-height:1.6}
+#dataPage .data-empty-info{font-size:12px;color:#63748b;padding:12px 0 0;line-height:1.6}
 @media(max-width:850px){#dataPage .data-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}#dataPage .data-overview-head,#dataPage .data-table-card{padding:12px!important}#dataPage .data-kpi{padding:10px}#dataPage .data-tabs button{font-size:12px;padding:9px 10px}#dataPage .data-table-scroll{width:100%;overflow:auto}}
 
 #dataPage .data-tabs{display:none!important}
 #dataPage .data-table-card{display:none!important}
 #dataPage .data-dashboard{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:0 0 12px;width:100%}
-#dataPage .data-board-card{background:#fff;border:1px solid #d8e3ef;border-radius:10px;min-width:0}
+#dataPage .data-board-card{background:#fff;border:1px solid #d8e3ef;border-radius:10px;overflow:hidden;min-width:0}
 #dataPage .data-board-card.span-all{grid-column:1/-1}
 #dataPage .data-card-title{padding:9px 12px;border-bottom:1px solid #dbe6ef;font-size:14px;font-weight:800;color:#17365d;background:#f8fbff}
 #dataPage .data-board-card .data-table-scroll{overflow:auto;max-height:320px}
@@ -1634,7 +1757,7 @@ body.report-is-closed #writePage textarea:disabled{
  #dataPage .data-period-label{font-size:11px}
  #dataPage #dataPeriod{max-width:132px;flex:0 1 108px;min-width:78px;font-size:12px}
  #dataPage .data-tabs{gap:1px!important}
- #dataPage .data-tabs button{padding:9px 0!important;letter-spacing:-.45px}
+ #dataPage .data-tabs button{font-size:clamp(9px,2.35vw,11px)!important;padding:9px 0!important;letter-spacing:-.45px}
 }
 @media(max-width:380px){
  #dataPage .data-period-label{display:none}
@@ -1854,11 +1977,15 @@ body.report-is-closed #writePage textarea:disabled{
   margin-top:2.5px!important;
 }
 
-#writePage .work-flow-item{min-width:0}
-#writePage .work-today-card .title,#writePage .tomorrow-work-card .title{gap:4px;flex-wrap:wrap}
-#writePage .work-today-card .title .btn,#writePage .tomorrow-work-card .title .btn{white-space:normal}
-#writePage .work-today-card .area,#writePage .tomorrow-work-card .area{min-width:0}
-#writePage .work-today-card .area input,#writePage .work-today-card .area select,#writePage .tomorrow-work-card .area input,#writePage .tomorrow-work-card .area select{min-width:0}
+#writePage .daily-work-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:start;width:100%;min-width:0}
+#writePage .daily-work-columns>.card{min-width:0;margin:0!important}
+#writePage .daily-work-columns .title{gap:4px;flex-wrap:wrap}
+#writePage .daily-work-columns .title .btn{white-space:normal}
+#writePage .daily-work-columns .area{min-width:0}
+#writePage .daily-work-columns .area input,#writePage .daily-work-columns .area select{min-width:0}
+@media(max-width:850px){
+  #writePage .daily-work-columns{grid-template-columns:1fr;gap:6px}
+}
 
 @media(min-width:1351px){
  #writePage>.grid:not(.preview-collapsed){grid-template-columns:minmax(220px,var(--work-preview-width,28%)) minmax(260px,var(--work-left-width,32%)) minmax(260px,1fr)!important;}
@@ -1919,7 +2046,7 @@ body.report-is-closed #writePage textarea:disabled{
 #excelPage .excel-photo-caption[contenteditable="true"]:focus{outline:2px solid #3687e8!important;background:#fffdea!important;z-index:7!important}
 
 #appMemoDialog{position:fixed;inset:0;z-index:9999;background:#091d3560;display:flex;align-items:flex-start;justify-content:center;padding:7vh 12px}
-#appMemoPanel{background:#fff;border:1px solid #cbd9e8;border-radius:10px;box-shadow:0 14px 45px #0003;color:#18324a}
+#appMemoPanel{width:min(560px,96vw);background:#fff;border:1px solid #cbd9e8;border-radius:10px;padding:13px;box-shadow:0 14px 45px #0003;color:#18324a}
 #appMemoPanel header{position:static;box-shadow:none!important;display:flex;justify-content:space-between;align-items:center;height:auto;min-height:0;padding:0;background:none;color:#18324a}
 #appMemoBody{box-sizing:border-box;width:100%;min-height:230px;max-height:65vh;resize:vertical;padding:10px;font-size:14px;line-height:1.6;margin-top:10px;border:1px solid #becbda;border-radius:5px}
 .memo-small-btn{padding:4px 8px!important;font-size:11px!important;white-space:nowrap!important}
@@ -1991,8 +2118,11 @@ window.addEventListener('focus',function(){
 <style>
 
 #writePage .basic-info-card>.title.basic-info-headingbar{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
   grid-template-areas:"heading copy" "modes modes" "status status"!important;
   gap:6px 10px!important;
+  align-items:center!important;
   padding-bottom:8px!important;
 }
 #writePage .basic-info-headingbar>.basic-title-name{grid-area:heading;min-width:0;white-space:nowrap}
@@ -2068,8 +2198,10 @@ window.addEventListener('focus',function(){
   justify-content:center!important;
   gap:0!important;
   flex:0 0 auto!important;
+  font-size:12px!important;
   line-height:1.1!important;
   white-space:nowrap!important;
+  font-weight:800!important;
   border-radius:6px!important;
 }
 #writePage .basic-info-headingbar>.basic-copy-actions>.copy-yesterday-btn{
@@ -2083,7 +2215,7 @@ window.addEventListener('focus',function(){
 }
 @media(max-width:390px){
   #writePage .basic-info-headingbar>.basic-copy-actions{gap:4px!important;}
-  #writePage .basic-info-headingbar>.basic-copy-actions>.btn{font-size:11px!important;}
+  #writePage .basic-info-headingbar>.basic-copy-actions>.btn{padding:0 7px!important;font-size:11px!important;}
   #writePage .basic-info-headingbar>.basic-title-name{font-size:12px!important;}
 }
 </style>
@@ -2352,27 +2484,7 @@ window.addEventListener('focus',function(){
   #writePage .basic-info-headingbar>.basic-copy-actions>.btn{font-size:12px!important;padding:0 7px!important;}
 }
 </style>
-<style id="urigong-report-actions-right-and-excel-weekly-status-20261015">
-/* 기본정보(1번) 공통 버튼 정렬: 주간·중식OT·연장 등 모든 작업모드 */
-#writePage .basic-info-headingbar>.basic-actions-row>.basic-status-line{
-  margin-left:auto!important; margin-right:0!important; justify-content:flex-end!important;
-}
-/* 공사일보/사진대지는 별도 마감 버튼 없이 주간일보 기준 읽기 전용 상태를 안내 */
-#excelPage .excel-preview-toolbar{flex-wrap:wrap!important;}
-#excelPage .excel-close-guidance{
-  display:inline-flex;align-items:center;box-sizing:border-box;min-height:29px;
-  max-width:min(310px,100%);padding:4px 7px;border-radius:5px;
-  border:1px solid #bde6cc;background:#eaf8f0;color:#136a43;
-  font-size:11px;font-weight:800;line-height:1.35;white-space:normal;overflow-wrap:break-word;
-}
-#excelPage .excel-close-guidance.is-locked{background:#fff2f2;color:#a32632;border-color:#e9bfc3;}
-#excelPage .excel-close-guidance.is-no-work{background:#f2f3f5;color:#576273;border-color:#cbd2d9;}
-#excelPage .excel-close-guidance.is-readonly{background:#fff5e5;color:#8c560e;border-color:#ecd2a6;}
-@media(max-width:850px){
-  #writePage .basic-info-headingbar>.basic-actions-row>.basic-status-line{margin-left:auto!important;}
-  #excelPage .excel-close-guidance{max-width:100%;font-size:11px;}
-}
-</style>
+
 <style id="urigong-mode-colors-20261014">
 
 #writePage[data-work-mode="lunch"] .tomorrow-work-card,
@@ -2421,145 +2533,32 @@ window.addEventListener('focus',function(){
 #writePage .tomorrow-work-card.weekly-tomorrow-reference .weekly-tomorrow-empty{padding:12px 10px;color:#65758a;background:#e5e9ee;border-radius:6px;font-size:12px}
 </style>
 
-<style id="urigong-button-layout-20261015">
-/* 요청한 로컬백업(1번 사진)과 동일한 기본 파란색 테두리 버튼 스타일 */
-#writePage .basic-info-headingbar>.basic-copy-actions>.btn,
-#writePage #driveQuickBar .header-action-buttons>button[onclick="openConstructionExcelPage()"],
-#writePage .mobile-basic-actions>button[onclick="openConstructionExcelPage()"]{
-  background:#fff!important;color:#0672e8!important;border:1px solid #9dc5f7!important;
-  border-radius:4px!important;font-family:Arial,'Noto Sans KR',sans-serif!important;
-  font-size:10.4px!important;font-weight:700!important;line-height:1.3!important;
-  height:auto!important;min-height:0!important;padding:4px 7px!important;
-  box-shadow:none!important;white-space:nowrap!important;
-}
-#writePage .basic-info-headingbar>.basic-copy-actions>.btn:hover,
-#writePage #driveQuickBar .header-action-buttons>button[onclick="openConstructionExcelPage()"]:hover,
-#writePage .mobile-basic-actions>button[onclick="openConstructionExcelPage()"]:hover{
-  background:#eef5ff!important;border-color:#78afea!important;
-}
-/* 작업일보 작성 및 공사일보 엑셀(사진대지 포함)에서 헤더 저장 버튼 노출 */
-body>header .header-report-save-btn{display:none!important;}
-body.urigong-write-page>header .header-report-save-btn,
-body.urigong-excel-page>header .header-report-save-btn{
-  display:inline-flex!important;align-items:center;justify-content:center;
-  flex:0 0 auto!important;margin:0!important;white-space:nowrap!important;
-  background:#f28c18!important;border:1px solid #f28c18!important;color:#fff!important;
-  border-radius:4px!important;padding:4px 8px!important;font-size:11px!important;font-weight:800!important;
-}
-body.urigong-write-page>header .header-report-save-btn:hover:not(:disabled),
-body.urigong-excel-page>header .header-report-save-btn:hover:not(:disabled){background:#df7808!important;border-color:#df7808!important;}
-body.urigong-write-page>header .header-report-save-btn:disabled,
-body.urigong-excel-page>header .header-report-save-btn:disabled{opacity:.5!important;cursor:not-allowed!important;}
-body>header .header-right{margin-left:auto!important;gap:6px!important;align-items:center!important;justify-content:flex-end!important;}
-body>header #topDate{order:0;margin-right:6px;white-space:nowrap;}
-body>header .memo-small-btn{order:1;}
-body>header .header-report-save-btn{order:2;}
-@media(max-width:850px){
-  /* 모바일에서도 메모장·저장을 헤더 오른쪽에 유지하며 두 줄로 안전하게 배치 */
-  body>header{
-    height:84px!important;min-height:84px!important;padding:5px 8px!important;
-    display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
-    grid-template-rows:34px 34px!important;grid-template-areas:'brand menu' 'access actions';
-    column-gap:5px!important;row-gap:4px!important;align-items:center!important;
-  }
-  body>header>div:first-child{grid-area:brand;min-width:0;overflow:hidden;white-space:nowrap;font-size:12px;}
-  body>header>div:first-child .site-home-btn{font-size:10px!important;padding:4px!important;margin-right:2px!important;}
-  body>header>#siteAccessHeader{grid-area:access;position:static!important;transform:none!important;margin:0!important;gap:3px!important;min-width:0;}
-  body>header>#siteAccessLabel,body>header #siteAccessLabel{font-size:11px!important;}
-  body>header>.mobile-menu-btn{grid-area:menu;margin:0!important;justify-self:end!important;}
-  body>header>.header-right{grid-area:actions;display:flex!important;justify-self:end!important;margin:0!important;gap:4px!important;}
-  body>header #topDate{display:none!important;}
-  body>header .memo-small-btn,body>header .header-report-save-btn{font-size:10.4px!important;padding:4px 6px!important;}
-  .mobile-overlay.open{inset:84px 0 0 0!important;}
-  .mobile-drawer.open{top:84px!important;height:calc(100dvh - 84px)!important;}
-}
-</style>
-<style id="urigong-closed-white-orange-20261015">
-/* 마감된 주간·중식OT·연장 작업일보의 헤더 저장 버튼:
-   저장 기능은 잠금 상태를 그대로 유지하고 표시만 흰색/주황색으로 조정합니다. */
-body.urigong-write-page.report-is-closed>header #headerReportSaveBtn:disabled,
-body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disabled{
-  background:#fff!important;
-  color:#e87500!important;
-  -webkit-text-fill-color:#e87500!important;
-  border-color:#eab780!important;
-  opacity:1!important;
-  box-shadow:none!important;
-  cursor:not-allowed!important;
-}
-/* 공사일보 엑셀/사진대지의 마감 상태 안내도 같은 색상으로 통일합니다. */
-#excelPage #excelWeeklyCloseGuidance.is-locked{
-  background:#fff!important;
-  color:#e87500!important;
-  border-color:#eab780!important;
-}
-</style>
-<style id="urigong-workflow-table-20261016">
-/* 5·6번은 독립적으로 높이가 늘어납니다. 표는 카드 안에서 줄바꿈 없이 표시합니다. */
-@media(min-width:851px){
-  #writePage .work-manager-card .manager-scroll{width:100%!important;min-width:0!important;overflow-x:hidden!important;overflow-y:visible!important;padding-bottom:0!important}
-  #writePage .work-manager-card .manager-table{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important}
-  #writePage .work-manager-card .manager-visibility-col{width:55px!important}
-  #writePage .work-manager-card .manager-attendance-col{width:43px!important}
-  #writePage .work-manager-card .manager-name-col{width:19%!important}
-  #writePage .work-manager-card .manager-role-col{width:19%!important}
-  #writePage .work-manager-card .manager-phone-col{width:27%!important}
-  #writePage .work-manager-card .manager-action-col{width:48px!important}
-  #writePage .work-manager-card .manager-table th{padding:5px 1px!important;font-size:12px!important;letter-spacing:-.25px!important;white-space:nowrap!important;overflow:hidden!important}
-  #writePage .work-manager-card .manager-table td{padding:3px 2px!important;min-width:0!important;width:auto!important;box-sizing:border-box!important;overflow:hidden!important;white-space:nowrap!important}
-  #writePage .work-manager-card #managers td:nth-child(1),#writePage .work-manager-card #managers td:nth-child(2),#writePage .work-manager-card #managers td:nth-child(5),#writePage .work-manager-card #managers td:nth-child(6){min-width:0!important;width:auto!important}
-  #writePage .work-manager-card .manager-visibility-btn{width:100%!important;min-width:0!important;font-size:12px!important;padding:4px 0!important}
-  #writePage .work-manager-card #managers td:nth-child(2) input[type=checkbox]{display:inline-block!important;width:16px!important;height:16px!important;min-width:16px!important;max-width:16px!important;margin:0!important;padding:0!important}
-  #writePage .work-manager-card #managers td:nth-child(3) input,#writePage .work-manager-card #managers td:nth-child(4) input,#writePage .work-manager-card #managers td:nth-child(5) input{width:100%!important;min-width:0!important;max-width:100%!important;height:28px!important;box-sizing:border-box!important;padding:3px!important;font-size:13px!important}
-  #writePage .work-manager-card #managers td:nth-child(6) .btn{width:100%!important;min-width:0!important;max-width:100%!important;font-size:12px!important;padding:4px 0!important}
-  #writePage #equipments tr,#writePage #managers tr{height:35px}
-  #writePage #equipments td{padding:3px!important}
-  #writePage #equipments td input:not([type=checkbox]){height:28px!important}
-  #writePage .work-equipment-card > table{width:100%!important;table-layout:fixed!important}
-  #writePage .work-equipment-card > table th:nth-child(1),#writePage #equipments td:nth-child(1){width:42%!important}
-  #writePage .work-equipment-card > table th:nth-child(2),#writePage #equipments td:nth-child(2){width:17%!important}
-  #writePage .work-equipment-card > table th:nth-child(4),#writePage #equipments td:nth-child(4){width:62px!important}
-  #writePage #equipments td:nth-child(3){min-width:0!important}
-  #writePage #equipments td:nth-child(4) .btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;white-space:nowrap!important;word-break:keep-all!important;overflow-wrap:normal!important;width:100%!important;min-width:0!important;height:28px!important;padding:3px 2px!important}
-}
-</style>
-<style id="urigong-height-aware-flow-20261016">
-/* PC: 넉넉한 높이는 1~4 / 5~6, 부족할 때 세 입력 열에 차례로 채웁니다. */
-@media(min-width:851px){
-  #writePage>.grid>.input-col{min-width:0!important;align-self:start!important;display:block!important}
-  #writePage>.grid>.extra-col{display:none!important}
-  #writePage>.grid>.input-col>.card{height:auto!important;min-width:0!important}
-}
-@media(min-width:1560px){
-  #writePage>.grid,#writePage>.grid:not(.preview-collapsed){display:grid!important;grid-template-columns:minmax(245px,var(--work-preview-width,24%)) minmax(355px,var(--work-left-width,35%)) minmax(430px,1fr)!important;gap:8px!important;align-items:start!important}
-  #writePage>.grid.preview-collapsed{grid-template-columns:42px minmax(355px,1fr) minmax(430px,1fr)!important}
-  #writePage>.grid>.desktop-preview{grid-column:1!important;grid-row:1!important}
-  #writePage>.grid>.left-col{grid-column:2!important;grid-row:1!important}
-  #writePage>.grid>.middle-col{grid-column:3!important;grid-row:1!important}
-  #writePage>.grid.work-flow-three,#writePage>.grid.work-flow-three:not(.preview-collapsed){grid-template-columns:minmax(235px,var(--work-preview-width,19%)) minmax(315px,1fr) minmax(315px,1fr) minmax(410px,1.15fr)!important}
-  #writePage>.grid.work-flow-three.preview-collapsed{grid-template-columns:42px minmax(315px,1fr) minmax(315px,1fr) minmax(410px,1.15fr)!important}
-  #writePage>.grid.work-flow-three>.extra-col{grid-column:4!important;grid-row:1!important;display:block!important}
-  #writePage>.grid.work-flow-three .work-column-resizer[data-work-edge="second"]{display:none!important}
-  /* 좁아진 3열에서는 기본 정보 필드를 두 열로 나누고 날짜·시간은 온전히 표시 */
-  #writePage>.grid.work-flow-three .basic-info-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  #writePage>.grid.work-flow-three .basic-date,#writePage>.grid.work-flow-three .basic-time{grid-column:1/-1!important;min-width:0!important}
-  #writePage>.grid.work-flow-three .basic-bpa{grid-column:1/-1!important;min-width:0!important}
-  #writePage>.grid.work-flow-three #companies .company-head{flex-wrap:wrap!important}
-  #writePage>.grid.work-flow-three #companies .company-head-actions{margin-left:auto!important}
-}
-@media(min-width:851px) and (max-width:1559px){
-  #writePage>.grid,#writePage>.grid:not(.preview-collapsed){display:grid!important;grid-template-columns:minmax(220px,31%) minmax(0,1fr)!important;gap:8px!important;align-items:start!important}
-  #writePage>.grid.preview-collapsed{grid-template-columns:42px minmax(0,1fr)!important}
-  #writePage>.grid>.desktop-preview{grid-column:1!important;grid-row:1 / span 2!important}
-  #writePage>.grid>.left-col{grid-column:2!important;grid-row:1!important}
-  #writePage>.grid>.middle-col{grid-column:2!important;grid-row:2!important}
-}
-@media(max-width:850px){
-  #writePage>.grid>.extra-col{display:none!important}
-}
+<!-- 2026-10-16 | PC·모바일 공용 서버 통신 진행 상태 -->
+<style id="urigongNetworkProgressCSS">
+#urigongNetStatus{box-sizing:border-box;position:fixed;top:54px;right:12px;z-index:99981;max-width:min(440px,calc(100vw - 24px));display:none;align-items:center;gap:9px;border:1px solid #c9d9e9;border-radius:9px;padding:10px 13px;background:#fff;color:#183b61;box-shadow:0 5px 20px #102c4d2b;font-size:12px;font-weight:700;line-height:1.45}
+#urigongNetStatus.visible{display:flex}
+#urigongNetStatus[data-kind="failed"]{border-color:#e1a19c;color:#9a3025;background:#fff8f7}
+#urigongNetStatus[data-kind="done"]{border-color:#c7ded1;color:#216543;background:#f5fcf7}
+.urigong-net-spin{width:18px;height:18px;flex:none;border:2.5px solid #c9ddf8;border-top-color:#1976db;border-radius:50%;animation:urigongNetSpin .85s linear infinite}
+#urigongNetStatus:not([data-kind="busy"]) .urigong-net-spin{animation:none;border-color:#b5c6d5;border-top-color:#b5c6d5}
+#urigongNetStatus[data-kind="done"] .urigong-net-spin{border-color:#80bba0;background:#e5f7eb}
+#urigongNetRetry{display:none;border:1px solid #e3bab2;border-radius:6px;color:#9a3025;background:white;padding:5px 8px;cursor:pointer;white-space:nowrap}
+#urigongNetStatus[data-kind="failed"] #urigongNetRetry{display:inline-flex}
+#urigongNetOverlay{box-sizing:border-box;position:fixed;inset:0;z-index:99980;background:rgba(244,248,252,.83);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;padding:16px}
+#urigongNetOverlay.visible{display:flex}
+.urigong-net-dialog{box-sizing:border-box;background:white;color:#153457;border:1px solid #c8d9eb;border-radius:16px;box-shadow:0 15px 48px #15345736;text-align:center;width:min(380px,calc(100vw - 32px));padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.urigong-net-dialog .urigong-net-spin{width:34px;height:34px;border-width:4px}
+#urigongNetTitle{font-size:17px;font-weight:800}
+.urigong-net-note{color:#60738b;font-size:12px;line-height:1.6}
+@keyframes urigongNetSpin{to{transform:rotate(360deg)}}
+@media(max-width:850px){#urigongNetStatus{top:58px;right:7px;left:7px;max-width:none;font-size:12px;padding:9px 11px} .urigong-net-dialog{padding:21px 16px} }
+@media(prefers-reduced-motion:reduce){.urigong-net-spin{animation-duration:2.3s}}
 </style>
 </head>
 <body class="locked site-home-mode">
+<div id="urigongNetOverlay" role="status" aria-live="polite" aria-label="자료 불러오기 진행 중"><div class="urigong-net-dialog"><span class="urigong-net-spin" aria-hidden="true"></span><strong id="urigongNetTitle">서버 자료 불러오는 중…</strong><span class="urigong-net-note">최신 자료 확인 전에는 수정·저장이 잠시 제한됩니다.<br>작업 화면을 그대로 두고 기다려 주세요.</span></div></div>
+<div id="urigongNetStatus" role="status" aria-live="polite" data-kind="busy"><span class="urigong-net-spin" aria-hidden="true"></span><span id="urigongNetStatusText">서버 연결 중…</span><button id="urigongNetRetry" type="button" onclick="urigongNetworkRetry()">다시 확인</button></div>
+
 <div id="siteAccessBackdrop" role="dialog" aria-modal="true" aria-label="현장 접속 알림">
   <div id="siteAccessDialog"><h3 id="siteAccessDialogTitle">알림</h3><p id="siteAccessDialogMsg"></p><div id="siteAccessDialogEntry"></div><div class="actions" id="siteAccessDialogActions"></div></div>
 </div>
@@ -2624,7 +2623,7 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
     <button class="btn primary" type="button" style="width:100%" onclick="setupMasterPasswordFromGate()">마스터 비밀번호 초기 설정</button>
   </div>
   <div id="passwordError" class="password-error"></div>
-</div></div><header><div><button class="site-home-btn" type="button" onclick="goSiteHome()">⌂ 현장선택 홈가기</button>⛑ <span id="appTitleDisplay">작업일보</span><span id="projectAccent" class="project-accent"></span></div><div id="siteAccessHeader" aria-live="polite"><b id="siteAccessLabel">접속 확인 중</b><button id="siteAccessRequestBtn" type="button" onclick="siteOpenRequest()" style="display:none">작업종료 요청</button></div><div class="header-right"><div id="topDate">작업보고 작성</div><button type="button" class="btn memo-small-btn" onclick="appMemoOpen()" title="날짜와 무관한 메모장">🗒 메모장</button><button id="headerReportSaveBtn" class="btn header-report-save-btn" type="button" onclick="urigongHeaderReportSave()" title="현재 작업일보 저장">보고서 저장</button></div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
+</div></div><header><div><button class="site-home-btn" type="button" onclick="goSiteHome()">⌂ 현장선택 홈가기</button>⛑ <span id="appTitleDisplay">작업일보</span><span id="projectAccent" class="project-accent"></span></div><div id="siteAccessHeader" aria-live="polite"><b id="siteAccessLabel">접속 확인 중</b><button id="siteAccessRequestBtn" type="button" onclick="siteOpenRequest()" style="display:none">작업종료 요청</button></div><div class="header-right"><button type="button" class="btn memo-small-btn" onclick="appMemoOpen()" title="날짜와 무관한 메모장">🗒 메모장</button><div id="topDate">작업보고 작성</div></div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
 <nav id="mobileDrawer" class="mobile-drawer" aria-label="모바일 메뉴">
   <div class="drawer-title"><span id="mobileAppTitle">작업일보</span> · 메뉴</div>
@@ -2758,8 +2757,8 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
 </div>
 </div>
 </aside><main>
-<section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 마스터가 마감을 해제한 뒤 수정할 수 있습니다.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ 공용저장소 연결</button><button class="btn" type="button" onclick="saveToDrive()">공용저장소 저장</button><button class="btn" type="button" onclick="loadFromDrive()">공용저장소 불러오기</button><button class="btn public-store-diagnostic-btn" type="button" onclick="diagnosePublicStoreConnection()" title="서버 연결만 확인하고 자료는 저장하거나 변경하지 않습니다.">통신진단</button><button class="btn local-backup-btn" type="button" onclick="openLocalBackupDialog()">로컬백업</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 기기 인증 확인 중</b><span id="readOnlyBadge" class="readonly-badge">읽기 전용</span><div class="header-action-buttons"><button class="btn" type="button" onclick="openConstructionExcelPage()">📥 공사일보 엑셀</button></div></div><div class="grid"><div class="input-col left-col">
-<div class="card basic-info-card"><div class="title basic-info-headingbar"><span class="basic-title-name"><span class="n">1</span>기본 정보</span><div class="basic-actions-row"><div class="basic-mode-line"><span id="workModeTabs" class="work-mode-tabs-inline"></span></div><span class="basic-close-wrap basic-status-line"><button id="noWorkDayBtn" class="report-close-btn no-work-action" type="button" onclick="toggleNoWorkDay()">작업없음</button><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span></div><span class="basic-copy-actions"><button class="btn daily-reset-btn" type="button" onclick="resetDailyData()" title="현재 보고서의 인원·장비 수량·금일 작업내용 초기화">당일자료 초기화</button><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><button class="btn primary copy-weekly-btn" type="button" onclick="copySameDayWeeklyData()">주간자료 복사</button></span><span class="basic-action-buttons mobile-basic-actions"><button class="btn" type="button" onclick="openConstructionExcelPage()">📥 공사일보 엑셀</button></span></div><div class="basic-info-grid">
+<section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 마스터가 마감을 해제한 뒤 수정할 수 있습니다.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ 공용저장소 연결</button><button class="btn" type="button" onclick="saveToDrive()">공용저장소 저장</button><button class="btn" type="button" onclick="loadFromDrive()">공용저장소 불러오기</button><button class="btn public-store-diagnostic-btn" type="button" onclick="diagnosePublicStoreConnection()" title="서버 연결만 확인하고 자료는 저장하거나 변경하지 않습니다.">통신진단</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 기기 인증 확인 중</b><span id="readOnlyBadge" class="readonly-badge">읽기 전용</span><button class="btn local-backup-btn" type="button" onclick="openLocalBackupDialog()">로컬백업</button><div class="header-action-buttons"><button class="btn" type="button" onclick="openConstructionExcelPage()" style="background:#138b70;color:white;border-color:#138b70">📥 공사일보 엑셀</button><button class="btn" onclick="saveReport()">보고서 저장</button></div></div><div class="grid"><div class="input-col left-col">
+<div class="card basic-info-card"><div class="title basic-info-headingbar"><span class="basic-title-name"><span class="n">1</span>기본 정보</span><div class="basic-actions-row"><div class="basic-mode-line"><span id="workModeTabs" class="work-mode-tabs-inline"></span></div><span class="basic-close-wrap basic-status-line"><button id="noWorkDayBtn" class="report-close-btn no-work-action" type="button" onclick="toggleNoWorkDay()">작업없음</button><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span></div><span class="basic-copy-actions"><button class="btn daily-reset-btn" type="button" onclick="resetDailyData()" title="현재 보고서의 인원·장비 수량·금일 작업내용 초기화">당일자료 초기화</button><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><button class="btn primary copy-weekly-btn" type="button" onclick="copySameDayWeeklyData()">주간자료 복사</button></span><span class="basic-action-buttons mobile-basic-actions"><button class="btn" type="button" onclick="openConstructionExcelPage()" style="background:#138b70;color:white;border-color:#138b70">📥 공사일보 엑셀</button><button class="btn" onclick="saveReport()">보고서 저장</button></span></div><div class="basic-info-grid">
 <div class="field basic-site"><label>현장</label><select id="site"></select></div>
 <div class="field basic-trade"><label>공종</label><select id="trade"></select></div>
 <div class="field basic-date"><label>작업일</label><div class="date-with-query"><div class="date-nav">
@@ -2771,26 +2770,24 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
 <div class="field basic-bpa"><label>BP사</label><input id="bpa" value="더오포"></div>
 </div></div>
 <div class="card"><div class="title"><span><span class="n">2</span>업체 입력 (공종별 인원)</span><span class="total-inline">총 투입인원 <span class="total" id="grandTotal">0명</span></span><button class="btn primary" onclick="addCompany()">+ 업체 입력</button></div><div id="companies"></div></div>
-
-<div class="card work-flow-item work-today-card"><div class="title"><span><span class="n">3</span>금일 작업 내용</span><button class="btn primary" onclick="addArea()">+ 구역 추가</button></div><div id="areas"></div></div>
-<div class="card tomorrow-work-card work-flow-item"><div class="title"><span><span class="n">4</span>명일 작업 내용</span><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button class="btn" type="button" onclick="copyTodayToTomorrow()">금일작업내용 복사하기</button><button class="btn primary" onclick="addTomorrowArea()">+ 구역 추가</button></span></div><div id="tomorrowAreas"></div></div>
-
-</div><div class="input-col middle-col"><div class="card work-flow-item work-equipment-card"><div class="title"><span><span class="n">5</span>장비</span><button class="btn primary" onclick="addEquipment()">+ 장비 추가</button></div><table><thead><tr><th>장비명</th><th>수량(대)</th><th>비고</th><th>삭제</th></tr></thead><tbody id="equipments"></tbody></table></div>
-<div class="card work-flow-item work-manager-card"><div class="title"><span><span class="n">6</span>담당자</span><button class="btn primary" onclick="addManager()">+ 담당자 추가</button></div><div class="manager-scroll"><table class="manager-table"><colgroup><col class="manager-visibility-col"><col class="manager-attendance-col"><col class="manager-name-col"><col class="manager-role-col"><col class="manager-phone-col"><col class="manager-action-col"></colgroup><thead><tr><th class="manager-sns-heading">SNS</th><th>공사일보</th><th>이름</th><th>직책</th><th>전화번호</th><th>관리</th></tr></thead><tbody id="managers"></tbody></table></div></div>
-
-</div><div class="input-col extra-col"></div>
+<div class="card"><div class="title"><span><span class="n">3</span>장비</span><button class="btn primary" onclick="addEquipment()">+ 장비 추가</button></div><table><thead><tr><th>장비명</th><th>수량(대)</th><th>비고</th><th>삭제</th></tr></thead><tbody id="equipments"></tbody></table></div>
+</div><div class="input-col middle-col"><div class="daily-work-columns"><div class="card"><div class="title"><span><span class="n">4</span>금일 작업 내용</span><button class="btn primary" onclick="addArea()">+ 구역 추가</button></div><div id="areas"></div></div>
+<div class="card tomorrow-work-card"><div class="title"><span><span class="n">5</span>명일 작업 내용</span><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button class="btn" type="button" onclick="copyTodayToTomorrow()">금일작업내용 복사하기</button><button class="btn primary" onclick="addTomorrowArea()">+ 구역 추가</button></span></div><div id="tomorrowAreas"></div></div>
+</div>
+<div class="card"><div class="title"><span><span class="n">6</span>담당자</span><button class="btn" onclick="addManager()">+ 담당자 추가</button></div><div class="manager-scroll"><table class="manager-table"><colgroup><col class="manager-visibility-col"><col class="manager-attendance-col"><col class="manager-name-col"><col class="manager-role-col"><col class="manager-phone-col"><col class="manager-action-col"></colgroup><thead><tr><th class="manager-sns-heading">SNS</th><th>공사일보</th><th>이름</th><th>직책</th><th>전화번호</th><th>관리</th></tr></thead><tbody id="managers"></tbody></table></div></div>
+</div>
 <div class="desktop-preview"><div class="card"><div class="title preview-title-row"><span class="preview-title-text">미리보기</span><span class="preview-tabs" role="tablist" aria-label="미리보기 형식"><button type="button" class="preview-tab" id="slackTab" role="tab" aria-selected="false" onclick="selectPreviewTab('slack')">Slack</button><button type="button" class="preview-tab active" id="reportTab" role="tab" aria-selected="true" onclick="selectPreviewTab('weekly')">주간</button><button type="button" class="preview-tab" id="lunchTab" role="tab" aria-selected="false" onclick="selectPreviewTab('lunch')">중식OT</button><button type="button" class="preview-tab" id="overtimeTab" role="tab" aria-selected="false" onclick="selectPreviewTab('overtime')">연장</button></span><button class="btn preview-copy-btn" onclick="copyPreview()">복사하기</button><button class="btn preview-toggle" type="button" title="미리보기 접기/펼치기" onclick="togglePreview()">◀</button></span></div><div id="preview" class="preview" contenteditable="true"></div><div id="slackFields" class="slack-extra-fields" style="display:none"><label>주요위험요소 <input id="slackRiskInput" type="text" oninput="saveSlackFields()" placeholder="주요위험요소"></label><label>특이사항 <input id="slackSpecialInput" type="text" oninput="saveSlackFields()" placeholder="특이사항"></label></div><div id="slackPreview" class="preview" role="tabpanel" contenteditable="true" style="display:none"></div></div></div></div></section>
 <section id="excelPage" class="search-panel" aria-label="공사일보 엑셀 미리보기">
-  <div id="excelQuickBarMount" aria-label="공용저장소 메뉴"></div>
   <div class="excel-view-header card">
     <div class="title"><span><span class="n">▤</span>공사일보 엑셀</span><span id="excelPreviewDate" class="excel-preview-date"></span></div>
     <div class="excel-preview-toolbar">
-      <span id="excelWeeklyCloseGuidance" class="excel-close-guidance" role="status" aria-live="polite">주간일보 마감 상태 확인 중…</span>
+      <button id="excelSharedReportSaveBtn" class="btn primary" type="button" onclick="saveExcelAndPhotoReport()" title="공사일보·사진대지 공통 보고서 저장">보고서 저장</button>
       <div class="excel-date-nav" role="group" aria-label="공사일보 조회 날짜 이동">
         <button type="button" class="excel-day-arrow" title="전날 공사일보" aria-label="전날 공사일보" onclick="shiftExcelPreviewDay(-1)">◀</button>
         <input id="excelDatePicker" type="date" aria-label="공사일보 조회 날짜" title="공사일보 조회 날짜" onchange="selectExcelPreviewDate(this.value)">
         <button type="button" class="excel-day-arrow" title="다음날 공사일보" aria-label="다음날 공사일보" onclick="shiftExcelPreviewDay(1)">▶</button>
       </div>
+      <button id="excelNoWorkBtn" class="report-close-btn no-work-action" type="button" onclick="toggleNoWorkDay()">작업없음</button><button id="excelReportCloseBtn" class="report-close-btn excel-report-close-btn" type="button" title="해당 작업일의 주간 작업일보·공사일보 마감/해제" onclick="toggleExcelWeeklyReportClosed()">마감</button>
       <button class="btn primary" type="button" onclick="refreshConstructionExcelPreview()">▤ 미리보기</button>
       <button id="constructionExcelDownloadBtn" class="btn" type="button" onclick="downloadConstructionExcelPreview()" title="변경사항을 보고서로 저장한 뒤 공사일보 엑셀을 다운로드합니다.">↓ 엑셀 저장</button>
       <button class="btn" type="button" onclick="printConstructionExcelPreview()">▣ 인쇄</button>
@@ -3589,11 +3586,6 @@ function applyReportLockUI(locked){
       delete el.dataset.reportLockDisabled;
     }
   });
-
-  // 헤더로 이동한 저장 버튼도 기존 입력란과 동일하게 마감/작업없음/권한 잠금을 적용합니다.
-  const headerSave=$('headerReportSaveBtn');
-  if(headerSave)headerSave.disabled=currentReportLocked||!canEditActiveProject()||isNoWorkDay($('date')?.value);
-  urigongSyncHeaderSaveStatus();
 
   const preview=$('preview');
   if(preview)preview.contentEditable=currentReportLocked?'false':'true';
@@ -4998,67 +4990,16 @@ function renderDataPage(){
 }
 
 
-/* 2026-10-15: 상단 보고서 저장은 작성/엑셀/사진대지 모두 노출하되,
- * 화면별 기존 저장 절차와 마감·작업없음·읽기전용 보호를 그대로 적용합니다. */
-function urigongSyncHeaderSaveStatus(){
-  const btn=document.getElementById('headerReportSaveBtn');
-  if(!btn)return;
-  const excel=document.body.classList.contains('urigong-excel-page');
-  let locked;
-  let closed=false;
-  if(excel&&typeof photoContext==='function'&&typeof photoCanEdit==='function'){
-    const ctx=photoContext();
-    locked=!photoCanEdit(ctx);
-    closed=!!(ctx.date&&photoReportClosed(ctx));
-  }else{
-    locked=!!(currentReportLocked||!canEditActiveProject()||isNoWorkDay(document.getElementById('date')?.value));
-  }
-  document.body.classList.toggle('urigong-excel-closed',excel&&closed);
-  const busy=typeof urigongReportSaveBusy!=='undefined'&&urigongReportSaveBusy;
-  btn.disabled=!!(locked||busy);
-  btn.title=locked?'마감·작업없음 또는 읽기 전용 · 저장할 수 없습니다.':
-    excel?'공사일보·사진대지 공통 보고서 저장':'현재 작업일보 저장';
-}
-async function urigongHeaderReportSave(){
-  if(document.body.classList.contains('urigong-excel-page')){
-    return await saveExcelAndPhotoReport();
-  }
-  return await saveReport();
-}
-
-function urigongPlaceSharedDriveBar(page){
-  const bar=document.getElementById('driveQuickBar');
-  const excelMount=document.getElementById('excelQuickBarMount');
-  const workGrid=document.querySelector('#writePage > .grid');
-  if(!bar||!excelMount||!workGrid)return;
-  if(page==='excel'){
-    if(bar.parentNode!==excelMount)excelMount.appendChild(bar);
-  }else if(bar.parentNode!==workGrid.parentNode||bar.nextElementSibling!==workGrid){
-    workGrid.parentNode.insertBefore(bar,workGrid);
-  }
-  const jump=bar.querySelector('.header-action-buttons button');
-  if(jump){
-    const onExcel=page==='excel';
-    jump.textContent=onExcel?'✎ 작업보고 작성':'📥 공사일보 엑셀';
-    jump.setAttribute('onclick',onExcel?'goWritePage()':'openConstructionExcelPage()');
-    jump.title=onExcel?'작업일보 작성 화면으로 이동':'공사일보 엑셀 화면으로 이동';
-  }
-}
 function showPage(p,b){
   if(p==='master'&&!canEditProject(activeProjectName())&&!isMasterDevice()){p='search';b=null}
   autoSave();
   if(sessionStorage.getItem('activeProject'))sessionStorage.setItem('activeProjectPage',p);
-  // 같은 헤더 저장 버튼을 작업일보 작성과 공사일보 엑셀/사진대지에서 공유합니다.
-  document.body.classList.toggle('urigong-write-page',p==='write');
-  document.body.classList.toggle('urigong-excel-page',p==='excel');
   document.querySelectorAll('aside button').forEach(x=>x.classList.remove('active'));
   if(b)b.classList.add('active');
   ['write','excel','data','search','master'].forEach(x=>$(x+'Page').style.display=x===p?(x==='excel'?'flex':'block'):'none');
-  urigongPlaceSharedDriveBar(p);
   if(p==='data'){const workDate=$('date')?.value||getTodayLocalDate();const d=$('dataDate');if(d)d.value=workDate;if($('dataPeriod')?.value==='custom'){if($('dataFrom'))$('dataFrom').value=workDate;if($('dataTo'))$('dataTo').value=workDate;}renderDataPage();}
   if(p==='excel'){updateExcelPreviewNavDate();Promise.resolve().then(()=>refreshConstructionExcelPreview());}
   refreshProjectTree();
-  urigongSyncHeaderSaveStatus();
 
   // 검색 화면은 들어갈 때마다 reports 저장소를 다시 읽어 즉시 갱신
   // 작업화면에서 마감을 풀고 이동해도 예전 회색 버튼이 남지 않게 한다.
@@ -5601,31 +5542,70 @@ async function publicStoreReadChunked(status){
   }else if(status.encoding!=='base64url')throw new Error('서버 응답 압축 형식이 올바르지 않습니다.');
   return JSON.parse(new TextDecoder('utf-8').decode(decodedBytes));
 }
+
+// PC/모바일 공통 서버 진행 상태 표시. 서버 성공 응답을 받기 전에는 완료를 표시하지 않습니다.
+const urigongNetTasks=new Map();
+let urigongNetSeq=0,urigongNetClearTimer=null,urigongNetSlowTimer=null,urigongNetLastFailure="";
+function urigongNetSetText(nodeId,value){const el=document.getElementById(nodeId);if(el)el.textContent=value}
+function urigongNetPaint(){
+ const status=document.getElementById('urigongNetStatus'),overlay=document.getElementById('urigongNetOverlay');if(!status||!overlay)return;
+ const tasks=Array.from(urigongNetTasks.values());
+ if(!tasks.length){overlay.classList.remove('visible');return}
+ const focus=tasks.find(t=>t.foreground)||tasks[tasks.length-1];
+ status.dataset.kind='busy';status.classList.add('visible');
+ urigongNetSetText('urigongNetStatusText',focus.label);
+ const locked=tasks.some(t=>t.foreground);
+ overlay.classList.toggle('visible',locked);
+ if(locked)urigongNetSetText('urigongNetTitle',focus.foreground?focus.label:(tasks.find(t=>t.foreground)||focus).label);
+}
+function urigongNetBegin(label,foreground=false){
+ if(urigongNetClearTimer){clearTimeout(urigongNetClearTimer);urigongNetClearTimer=null}
+ const id='task-'+(++urigongNetSeq);urigongNetTasks.set(id,{label,foreground});urigongNetPaint();
+ if(!urigongNetSlowTimer)urigongNetSlowTimer=setTimeout(()=>{
+  urigongNetSlowTimer=null;if(!urigongNetTasks.size)return;
+  const t=Array.from(urigongNetTasks.values()).find(t=>t.foreground)||Array.from(urigongNetTasks.values())[0];
+  const msg=t.label+' · 서버 응답이 지연되고 있습니다. 잠시 기다려 주세요.';
+  urigongNetSetText('urigongNetStatusText',msg);
+  if(t.foreground)urigongNetSetText('urigongNetTitle','서버 응답을 기다리는 중…');
+ },12000);
+ return id;
+}
+function urigongNetFinish(id,ok=true,notice=''){
+ if(!id||!urigongNetTasks.has(id))return;
+ urigongNetTasks.delete(id);
+ if(urigongNetTasks.size){urigongNetPaint();return}
+ if(urigongNetSlowTimer){clearTimeout(urigongNetSlowTimer);urigongNetSlowTimer=null}
+ const status=document.getElementById('urigongNetStatus'),overlay=document.getElementById('urigongNetOverlay');
+ if(overlay)overlay.classList.remove('visible');
+ if(!status)return;
+ if(!ok)urigongNetLastFailure=notice.startsWith('사진')?'photo':'shared';
+ status.classList.add('visible');status.dataset.kind=ok?'done':'failed';
+ urigongNetSetText('urigongNetStatusText',notice||(ok?'최신 자료 확인 완료':'서버 연결에 실패했습니다. 자료를 확인해 주세요.'));
+ if(urigongNetClearTimer)clearTimeout(urigongNetClearTimer);
+ if(ok)urigongNetClearTimer=setTimeout(()=>{
+  if(!urigongNetTasks.size)status.classList.remove('visible');
+ },2200);
+}
+function urigongNetworkRetry(){
+ if(urigongNetTasks.size)return;
+ const status=document.getElementById('urigongNetStatus');if(status)status.classList.remove('visible');
+ if(urigongNetLastFailure==='photo'&&typeof loadPhotoSheet==='function')void loadPhotoSheet(true);
+ else if(typeof tokenValid==='function'&&tokenValid()&&typeof syncNow==='function')void syncNow('retry');
+ else if(typeof initDeviceGate==='function')void initDeviceGate();
+}
+
 let publicStorePostQueue=Promise.resolve();
-async function publicPost(action,payload={},timeoutMs=75000,options=null){
+async function publicPost(action,payload={},timeoutMs=75000){
   const run=async()=>{
     const requestId=makePublicRequestId();
     const body={action,requestId,acceptGzip:typeof DecompressionStream!=='undefined',...payload};
-    // 마감 patch에서만 POST 처리와 완료 조회를 병행합니다.
-    // 기존 요청 ID/서버 API, POST 1회 원칙 및 서버 성공 응답 확인은 유지합니다.
-    const earlyStatusPoll=action==='patch'&&options?.earlyStatusPoll===true;
-    let postFinished=false,postError=null;
-    const postTask=fetch(getPublicStoreUrl(),{method:'POST',mode:'no-cors',redirect:'follow',cache:'no-store',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)})
-      .then(()=>{postFinished=true},e=>{
-        postFinished=true;
-        postError=new Error('공용저장소 요청을 보내지 못했습니다. '+(e&&e.message?e.message:e));
-      });
-    if(earlyStatusPoll){
-      // Apps Script는 POST가 완료돼도 브라우저의 opaque fetch 응답이 늦을 수 있습니다.
-      // 짧은 유예 후 결과 조회를 시작해 불필요한 직렬 왕복 대기를 제거합니다.
-      await Promise.race([postTask,new Promise(r=>setTimeout(r,650))]);
-    }else await postTask;
-    if(postError)throw postError;
+    try{
+      await fetch(getPublicStoreUrl(),{method:'POST',mode:'no-cors',redirect:'follow',cache:'no-store',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
+    }catch(e){throw new Error('공용저장소 요청을 보내지 못했습니다. '+(e&&e.message?e.message:e))}
     const deadline=Date.now()+timeoutMs;
     let attempts=0,lastGetError=null;
     while(Date.now()<deadline){
-      if(postError)throw postError;
-      if(attempts>0)await new Promise(r=>setTimeout(r,earlyStatusPoll?Math.min(1700,850+attempts*180):Math.min(2200,600+attempts*200)));
+      if(attempts>0)await new Promise(r=>setTimeout(r,Math.min(2200,600+attempts*200)));
       attempts++;
       let status;
       try{status=await jsonpGetRetried('status',{requestId},2);lastGetError=null}
@@ -5636,16 +5616,12 @@ async function publicPost(action,payload={},timeoutMs=75000,options=null){
         break;
       }
       if(status.pending)continue;
-      // POST가 진행 중일 때 서버 status에 아직 요청 ID가 없을 수 있습니다.
-      // 이 상태를 저장 실패/성공으로 확정하지 않고 같은 ID만 다시 확인합니다.
-      if(earlyStatusPoll&&!postFinished&&!status.chunked&&status.ok!==true)continue;
       const response=status.chunked?await publicStoreReadChunked(status):status;
       if(response.ok===false)throw new Error(response.error||'공용저장소 요청 실패');
       // 모호한 빈 응답을 성공으로 판정하지 않습니다.
       if(response.ok!==true)throw new Error('공용저장소에서 정상적인 완료 응답을 받지 못했습니다. 저장 결과를 다시 확인해 주세요.');
       return response;
     }
-    if(postError)throw postError;
     throw new Error('공용저장소 응답 확인 실패. '+(lastGetError?.message||'서버 처리 결과를 확인할 수 없습니다.')+' 공용저장소 주소와 웹앱 배포 상태를 확인해 주세요.');
   };
   // 현장 접속권 조회/유지/강제종료는 대용량 보고서 동기화 큐를 기다리지 않습니다.
@@ -5892,6 +5868,8 @@ async function syncNow(reason='auto'){
   if(typeof siteAccessHasActive==='function'&&siteAccessHasActive()&&typeof siteAccessMode!=='undefined'&&!['edit','readonly'].includes(siteAccessMode))return;
   if(typeof reportCloseActionBusy!=='undefined'&&reportCloseActionBusy){if(getDriveMeta('driveLocalDirty')==='1')scheduleAutoSync();return}
   if(!tokenValid()||syncBusy)return;syncBusy=true;
+  const progressId=urigongNetBegin(['poll','visible','auto'].includes(reason)?'서버 최신 자료 동기화 중…':'서버에서 최신 자료 불러오는 중…',['startup','registered','admin-login','master-setup','connect','retry','site-ready'].includes(reason));
+  let progressFailed=false;
   const slowNotice=setTimeout(()=>{
     if(syncBusy&&!reportCloseActionBusy)setDriveStatus('공용저장소 응답 지연 · 동기화 진행 중 (기존 자료 보존)');
   },10000);
@@ -5932,13 +5910,14 @@ async function syncNow(reason='auto'){
       const hasUnsyncedItem=Object.keys(sharedItemExportDrafts({},currentProjectForAuth())[SHARED_ITEM_NAMESPACE]||{}).some(k=>!(k in shared));
       setDriveStatus(hasUnsyncedItem?'공용저장소 연결됨 · PC Item 기존 자료 공유는 「공용저장소 저장」 필요':'공용저장소 연결됨 · 최신 상태');
     }
-  }catch(e){console.error(e);setDriveStatus('동기화 실패: '+e.message);if(/등록되지|인증이 만료|취소|조회권한/.test(e.message||'')){if(/등록되지|인증이 만료|취소/.test(e.message||'')){clearDeviceCredential();showDeviceGate('기기 사용권한이 만료되었거나 취소되었습니다. 다시 등록해 주세요.')}}}finally{clearTimeout(slowNotice);syncBusy=false;
+  }catch(e){progressFailed=true;console.error(e);setDriveStatus('동기화 실패: '+e.message);if(/등록되지|인증이 만료|취소|조회권한/.test(e.message||'')){if(/등록되지|인증이 만료|취소/.test(e.message||'')){clearDeviceCredential();showDeviceGate('기기 사용권한이 만료되었거나 취소되었습니다. 다시 등록해 주세요.')}}}finally{clearTimeout(slowNotice);syncBusy=false;
+  urigongNetFinish(progressId,!progressFailed,progressFailed?'서버 자료 확인 실패 · 연결을 확인하고 다시 시도하세요.':'최신 자료 확인 완료');
   // 네트워크 요청 중 발생한 추가 변경은 다음 동기화로 다시 보냅니다.
   if(getDriveMeta('driveLocalDirty')==='1'&&tokenValid()&&canEditActiveProject()&&reason!=='auto')scheduleAutoSync();
 }
 }
-async function saveToDrive(silent=false){if(!canEditActiveProject())return alert('읽기 전용 기기에서는 공용저장소에 저장할 수 없습니다.');if(!requireDrive())return;setDriveMeta('driveLocalDirty','1');try{await pushLocal(null,silent)}catch(e){console.error(e);setDriveStatus(e.message);if(!silent)alert('공용저장소 저장 실패\n'+e.message)}}
-async function loadFromDrive(){if(!canEditActiveProject())return alert('읽기 전용 기기는 자동으로 최신 자료를 조회합니다.');if(!requireDrive())return;try{const remote=await fetchRemote();if(!remote.file)return alert('아직 공용저장소에 저장된 작업일보 데이터가 없습니다.');if(!confirm('공용저장소의 자료로 이 기기의 작업일보 데이터를 갱신할까요?\n현재 로컬 자료는 공용저장소 자료로 바뀝니다.'))return;applyRemoteData(remote.data,remote.stamp);alert('공용저장소 자료를 불러왔습니다.');location.reload()}catch(e){setDriveStatus(e.message);alert('공용저장소 불러오기 실패\n'+e.message)}}
+async function saveToDrive(silent=false){if(!canEditActiveProject())return alert('읽기 전용 기기에서는 공용저장소에 저장할 수 없습니다.');if(!requireDrive())return;setDriveMeta('driveLocalDirty','1');const task=urigongNetBegin('서버에 변경사항 저장 중…',!silent);let ok=false;try{await pushLocal(null,silent);ok=true}catch(e){console.error(e);setDriveStatus(e.message);if(!silent)alert('공용저장소 저장 실패\n'+e.message)}finally{urigongNetFinish(task,ok,ok?'공용저장소 저장 완료':'서버 저장 확인 실패 · 다시 확인해 주세요.')}}
+async function loadFromDrive(){if(!canEditActiveProject())return alert('읽기 전용 기기는 자동으로 최신 자료를 조회합니다.');if(!requireDrive())return;const task=urigongNetBegin('공용저장소 자료를 불러오는 중…',true);let ok=false;try{const remote=await fetchRemote();ok=true;if(!remote.file)return alert('아직 공용저장소에 저장된 작업일보 데이터가 없습니다.');if(!confirm('공용저장소의 자료로 이 기기의 작업일보 데이터를 갱신할까요?\n현재 로컬 자료는 공용저장소 자료로 바뀝니다.'))return;applyRemoteData(remote.data,remote.stamp);alert('공용저장소 자료를 불러왔습니다.');location.reload()}catch(e){setDriveStatus(e.message);alert('공용저장소 불러오기 실패\n'+e.message)}finally{urigongNetFinish(task,ok,ok?'공용저장소 조회 완료':'공용저장소 불러오기 실패 · 다시 확인해 주세요.')}}
 function restoreDriveClientId(){syncPublicStoreSettingsUI();setDriveStatus(tokenValid()?'등록기기 인증 확인 중...':'기기등록 필요')}
 setTimeout(restoreDriveClientId,0);
 
@@ -5978,9 +5957,6 @@ function applyDevicePermissions(){
   const readonly=registered&&((!master&&activePerm!=='manage')||(typeof siteAccessHasActive==='function'&&siteAccessHasActive()&&siteAccessMode!=='edit'));
   const mode=master?'master':(readonly?'readonly':(activePerm==='manage'?'siteadmin':'guest'));
   document.body.classList.toggle('read-only-user',readonly);
-  const headerSave=document.getElementById('headerReportSaveBtn');
-  if(headerSave)headerSave.disabled=readonly||!canEditActiveProject()||(typeof currentReportLocked!=='undefined'&&currentReportLocked)||isNoWorkDay(document.getElementById('date')?.value);
-  urigongSyncHeaderSaveStatus();
   const badge=$('readOnlyBadge');
   if(badge){const active=currentProjectForAuth(),perm=projectPermission(active);badge.classList.toggle('visible',!master&&registered);badge.textContent=perm==='manage'?'관리전용':'읽기 전용'}
   applyProjectAccessUI();updateAdminSecurityButtons();
@@ -6570,7 +6546,7 @@ async function toggleReportClosed(date,site,trade,type='weekly',no=0){
     };
     const sendPatch=async(base,report)=>publicPost('patch',authPayload({
       baseRevision:base,changes:{reports:{put:{[key]:updatedReport(report)},remove:[]}}
-    }),90000,{earlyStatusPoll:true});
+    }),90000);
     setDriveStatus(wantedClosed?'공용저장소에 마감 반영 중...':'공용저장소에 마감해제 반영 중...');
     let saved;
     try{
@@ -8645,7 +8621,6 @@ function updateNoWorkUI(){
  const slack=$('slackPreview');if(slack&&active)slack.textContent='작업없음';
  const status=$('linkedCloseStatus');if(status&&active)status.textContent='작업없음';
  const excelStatus=$('excelPreviewStatus');if(excelStatus&&active)excelStatus.textContent='작업없음';
- if(typeof updateExcelReportStateLabel==='function')updateExcelReportStateLabel();
 }
 // 데이터가 저장된 날짜를 실수로 '작업없음' 처리하는 것을 방지합니다.
 // 날짜별 작업없음은 현장 전체에 적용되므로 현재 공종뿐 아니라 모든 보고서를 확인합니다.
@@ -8984,33 +8959,10 @@ function photoReportClosed(ctx){
  return weeklyClosed||(same&&isCurrentStoredReportClosed());
 }
 function photoCanEdit(ctx){return canEditActiveProject()&&!isNoWorkDay(ctx.date)&&!photoReportClosed(ctx)}
-/* 공사일보 엑셀·사진대지는 선택일의 주간보고서 상태를 문구로 안내합니다.
- * 기존 권한/마감/사진 저장 검증은 photoCanEdit(), photoReportClosed() 그대로 유지합니다. */
-function updateExcelReportStateLabel(ctx){
- const label=document.getElementById('excelWeeklyCloseGuidance');
- if(!label)return;
- ctx=ctx||photoContext();
- const noWork=!!(ctx.date&&isNoWorkDay(ctx.date));
- const weeklyClosed=!!(ctx.date&&isStoredReportClosed(ctx.date,ctx.site,ctx.trade,'weekly',0));
- const otherModeClosed=!weeklyClosed&&!!(ctx.date&&photoReportClosed(ctx));
- const readonly=!canEditActiveProject();
- label.classList.toggle('is-no-work',noWork);
- label.classList.toggle('is-locked',!noWork&&(weeklyClosed||otherModeClosed));
- label.classList.toggle('is-readonly',!noWork&&!weeklyClosed&&!otherModeClosed&&readonly);
- if(noWork)label.textContent='해당 날짜가 작업없음 처리되어 수정할 수 없습니다.';
- else if(weeklyClosed)label.textContent='주간일보가 마감되어 수정할 수 없습니다.';
- else if(otherModeClosed){
-   const modeName=currentWorkType==='lunch'?'중식OT':currentWorkType==='overtime'?'연장':'현재 보고서';
-   label.textContent=modeName+' 보고서가 마감되어 수정할 수 없습니다.';
- }else if(readonly)label.textContent='읽기 전용 권한으로 수정할 수 없습니다.';
- else label.textContent='주간일보 수정 가능';
-}
 function photoApplyLockUI(){
  const ctx=photoContext(),editable=photoCanEdit(ctx);
- updateExcelReportStateLabel(ctx);
  const save=document.getElementById('excelSharedReportSaveBtn');
  if(save){save.disabled=!editable;save.title=editable?'공사일보·사진대지 공통 보고서 저장':'마감 또는 읽기 전용 · 저장 불가';}
- urigongSyncHeaderSaveStatus();
  if(constructionExcelSheetIndex!==1)return;
  const editor=document.getElementById('excelPhotoEditor');
  if(!editor||editor.hidden)return;
@@ -9402,18 +9354,20 @@ async function loadPhotoSheet(force=false){
  if(cached){photoOverlayDrafts(ctx,cached);photoPaintSlots(cached);photoStatus(ctx.date+' 사진 '+cached.filter(Boolean).length+'장 · 저장된 미리보기 즉시 표시');}
  else photoStatus('사진 전용 서버에서 '+ctx.date+' 사진 불러오는 중…');
  if(!force&&cached&&Date.now()-(photoMemoryFetchedAt.get(key)||0)<PHOTO_CACHE_TTL){photoFolderAccessError='';photoStagedStatus();return;}
+ const photoProgress=urigongNetBegin('사진 서버에서 '+ctx.date+' 사진 불러오는 중…',!cached);let photoOk=false;
  try{
   const photos=await photoGetDay(ctx,force);
   if(photoPendingSheetKey!==key||constructionExcelSheetIndex!==1)return;
   photoOverlayDrafts(ctx,photos);photoPaintSlots(photos);photoFolderAccessError='';photoExcelDirty=true;
   if(photoStaged.size)photoStagedStatus();
   else photoStatus(ctx.date+' 사진 '+photos.filter(Boolean).length+'장 · 전용 서버에서 불러옴 · 최신 5개 사진 작업일 유지');
+  photoOk=true;
  }catch(e){
   if(photoPendingSheetKey!==key)return;
   photoFolderAccessError=e.message;
   if(!cached)photoPaintSlots(null);
   photoStatus('사진 조회 실패 · 기존 화면 유지: '+e.message);
- }
+ }finally{urigongNetFinish(photoProgress,photoOk,photoOk?'사진 서버 자료 반영 완료':'사진 불러오기 실패 · 다시 확인해 주세요.')}
 }
 function photoDrawSlots(sheet,colLeft,rowTop){
  const ctx=photoContext();
@@ -9908,6 +9862,7 @@ async function urigongSaveReportWorkflow(silent=false){
  if(urigongReportSaveBusy){alert('보고서 저장이 이미 진행 중입니다.');return false;}
  if(!canEditActiveProject()||isNoWorkDay($('date')?.value)||!requireReportEditable())return false;
  urigongReportSaveBusy=true;
+ const reportProgress=urigongNetBegin('보고서 저장 중… 사진·입력값 확인',true);let reportSaveOk=false;
  const allButtons=Array.from(document.querySelectorAll('button[onclick="saveReport()"],#excelSharedReportSaveBtn'));
  allButtons.forEach(b=>b.disabled=true);
  try{
@@ -9941,14 +9896,14 @@ async function urigongSaveReportWorkflow(silent=false){
   const uploaded=await photoFlushStaged();
   const saved=saveReportWorkData(true);
   if(saved!==true)throw Error('보고서 입력값 저장을 완료하지 못했습니다.');
-  urigongResetBaseline();
+  urigongResetBaseline();reportSaveOk=true;
   if(!silent)alert('보고서 저장 완료'+(uploaded?' · 사진 '+uploaded+'장 서버 반영':'')+(tokenValid()?'\n일반 보고서 공용저장소 자동 동기화 중':'\n현재 기기에 저장됨'));
   return true;
  }catch(e){
   photoStatus('미저장 항목이 남아 있습니다 · 보고서 저장 실패: '+e.message);
   alert('보고서 저장을 완료하지 못했습니다.\n'+e.message+'\n이 화면에서 다시 저장해 주세요.');
   return false;
- }finally{urigongReportSaveBusy=false;allButtons.forEach(b=>b.disabled=false);urigongSyncHeaderSaveStatus();}
+ }finally{urigongReportSaveBusy=false;allButtons.forEach(b=>b.disabled=false);urigongNetFinish(reportProgress,reportSaveOk,reportSaveOk?(tokenValid()?'기기에 저장됨 · 공용저장소 동기화는 별도 확인 중':'현재 기기에 저장 완료'):'보고서 저장 실패 · 입력값을 확인해 주세요.');}
 }
 async function saveReport(){return await urigongSaveReportWorkflow(false)}
 function urigongDiscardUnsaved(){
@@ -10079,9 +10034,12 @@ function siteAccessFastRelease(project=siteAccessProject){
 }
 async function siteAccessEnter(project){
  if(!tokenValid())throw new Error('등록기기 인증 및 공용저장소 연결이 필요합니다.');
- const r=await publicPost('siteLockEnter',authPayload({project,siteSessionId:siteAccessSessionId,sitePageId:siteAccessPageId}),19000);
- if(!r||!['edit','readonly','blocked'].includes(r.mode))throw new Error('접속권 확인 응답이 올바르지 않습니다. 공용저장소 Code.gs를 업데이트했는지 확인해 주세요.');
- return r;
+ const task=urigongNetBegin(project+' · 현장 접속권 확인 중…',true);let success=false;
+ try{
+  const r=await publicPost('siteLockEnter',authPayload({project,siteSessionId:siteAccessSessionId,sitePageId:siteAccessPageId}),19000);
+  if(!r||!['edit','readonly','blocked'].includes(r.mode))throw new Error('접속권 확인 응답이 올바르지 않습니다. 공용저장소 Code.gs를 업데이트했는지 확인해 주세요.');
+  success=true;return r;
+ }finally{urigongNetFinish(task,success,success?'현장 접속권 확인 완료':'현장 접속 확인 실패 · 다시 시도해 주세요.')}
 }
 function siteAccessOwnerMessage(owner){return `[${owner||'다른 사용자'}]가 작업중입니다. 작업종료를 요청해주세요.`}
 function siteAccessCanRequest(project){return getDeviceRole()==='site_admin'&&projectPermission(project)==='manage'}
@@ -10208,94 +10166,9 @@ window.addEventListener('DOMContentLoaded',async()=>{
    // 수동 새로고침에서 동일 안내를 재표시하지 않습니다.
    siteAccessProject=project;siteAccessMode=r.mode;siteAccessOwner=r.owner||'';
    siteAccessRender();siteAccessStartPulse();
+   // 접속권 확인 전 조기 종료된 초기 동기화가 최신 자료를 놓치지 않도록 재조회합니다.
+   if(typeof syncNow==='function'&&!syncBusy)void syncNow('site-ready');
  }catch(e){siteAccessMode='blocked';siteAccessRender();await siteShowDialog('현장 접속 실패','공용저장소에 연결할 수 없습니다.\n'+e.message+'\n기존 데이터를 보호하기 위해 현장 진입을 중단했습니다.');siteOriginalGoSiteHome();siteAccessRender()}
 });
-</script>
-<script id="urigong-responsive-flow-20261016">
-/* 화면 높이와 가로 공간에 맞춰 1~6번 카드의 위치만 재배치합니다.
-   업무 값은 읽거나 기록하지 않고 실제 입력 노드를 그대로 이동합니다. */
-(function(){
-  function start(){
-    const grid=document.querySelector('#writePage>.grid');
-    if(!grid)return;
-    const columns=[grid.querySelector('.left-col'),grid.querySelector('.middle-col'),grid.querySelector('.extra-col')];
-    const selectors=['.basic-info-card','#companies','#areas','#tomorrowAreas','#equipments','#managers'];
-    const cards=selectors.map(s=>{const el=document.querySelector(s);return el?.closest('.card')});
-    if(columns.some(x=>!x)||cards.some(x=>!x))return;
-    const GAP=8;
-    let mode='', partition='', queued=false, moving=false;
-    let timer=0;
-    function heightOf(el){
-      const rect=el.getBoundingClientRect(),css=getComputedStyle(el);
-      return rect.height + (parseFloat(css.marginBottom)||0)+(parseFloat(css.marginTop)||0);
-    }
-    function heightSum(heights,a,b){return heights.slice(a,b).reduce((x,y)=>x+y,0)+(b-a-1)*GAP}
-    function bestCut(h){
-      let answer=[2,4],best=Infinity;
-      for(let i=1;i<=4;i++)for(let j=i+1;j<=5;j++){
-        const z=[heightSum(h,0,i),heightSum(h,i,j),heightSum(h,j,6)];
-        const worst=Math.max(...z);
-        const variance=z.reduce((a,n)=>a+Math.pow(n-z.reduce((x,y)=>x+y,0)/3,2),0);
-        const score=worst+variance*0.00002+Math.abs(i-2)*3+Math.abs(j-4)*3;
-        if(score<best){best=score;answer=[i,j]}
-      }
-      return answer;
-    }
-    function move(cuts){
-      let moved=false;
-      const focus=document.activeElement;
-      let sel=null;
-      try{if(focus&&('selectionStart'in focus))sel=[focus.selectionStart,focus.selectionEnd]}catch(e){}
-      const dest=cards.map((_,i)=>cuts.length===1?(i<cuts[0]?0:1):(i<cuts[0]?0:i<cuts[1]?1:2));
-      for(let k=0;k<3;k++){
-        const wanted=cards.filter((_,i)=>dest[i]===k);
-        const actual=Array.from(columns[k].children).filter(el=>cards.includes(el));
-        if(actual.length===wanted.length&&actual.every((el,i)=>el===wanted[i]))continue;
-        for(const el of wanted)columns[k].appendChild(el);
-        moved=true;
-      }
-      if(moved&&focus&&document.contains(focus)&&focus!==document.activeElement){
-        try{focus.focus({preventScroll:true});if(sel)focus.setSelectionRange(...sel)}catch(e){}
-      }
-    }
-    function run(){
-      queued=false;
-      if(moving)return;
-      moving=true;
-      try{
-        const w=grid.getBoundingClientRect().width;
-        const mobile=window.innerWidth<=850,canThree=!mobile&&window.innerWidth>=1560&&w>=1260;
-        const main=grid.closest('main');
-        const areaTop=grid.getBoundingClientRect().top+(main?.scrollTop||0);
-        const avail=Math.max(250,window.innerHeight-areaTop-14);
-        const h=cards.map(heightOf);
-        const stack=heightSum(h,0,4);
-        let three=canThree&&(mode==='three'?stack>avail-50:stack>avail+8);
-        // 너비가 부족하면 우측 배치 대신 기존 스크롤을 허용합니다.
-        if(!canThree)three=false;
-        const cuts=three?bestCut(h):[4];
-        const key=cuts.join(',');
-        if(key!==partition||mode!==(three?'three':'two')){
-          move(cuts);grid.classList.toggle('work-flow-three',three);
-          partition=key;mode=three?'three':'two';
-        }
-      }finally{moving=false}
-    }
-    function schedule(){if(queued)return;queued=true;window.requestAnimationFrame(run)}
-    window.addEventListener('resize',schedule,{passive:true});
-    if(typeof ResizeObserver==='function'){
-      const ro=new ResizeObserver(schedule);
-      cards.forEach(c=>ro.observe(c));
-      ro.observe(grid);
-    }
-    // 표 행 추가·삭제 및 보고서 날짜 교체 후 재평가.
-    const mo=new MutationObserver(schedule);
-    cards.forEach(c=>mo.observe(c,{childList:true,subtree:true}));
-    document.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(schedule,180)},true);
-    document.addEventListener('change',schedule,true);
-    schedule();
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
-})();
 </script>
 </body></html>
