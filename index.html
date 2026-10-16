@@ -1853,15 +1853,11 @@ body.report-is-closed #writePage textarea:disabled{
   margin-top:2.5px!important;
 }
 
-#writePage .daily-work-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:start;width:100%;min-width:0}
-#writePage .daily-work-columns>.card{min-width:0;margin:0!important}
-#writePage .daily-work-columns .title{gap:4px;flex-wrap:wrap}
-#writePage .daily-work-columns .title .btn{white-space:normal}
-#writePage .daily-work-columns .area{min-width:0}
-#writePage .daily-work-columns .area input,#writePage .daily-work-columns .area select{min-width:0}
-@media(max-width:850px){
-  #writePage .daily-work-columns{grid-template-columns:1fr;gap:6px}
-}
+#writePage .work-flow-item{min-width:0}
+#writePage .work-today-card .title,#writePage .tomorrow-work-card .title{gap:4px;flex-wrap:wrap}
+#writePage .work-today-card .title .btn,#writePage .tomorrow-work-card .title .btn{white-space:normal}
+#writePage .work-today-card .area,#writePage .tomorrow-work-card .area{min-width:0}
+#writePage .work-today-card .area input,#writePage .work-today-card .area select,#writePage .tomorrow-work-card .area input,#writePage .tomorrow-work-card .area select{min-width:0}
 
 @media(min-width:1351px){
  #writePage>.grid:not(.preview-collapsed){grid-template-columns:minmax(220px,var(--work-preview-width,28%)) minmax(260px,var(--work-left-width,32%)) minmax(260px,1fr)!important;}
@@ -2497,184 +2493,68 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
   border-color:#eab780!important;
 }
 </style>
-<style id="urigong-equipment-manager-row-20261016">
-/* 장비와 담당자를 기존 6번 담당자 자리에서 한 줄로 배치. 내부 양식은 기존 그대로 유지. */
-#writePage .equipment-managers-row {
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:8px;
-  align-items:start;
-  width:100%;
-  min-width:0;
-}
-#writePage .equipment-managers-row > .card {min-width:0; margin:0;}
-#writePage .equipment-managers-row > .card:first-child {overflow-x:auto;}
-/* PC의 좁은 폭에서도 담당자 입력칸을 억지로 압축하지 않고 가로 스크롤 사용. */
-@media(max-width:850px) {
-  #writePage .equipment-managers-row {grid-template-columns:minmax(0,1fr);gap:8px;}
-}
-</style>
-<style id="urigong-clean-grid-and-manager-20261016">
-/* 3·4번과 5·6번의 세로 구분선을 똑같이 맞춥니다.
-   카드 높이를 고정하지 않아 추가된 행 수에 따라 각 카드가 자연스럽게 자랍니다. */
-@media (min-width:851px) {
-  #writePage .daily-work-columns,
-  #writePage .equipment-managers-row {
-    display:grid!important;
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    column-gap:8px!important;
-    align-items:start!important;
-    width:100%!important;
-    min-width:0!important;
-  }
-  #writePage .equipment-managers-row {margin-top:8px!important;}
-  #writePage .equipment-managers-row > .card {
-    min-width:0!important;
-    height:auto!important;
-    margin:0!important;
-  }
-  #writePage .equipment-managers-row > .card:first-child {overflow:hidden!important;}
-
-  /* 담당자 SNS·공사일보·이름·직책·전화번호·관리 6열을 스크롤 없이 표 안에 표시.
-     이름과 직책을 줄이고, 전화번호에는 남은 공간을 줍니다. */
-  #writePage .equipment-managers-row .manager-scroll {
-    width:100%!important;
-    min-width:0!important;
-    overflow-x:hidden!important;
-    overflow-y:visible!important;
-    padding-bottom:0!important;
-  }
-  #writePage .equipment-managers-row .manager-table {
-    width:100%!important;
-    min-width:0!important;
-    max-width:100%!important;
-    table-layout:fixed!important;
-    border-collapse:collapse!important;
-  }
-  #writePage .equipment-managers-row .manager-table .manager-visibility-col {width:48px!important;}
-  #writePage .equipment-managers-row .manager-table .manager-attendance-col {width:43px!important;}
-  #writePage .equipment-managers-row .manager-table .manager-name-col {width:19%!important;}
-  #writePage .equipment-managers-row .manager-table .manager-role-col {width:19%!important;}
-  #writePage .equipment-managers-row .manager-table .manager-phone-col {width:auto!important;}
-  #writePage .equipment-managers-row .manager-table .manager-action-col {width:48px!important;}
-  #writePage .equipment-managers-row .manager-table th {
-    padding:5px 1px!important;
-    font-size:11px!important;
-    letter-spacing:-.25px!important;
-    white-space:nowrap!important;
-    overflow:hidden!important;
-    text-overflow:clip!important;
-  }
-  #writePage .equipment-managers-row .manager-table td {
-    padding:3px 2px!important;
-    min-width:0!important;
-    width:auto!important;
-    box-sizing:border-box!important;
-    overflow:hidden!important;
-    white-space:nowrap!important;
-  }
-  #writePage .equipment-managers-row #managers td:nth-child(1),
-  #writePage .equipment-managers-row #managers td:nth-child(2),
-  #writePage .equipment-managers-row #managers td:nth-child(5),
-  #writePage .equipment-managers-row #managers td:nth-child(6) {
-    min-width:0!important;
-    width:auto!important;
-  }
-  #writePage .equipment-managers-row #managers td:nth-child(1) .manager-visibility-btn {
-    width:100%!important;
-    min-width:0!important;
-    font-size:11px!important;
-    padding:4px 0!important;
-  }
-  #writePage .equipment-managers-row #managers td:nth-child(2) input[type=checkbox] {
-    display:inline-block!important;
-    width:16px!important;
-    height:16px!important;
-    min-width:16px!important;
-    max-width:16px!important;
-    margin:0!important;
-    padding:0!important;
-  }
-  #writePage .equipment-managers-row #managers td:nth-child(3) input,
-  #writePage .equipment-managers-row #managers td:nth-child(4) input,
-  #writePage .equipment-managers-row #managers td:nth-child(5) input {
-    width:100%!important;
-    min-width:0!important;
-    max-width:100%!important;
-    height:28px!important;
-    box-sizing:border-box!important;
-    padding:3px 3px!important;
-    font-size:13px!important;
-  }
-  #writePage .equipment-managers-row #managers td:nth-child(6) .btn {
-    width:100%!important;
-    min-width:0!important;
-    max-width:100%!important;
-    font-size:11px!important;
-    padding:4px 0!important;
-  }
-  /* 장비/담당자에서 추가되는 각 행의 기본 줄 높이를 일정하게. 카드 총높이는 자유. */
-  #writePage .equipment-managers-row #equipments tr,
-  #writePage .equipment-managers-row #managers tr {height:35px;}
-  #writePage .equipment-managers-row #equipments td {padding:3px 3px!important;}
-  #writePage .equipment-managers-row #equipments td input:not([type=checkbox]) {height:28px!important;}
-}
-/* 세 칸(미리보기/기본정보/작업영역)에서 작업영역이 지나치게 좁은 해상도라면
-   작업영역만 다음 줄의 전체 폭으로 옮겨 입력칸을 찌그러뜨리지 않습니다. */
-@media (min-width:851px) and (max-width:1740px) {
-  #writePage > .grid:not(.preview-collapsed) {
-    grid-template-columns:minmax(220px,32%) minmax(0,1fr)!important;
-    gap:8px!important;
-  }
-  #writePage > .grid:not(.preview-collapsed) > .desktop-preview {
-    grid-column:1!important;
-    grid-row:1!important;
-    min-width:0!important;
-  }
-  #writePage > .grid:not(.preview-collapsed) > .left-col {
-    grid-column:2!important;
-    grid-row:1!important;
-    min-width:0!important;
-  }
-  #writePage > .grid:not(.preview-collapsed) > .middle-col {
-    grid-column:1 / -1!important;
-    grid-row:2!important;
-    min-width:0!important;
-  }
-}
-@media (min-width:1741px) {
-  #writePage > .grid:not(.preview-collapsed) {
-    grid-template-columns:minmax(275px,var(--work-preview-width,20%)) minmax(345px,var(--work-left-width,24%)) minmax(0,1fr)!important;
-  }
+<style id="urigong-workflow-table-20261016">
+/* 5·6번은 독립적으로 높이가 늘어납니다. 표는 카드 안에서 줄바꿈 없이 표시합니다. */
+@media(min-width:851px){
+  #writePage .work-manager-card .manager-scroll{width:100%!important;min-width:0!important;overflow-x:hidden!important;overflow-y:visible!important;padding-bottom:0!important}
+  #writePage .work-manager-card .manager-table{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important}
+  #writePage .work-manager-card .manager-visibility-col{width:48px!important}
+  #writePage .work-manager-card .manager-attendance-col{width:43px!important}
+  #writePage .work-manager-card .manager-name-col{width:19%!important}
+  #writePage .work-manager-card .manager-role-col{width:19%!important}
+  #writePage .work-manager-card .manager-phone-col{width:auto!important}
+  #writePage .work-manager-card .manager-action-col{width:48px!important}
+  #writePage .work-manager-card .manager-table th{padding:5px 1px!important;font-size:12px!important;letter-spacing:-.25px!important;white-space:nowrap!important;overflow:hidden!important}
+  #writePage .work-manager-card .manager-table td{padding:3px 2px!important;min-width:0!important;width:auto!important;box-sizing:border-box!important;overflow:hidden!important;white-space:nowrap!important}
+  #writePage .work-manager-card #managers td:nth-child(1),#writePage .work-manager-card #managers td:nth-child(2),#writePage .work-manager-card #managers td:nth-child(5),#writePage .work-manager-card #managers td:nth-child(6){min-width:0!important;width:auto!important}
+  #writePage .work-manager-card .manager-visibility-btn{width:100%!important;min-width:0!important;font-size:12px!important;padding:4px 0!important}
+  #writePage .work-manager-card #managers td:nth-child(2) input[type=checkbox]{display:inline-block!important;width:16px!important;height:16px!important;min-width:16px!important;max-width:16px!important;margin:0!important;padding:0!important}
+  #writePage .work-manager-card #managers td:nth-child(3) input,#writePage .work-manager-card #managers td:nth-child(4) input,#writePage .work-manager-card #managers td:nth-child(5) input{width:100%!important;min-width:0!important;max-width:100%!important;height:28px!important;box-sizing:border-box!important;padding:3px!important;font-size:13px!important}
+  #writePage .work-manager-card #managers td:nth-child(6) .btn{width:100%!important;min-width:0!important;max-width:100%!important;font-size:12px!important;padding:4px 0!important}
+  #writePage #equipments tr,#writePage #managers tr{height:35px}
+  #writePage #equipments td{padding:3px!important}
+  #writePage #equipments td input:not([type=checkbox]){height:28px!important}
+  #writePage .work-equipment-card > table{width:100%!important;table-layout:fixed!important}
+  #writePage .work-equipment-card > table th:nth-child(1),#writePage #equipments td:nth-child(1){width:42%!important}
+  #writePage .work-equipment-card > table th:nth-child(2),#writePage #equipments td:nth-child(2){width:17%!important}
+  #writePage .work-equipment-card > table th:nth-child(4),#writePage #equipments td:nth-child(4){width:62px!important}
+  #writePage #equipments td:nth-child(3){min-width:0!important}
+  #writePage #equipments td:nth-child(4) .btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;white-space:nowrap!important;word-break:keep-all!important;overflow-wrap:normal!important;width:100%!important;min-width:0!important;height:28px!important;padding:3px 2px!important}
 }
 </style>
-<style id="urigong-equip-delete-inline-20261016">
-/* PC 5번 장비: 비고 폭을 조금 줄여 삭제 버튼을 한 줄로 표시합니다.
-   행 높이는 6번 담당자와 같은 기본 35px을 유지하고, 카드 총높이는 고정하지 않습니다. */
-@media (min-width:851px) {
-  #writePage .equipment-managers-row .card:first-child > table {
-    width:100%!important;
-    table-layout:fixed!important;
-  }
-  #writePage .equipment-managers-row .card:first-child > table th:nth-child(1),
-  #writePage .equipment-managers-row #equipments td:nth-child(1) {width:42%!important;}
-  #writePage .equipment-managers-row .card:first-child > table th:nth-child(2),
-  #writePage .equipment-managers-row #equipments td:nth-child(2) {width:17%!important;}
-  #writePage .equipment-managers-row .card:first-child > table th:nth-child(4),
-  #writePage .equipment-managers-row #equipments td:nth-child(4) {width:62px!important;}
-  #writePage .equipment-managers-row #equipments td:nth-child(3) {min-width:0!important;}
-  #writePage .equipment-managers-row #equipments td:nth-child(4) .btn {
-    display:inline-flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    white-space:nowrap!important;
-    word-break:keep-all!important;
-    overflow-wrap:normal!important;
-    width:100%!important;
-    min-width:0!important;
-    height:28px!important;
-    padding:3px 2px!important;
-  }
+<style id="urigong-height-aware-flow-20261016">
+/* PC: 넉넉한 높이는 1~4 / 5~6, 부족할 때 세 입력 열에 차례로 채웁니다. */
+@media(min-width:851px){
+  #writePage>.grid>.input-col{min-width:0!important;align-self:start!important;display:block!important}
+  #writePage>.grid>.extra-col{display:none!important}
+  #writePage>.grid>.input-col>.card{height:auto!important;min-width:0!important}
+}
+@media(min-width:1560px){
+  #writePage>.grid,#writePage>.grid:not(.preview-collapsed){display:grid!important;grid-template-columns:minmax(245px,var(--work-preview-width,24%)) minmax(355px,var(--work-left-width,35%)) minmax(430px,1fr)!important;gap:8px!important;align-items:start!important}
+  #writePage>.grid.preview-collapsed{grid-template-columns:42px minmax(355px,1fr) minmax(430px,1fr)!important}
+  #writePage>.grid>.desktop-preview{grid-column:1!important;grid-row:1!important}
+  #writePage>.grid>.left-col{grid-column:2!important;grid-row:1!important}
+  #writePage>.grid>.middle-col{grid-column:3!important;grid-row:1!important}
+  #writePage>.grid.work-flow-three,#writePage>.grid.work-flow-three:not(.preview-collapsed){grid-template-columns:minmax(235px,var(--work-preview-width,19%)) minmax(315px,1fr) minmax(315px,1fr) minmax(410px,1.15fr)!important}
+  #writePage>.grid.work-flow-three.preview-collapsed{grid-template-columns:42px minmax(315px,1fr) minmax(315px,1fr) minmax(410px,1.15fr)!important}
+  #writePage>.grid.work-flow-three>.extra-col{grid-column:4!important;grid-row:1!important;display:block!important}
+  #writePage>.grid.work-flow-three .work-column-resizer[data-work-edge="second"]{display:none!important}
+  /* 좁아진 3열에서는 기본 정보 필드를 두 열로 나누고 날짜·시간은 온전히 표시 */
+  #writePage>.grid.work-flow-three .basic-info-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #writePage>.grid.work-flow-three .basic-date,#writePage>.grid.work-flow-three .basic-time{grid-column:1/-1!important;min-width:0!important}
+  #writePage>.grid.work-flow-three .basic-bpa{grid-column:1/-1!important;min-width:0!important}
+  #writePage>.grid.work-flow-three #companies .company-head{flex-wrap:wrap!important}
+  #writePage>.grid.work-flow-three #companies .company-head-actions{margin-left:auto!important}
+}
+@media(min-width:851px) and (max-width:1559px){
+  #writePage>.grid,#writePage>.grid:not(.preview-collapsed){display:grid!important;grid-template-columns:minmax(220px,31%) minmax(0,1fr)!important;gap:8px!important;align-items:start!important}
+  #writePage>.grid.preview-collapsed{grid-template-columns:42px minmax(0,1fr)!important}
+  #writePage>.grid>.desktop-preview{grid-column:1!important;grid-row:1 / span 2!important}
+  #writePage>.grid>.left-col{grid-column:2!important;grid-row:1!important}
+  #writePage>.grid>.middle-col{grid-column:2!important;grid-row:2!important}
+}
+@media(max-width:850px){
+  #writePage>.grid>.extra-col{display:none!important}
 }
 </style>
 </head>
@@ -2891,13 +2771,13 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
 </div></div>
 <div class="card"><div class="title"><span><span class="n">2</span>업체 입력 (공종별 인원)</span><span class="total-inline">총 투입인원 <span class="total" id="grandTotal">0명</span></span><button class="btn primary" onclick="addCompany()">+ 업체 입력</button></div><div id="companies"></div></div>
 
-</div><div class="input-col middle-col"><div class="daily-work-columns"><div class="card"><div class="title"><span><span class="n">3</span>금일 작업 내용</span><button class="btn primary" onclick="addArea()">+ 구역 추가</button></div><div id="areas"></div></div>
-<div class="card tomorrow-work-card"><div class="title"><span><span class="n">4</span>명일 작업 내용</span><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button class="btn" type="button" onclick="copyTodayToTomorrow()">금일작업내용 복사하기</button><button class="btn primary" onclick="addTomorrowArea()">+ 구역 추가</button></span></div><div id="tomorrowAreas"></div></div>
-</div>
-<div class="equipment-managers-row"><div class="card"><div class="title"><span><span class="n">5</span>장비</span><button class="btn primary" onclick="addEquipment()">+ 장비 추가</button></div><table><thead><tr><th>장비명</th><th>수량(대)</th><th>비고</th><th>삭제</th></tr></thead><tbody id="equipments"></tbody></table></div>
-<div class="card"><div class="title"><span><span class="n">6</span>담당자</span><button class="btn primary" onclick="addManager()">+ 담당자 추가</button></div><div class="manager-scroll"><table class="manager-table"><colgroup><col class="manager-visibility-col"><col class="manager-attendance-col"><col class="manager-name-col"><col class="manager-role-col"><col class="manager-phone-col"><col class="manager-action-col"></colgroup><thead><tr><th class="manager-sns-heading">SNS</th><th>공사일보</th><th>이름</th><th>직책</th><th>전화번호</th><th>관리</th></tr></thead><tbody id="managers"></tbody></table></div></div>
-</div>
-</div>
+<div class="card work-flow-item work-today-card"><div class="title"><span><span class="n">3</span>금일 작업 내용</span><button class="btn primary" onclick="addArea()">+ 구역 추가</button></div><div id="areas"></div></div>
+<div class="card tomorrow-work-card work-flow-item"><div class="title"><span><span class="n">4</span>명일 작업 내용</span><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button class="btn" type="button" onclick="copyTodayToTomorrow()">금일작업내용 복사하기</button><button class="btn primary" onclick="addTomorrowArea()">+ 구역 추가</button></span></div><div id="tomorrowAreas"></div></div>
+
+</div><div class="input-col middle-col"><div class="card work-flow-item work-equipment-card"><div class="title"><span><span class="n">5</span>장비</span><button class="btn primary" onclick="addEquipment()">+ 장비 추가</button></div><table><thead><tr><th>장비명</th><th>수량(대)</th><th>비고</th><th>삭제</th></tr></thead><tbody id="equipments"></tbody></table></div>
+<div class="card work-flow-item work-manager-card"><div class="title"><span><span class="n">6</span>담당자</span><button class="btn primary" onclick="addManager()">+ 담당자 추가</button></div><div class="manager-scroll"><table class="manager-table"><colgroup><col class="manager-visibility-col"><col class="manager-attendance-col"><col class="manager-name-col"><col class="manager-role-col"><col class="manager-phone-col"><col class="manager-action-col"></colgroup><thead><tr><th class="manager-sns-heading">SNS</th><th>공사일보</th><th>이름</th><th>직책</th><th>전화번호</th><th>관리</th></tr></thead><tbody id="managers"></tbody></table></div></div>
+
+</div><div class="input-col extra-col"></div>
 <div class="desktop-preview"><div class="card"><div class="title preview-title-row"><span class="preview-title-text">미리보기</span><span class="preview-tabs" role="tablist" aria-label="미리보기 형식"><button type="button" class="preview-tab" id="slackTab" role="tab" aria-selected="false" onclick="selectPreviewTab('slack')">Slack</button><button type="button" class="preview-tab active" id="reportTab" role="tab" aria-selected="true" onclick="selectPreviewTab('weekly')">주간</button><button type="button" class="preview-tab" id="lunchTab" role="tab" aria-selected="false" onclick="selectPreviewTab('lunch')">중식OT</button><button type="button" class="preview-tab" id="overtimeTab" role="tab" aria-selected="false" onclick="selectPreviewTab('overtime')">연장</button></span><button class="btn preview-copy-btn" onclick="copyPreview()">복사하기</button><button class="btn preview-toggle" type="button" title="미리보기 접기/펼치기" onclick="togglePreview()">◀</button></span></div><div id="preview" class="preview" contenteditable="true"></div><div id="slackFields" class="slack-extra-fields" style="display:none"><label>주요위험요소 <input id="slackRiskInput" type="text" oninput="saveSlackFields()" placeholder="주요위험요소"></label><label>특이사항 <input id="slackSpecialInput" type="text" oninput="saveSlackFields()" placeholder="특이사항"></label></div><div id="slackPreview" class="preview" role="tabpanel" contenteditable="true" style="display:none"></div></div></div></div></section>
 <section id="excelPage" class="search-panel" aria-label="공사일보 엑셀 미리보기">
   <div class="excel-view-header card">
@@ -10309,5 +10189,92 @@ window.addEventListener('DOMContentLoaded',async()=>{
    siteAccessRender();siteAccessStartPulse();
  }catch(e){siteAccessMode='blocked';siteAccessRender();await siteShowDialog('현장 접속 실패','공용저장소에 연결할 수 없습니다.\n'+e.message+'\n기존 데이터를 보호하기 위해 현장 진입을 중단했습니다.');siteOriginalGoSiteHome();siteAccessRender()}
 });
+</script>
+<script id="urigong-responsive-flow-20261016">
+/* 화면 높이와 가로 공간에 맞춰 1~6번 카드의 위치만 재배치합니다.
+   업무 값은 읽거나 기록하지 않고 실제 입력 노드를 그대로 이동합니다. */
+(function(){
+  function start(){
+    const grid=document.querySelector('#writePage>.grid');
+    if(!grid)return;
+    const columns=[grid.querySelector('.left-col'),grid.querySelector('.middle-col'),grid.querySelector('.extra-col')];
+    const selectors=['.basic-info-card','#companies','#areas','#tomorrowAreas','#equipments','#managers'];
+    const cards=selectors.map(s=>{const el=document.querySelector(s);return el?.closest('.card')});
+    if(columns.some(x=>!x)||cards.some(x=>!x))return;
+    const GAP=8;
+    let mode='', partition='', queued=false, moving=false;
+    let timer=0;
+    function heightOf(el){
+      const rect=el.getBoundingClientRect(),css=getComputedStyle(el);
+      return rect.height + (parseFloat(css.marginBottom)||0)+(parseFloat(css.marginTop)||0);
+    }
+    function heightSum(heights,a,b){return heights.slice(a,b).reduce((x,y)=>x+y,0)+(b-a-1)*GAP}
+    function bestCut(h){
+      let answer=[2,4],best=Infinity;
+      for(let i=1;i<=4;i++)for(let j=i+1;j<=5;j++){
+        const z=[heightSum(h,0,i),heightSum(h,i,j),heightSum(h,j,6)];
+        const worst=Math.max(...z);
+        const variance=z.reduce((a,n)=>a+Math.pow(n-z.reduce((x,y)=>x+y,0)/3,2),0);
+        const score=worst+variance*0.00002+Math.abs(i-2)*3+Math.abs(j-4)*3;
+        if(score<best){best=score;answer=[i,j]}
+      }
+      return answer;
+    }
+    function move(cuts){
+      let moved=false;
+      const focus=document.activeElement;
+      let sel=null;
+      try{if(focus&&('selectionStart'in focus))sel=[focus.selectionStart,focus.selectionEnd]}catch(e){}
+      const dest=cards.map((_,i)=>cuts.length===1?(i<cuts[0]?0:1):(i<cuts[0]?0:i<cuts[1]?1:2));
+      for(let k=0;k<3;k++){
+        const wanted=cards.filter((_,i)=>dest[i]===k);
+        const actual=Array.from(columns[k].children).filter(el=>cards.includes(el));
+        if(actual.length===wanted.length&&actual.every((el,i)=>el===wanted[i]))continue;
+        for(const el of wanted)columns[k].appendChild(el);
+        moved=true;
+      }
+      if(moved&&focus&&document.contains(focus)&&focus!==document.activeElement){
+        try{focus.focus({preventScroll:true});if(sel)focus.setSelectionRange(...sel)}catch(e){}
+      }
+    }
+    function run(){
+      queued=false;
+      if(moving)return;
+      moving=true;
+      try{
+        const w=grid.getBoundingClientRect().width;
+        const mobile=window.innerWidth<=850,canThree=!mobile&&window.innerWidth>=1560&&w>=1260;
+        const main=grid.closest('main');
+        const areaTop=grid.getBoundingClientRect().top+(main?.scrollTop||0);
+        const avail=Math.max(250,window.innerHeight-areaTop-14);
+        const h=cards.map(heightOf);
+        const stack=heightSum(h,0,4);
+        let three=canThree&&(mode==='three'?stack>avail-50:stack>avail+8);
+        // 너비가 부족하면 우측 배치 대신 기존 스크롤을 허용합니다.
+        if(!canThree)three=false;
+        const cuts=three?bestCut(h):[4];
+        const key=cuts.join(',');
+        if(key!==partition||mode!==(three?'three':'two')){
+          move(cuts);grid.classList.toggle('work-flow-three',three);
+          partition=key;mode=three?'three':'two';
+        }
+      }finally{moving=false}
+    }
+    function schedule(){if(queued)return;queued=true;window.requestAnimationFrame(run)}
+    window.addEventListener('resize',schedule,{passive:true});
+    if(typeof ResizeObserver==='function'){
+      const ro=new ResizeObserver(schedule);
+      cards.forEach(c=>ro.observe(c));
+      ro.observe(grid);
+    }
+    // 표 행 추가·삭제 및 보고서 날짜 교체 후 재평가.
+    const mo=new MutationObserver(schedule);
+    cards.forEach(c=>mo.observe(c,{childList:true,subtree:true}));
+    document.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(schedule,180)},true);
+    document.addEventListener('change',schedule,true);
+    schedule();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
 </script>
 </body></html>
