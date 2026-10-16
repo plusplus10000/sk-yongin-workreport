@@ -37,7 +37,6 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
   .area-head input{height:28px;padding:5px}
   .subtask{margin:4px 0;gap:4px;align-items:center}
   .subtask input{height:28px;padding:5px}
-  .desktop-preview{position:sticky;top:0;height:calc(100vh - 60px)}
   .desktop-preview .card{height:100%;display:flex;flex-direction:column;margin:0}
   .preview{min-height:0;flex:1;overflow:auto;line-height:1.48;font-size:12px;padding:10px}
   #writePage>.grid>.input-col{min-width:0;padding-bottom:4px}
@@ -59,7 +58,6 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
 
 @media(min-width:851px){
   .manager-scroll{overflow-x:hidden!important;padding-bottom:0!important}
-  .manager-table{width:100%!important;min-width:0!important;table-layout:fixed!important}
   .manager-table .manager-name-col{width:28%!important}
   .manager-table .manager-role-col{width:28%!important}
   .manager-table .manager-phone-col{width:29%!important}
@@ -100,32 +98,29 @@ header{font-size:14px;padding:0 10px}.app{display:block;max-width:100%;overflow-
   #equipments th:nth-child(1){width:38%!important}
   #equipments th:nth-child(2){width:42%!important}
   #equipments th:nth-child(4){width:20%!important}
-  #equipments td:nth-child(1) input{width:100%!important;min-width:90px!important}
-  #equipments td:nth-child(2){white-space:nowrap!important;overflow:visible!important}
+  #equipments td:nth-child(1) input{min-width:90px!important}
+  #equipments td:nth-child(2){white-space:nowrap!important}
   #equipments .counter{display:inline-flex!important;width:auto!important;gap:3px!important}
   #equipments .counter button{display:inline-block!important;width:27px!important;height:30px!important;flex:0 0 27px!important}
   #equipments .counter input[type=number]{width:48px!important;min-width:48px!important;max-width:48px!important;height:30px!important;flex:0 0 48px!important}
-  #equipments td:nth-child(4) .btn{padding:6px 7px!important;font-size:11px!important}
+  #equipments td:nth-child(4) .btn{padding:6px 7px!important}
 }
 
 @media(max-width:850px){
   #equipments{display:block!important;width:100%!important}
   #equipments tr{display:grid!important;grid-template-columns:minmax(90px,1fr) 116px 48px!important;gap:6px!important;align-items:center!important;width:100%!important}
-  #equipments td{display:block!important;width:auto!important;min-width:0!important;padding:5px 2px!important;border:0!important}
-  #equipments td:nth-child(3){display:none!important}
+  #equipments td{display:block!important;width:auto!important;padding:5px 2px!important;border:0!important}
   #equipments td:nth-child(1) input{width:100%!important;min-width:0!important;max-width:none!important;height:32px!important}
-  #equipments td:nth-child(2){width:116px!important;min-width:116px!important;overflow:visible!important}
-  #equipments .counter{display:grid!important;grid-template-columns:28px 52px 28px!important;gap:4px!important;width:116px!important;align-items:center!important}
-  #equipments .counter button{display:block!important;width:28px!important;min-width:28px!important;max-width:28px!important;height:32px!important;padding:0!important}
-  #equipments .counter input[type=number]{display:block!important;width:52px!important;min-width:52px!important;max-width:52px!important;height:32px!important;padding:3px 2px!important;text-align:center!important}
+  #equipments td:nth-child(2){width:116px!important;min-width:116px!important}
+  #equipments .counter{grid-template-columns:28px 52px 28px!important;gap:4px!important;width:116px!important}
+  #equipments .counter button{width:28px!important;min-width:28px!important;max-width:28px!important;height:32px!important}
+  #equipments .counter input[type=number]{width:52px!important;min-width:52px!important;max-width:52px!important;height:32px!important;padding:3px 2px!important}
   #equipments td:nth-child(4){width:48px!important;min-width:48px!important;text-align:right!important}
-  #equipments td:nth-child(4) .btn{width:46px!important;min-width:46px!important;padding:6px 3px!important;font-size:11px!important}
+  #equipments td:nth-child(4) .btn{width:46px!important;min-width:46px!important;padding:6px 3px!important}
   #equipments{border-collapse:separate!important;border-spacing:0 4px!important}
   #equipments tr{border:1px solid #d8e3ef!important;border-radius:7px!important;padding:3px!important;background:#fff!important}
   #equipments + datalist{display:none}
-  #equipments::before{content:"장비명        수량(대)       삭제";display:block!important;white-space:pre!important;font-weight:700!important;font-size:11px!important;text-align:left!important;padding:5px 7px!important;background:#eef4fa!important;border:1px solid #d8e3ef!important;border-radius:5px!important;margin-bottom:3px!important}
-  #equipments{ } 
-  #equipments.parent{} 
+  #equipments::before{content:"장비명        수량(대)       삭제";display:block!important;white-space:pre!important;font-weight:700!important;font-size:11px!important;text-align:left!important;padding:5px 7px!important;background:#eef4fa!important;border:1px solid #d8e3ef!important;border-radius:5px!important;margin-bottom:3px!important} 
   table:has(#equipments) thead{display:none!important}
 }
 
@@ -211,7 +206,6 @@ body.locked>#siteHome{pointer-events:none}
   .basic-date,.basic-time{grid-column:1/-1}
   .basic-bpa{grid-column:1/2}
   .time-pair{grid-template-columns:repeat(2,minmax(0,1fr))}
-  #start,#end{min-width:0!important}
 }
 @media(max-width:480px){
   .basic-info-grid{grid-template-columns:1fr}
@@ -222,7 +216,6 @@ body.locked>#siteHome{pointer-events:none}
 @media(min-width:851px){
   .basic-info-grid{
     grid-template-columns:minmax(90px,1fr) minmax(90px,1fr) minmax(170px,1.35fr)!important;
-    gap:7px!important;
     align-items:end!important;
   }
   .basic-site,.basic-trade,.basic-date{grid-column:auto!important}
@@ -395,43 +388,22 @@ body.locked>#siteHome{pointer-events:none}
   .area-layout{
     display:block!important;
   }
-  .area-meta{
-    display:grid!important;
-    grid-template-columns:minmax(90px,.85fr) minmax(150px,1.45fr) 46px!important;
-    gap:5px!important;
-    align-items:center!important;
-  }
   .area-name-input{
-    grid-column:1!important;
-    grid-row:1!important;
     width:100%!important;
     min-width:0!important;
   }
   .area-location-input{
-    grid-column:2!important;
-    grid-row:1!important;
     width:100%!important;
     min-width:0!important;
   }
   .area-delete-btn{
-    grid-column:3!important;
-    grid-row:1!important;
     align-self:center!important;
     width:46px!important;
     min-width:46px!important;
   }
   .area-tasks{
-    display:block!important;
     margin-top:7px!important;
     padding-top:0!important;
-  }
-  .area-tasks::before{
-    content:"하부 작업";
-    display:block;
-    font-size:11px;
-    font-weight:700;
-    color:#60758a;
-    margin:0 0 4px 0;
   }
   .area-tasks .subtask{
     display:grid!important;
@@ -521,107 +493,54 @@ body.locked>#siteHome{pointer-events:none}
     box-sizing:border-box!important;
   }
   #areas .area .area-layout{
-    display:grid!important;
     grid-template-columns:minmax(150px,40%) minmax(0,60%)!important;
     column-gap:10px!important;
     row-gap:0!important;
-    align-items:start!important;
-    width:100%!important;
   }
   #areas .area .area-meta{
-    grid-column:1!important;
     grid-row:1!important;
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) auto!important;
-    grid-template-rows:auto auto!important;
     gap:5px!important;
-    min-width:0!important;
-    width:100%!important;
   }
   #areas .area .area-name-input{
-    grid-column:1!important;
-    grid-row:1!important;
     display:block!important;
-    width:100%!important;
-    min-width:0!important;
     box-sizing:border-box!important;
   }
   #areas .area .area-location-input{
-    grid-column:1!important;
-    grid-row:2!important;
     display:block!important;
-    width:100%!important;
-    min-width:0!important;
     box-sizing:border-box!important;
   }
-  #areas .area .area-delete-btn{
-    grid-column:2!important;
-    grid-row:1 / span 2!important;
-    align-self:stretch!important;
-  }
   #areas .area .area-tasks{
-    grid-column:2!important;
     grid-row:1!important;
-    display:block!important;
-    visibility:visible!important;
-    opacity:1!important;
-    min-width:0!important;
-    width:100%!important;
-    margin:0!important;
-    padding:0!important;
   }
-  #areas .area .area-tasks::before{content:none!important;display:none!important}
   #areas .area .area-tasks .subtask{
-    display:grid!important;
     visibility:visible!important;
     grid-template-columns:22px minmax(0,1fr) auto auto!important;
     gap:5px!important;
-    align-items:center!important;
-    width:100%!important;
     margin:0 0 5px!important;
   }
   #areas .area .area-tasks .subtask input{
-    display:block!important;
-    visibility:visible!important;
-    width:100%!important;
-    min-width:0!important;
     box-sizing:border-box!important;
   }
 }
 
 @media (min-width:851px){
   #areas .area .area-layout{
-    display:grid!important;
     grid-template-columns:clamp(125px,16vw,210px) minmax(0,1fr)!important;
-    gap:8px!important;
-    align-items:start!important;
-    width:100%!important;
   }
   #areas .area .area-meta{
-    grid-column:1!important;
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) auto!important;
-    grid-template-rows:auto auto!important;
-    gap:4px!important;
     width:100%!important;
     min-width:0!important;
   }
-  #areas .area .area-name-input{
-    grid-column:1!important;grid-row:1!important;width:100%!important;min-width:0!important;
+  #areas .area .area-name-input{min-width:0!important;
   }
-  #areas .area .area-location-input{
-    grid-column:1!important;grid-row:2!important;width:100%!important;min-width:0!important;
+  #areas .area .area-location-input{min-width:0!important;
   }
-  #areas .area .area-delete-btn{
-    grid-column:2!important;grid-row:1 / span 2!important;align-self:stretch!important;
+  #areas .area .area-delete-btn{align-self:stretch!important;
   }
   #areas .area .area-tasks{
-    grid-column:2!important;
     display:block!important;
     visibility:visible!important;
     opacity:1!important;
-    width:100%!important;
-    min-width:0!important;
     margin:0!important;
     padding:0!important;
   }
@@ -638,12 +557,8 @@ body.locked>#siteHome{pointer-events:none}
     display:block!important;visibility:visible!important;width:100%!important;min-width:0!important;
   }
 }
-
-.card .title:has(#grandTotal){justify-content:flex-start!important}
 .card .title:has(#grandTotal) .total-inline{
   margin-left:7px!important;
-  margin-right:0!important;
-  flex:0 0 auto!important;
 }
 
 .header-action-buttons button[onclick="saveReport()"],
@@ -766,31 +681,21 @@ body.locked>#siteHome{pointer-events:none}
   width:100%!important;
 }
 #areas .area .area-meta{
-  display:grid!important;
   grid-template-columns:minmax(90px,.85fr) minmax(150px,1.45fr) auto!important;
-  grid-template-rows:auto!important;
-  gap:5px!important;
-  align-items:center!important;
   width:100%!important;
 }
 #areas .area .area-name-input{
-  grid-column:1!important;
-  grid-row:1!important;
   width:100%!important;
   min-width:0!important;
 }
 #areas .area .area-location-input{
-  grid-column:2!important;
-  grid-row:1!important;
   width:100%!important;
   min-width:0!important;
 }
 #areas .area .area-delete-btn{
   grid-column:3!important;
-  grid-row:1!important;
   align-self:center!important;
   width:auto!important;
-  min-width:38px!important;
 }
 #areas .area .area-tasks{
   display:block!important;
@@ -819,23 +724,14 @@ body.locked>#siteHome{pointer-events:none}
 }
 
 .basic-date .date-nav{
-  display:grid!important;
   grid-template-columns:auto minmax(132px,1fr) auto!important;
-  gap:4px!important;
-  align-items:center!important;
-  width:100%!important;
   min-width:205px!important;
 }
 .basic-date .date-nav #date{
-  width:100%!important;
-  min-width:132px!important;
-  box-sizing:border-box!important;
-  font-size:12px!important;
   padding-left:8px!important;
   padding-right:5px!important;
 }
 @media(max-width:850px){
-  .basic-date{min-width:0!important}
   .basic-date .date-nav{
     grid-template-columns:32px minmax(132px,1fr) 32px!important;
     min-width:204px!important;
@@ -871,11 +767,10 @@ body.locked>#siteHome{pointer-events:none}
   color:#6b7280!important;
 }
 
-.basic-date .date-with-query{display:grid!important;grid-template-columns:minmax(200px,1fr) auto!important;gap:5px!important;align-items:center!important;width:100%!important;min-width:250px!important}
-.basic-date .date-nav{display:grid!important;grid-template-columns:28px minmax(132px,1fr) 28px!important;gap:4px!important;align-items:center!important;width:100%!important;min-width:200px!important}
-.basic-date .date-nav #date{width:100%!important;min-width:132px!important;box-sizing:border-box!important}
-.basic-date .date-nav-btn{width:28px!important;min-width:28px!important;padding:2px!important}
-.basic-date .date-query-btn{position:static!important;min-width:38px!important;white-space:nowrap!important;margin:0!important}
+.basic-date .date-with-query{grid-template-columns:minmax(200px,1fr) auto!important;gap:5px!important;min-width:250px!important}
+.basic-date .date-nav{grid-template-columns:28px minmax(132px,1fr) 28px!important;min-width:200px!important}
+.basic-date .date-nav #date{min-width:132px!important}
+.basic-date .date-nav-btn{padding:2px!important}
 @media(max-width:850px){.basic-date .date-nav{grid-template-columns:30px minmax(132px,1fr) 30px!important}}
 
 #areas .area.area-empty{background:#eef0f2!important;border-color:#c9ced4!important}
@@ -890,16 +785,13 @@ body.locked>#siteHome{pointer-events:none}
   .basic-date{min-width:245px!important;overflow:visible!important}
 }
 .basic-date .date-with-query{
-  display:grid!important;
   grid-template-columns:minmax(0,1fr) 38px!important;
   column-gap:5px!important;
   align-items:center!important;
-  width:100%!important;
   min-width:0!important;
   overflow:visible!important;
 }
 .basic-date .date-nav{
-  display:grid!important;
   grid-template-columns:28px minmax(118px,1fr) 28px!important;
   gap:4px!important;
   align-items:center!important;
@@ -934,8 +826,6 @@ body.locked>#siteHome{pointer-events:none}
   position:static!important;
   align-items:center!important;
   justify-content:center!important;
-  width:38px!important;
-  min-width:38px!important;
   height:27px!important;
   padding:0 4px!important;
   margin:0!important;
@@ -1114,25 +1004,18 @@ body.locked>#siteHome{pointer-events:none}
 }
 
 @media(max-width:850px){
-  #equipments{display:table-row-group!important}
   #equipments tr,
   #equipments tr:hover{display:table-row!important}
 
   /* 비고는 모바일에서만 숨김 */
   #equipments td:nth-child(3),
   #equipments~* td:nth-child(3){display:none!important}
-  table:has(#equipments) thead th:nth-child(3){display:none!important}
 
   table:has(#equipments){
-    width:100%!important;
-    table-layout:fixed!important;
     border-collapse:separate!important;
     border-spacing:0 5px!important;
   }
-  table:has(#equipments) thead{display:table-header-group!important}
-  table:has(#equipments) thead tr{display:table-row!important}
-  table:has(#equipments) thead th{display:table-cell!important;box-sizing:border-box!important}
-  table:has(#equipments) thead th:nth-child(3){display:none!important}
+  table:has(#equipments) thead th{box-sizing:border-box!important}
 
   table:has(#equipments) thead th:nth-child(1),
   #equipments td:nth-child(1){width:46%!important}
@@ -1145,25 +1028,19 @@ body.locked>#siteHome{pointer-events:none}
   table:has(#equipments) thead th:nth-child(2),
   table:has(#equipments) thead th:nth-child(4){text-align:center!important}
 
-  #equipments td{box-sizing:border-box!important;vertical-align:middle!important}
-  #equipments td:nth-child(2){text-align:center!important}
-  #equipments td:nth-child(4){text-align:center!important}
+  #equipments td{box-sizing:border-box!important}
   #equipments .counter{
-    width:100%!important;
-    display:grid!important;
     grid-template-columns:40px minmax(44px,1fr) 40px!important;
     gap:5px!important;
-    align-items:center!important;
   }
   #equipments .counter button,
   #equipments .counter input{width:100%!important;min-width:0!important;box-sizing:border-box!important}
-  #equipments td:nth-child(4) .btn{width:100%!important;min-width:0!important;padding-left:4px!important;padding-right:4px!important}
+  #equipments td:nth-child(4) .btn{padding-left:4px!important;padding-right:4px!important}
 }
 
 .equip-mobile-select{display:none}
 @media(max-width:850px){
-  #equipments .equip-name-input{display:none!important}
-  #equipments .equip-mobile-select{display:block!important;width:100%!important;min-width:0!important;height:38px!important;padding:6px 24px 6px 7px!important;border:1px solid #cbd9e8!important;border-radius:7px!important;background:#fff!important;color:#13233a!important;font-size:14px!important}
+  #equipments .equip-mobile-select{height:38px!important;padding:6px 24px 6px 7px!important;border:1px solid #cbd9e8!important;border-radius:7px!important;background:#fff!important;color:#13233a!important;font-size:14px!important}
 }
 
 @media(max-width:850px){
@@ -1338,7 +1215,7 @@ body.site-home-mode>header,body.site-home-mode>.app,body.site-home-mode>#mobileO
 }
 
 .project-accent{display:inline-block;margin-left:6px;color:#f28b16;font-weight:900;font-size:calc(1em + 2px);letter-spacing:-.2px}
-.project-tree-node.current>.project-tree-head .nav-label{color:#ff9b1f!important;font-size:16px!important;font-weight:900!important}
+.project-tree-node.current>.project-tree-head .nav-label{color:#ff9b1f!important;font-size:16px!important}
 .project-tree-node.current>.project-tree-head .tree-caret{color:#ffb357!important}
 
 #projectAccent.project-accent{
@@ -1516,7 +1393,7 @@ body.report-is-closed #writePage textarea:disabled{
 #tomorrowAreas .area .area-tasks .subtask input{width:100%!important;min-width:0!important}
 @media(max-width:600px){#tomorrowAreas .area .area-meta{grid-template-columns:minmax(80px,.85fr) minmax(100px,1.2fr) auto!important}#tomorrowAreas .area .area-note-input{grid-column:1 / span 2!important;grid-row:2!important}#tomorrowAreas .area .area-delete-btn{grid-column:3!important;grid-row:1!important}}
 
-#excelPage{width:100%;min-width:0}
+#excelPage{min-width:0}
 .excel-view-header{margin-bottom:0!important;border-radius:10px 10px 0 0!important}
 .excel-preview-date{font-size:13px;color:#35618b;font-weight:700;margin-left:auto}
 .excel-preview-toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:8px 0 12px}
@@ -1538,9 +1415,8 @@ body.report-is-closed #writePage textarea:disabled{
  body{background:#fff!important}
  body>header,body>#siteHome,body>#mobileOverlay,body>#mobileDrawer,.mobile-quickbar,.app>aside,#writePage,#searchPage,#masterPage,#dataPage,.excel-view-header,.excel-help{display:none!important}
  .app,.app main{display:block!important;width:100%!important;height:auto!important;overflow:visible!important;margin:0!important;padding:0!important}
- #excelPage{display:block!important}
  .excel-preview-shell{padding:0!important;border:0!important;max-height:none!important;min-height:0!important;overflow:visible!important;background:#fff!important}
- .excel-sheet-preview{display:block!important;box-shadow:none!important;padding:0!important;margin:0!important;width:100%!important}
+ .excel-sheet-preview{display:block!important;box-shadow:none!important;width:100%!important}
  .excel-real-sheet{zoom:0.7;break-inside:avoid}
  #excelSheetPreview[data-sheet="2"] .excel-real-sheet{zoom:0.55}
  .excel-real-sheet td{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
@@ -1580,7 +1456,7 @@ body.report-is-closed #writePage textarea:disabled{
 #excelPage #excelPreviewStatus{max-width:230px;font-size:10px;color:#718096;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
 #excelPage .excel-sheet-tabs{grid-column:1/-1;gap:3px;border-bottom:1px solid #9fb2c7;margin-top:4px}
 #excelPage .excel-sheet-tab{font-size:11px;padding:5px 13px;border-radius:5px 5px 0 0}
-#excelPage .excel-preview-shell{flex:1 1 0!important;min-height:0!important;height:auto!important;max-height:none!important;overflow:auto!important;background:#fff!important;padding:6px 8px!important;border:1px solid #d8e1eb!important;border-top:0!important;overscroll-behavior:contain}
+#excelPage .excel-preview-shell{flex:1 1 0!important;min-height:0!important;height:auto!important;max-height:none!important;overflow:auto!important;padding:6px 8px!important;border:1px solid #d8e1eb!important;border-top:0!important;overscroll-behavior:contain}
 #excelPage .excel-sheet-preview{margin:0 auto!important;padding:3px!important;box-shadow:none!important;background:#fff!important;min-width:0}
 #excelPage .excel-fixed-sheet{background:#fff!important}
 #excelPage .excel-fixed-grid{display:none!important}
@@ -1644,13 +1520,13 @@ body.report-is-closed #writePage textarea:disabled{
 #dataPage .data-overview-table td:first-child{text-align:left}
 #dataPage .data-overview-table tbody tr:nth-child(even){background:#f9fcff}
 #dataPage .data-overview-table tbody tr.data-total{background:#e8f2fe;font-weight:800}
-#dataPage .data-empty-info{font-size:12px;color:#63748b;padding:12px 0 0;line-height:1.6}
+#dataPage .data-empty-info{padding:12px 0 0;line-height:1.6}
 @media(max-width:850px){#dataPage .data-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}#dataPage .data-overview-head,#dataPage .data-table-card{padding:12px!important}#dataPage .data-kpi{padding:10px}#dataPage .data-tabs button{font-size:12px;padding:9px 10px}#dataPage .data-table-scroll{width:100%;overflow:auto}}
 
 #dataPage .data-tabs{display:none!important}
 #dataPage .data-table-card{display:none!important}
 #dataPage .data-dashboard{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:0 0 12px;width:100%}
-#dataPage .data-board-card{background:#fff;border:1px solid #d8e3ef;border-radius:10px;overflow:hidden;min-width:0}
+#dataPage .data-board-card{background:#fff;border:1px solid #d8e3ef;border-radius:10px;min-width:0}
 #dataPage .data-board-card.span-all{grid-column:1/-1}
 #dataPage .data-card-title{padding:9px 12px;border-bottom:1px solid #dbe6ef;font-size:14px;font-weight:800;color:#17365d;background:#f8fbff}
 #dataPage .data-board-card .data-table-scroll{overflow:auto;max-height:320px}
@@ -1757,7 +1633,7 @@ body.report-is-closed #writePage textarea:disabled{
  #dataPage .data-period-label{font-size:11px}
  #dataPage #dataPeriod{max-width:132px;flex:0 1 108px;min-width:78px;font-size:12px}
  #dataPage .data-tabs{gap:1px!important}
- #dataPage .data-tabs button{font-size:clamp(9px,2.35vw,11px)!important;padding:9px 0!important;letter-spacing:-.45px}
+ #dataPage .data-tabs button{padding:9px 0!important;letter-spacing:-.45px}
 }
 @media(max-width:380px){
  #dataPage .data-period-label{display:none}
@@ -2046,7 +1922,7 @@ body.report-is-closed #writePage textarea:disabled{
 #excelPage .excel-photo-caption[contenteditable="true"]:focus{outline:2px solid #3687e8!important;background:#fffdea!important;z-index:7!important}
 
 #appMemoDialog{position:fixed;inset:0;z-index:9999;background:#091d3560;display:flex;align-items:flex-start;justify-content:center;padding:7vh 12px}
-#appMemoPanel{width:min(560px,96vw);background:#fff;border:1px solid #cbd9e8;border-radius:10px;padding:13px;box-shadow:0 14px 45px #0003;color:#18324a}
+#appMemoPanel{background:#fff;border:1px solid #cbd9e8;border-radius:10px;box-shadow:0 14px 45px #0003;color:#18324a}
 #appMemoPanel header{position:static;box-shadow:none!important;display:flex;justify-content:space-between;align-items:center;height:auto;min-height:0;padding:0;background:none;color:#18324a}
 #appMemoBody{box-sizing:border-box;width:100%;min-height:230px;max-height:65vh;resize:vertical;padding:10px;font-size:14px;line-height:1.6;margin-top:10px;border:1px solid #becbda;border-radius:5px}
 .memo-small-btn{padding:4px 8px!important;font-size:11px!important;white-space:nowrap!important}
@@ -2118,11 +1994,8 @@ window.addEventListener('focus',function(){
 <style>
 
 #writePage .basic-info-card>.title.basic-info-headingbar{
-  display:grid!important;
-  grid-template-columns:minmax(0,1fr) auto!important;
   grid-template-areas:"heading copy" "modes modes" "status status"!important;
   gap:6px 10px!important;
-  align-items:center!important;
   padding-bottom:8px!important;
 }
 #writePage .basic-info-headingbar>.basic-title-name{grid-area:heading;min-width:0;white-space:nowrap}
@@ -2198,10 +2071,8 @@ window.addEventListener('focus',function(){
   justify-content:center!important;
   gap:0!important;
   flex:0 0 auto!important;
-  font-size:12px!important;
   line-height:1.1!important;
   white-space:nowrap!important;
-  font-weight:800!important;
   border-radius:6px!important;
 }
 #writePage .basic-info-headingbar>.basic-copy-actions>.copy-yesterday-btn{
@@ -2215,7 +2086,7 @@ window.addEventListener('focus',function(){
 }
 @media(max-width:390px){
   #writePage .basic-info-headingbar>.basic-copy-actions{gap:4px!important;}
-  #writePage .basic-info-headingbar>.basic-copy-actions>.btn{padding:0 7px!important;font-size:11px!important;}
+  #writePage .basic-info-headingbar>.basic-copy-actions>.btn{font-size:11px!important;}
   #writePage .basic-info-headingbar>.basic-title-name{font-size:12px!important;}
 }
 </style>
@@ -2630,7 +2501,7 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
 /* 장비와 담당자를 기존 6번 담당자 자리에서 한 줄로 배치. 내부 양식은 기존 그대로 유지. */
 #writePage .equipment-managers-row {
   display:grid;
-  grid-template-columns:minmax(0, 42fr) minmax(0, 58fr);
+  grid-template-columns:repeat(2,minmax(0,1fr));
   gap:8px;
   align-items:start;
   width:100%;
@@ -2639,10 +2510,6 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
 #writePage .equipment-managers-row > .card {min-width:0; margin:0;}
 #writePage .equipment-managers-row > .card:first-child {overflow-x:auto;}
 /* PC의 좁은 폭에서도 담당자 입력칸을 억지로 압축하지 않고 가로 스크롤 사용. */
-@media(min-width:851px) {
-  #writePage .equipment-managers-row .manager-scroll {overflow-x:auto!important;overflow-y:hidden!important;}
-  #writePage .equipment-managers-row .manager-table {min-width:620px!important;}
-}
 @media(max-width:850px) {
   #writePage .equipment-managers-row {grid-template-columns:minmax(0,1fr);gap:8px;}
 }
@@ -2692,7 +2559,7 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
   #writePage .equipment-managers-row .manager-table .manager-action-col {width:48px!important;}
   #writePage .equipment-managers-row .manager-table th {
     padding:5px 1px!important;
-    font-size:10px!important;
+    font-size:11px!important;
     letter-spacing:-.25px!important;
     white-space:nowrap!important;
     overflow:hidden!important;
@@ -2716,7 +2583,7 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
   #writePage .equipment-managers-row #managers td:nth-child(1) .manager-visibility-btn {
     width:100%!important;
     min-width:0!important;
-    font-size:10px!important;
+    font-size:11px!important;
     padding:4px 0!important;
   }
   #writePage .equipment-managers-row #managers td:nth-child(2) input[type=checkbox] {
@@ -2737,13 +2604,13 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
     height:28px!important;
     box-sizing:border-box!important;
     padding:3px 3px!important;
-    font-size:11px!important;
+    font-size:13px!important;
   }
   #writePage .equipment-managers-row #managers td:nth-child(6) .btn {
     width:100%!important;
     min-width:0!important;
     max-width:100%!important;
-    font-size:10px!important;
+    font-size:11px!important;
     padding:4px 0!important;
   }
   /* 장비/담당자에서 추가되는 각 행의 기본 줄 높이를 일정하게. 카드 총높이는 자유. */
