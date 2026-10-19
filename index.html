@@ -2581,6 +2581,58 @@ window.addEventListener('focus',function(){
   #urigongNetStatus.site-header-docked{max-width:98px;font-size:9px}
 }
 </style>
+
+<!-- 2026-10-19: 기본정보 작업시간/BP사 입력칸 겹침 및 여백만 개선 (PC·모바일) -->
+<style id="urigong-basic-time-bpa-spacing-20261019">
+/* 시계 아이콘을 포함한 시간 입력칸이 옆 칸을 밀지 않도록 강제 최소너비 제거 */
+#writePage .basic-info-card .time-pair {
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:8px !important;
+  min-width:0 !important;
+  width:100% !important;
+}
+#writePage .basic-info-card .time-pair input[type="time"] {
+  box-sizing:border-box !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  padding-left:4px !important;
+  padding-right:4px !important;
+  font-size:12px !important;
+}
+#writePage .basic-info-card .basic-time,
+#writePage .basic-info-card .basic-bpa {
+  min-width:0 !important;
+  box-sizing:border-box !important;
+}
+/* 실제 입력 영역 너비를 기준으로 데스크톱 좁은 창에서는 세로로 배치 */
+#writePage .basic-info-card {container-type:inline-size;}
+@media(min-width:851px) {
+  #writePage .basic-info-card .basic-info-grid {
+    grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+    column-gap:7px !important;
+    row-gap:9px !important;
+  }
+  #writePage .basic-info-card .basic-site,
+  #writePage .basic-info-card .basic-trade,
+  #writePage .basic-info-card .basic-date {grid-column:span 2 !important;}
+  #writePage .basic-info-card .basic-time {grid-column:span 4 !important;}
+  #writePage .basic-info-card .basic-bpa {
+    grid-column:span 2 !important;
+    padding-left:8px !important; /* 기존 7px 그리드 간격 + 8px = 15px */
+  }
+  @container (max-width:430px) {
+    #writePage .basic-info-card .basic-info-grid {grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
+    #writePage .basic-info-card .basic-site,
+    #writePage .basic-info-card .basic-trade {grid-column:span 1 !important;}
+    #writePage .basic-info-card .basic-date,
+    #writePage .basic-info-card .basic-time,
+    #writePage .basic-info-card .basic-bpa {grid-column:1 / -1 !important;}
+    #writePage .basic-info-card .basic-bpa {padding-left:0 !important;}
+  }
+}
+</style>
 </head>
 <body class="locked site-home-mode">
 <div id="urigongNetOverlay" role="status" aria-live="polite" aria-label="자료 불러오기 진행 중"><div class="urigong-net-dialog"><span class="urigong-net-spin" aria-hidden="true"></span><strong id="urigongNetTitle">서버 자료 불러오는 중…</strong><span class="urigong-net-note">최신 자료 확인 전에는 수정·저장이 잠시 제한됩니다.<br>작업 화면을 그대로 두고 기다려 주세요.</span></div></div>
