@@ -2558,6 +2558,21 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
   #writePage>.grid>.extra-col{display:none!important}
 }
 </style>
+<style id="urigong-only-sync-and-workhours-20261019">
+/* 현재 현장 권한 옆에서만 서버 응답 상태 표시. 화면 폭에 따라 글자만 줄임. */
+#siteAccessHeader{min-width:0;}
+#urigongHeaderSync{display:inline-flex;align-items:center;gap:5px;min-width:0;max-width:210px;padding:3px 7px;border-radius:6px;background:#eff7ff;color:#155c9c;border:1px solid #b9dafa;font-size:10.5px;font-weight:700;line-height:1.2;white-space:nowrap;}
+#urigongHeaderSync[hidden]{display:none!important;}
+#urigongHeaderSyncText{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.urigong-sync-wheel{width:12px;height:12px;flex:0 0 12px;border:2px solid #b9daf5;border-top-color:#0e73e5;border-radius:50%;animation:urigong-header-spinning .8s linear infinite;}
+#urigongHeaderSync.is-error{border-color:#f5c6c6;background:#fff0f0;color:#a72c35;}
+#urigongHeaderSync.is-error .urigong-sync-wheel{animation:none;border-top-color:#bc2938;}
+@keyframes urigong-header-spinning{to{transform:rotate(360deg)}}
+@media(max-width:850px){#siteAccessHeader{gap:4px!important;}#urigongHeaderSync{max-width:96px;font-size:9.5px;padding:3px 4px;gap:3px;}#urigongHeaderSync .urigong-sync-wheel{width:10px;height:10px;flex-basis:10px;}#urigongHeaderSyncText{max-width:70px;}}
+@media(max-width:370px){#urigongHeaderSync{max-width:76px;}#urigongHeaderSyncText{max-width:53px;}}
+/* 작업시간은 기존 비활성화(마감/읽기전용) 정책만 유지, 정상 편집상태에서는 변경 가능 */
+#start:not(:disabled),#end:not(:disabled){cursor:text;}
+</style>
 </head>
 <body class="locked site-home-mode">
 <div id="siteAccessBackdrop" role="dialog" aria-modal="true" aria-label="현장 접속 알림">
@@ -2624,7 +2639,7 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
     <button class="btn primary" type="button" style="width:100%" onclick="setupMasterPasswordFromGate()">마스터 비밀번호 초기 설정</button>
   </div>
   <div id="passwordError" class="password-error"></div>
-</div></div><header><div><button class="site-home-btn" type="button" onclick="goSiteHome()">⌂ 현장선택 홈가기</button>⛑ <span id="appTitleDisplay">작업일보</span><span id="projectAccent" class="project-accent"></span></div><div id="siteAccessHeader" aria-live="polite"><b id="siteAccessLabel">접속 확인 중</b><button id="siteAccessRequestBtn" type="button" onclick="siteOpenRequest()" style="display:none">작업종료 요청</button></div><div class="header-right"><div id="topDate">작업보고 작성</div><button type="button" class="btn memo-small-btn" onclick="appMemoOpen()" title="날짜와 무관한 메모장">🗒 메모장</button><button id="headerReportSaveBtn" class="btn header-report-save-btn" type="button" onclick="urigongHeaderReportSave()" title="현재 작업일보 저장">보고서 저장</button></div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
+</div></div><header><div><button class="site-home-btn" type="button" onclick="goSiteHome()">⌂ 현장선택 홈가기</button>⛑ <span id="appTitleDisplay">작업일보</span><span id="projectAccent" class="project-accent"></span></div><div id="siteAccessHeader" aria-live="polite"><b id="siteAccessLabel">접속 확인 중</b><span id="urigongHeaderSync" role="status" aria-live="polite" aria-atomic="true" hidden><span class="urigong-sync-wheel" aria-hidden="true"></span><span id="urigongHeaderSyncText">동기화 중…</span></span><button id="siteAccessRequestBtn" type="button" onclick="siteOpenRequest()" style="display:none">작업종료 요청</button></div><div class="header-right"><div id="topDate">작업보고 작성</div><button type="button" class="btn memo-small-btn" onclick="appMemoOpen()" title="날짜와 무관한 메모장">🗒 메모장</button><button id="headerReportSaveBtn" class="btn header-report-save-btn" type="button" onclick="urigongHeaderReportSave()" title="현재 작업일보 저장">보고서 저장</button></div><button class="mobile-menu-btn" type="button" aria-label="메뉴" onclick="toggleMobileMenu()">☰</button></header>
 <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
 <nav id="mobileDrawer" class="mobile-drawer" aria-label="모바일 메뉴">
   <div class="drawer-title"><span id="mobileAppTitle">작업일보</span> · 메뉴</div>
@@ -2767,7 +2782,7 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
 <input id="date" type="date">
 <button class="btn date-nav-btn" type="button" onclick="moveWorkDate(1)" title="다음날">▶</button>
 </div><button class="btn date-query-btn" type="button" onclick="loadCurrentDateReport()">조회</button></div></div>
-<div class="field basic-time"><label>작업시간</label><div class="time-pair"><input id="start" type="time" value="07:30"><input id="end" type="time" value="17:30"></div></div>
+<div class="field basic-time"><label>작업시간</label><div class="time-pair"><input id="start" type="time" value="07:00"><input id="end" type="time" value="17:30"></div></div>
 <div class="field basic-bpa"><label>BP사</label><input id="bpa" value="더오포"></div>
 </div></div>
 <div class="card"><div class="title"><span><span class="n">2</span>업체 입력 (공종별 인원)</span><span class="total-inline">총 투입인원 <span class="total" id="grandTotal">0명</span></span><button class="btn primary" onclick="addCompany()">+ 업체 입력</button></div><div id="companies"></div></div>
@@ -4141,7 +4156,7 @@ function reportText(){
   if(currentWorkType==='lunch'){
     const weekly=findModeDraft(date,site,trade,'weekly',0)||findSavedReport(date,site,trade,'weekly',0);
     const lunchManagers=(state.managers&&state.managers.length)?state.managers:(weekly?.state?.managers||[]);
-    return formatSection(state,lunchManagers,'중식OT작업보고','11:00','13:00');
+    return formatSection(state,lunchManagers,'중식OT작업보고',$('start').value,$('end').value);
   }
   return formatSection(state,state.managers,currentModeLabel()+'작업보고',$('start').value,$('end').value);
 }
@@ -4207,8 +4222,9 @@ function previewReportSection(tab){
   const data=record.state;
   const managers=tab==='lunch'&&record.closed!==true?(lunchWeeklyManagers(date,site,trade)||data.managers||[]):(data.managers||[]);
   const title=tab==='weekly'?'주간작업보고':tab==='lunch'?'중식OT작업보고':currentModeLabel('overtime',record.overtimeNo||overtimeNo)+'작업보고';
-  const start=tab==='lunch'?'11:00':tab==='weekly'?'07:00':'17:30';
-  const end=tab==='lunch'?'13:00':tab==='weekly'?'17:30':'19:30';
+  const fallback=urigongDefaultWorkHours(tab);
+  const start=record.start||fallback.start;
+  const end=record.end||fallback.end;
   const d=new Date(date+'T00:00:00'),days='일월화수목금토';
   const ds=isNaN(d)?'':`${String(d.getFullYear()).slice(2)}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}(${days[d.getDay()]})`;
   const totals=Object.fromEntries((D.jobs||[]).map(j=>[j,0]));
@@ -4230,15 +4246,13 @@ function previewReportSection(tab){
     .forEach(m=>lines.push(`   - ${m[0]} ${m[1]} ${m[2]}`));
   return lines.join('\n');
 }
+// 새 근무구분의 기본시간은 별도 지정. 기존 데이터/사용자 수정값은 덮어쓰지 않습니다.
+function urigongDefaultWorkHours(type){
+  return type==='lunch'?{start:'11:00',end:'13:00'}:
+    type==='overtime'?{start:'17:30',end:'19:30'}:{start:'07:00',end:'17:30'};
+}
 function enforceFixedWorkHours(){
-  const start=document.getElementById('start'),end=document.getElementById('end');
-  if(!start||!end)return;
-  const isLunch=(typeof currentWorkType!=='undefined'&&currentWorkType==='lunch');
-  const overtime=(typeof currentWorkType!=='undefined'&&currentWorkType==='overtime');
-  const fixedStart=isLunch?'11:00':(overtime?'17:30':'07:00'),fixedEnd=isLunch?'13:00':(overtime?'19:30':'17:30');
-  if(start.value!==fixedStart)start.value=fixedStart;
-  if(end.value!==fixedEnd)end.value=fixedEnd;
-  start.readOnly=true;end.readOnly=true;
+  // 이전 버전 호환 호출. 미리보기/Slack 갱신에서 시간과 편집권을 강제 변경하지 않습니다.
 }
 // Slack 종료 문구: 같은 날짜/현장/공종에 실제 투입인원이 있는 연장 보고서만 반영한다.
 function slackClosingLine(ds){
@@ -5458,7 +5472,23 @@ function setDriveStatus(msg){
   let e=$('driveStatus');if(e)e.textContent='상태: '+msg;
   let t=$('topDriveStatus');if(t)t.textContent='상태: '+msg;
   let q=$('quickDriveStatus');if(q)q.textContent='상태: '+msg;
+  urigongUpdateHeaderSync(msg);
 }
+function urigongUpdateHeaderSync(message){
+  const status=document.getElementById('urigongHeaderSync');
+  const text=document.getElementById('urigongHeaderSyncText');
+  if(!status||!text)return;
+  const msg=String(message||'');
+  const processing=/(?:중\.{0,3}|중…|진행|기다려|응답 지연|전송 중|불러오는 중|확인 중)/.test(msg)&&!/(?:완료|최신 상태|연결됨 · 최신|실패)/.test(msg);
+  const failed=/(?:동기화 실패|저장 실패|연결 실패|응답 확인 실패)/.test(msg);
+  if(!processing&&!failed){status.hidden=true;status.classList.remove('is-error');return;}
+  status.classList.toggle('is-error',failed);
+  const close=/마감|마감해제/.test(msg), save=/저장|전송|패치/.test(msg), diagnostic=/통신진단/.test(msg);
+  text.textContent=failed?'서버 연결 확인 필요':diagnostic?'통신 확인 중…':close||save?'서버 저장 중…':'서버 최신 자료 동기화 중…';
+  status.title=msg;
+  status.hidden=false;
+}
+
 function getPublicStoreUrl(){
   const fromInput=($('publicStoreUrl')&&$('publicStoreUrl').value||'').trim();
   return fromInput||localStorage.getItem(PUBLIC_STORE_URL_KEY)||PUBLIC_STORE_DEFAULT_URL;
@@ -6318,8 +6348,9 @@ function applyReportLike(r,type,no){
   currentOvertimeNo=currentWorkType==='overtime'?(+no||1):0;
   if(r.site!==undefined)$('site').value=r.site;
   if(r.trade!==undefined)$('trade').value=r.trade;
-  $('start').value=r.start||(currentWorkType==='overtime'?'17:30':(currentWorkType==='lunch'?'11:00':'07:30'));
-  $('end').value=r.end||(currentWorkType==='overtime'?'19:30':(currentWorkType==='lunch'?'13:00':'17:00'));
+  const defaults=urigongDefaultWorkHours(currentWorkType);
+  $('start').value=r.start||defaults.start;
+  $('end').value=r.end||defaults.end;
   $('bpa').value=r.bpa||'';
   state=JSON.parse(JSON.stringify(r.state||{companies:[],equipment:[],areas:[],managers:[]}));
   const authoritativeSaved=findSavedReport(r.date||$('date').value,r.site||$('site').value,r.trade||$('trade').value,currentWorkType,currentOvertimeNo);
@@ -6357,7 +6388,7 @@ function switchWorkMode(type,no=0,skipStash=false){
     const initial=newWeeklyFromPreviousDay(date,site,trade);
     if(initial){applyReportLike(initial,'weekly',0);updateWorkModeTabs();syncReportLockForCurrentDate();selectPreviewTab('weekly');return;}
     currentWorkType='weekly';currentOvertimeNo=0;
-    $('start').value='07:30';$('end').value='17:00';
+    $('start').value='07:00';$('end').value='17:30';
     // 이전 날짜의 인원·장비·작업내용이 빈 날짜에 남지 않도록 값만 비웁니다.
     state={
       companies:(state.companies||[]).map(c=>({...c,jobs:Object.fromEntries(Object.keys(c.jobs||{}).map(k=>[k,0]))})),
@@ -6421,7 +6452,7 @@ function deleteLunchOT(){
     if(weekly)applyReportLike(weekly,'weekly',0);
     else{
       state={companies:[],equipment:[],areas:[],managers:[],tomorrowAreas:[]};
-      $('start').value='07:30';$('end').value='17:00';currentReportLocked=false;
+      $('start').value='07:00';$('end').value='17:30';currentReportLocked=false;
       render();applyReportLockUI(false);
     }
     selectPreviewTab('weekly');
@@ -6453,7 +6484,7 @@ function deleteOvertimeRecord(date,site,trade,no,fromSearch=false){
   if(currentWorkType==='overtime'&&currentOvertimeNo===n&&$('date')?.value===date&&$('site')?.value===site&&$('trade')?.value===trade){
     const w=findModeDraft(date,site,trade,'weekly',0)||findSavedReport(date,site,trade,'weekly',0);
     if(w)applyReportLike(w,'weekly',0);
-    else{currentWorkType='weekly';currentOvertimeNo=0;$('start').value='07:30';$('end').value='17:00';currentReportLocked=false;render();autoSave()}
+    else{currentWorkType='weekly';currentOvertimeNo=0;$('start').value='07:00';$('end').value='17:30';currentReportLocked=false;render();autoSave()}
   }
   markLocalChanged();if(tokenValid())scheduleAutoSync();updateWorkModeTabs();
   if(fromSearch||($('searchPage')&&$('searchPage').style.display!=='none'))searchReports();
@@ -6660,7 +6691,7 @@ function setWorkDateToday(){
   if(loadExactSavedReportForDate(today))return;
   const initial=findModeDraft(today,$('site').value,$('trade').value,'weekly',0)||newWeeklyFromPreviousDay(today,$('site').value,$('trade').value);
   if(initial){applyReportLike(initial,'weekly',0);return;}
-  $('start').value='07:30';$('end').value='17:00';currentReportLocked=false;updatePreview();applyReportLockUI(false);autoSave();updateWorkModeTabs();
+  $('start').value='07:00';$('end').value='17:30';currentReportLocked=false;updatePreview();applyReportLockUI(false);autoSave();updateWorkModeTabs();
   lastLoadedWorkDate=el.value;
 }
 function render(){renderCompanies();renderEquipment();renderAreas();renderTomorrowAreas();renderManagers();updatePreview();applyReportLockUI(currentReportLocked);updateWorkModeTabs()}
@@ -6695,7 +6726,7 @@ function reportText(){
   }
   if(currentWorkType==='lunch'){
     const lunchManagers=(currentReportLocked?null:lunchWeeklyManagers(date,site,trade))||state.managers||[];
-    return formatSection(state,lunchManagers,'중식OT작업보고','11:00','13:00');
+    return formatSection(state,lunchManagers,'중식OT작업보고',$('start').value,$('end').value);
   }
   return formatSection(state,state.managers,currentModeLabel()+'작업보고',$('start').value,$('end').value);
 }
@@ -9962,8 +9993,9 @@ function urigongDiscardUnsaved(){
   if(saved){applyReportLike(saved,currentWorkType,currentOvertimeNo)}
   else{
    state={companies:[],equipment:[],areas:[],tomorrowAreas:[],managers:[]};
-   $('start').value=currentWorkType==='overtime'?'17:30':'07:30';
-   $('end').value=currentWorkType==='overtime'?'19:30':'17:00';
+   const defaults=urigongDefaultWorkHours(currentWorkType);
+   $('start').value=defaults.start;
+   $('end').value=defaults.end;
    $('bpa').value='';render();
   }
   photoMemory.clear();photoExcelDirty=true;
