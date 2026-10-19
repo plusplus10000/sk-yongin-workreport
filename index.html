@@ -2573,8 +2573,117 @@ body.urigong-excel-page.urigong-excel-closed>header #headerReportSaveBtn:disable
 /* 작업시간은 기존 비활성화(마감/읽기전용) 정책만 유지, 정상 편집상태에서는 변경 가능 */
 #start:not(:disabled),#end:not(:disabled){cursor:text;}
 </style>
+
+<style id="urigong-safe-server-loading-20261019">
+/* 독립된 진행표시: 작업일보의 카드, 열, 입력칸 CSS는 변경하지 않음 */
+#urigongInitialLoadMask{display:none;position:fixed;inset:0;z-index:9500;background:rgba(244,248,252,.96);align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
+html.urigong-initial-load-pending #urigongInitialLoadMask{display:flex}
+#urigongInitialLoadBox{width:min(410px,94vw);padding:27px 24px;background:#fff;border:1px solid #cee0ef;border-radius:14px;box-shadow:0 14px 45px #12365f18;color:#17365c;text-align:center;box-sizing:border-box;font-family:Arial,'Noto Sans KR',sans-serif}
+#urigongInitialLoadIcon{display:inline-block;width:27px;height:27px;border-radius:50%;border:3px solid #dceafa;border-top-color:#0878f9;animation:urigong-initial-spin .85s linear infinite;margin-bottom:8px}
+#urigongInitialLoadTitle{font-size:16px;font-weight:900;line-height:1.5}
+#urigongInitialLoadDetail{font-size:12px;color:#64758a;line-height:1.65;margin:9px 0 0;overflow-wrap:anywhere}
+#urigongInitialLoadActions{display:none;margin-top:15px;justify-content:center;gap:8px}
+#urigongInitialLoadActions button{cursor:pointer;border-radius:6px;border:1px solid #98bce2;background:#fff;color:#165b9f;font-weight:800;padding:9px 12px;font-size:12px}
+#urigongInitialLoadMask.is-delayed #urigongInitialLoadActions,#urigongInitialLoadMask.is-error #urigongInitialLoadActions{display:flex}
+#urigongInitialLoadMask.is-error #urigongInitialLoadIcon{animation:none;border-color:#e3a0a0;border-top-color:#bf3f45}
+@keyframes urigong-initial-spin{to{transform:rotate(360deg)}}
+#urigongHeaderSync[hidden]{display:none!important}
+#urigongHeaderSync.is-done .urigong-sync-wheel{animation:none!important;border-color:#24a06a!important}
+#urigongHeaderSync.is-error .urigong-sync-wheel{animation:none!important;border-color:#d25050!important}
+@media(max-width:850px){#urigongInitialLoadBox{padding:22px 18px}#urigongInitialLoadTitle{font-size:15px}}
+</style>
+<script id="urigong-safe-loading-preboot">
+try{if(sessionStorage.getItem('activeProject')&&sessionStorage.getItem('openProjectAfterReload')==='1')document.documentElement.classList.add('urigong-initial-load-pending');}catch(e){}
+</script>
 </head>
 <body class="locked site-home-mode">
+<!-- 독립된 최초 서버 조회 안내: 기존 작성 영역 및 그 순서는 변경하지 않습니다. -->
+<div id="urigongInitialLoadMask" role="status" aria-live="polite" aria-label="서버 데이터 불러오는 중">
+ <div id="urigongInitialLoadBox">
+  <span id="urigongInitialLoadIcon" aria-hidden="true"></span>
+  <div id="urigongInitialLoadTitle">서버 자료 불러오는 중…</div>
+  <p id="urigongInitialLoadDetail">현장 접속권과 최신 보고서를 확인하고 있습니다.<br>완료될 때까지 잠시만 기다려 주세요.</p>
+  <div id="urigongInitialLoadActions"><button type="button" onclick="location.reload()">다시 시도</button><button type="button" onclick="urigongInitialGoHome()">현장 선택으로</button></div>
+ </div>
+</div>
+
+
+<script id="urigong-safe-server-loading-controller-20261019">
+/* 로딩 표시 전용. DOM 카드나 보고서 값을 이동·수정하지 않습니다. */
+let urigongInitialLoadFailed=false;
+let urigongInitialLoadReloading=false;
+let urigongInitialLoadRetryStarted=false;
+let urigongInitialSlowTimer=null;
+let urigongTopDoneTimer=null;
+function urigongInitialLoadPending(){return document.documentElement.classList.contains('urigong-initial-load-pending');}
+function urigongInitialSetText(title,detail){
+ const a=document.getElementById('urigongInitialLoadTitle'),b=document.getElementById('urigongInitialLoadDetail');
+ if(a)a.textContent=title;
+ if(b)b.textContent=detail;
+}
+function urigongInitialNotice(msg){
+ if(!urigongInitialLoadPending())return;
+ const t=String(msg||'');
+ if(/응답 지연|연결 지연/.test(t)){urigongInitialDelayed();return;}
+ if(/실패/.test(t)){urigongInitialError(t);return;}
+ if(/저장 중|전송 중|패치/.test(t))urigongInitialSetText('서버 동기화 중…','현장 자료가 반영되는지 확인하고 있습니다.');
+ else if(/확인 중|불러오|동기화/.test(t))urigongInitialSetText('서버 자료 불러오는 중…','현재 현장의 최신 보고서를 확인하고 있습니다.');
+}
+function urigongInitialDelayed(){
+ if(!urigongInitialLoadPending()||urigongInitialLoadFailed)return;
+ document.getElementById('urigongInitialLoadMask')?.classList.add('is-delayed');
+ urigongInitialSetText('서버 응답이 지연되고 있습니다','기존 자료가 최신 자료인지 아직 확인하지 못했습니다. 기다리거나 다시 시도해 주세요.');
+}
+function urigongInitialStart(){
+ if(!urigongInitialLoadPending())return;
+ if(urigongInitialSlowTimer)clearTimeout(urigongInitialSlowTimer);
+ urigongInitialSlowTimer=setTimeout(urigongInitialDelayed,12000);
+}
+function urigongInitialFinish(){
+ if(!urigongInitialLoadPending()||urigongInitialLoadFailed||urigongInitialLoadReloading)return;
+ clearTimeout(urigongInitialSlowTimer);
+ ['writePage','excelPage','dataPage','searchPage'].forEach(id=>document.getElementById(id)?.removeAttribute('inert'));
+ document.documentElement.classList.remove('urigong-initial-load-pending');
+ document.getElementById('urigongInitialLoadMask')?.classList.remove('is-delayed','is-error');
+}
+function urigongInitialError(msg){
+ if(!urigongInitialLoadPending())return;
+ urigongInitialLoadFailed=true;
+ clearTimeout(urigongInitialSlowTimer);
+ document.getElementById('urigongInitialLoadMask')?.classList.add('is-error');
+ urigongInitialSetText('서버 자료 불러오기 실패','최신 자료를 확인하지 못했습니다. 저장되지 않은 자료를 최신 자료로 표시하지 않습니다. '+String(msg||''));
+}
+function urigongInitialMarkReload(){urigongInitialLoadReloading=true;}
+function urigongInitialGoHome(){
+ clearTimeout(urigongInitialSlowTimer);
+ ['writePage','excelPage','dataPage','searchPage'].forEach(id=>document.getElementById(id)?.removeAttribute('inert'));
+ document.documentElement.classList.remove('urigong-initial-load-pending');
+ try{goSiteHome()}catch(e){sessionStorage.removeItem('activeProject');sessionStorage.removeItem('openProjectAfterReload');location.reload()}
+}
+function urigongInitialAfterSiteAccess(){
+ if(!urigongInitialLoadPending()||urigongInitialLoadRetryStarted)return;
+ if(typeof siteAccessHasActive==='function'&&siteAccessHasActive()&&typeof siteAccessMode==='string'&&['edit','readonly'].includes(siteAccessMode)){
+   urigongInitialLoadRetryStarted=true;
+   // 처음 인증보다 먼저 실행된 syncNow가 접속 확인 대기로 끝난 경우 다시 요청합니다.
+   setTimeout(()=>{if(!syncBusy)void syncNow('startup');},40);
+ }
+}
+function urigongTopFeedback(msg){
+ const el=document.getElementById('urigongHeaderSync'),txt=document.getElementById('urigongHeaderSyncText');
+ if(!el||!txt)return;
+ clearTimeout(urigongTopDoneTimer);
+ const m=String(msg||'');
+ const failed=/(?:실패|연결 지연|응답 지연)/.test(m);
+ const complete=/(?:완료|최신 상태|최신자료 반영|연결됨 · 최신)/.test(m);
+ if(failed){el.hidden=false;el.classList.remove('is-done');el.classList.add('is-error');txt.textContent=/지연/.test(m)?'서버 응답 지연…':'서버 연결 확인 필요';return;}
+ if(complete){el.hidden=false;el.classList.remove('is-error');el.classList.add('is-done');txt.textContent='최신 자료 반영 완료';urigongTopDoneTimer=setTimeout(()=>{el.hidden=true;el.classList.remove('is-done');},2200);}
+ else el.classList.remove('is-done');
+}
+urigongInitialStart();
+document.addEventListener('DOMContentLoaded',()=>{
+ if(urigongInitialLoadPending())['writePage','excelPage','dataPage','searchPage'].forEach(id=>document.getElementById(id)?.setAttribute('inert',''));
+},{once:true});
+</script>
 <div id="siteAccessBackdrop" role="dialog" aria-modal="true" aria-label="현장 접속 알림">
   <div id="siteAccessDialog"><h3 id="siteAccessDialogTitle">알림</h3><p id="siteAccessDialogMsg"></p><div id="siteAccessDialogEntry"></div><div class="actions" id="siteAccessDialogActions"></div></div>
 </div>
@@ -5473,6 +5582,8 @@ function setDriveStatus(msg){
   let t=$('topDriveStatus');if(t)t.textContent='상태: '+msg;
   let q=$('quickDriveStatus');if(q)q.textContent='상태: '+msg;
   urigongUpdateHeaderSync(msg);
+  if(typeof urigongInitialNotice==='function')urigongInitialNotice(msg);
+  if(typeof urigongTopFeedback==='function')urigongTopFeedback(msg);
 }
 function urigongUpdateHeaderSync(message){
   const status=document.getElementById('urigongHeaderSync');
@@ -5922,6 +6033,7 @@ async function syncNow(reason='auto'){
   if(typeof siteAccessHasActive==='function'&&siteAccessHasActive()&&typeof siteAccessMode!=='undefined'&&!['edit','readonly'].includes(siteAccessMode))return;
   if(typeof reportCloseActionBusy!=='undefined'&&reportCloseActionBusy){if(getDriveMeta('driveLocalDirty')==='1')scheduleAutoSync();return}
   if(!tokenValid()||syncBusy)return;syncBusy=true;
+  const urigongInitialSyncAttempt=typeof urigongInitialLoadPending==='function'&&urigongInitialLoadPending();
   const slowNotice=setTimeout(()=>{
     if(syncBusy&&!reportCloseActionBusy)setDriveStatus('공용저장소 응답 지연 · 동기화 진행 중 (기존 자료 보존)');
   },10000);
@@ -5939,7 +6051,7 @@ async function syncNow(reason='auto'){
       setDriveMeta('driveLocalDirty','0');
       if(!remote.file){setDriveStatus('읽기 전용 · 저장된 공용자료 없음');return}
       const remoteChanged=isRemoteChanged;
-      if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('읽기 전용 · 최신자료 반영');location.reload()}
+      if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('읽기 전용 · 최신자료 반영');(typeof urigongInitialMarkReload==='function'&&urigongInitialMarkReload(),location.reload())}
       else setDriveStatus('읽기 전용 · 최신 상태');
       return;
     }
@@ -5956,13 +6068,14 @@ async function syncNow(reason='auto'){
           sharedItemRestore(merged.workModeDrafts,p);
         }finally{applyingRemote=false}
         await pushLocal(remote.file,true,remote.data)
-      }else{applyRemoteData(remote.data,remote.stamp);setDriveStatus('공용저장소 최신자료 적용 완료');alert('공용저장소의 최신 자료를 적용합니다.');location.reload()}}
-    else if(dirty){await pushLocal(remote.file,true,remote.data)}else if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('공용저장소 최신자료 자동 반영');location.reload()}else {
+      }else{applyRemoteData(remote.data,remote.stamp);setDriveStatus('공용저장소 최신자료 적용 완료');alert('공용저장소의 최신 자료를 적용합니다.');(typeof urigongInitialMarkReload==='function'&&urigongInitialMarkReload(),location.reload())}}
+    else if(dirty){await pushLocal(remote.file,true,remote.data)}else if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('공용저장소 최신자료 자동 반영');(typeof urigongInitialMarkReload==='function'&&urigongInitialMarkReload(),location.reload())}else {
       const shared=(remote.data?.workModeDrafts||{})[SHARED_ITEM_NAMESPACE]||{};
       const hasUnsyncedItem=Object.keys(sharedItemExportDrafts({},currentProjectForAuth())[SHARED_ITEM_NAMESPACE]||{}).some(k=>!(k in shared));
       setDriveStatus(hasUnsyncedItem?'공용저장소 연결됨 · PC Item 기존 자료 공유는 「공용저장소 저장」 필요':'공용저장소 연결됨 · 최신 상태');
     }
-  }catch(e){console.error(e);setDriveStatus('동기화 실패: '+e.message);if(/등록되지|인증이 만료|취소|조회권한/.test(e.message||'')){if(/등록되지|인증이 만료|취소/.test(e.message||'')){clearDeviceCredential();showDeviceGate('기기 사용권한이 만료되었거나 취소되었습니다. 다시 등록해 주세요.')}}}finally{clearTimeout(slowNotice);syncBusy=false;
+  }catch(e){console.error(e);setDriveStatus('동기화 실패: '+e.message);if(urigongInitialSyncAttempt&&typeof urigongInitialError==='function')urigongInitialError(e.message);if(/등록되지|인증이 만료|취소|조회권한/.test(e.message||'')){if(/등록되지|인증이 만료|취소/.test(e.message||'')){clearDeviceCredential();showDeviceGate('기기 사용권한이 만료되었거나 취소되었습니다. 다시 등록해 주세요.')}}}finally{clearTimeout(slowNotice);syncBusy=false;
+  if(urigongInitialSyncAttempt&&typeof urigongInitialFinish==='function')urigongInitialFinish();
   // 네트워크 요청 중 발생한 추가 변경은 다음 동기화로 다시 보냅니다.
   if(getDriveMeta('driveLocalDirty')==='1'&&tokenValid()&&canEditActiveProject()&&reason!=='auto')scheduleAutoSync();
 }
@@ -5976,6 +6089,7 @@ setTimeout(restoreDriveClientId,0);
 function clearDeviceCredential(){localStorage.removeItem(DEVICE_TOKEN_KEY);localStorage.removeItem(DEVICE_ROLE_KEY);localStorage.removeItem(DEVICE_PROJECTS_KEY);localStorage.removeItem(DEVICE_PROJECT_PERMISSIONS_KEY);updateAdminSecurityButtons();applyDevicePermissions()}
 function showDeviceGate(message=''){
   const gate=$('passwordGate');if(gate)gate.style.display='flex';document.body.classList.add('locked');
+  if(typeof urigongInitialFinish==='function')urigongInitialFinish();
   const m=$('deviceGateMessage');if(m&&message)m.textContent=message;
 }
 function hideDeviceGate(){
@@ -9939,6 +10053,7 @@ async function urigongSaveReportWorkflow(silent=false){
  if(urigongReportSaveBusy){alert('보고서 저장이 이미 진행 중입니다.');return false;}
  if(!canEditActiveProject()||isNoWorkDay($('date')?.value)||!requireReportEditable())return false;
  urigongReportSaveBusy=true;
+ if(typeof urigongUpdateHeaderSync==='function')urigongUpdateHeaderSync('보고서 저장 중…');
  const allButtons=Array.from(document.querySelectorAll('button[onclick="saveReport()"],#excelSharedReportSaveBtn'));
  allButtons.forEach(b=>b.disabled=true);
  try{
@@ -10101,6 +10216,8 @@ function siteAccessRender(){
  if(label)label.textContent=siteAccessMode==='edit'?'권한 : 편집중':(isRead?'권한 : 읽기전용':(siteAccessMode==='lost'?'권한 : 접속종료':'접속 확인 중'));
  if(btn)btn.style.display=isRead&&siteAccessCanRequest(siteAccessProject)&&!!siteAccessOwner?'':'none';
  if(typeof applyDevicePermissions==='function'&&active)applyDevicePermissions();
+ if(!active && typeof urigongInitialFinish==='function')urigongInitialFinish();
+ if(active&&['edit','readonly'].includes(siteAccessMode)&&typeof urigongInitialAfterSiteAccess==='function')urigongInitialAfterSiteAccess();
 }
 function siteAccessStopPulse(){if(siteAccessTimer){clearInterval(siteAccessTimer);siteAccessTimer=null}}
 function siteAccessFastRelease(project=siteAccessProject){
