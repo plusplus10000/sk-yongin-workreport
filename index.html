@@ -2553,6 +2553,33 @@ window.addEventListener('focus',function(){
 @keyframes urigongNetSpin{to{transform:rotate(360deg)}}
 @media(max-width:850px){#urigongNetStatus{top:58px;right:7px;left:7px;max-width:none;font-size:12px;padding:9px 11px} .urigong-net-dialog{padding:21px 16px} }
 @media(prefers-reduced-motion:reduce){.urigong-net-spin{animation-duration:2.3s}}
+
+/* 서버 상태: 현장 편집권 문구의 오른쪽. 현장 선택 홈에서는 기존 플로팅 안내 유지. */
+#siteAccessHeader{overflow:visible}
+#urigongNetStatus.site-header-docked{
+  position:absolute;left:calc(100% + 12px);right:auto;top:50%;transform:translateY(-50%);
+  width:max-content;max-width:min(320px,30vw);min-height:27px;
+  padding:5px 9px;gap:6px;border-color:rgba(197,220,247,.55);
+  background:rgba(255,255,255,.14);box-shadow:none;color:#fff;font-size:11px;line-height:1.25;
+}
+#urigongNetStatus.site-header-docked .urigong-net-spin{width:13px;height:13px;border-width:2px;border-color:#b7d9ff;border-top-color:#fff}
+#urigongNetStatus.site-header-docked[data-kind="done"]{background:rgba(30,108,79,.85);border-color:#91d6a9;color:#fff}
+#urigongNetStatus.site-header-docked[data-kind="failed"]{background:#fff9f7;border-color:#ffc2b9;color:#992b24}
+#urigongNetStatus.site-header-docked[data-kind="failed"] #urigongNetRetry{padding:2px 5px;font-size:10px}
+#urigongNetStatus.site-header-docked #urigongNetStatusText{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:850px){
+  #siteAccessHeader{min-width:0;max-width:calc(100vw - 145px);gap:4px}
+  #urigongNetStatus.site-header-docked{
+    position:static;left:auto;top:auto;right:auto;transform:none;
+    max-width:min(142px,32vw);width:auto;min-width:0;flex:0 1 auto;
+    padding:3px 5px;gap:4px;font-size:10px;min-height:23px;
+  }
+  #urigongNetStatus.site-header-docked .urigong-net-spin{width:11px;height:11px;flex:0 0 11px}
+}
+@media(max-width:470px){
+  #siteAccessLabel{font-size:11px!important}
+  #urigongNetStatus.site-header-docked{max-width:98px;font-size:9px}
+}
 </style>
 </head>
 <body class="locked site-home-mode">
@@ -3819,6 +3846,8 @@ function init(){
   applyReportLockUI(currentReportLocked);
   ['site','trade'].forEach(x=>$(x).addEventListener('input',()=>{syncReportLockForCurrentDate();updatePreview();autoSave()}));
   ['start','end','bpa'].forEach(x=>$(x).addEventListener('input',()=>{updatePreview();autoSave()}));
+  // 시간 선택 UI에서 input 대신 change 이벤트만 전달하는 브라우저도 지원합니다.
+  ['start','end'].forEach(x=>$(x).addEventListener('change',()=>{updatePreview();autoSave()}));
   $('date').addEventListener('change',()=>loadDateOrBlank());
   window.addEventListener('beforeunload',autoSave);
 }
@@ -4133,7 +4162,7 @@ function reportText(){
   if(currentWorkType==='lunch'){
     const weekly=findModeDraft(date,site,trade,'weekly',0)||findSavedReport(date,site,trade,'weekly',0);
     const lunchManagers=(state.managers&&state.managers.length)?state.managers:(weekly?.state?.managers||[]);
-    return formatSection(state,lunchManagers,'중식OT작업보고','11:00','13:00');
+    return formatSection(state,lunchManagers,'중식OT작업보고',$('start').value,$('end').value);
   }
   return formatSection(state,state.managers,currentModeLabel()+'작업보고',$('start').value,$('end').value);
 }
@@ -4199,8 +4228,11 @@ function previewReportSection(tab){
   const data=record.state;
   const managers=tab==='lunch'&&record.closed!==true?(lunchWeeklyManagers(date,site,trade)||data.managers||[]):(data.managers||[]);
   const title=tab==='weekly'?'주간작업보고':tab==='lunch'?'중식OT작업보고':currentModeLabel('overtime',record.overtimeNo||overtimeNo)+'작업보고';
-  const start=tab==='lunch'?'11:00':tab==='weekly'?'07:00':'17:30';
-  const end=tab==='lunch'?'13:00':tab==='weekly'?'17:30':'19:30';
+  // 다른 미리보기 탭의 시간도 해당 보고서에 저장된 개별 작업시간을 사용합니다.
+  const defaultStart=tab==='lunch'?'11:00':tab==='weekly'?'07:00':'17:30';
+  const defaultEnd=tab==='lunch'?'13:00':tab==='weekly'?'17:30':'19:30';
+  const start=record.start||defaultStart;
+  const end=record.end||defaultEnd;
   const d=new Date(date+'T00:00:00'),days='일월화수목금토';
   const ds=isNaN(d)?'':`${String(d.getFullYear()).slice(2)}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}(${days[d.getDay()]})`;
   const totals=Object.fromEntries((D.jobs||[]).map(j=>[j,0]));
@@ -4223,14 +4255,11 @@ function previewReportSection(tab){
   return lines.join('\n');
 }
 function enforceFixedWorkHours(){
+  // 보고서별 사용자 입력 시간을 유지합니다. 마감·읽기전용 잠금은 기존 권한 UI가 담당합니다.
   const start=document.getElementById('start'),end=document.getElementById('end');
   if(!start||!end)return;
-  const isLunch=(typeof currentWorkType!=='undefined'&&currentWorkType==='lunch');
-  const overtime=(typeof currentWorkType!=='undefined'&&currentWorkType==='overtime');
-  const fixedStart=isLunch?'11:00':(overtime?'17:30':'07:00'),fixedEnd=isLunch?'13:00':(overtime?'19:30':'17:30');
-  if(start.value!==fixedStart)start.value=fixedStart;
-  if(end.value!==fixedEnd)end.value=fixedEnd;
-  start.readOnly=true;end.readOnly=true;
+  start.readOnly=false;
+  end.readOnly=false;
 }
 // Slack 종료 문구: 같은 날짜/현장/공종에 실제 투입인원이 있는 연장 보고서만 반영한다.
 function slackClosingLine(ds){
@@ -4238,15 +4267,19 @@ function slackClosingLine(ds){
   const date=$('date')?.value,site=$('site')?.value,trade=$('trade')?.value;
   if(!date||!site||!trade)return base;
   const names=[],managers=[];
+  let lastOvertimeEnd='19:30';
   const nums=typeof listOvertimeNumbers==='function'?listOvertimeNumbers(date,site,trade):[];
   nums.forEach(no=>{
     let overtimeState=null;
     // 현재 편집 중인 연장도 가장 최신 상태로 반영
-    if(typeof currentWorkType!=='undefined'&&currentWorkType==='overtime'&&(+currentOvertimeNo||1)===no){overtimeState=state;}
-    else{
+    if(typeof currentWorkType!=='undefined'&&currentWorkType==='overtime'&&(+currentOvertimeNo||1)===no){
+      overtimeState=state;lastOvertimeEnd=$('end')?.value||lastOvertimeEnd;
+    }else{
       const draft=typeof findModeDraft==='function'?findModeDraft(date,site,trade,'overtime',no):null;
       const saved=typeof findSavedReport==='function'?findSavedReport(date,site,trade,'overtime',no):null;
-      overtimeState=(draft?.state||saved?.state||null);
+      const overtimeRecord=draft||saved;
+      overtimeState=overtimeRecord?.state||null;
+      if(overtimeRecord?.end)lastOvertimeEnd=overtimeRecord.end;
     }
     if(!overtimeState)return;
     const participating=(overtimeState.companies||[]).filter(c=>Object.values(c.jobs||{}).some(v=>Number(v)>0));
@@ -4265,7 +4298,7 @@ function slackClosingLine(ds){
     });
   });
   if(!names.length)return base;
-  return `${base} [연장(~19:30) :${names.join(', ')}]${managers.length?' 근무:'+managers.join(', '):''}`;
+  return `${base} [연장(~${lastOvertimeEnd}) :${names.join(', ')}]${managers.length?' 근무:'+managers.join(', '):''}`;
 }
 function slackReportText(){
   enforceFixedWorkHours();
@@ -5547,7 +5580,16 @@ async function publicStoreReadChunked(status){
 const urigongNetTasks=new Map();
 let urigongNetSeq=0,urigongNetClearTimer=null,urigongNetSlowTimer=null,urigongNetLastFailure="";
 function urigongNetSetText(nodeId,value){const el=document.getElementById(nodeId);if(el)el.textContent=value}
+function urigongNetPlaceStatus(){
+  const status=document.getElementById('urigongNetStatus'),header=document.getElementById('siteAccessHeader');
+  if(!status)return;
+  const active=!!(header&&typeof siteAccessHasActive==='function'&&siteAccessHasActive()&&!document.body.classList.contains('site-home-mode'));
+  const parent=active?header:document.body;
+  if(status.parentElement!==parent)parent.appendChild(status);
+  status.classList.toggle('site-header-docked',active);
+}
 function urigongNetPaint(){
+ urigongNetPlaceStatus();
  const status=document.getElementById('urigongNetStatus'),overlay=document.getElementById('urigongNetOverlay');if(!status||!overlay)return;
  const tasks=Array.from(urigongNetTasks.values());
  if(!tasks.length){overlay.classList.remove('visible');return}
@@ -5571,6 +5613,7 @@ function urigongNetBegin(label,foreground=false){
  return id;
 }
 function urigongNetFinish(id,ok=true,notice=''){
+ urigongNetPlaceStatus();
  if(!id||!urigongNetTasks.has(id))return;
  urigongNetTasks.delete(id);
  if(urigongNetTasks.size){urigongNetPaint();return}
@@ -6294,8 +6337,8 @@ function applyReportLike(r,type,no){
   currentOvertimeNo=currentWorkType==='overtime'?(+no||1):0;
   if(r.site!==undefined)$('site').value=r.site;
   if(r.trade!==undefined)$('trade').value=r.trade;
-  $('start').value=r.start||(currentWorkType==='overtime'?'17:30':(currentWorkType==='lunch'?'11:00':'07:30'));
-  $('end').value=r.end||(currentWorkType==='overtime'?'19:30':(currentWorkType==='lunch'?'13:00':'17:00'));
+  $('start').value=r.start||(currentWorkType==='overtime'?'17:30':(currentWorkType==='lunch'?'11:00':'07:00'));
+  $('end').value=r.end||(currentWorkType==='overtime'?'19:30':(currentWorkType==='lunch'?'13:00':'17:30'));
   $('bpa').value=r.bpa||'';
   state=JSON.parse(JSON.stringify(r.state||{companies:[],equipment:[],areas:[],managers:[]}));
   const authoritativeSaved=findSavedReport(r.date||$('date').value,r.site||$('site').value,r.trade||$('trade').value,currentWorkType,currentOvertimeNo);
@@ -6333,7 +6376,7 @@ function switchWorkMode(type,no=0,skipStash=false){
     const initial=newWeeklyFromPreviousDay(date,site,trade);
     if(initial){applyReportLike(initial,'weekly',0);updateWorkModeTabs();syncReportLockForCurrentDate();selectPreviewTab('weekly');return;}
     currentWorkType='weekly';currentOvertimeNo=0;
-    $('start').value='07:30';$('end').value='17:00';
+    $('start').value='07:00';$('end').value='17:30';
     // 이전 날짜의 인원·장비·작업내용이 빈 날짜에 남지 않도록 값만 비웁니다.
     state={
       companies:(state.companies||[]).map(c=>({...c,jobs:Object.fromEntries(Object.keys(c.jobs||{}).map(k=>[k,0]))})),
@@ -6367,7 +6410,7 @@ function createOvertime(){
   let base=findModeDraft(date,site,trade,'weekly',0)||findSavedReport(date,site,trade,'weekly',0);
   if(!base && currentWorkType==='weekly')base=makeCurrentModeDraft();
   if(!base){
-    base={date,site,trade,start:'07:30',end:'17:00',bpa:$('bpa').value||'',state:JSON.parse(JSON.stringify(state))};
+    base={date,site,trade,start:'07:00',end:'17:30',bpa:$('bpa').value||'',state:JSON.parse(JSON.stringify(state))};
   }
   const o={date,site,trade,start:'17:30',end:'19:30',bpa:base.bpa||'',workType:'overtime',overtimeNo:next,closed:false,state:JSON.parse(JSON.stringify(base.state||state))};
   const drafts=getModeDrafts();drafts[workModeKey(date,site,trade,'overtime',next)]=o;setModeDrafts(drafts);
@@ -6397,7 +6440,7 @@ function deleteLunchOT(){
     if(weekly)applyReportLike(weekly,'weekly',0);
     else{
       state={companies:[],equipment:[],areas:[],managers:[],tomorrowAreas:[]};
-      $('start').value='07:30';$('end').value='17:00';currentReportLocked=false;
+      $('start').value='07:00';$('end').value='17:30';currentReportLocked=false;
       render();applyReportLockUI(false);
     }
     selectPreviewTab('weekly');
@@ -6429,7 +6472,7 @@ function deleteOvertimeRecord(date,site,trade,no,fromSearch=false){
   if(currentWorkType==='overtime'&&currentOvertimeNo===n&&$('date')?.value===date&&$('site')?.value===site&&$('trade')?.value===trade){
     const w=findModeDraft(date,site,trade,'weekly',0)||findSavedReport(date,site,trade,'weekly',0);
     if(w)applyReportLike(w,'weekly',0);
-    else{currentWorkType='weekly';currentOvertimeNo=0;$('start').value='07:30';$('end').value='17:00';currentReportLocked=false;render();autoSave()}
+    else{currentWorkType='weekly';currentOvertimeNo=0;$('start').value='07:00';$('end').value='17:30';currentReportLocked=false;render();autoSave()}
   }
   markLocalChanged();if(tokenValid())scheduleAutoSync();updateWorkModeTabs();
   if(fromSearch||($('searchPage')&&$('searchPage').style.display!=='none'))searchReports();
@@ -6636,7 +6679,7 @@ function setWorkDateToday(){
   if(loadExactSavedReportForDate(today))return;
   const initial=findModeDraft(today,$('site').value,$('trade').value,'weekly',0)||newWeeklyFromPreviousDay(today,$('site').value,$('trade').value);
   if(initial){applyReportLike(initial,'weekly',0);return;}
-  $('start').value='07:30';$('end').value='17:00';currentReportLocked=false;updatePreview();applyReportLockUI(false);autoSave();updateWorkModeTabs();
+  $('start').value='07:00';$('end').value='17:30';currentReportLocked=false;updatePreview();applyReportLockUI(false);autoSave();updateWorkModeTabs();
   lastLoadedWorkDate=el.value;
 }
 function render(){renderCompanies();renderEquipment();renderAreas();renderTomorrowAreas();renderManagers();updatePreview();applyReportLockUI(currentReportLocked);updateWorkModeTabs()}
@@ -6671,7 +6714,7 @@ function reportText(){
   }
   if(currentWorkType==='lunch'){
     const lunchManagers=(currentReportLocked?null:lunchWeeklyManagers(date,site,trade))||state.managers||[];
-    return formatSection(state,lunchManagers,'중식OT작업보고','11:00','13:00');
+    return formatSection(state,lunchManagers,'중식OT작업보고',$('start').value,$('end').value);
   }
   return formatSection(state,state.managers,currentModeLabel()+'작업보고',$('start').value,$('end').value);
 }
@@ -9917,8 +9960,8 @@ function urigongDiscardUnsaved(){
   if(saved){applyReportLike(saved,currentWorkType,currentOvertimeNo)}
   else{
    state={companies:[],equipment:[],areas:[],tomorrowAreas:[],managers:[]};
-   $('start').value=currentWorkType==='overtime'?'17:30':'07:30';
-   $('end').value=currentWorkType==='overtime'?'19:30':'17:00';
+   $('start').value=currentWorkType==='overtime'?'17:30':(currentWorkType==='lunch'?'11:00':'07:00');
+   $('end').value=currentWorkType==='overtime'?'19:30':(currentWorkType==='lunch'?'13:00':'17:30');
    $('bpa').value='';render();
   }
   photoMemory.clear();photoExcelDirty=true;
@@ -10017,6 +10060,7 @@ function siteShowDialog(title,msg,textarea=false,actions=null){
 function siteAccessRender(){
  const active=siteAccessHasActive(), header=document.getElementById('siteAccessHeader'),label=document.getElementById('siteAccessLabel'),btn=document.getElementById('siteAccessRequestBtn');
  if(header)header.style.display=active?'flex':'none';
+ if(typeof urigongNetPlaceStatus==='function')urigongNetPlaceStatus();
  const isRead=active&&siteAccessMode==='readonly';
  document.body.classList.toggle('site-access-readonly',isRead);
  document.body.classList.toggle('site-master-readonly',isRead&&isMasterDevice());
