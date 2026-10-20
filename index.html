@@ -2595,6 +2595,18 @@ html.urigong-initial-load-pending #urigongInitialLoadMask{display:flex}
 <script id="urigong-safe-loading-preboot">
 try{if(sessionStorage.getItem('activeProject')&&sessionStorage.getItem('openProjectAfterReload')==='1')document.documentElement.classList.add('urigong-initial-load-pending');}catch(e){}
 </script>
+<style id="urigong-photo-loading-and-smaller-upload-20261020">
+#urigongPhotoLoadingNotice{display:none;position:fixed;inset:0;z-index:100090;background:rgba(18,39,65,.42);padding:16px;align-items:center;justify-content:center;box-sizing:border-box}
+#urigongPhotoLoadingNotice.open{display:flex}
+#urigongPhotoLoadingNotice .urigong-photo-loading-box{width:min(410px,94vw);box-sizing:border-box;background:#fff;color:#17365c;border:1px solid #c4d8ed;border-radius:13px;box-shadow:0 12px 40px #12365f33;padding:23px 22px;text-align:center;font:13px/1.65 Arial,'Noto Sans KR',sans-serif}
+#urigongPhotoLoadingNotice strong{font-size:16px;font-weight:900;display:block}
+#urigongPhotoLoadingNotice p{font-size:12px;color:#536980;margin:10px 0 0;overflow-wrap:anywhere}
+#urigongPhotoLoadingNotice .urigong-photo-spinner{width:27px;height:27px;margin:0 auto 9px;border:3px solid #daeafd;border-top-color:#0878f9;border-radius:50%;animation:urigong-photo-spin .85s linear infinite}
+#urigongPhotoLoadingNotice.failed .urigong-photo-spinner{animation:none;border-color:#dfadae;border-top-color:#b83239}
+#urigongPhotoLoadingNotice #urigongPhotoLoadingClose{margin-top:15px;padding:7px 18px!important;font-size:12px!important}
+@keyframes urigong-photo-spin{to{transform:rotate(360deg)}}
+@media print{#urigongPhotoLoadingNotice{display:none!important}}
+</style>
 </head>
 <body class="locked site-home-mode">
 <!-- 독립된 최초 서버 조회 안내: 기존 작성 영역 및 그 순서는 변경하지 않습니다. -->
@@ -9539,6 +9551,48 @@ async function photoGetDay(ctx,force=false){
  try{return await task;}finally{if(photoRemoteInflight.get(key)===task)photoRemoteInflight.delete(key);}
 }
 function photoReadDataURL(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(Error('사진 읽기 실패'));r.readAsDataURL(file)})}
+
+// 사진 조회 알림 전용: 보고서/작업카드 DOM이나 저장 데이터는 변경하지 않습니다.
+let photoLoadingNoticeSeq=0;
+let photoLoadingNoticeSlowTimer=0;
+function photoLoadingNoticeElements(){
+ let mask=document.getElementById('urigongPhotoLoadingNotice');
+ if(mask)return mask;
+ if(!document.body)return null;
+ mask=document.createElement('div');mask.id='urigongPhotoLoadingNotice';mask.setAttribute('role','dialog');mask.setAttribute('aria-modal','true');
+ mask.setAttribute('aria-label','사진 서버 자료를 불러오는 중');
+ mask.innerHTML='<div class="urigong-photo-loading-box"><div class="urigong-photo-spinner" aria-hidden="true"></div><strong id="urigongPhotoLoadingTitle">사진 서버에서 불러오는 중…</strong><p id="urigongPhotoLoadingDetail">사진 1~4번을 가져오고 있습니다. 잠시만 기다려 주세요.</p><button id="urigongPhotoLoadingClose" class="btn" type="button" hidden>확인</button></div>';
+ document.body.appendChild(mask);
+ mask.querySelector('#urigongPhotoLoadingClose').addEventListener('click',()=>{clearTimeout(photoLoadingNoticeSlowTimer);mask.classList.remove('open','failed');});
+ return mask;
+}
+function photoLoadingNoticeStart(ctx){
+ const seq=++photoLoadingNoticeSeq;
+ const mask=photoLoadingNoticeElements();if(!mask)return seq;
+ clearTimeout(photoLoadingNoticeSlowTimer);
+ mask.classList.add('open');mask.classList.remove('failed');
+ mask.querySelector('#urigongPhotoLoadingClose').hidden=true;
+ mask.querySelector('#urigongPhotoLoadingTitle').textContent='사진 서버에서 불러오는 중…';
+ mask.querySelector('#urigongPhotoLoadingDetail').textContent=ctx.date+' 사진 1~4번을 가져오고 있습니다. 완료되면 자동으로 닫힙니다.';
+ photoLoadingNoticeSlowTimer=setTimeout(()=>{
+  if(seq!==photoLoadingNoticeSeq)return;
+  const detail=mask.querySelector('#urigongPhotoLoadingDetail');
+  if(detail)detail.textContent='사진 서버 응답이 지연되고 있습니다. 연결을 확인하며 기다리는 중입니다.';
+ },12000);
+ return seq;
+}
+function photoLoadingNoticeFinish(seq,error){
+ if(seq!==photoLoadingNoticeSeq)return; // 날짜를 빠르게 바꾼 경우 기존 요청이 새 화면을 닫지 않게 보호
+ clearTimeout(photoLoadingNoticeSlowTimer);
+ const mask=document.getElementById('urigongPhotoLoadingNotice');if(!mask)return;
+ if(error){
+  mask.classList.add('open','failed');
+  mask.querySelector('#urigongPhotoLoadingTitle').textContent='사진 불러오기 실패';
+  mask.querySelector('#urigongPhotoLoadingDetail').textContent=String(error.message||error)+' · 연결 상태를 확인한 후 「사진 다시 불러오기」를 눌러 주세요.';
+  mask.querySelector('#urigongPhotoLoadingClose').hidden=false;
+ }else mask.classList.remove('open','failed');
+}
+
 async function loadPhotoSheet(force=false){
  if(constructionExcelSheetIndex!==1)return;
  const ctx=photoContext(),key=photoContextKey(ctx);photoPendingSheetKey=key;
@@ -9547,6 +9601,8 @@ async function loadPhotoSheet(force=false){
  if(cached){photoOverlayDrafts(ctx,cached);photoPaintSlots(cached);photoStatus(ctx.date+' 사진 '+cached.filter(Boolean).length+'장 · 저장된 미리보기 즉시 표시');}
  else photoStatus('사진 전용 서버에서 '+ctx.date+' 사진 불러오는 중…');
  if(!force&&cached&&Date.now()-(photoMemoryFetchedAt.get(key)||0)<PHOTO_CACHE_TTL){photoFolderAccessError='';photoStagedStatus();return;}
+ const photoNoticeToken=photoLoadingNoticeStart(ctx);
+ let photoNoticeError=null;
  try{
   const photos=await photoGetDay(ctx,force);
   if(photoPendingSheetKey!==key||constructionExcelSheetIndex!==1)return;
@@ -9558,6 +9614,9 @@ async function loadPhotoSheet(force=false){
   photoFolderAccessError=e.message;
   if(!cached)photoPaintSlots(null);
   photoStatus('사진 조회 실패 · 기존 화면 유지: '+e.message);
+  photoNoticeError=e;
+ }finally{
+  photoLoadingNoticeFinish(photoNoticeToken,photoNoticeError);
  }
 }
 function photoDrawSlots(sheet,colLeft,rowTop){
@@ -9641,6 +9700,8 @@ function photoRememberServerSlots(ctx,photos){
  photoServerKnown.set(key,new Set(photos.map((x,i)=>x?i+1:0).filter(Boolean)));
 }
 async function photoEncode(file){
+ // 서버에는 전체 해상도 원본 대신 화면/엑셀에 적합하게 축소한 JPEG만 저장합니다.
+ // 사진을 붙여넣은 즉시 보이는 로컬 미리보기와 서버 업로드용 파일은 별도입니다.
  if(!/^image\/(png|jpeg|webp)$/.test(file.type))throw Error('PNG/JPG/WebP 사진만 사용할 수 있습니다');
  let source=null,srcUrl=null;
  try{
@@ -9651,24 +9712,41 @@ async function photoEncode(file){
   }
   const width=source.width||source.naturalWidth,height=source.height||source.naturalHeight;
   if(!width||!height)throw Error('이미지 해상도가 올바르지 않습니다');
-  const widths=[1600,1400,1200,1000];const qualities=[.83,.77,.69,.61];
-  let output=null;
-  for(const maxSide of widths){
-   const ratio=Math.min(1,maxSide/Math.max(width,height));
-   const cv=document.createElement('canvas');cv.width=Math.max(1,Math.round(width*ratio));cv.height=Math.max(1,Math.round(height*ratio));
-   const pen=cv.getContext('2d',{alpha:false});if(!pen)throw Error('이미지 압축 기능을 사용할 수 없습니다');
-   pen.fillStyle='#fff';pen.fillRect(0,0,cv.width,cv.height);pen.drawImage(source,0,0,cv.width,cv.height);
-   for(const q of qualities){
-    const blob=await new Promise((resolve,reject)=>cv.toBlob(b=>b?resolve(b):reject(Error('이미지 압축 실패')),'image/jpeg',q));
-    output=blob;
-    // Base64 전송 때 약 4/3배이므로 600KB 미만 파일을 권장합니다.
-    if(blob.size<=580000)break;
+  const targetBytes=240000; // 권장 서버 저장 용량 약 240KB/장
+  const maxBytes=350000;    // 고화질 작업사진도 350KB 이내
+  // 인쇄용 사진대지는 반쪽 페이지에 들어가므로 긴 변 최대 1200px이면 충분합니다.
+  // 고밀도/복잡한 사진은 해상도와 품질을 함께 단계적으로 낮춥니다.
+  const presets=[
+   [1200,.78],[1200,.68],
+   [1100,.74],[1100,.64],
+   [1000,.73],[1000,.63],
+   [900,.70],[900,.60],
+   [800,.67],[800,.55],
+   [720,.57]
+  ];
+  let output=null,smallest=null;
+  let priorSide=0,canvas=null,pen=null;
+  for(const [maxSide,quality] of presets){
+   if(maxSide!==priorSide){
+    const ratio=Math.min(1,maxSide/Math.max(width,height));
+    canvas=document.createElement('canvas');
+    canvas.width=Math.max(1,Math.round(width*ratio));
+    canvas.height=Math.max(1,Math.round(height*ratio));
+    pen=canvas.getContext('2d',{alpha:false});
+    if(!pen)throw Error('이미지 압축 기능을 사용할 수 없습니다');
+    pen.fillStyle='#fff';pen.fillRect(0,0,canvas.width,canvas.height);
+    pen.imageSmoothingEnabled=true;pen.imageSmoothingQuality='high';
+    pen.drawImage(source,0,0,canvas.width,canvas.height);
+    priorSide=maxSide;
    }
-   if(output&&output.size<=580000)break;
+   const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('이미지 압축 실패')),'image/jpeg',quality));
+   if(!smallest||blob.size<smallest.size)smallest=blob;
+   if(blob.size<=targetBytes){output=blob;break;}
   }
-  if(!output||output.size>700000)throw Error('사진 용량 최적화에 실패했습니다. 더 작은 사진을 사용해 주세요.');
+  output=output||smallest;
+  if(!output||output.size>maxBytes)throw Error('사진 용량 최적화에 실패했습니다. 더 작은 사진을 사용해 주세요.');
   const data=await photoReadDataURL(output);
-  if(!String(data).startsWith('data:image/jpeg;base64,')||data.length>950000)throw Error('전송 허용 크기를 초과했습니다.');
+  if(!String(data).startsWith('data:image/jpeg;base64,')||data.length>475000)throw Error('전송 허용 크기를 초과했습니다.');
   return data;
  }finally{try{source?.close?.()}catch(e){}if(srcUrl)URL.revokeObjectURL(srcUrl);}
 }
