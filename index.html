@@ -2945,7 +2945,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   </div>
   <div class="excel-preview-workspace"><aside class="excel-progress-panel" aria-label="공사내용 또는 사진대지 편집 입력"><div id="excelProgressEditor"></div>  <div id="photoLocalControls" role="region" aria-label="사진 전용 구글 드라이브 저장">
   <b>사진대지 · 전용 서버 저장 (일반 작업일보와 완전 분리)</b>
-  <button type="button" class="btn" onclick="loadPhotoSheet(true)">사진 다시 불러오기</button>
+  <button type="button" class="btn" onclick="loadPhotoSheet(true)">↻ 최신 사진 불러오기</button>
   <section id="photoMasterManager" style="display:none;width:100%;padding:9px;border:1px solid #d3dbe8;border-radius:7px;background:#f6f8fc" aria-label="마스터 사진 전용 폴더 확인">
    <strong style="display:block;margin-bottom:6px">마스터 전용 · 서버 사진폴더 확인</strong>
    <label style="font-size:12px">사진폴더 관리키 (마스터만 입력, 기기에 저장하지 않음)
@@ -2961,7 +2961,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   <span id="photoLocalStatus" role="status" aria-live="polite">사진 서버를 먼저 연결하세요. 일반 공용저장소 연결과 별개입니다.</span>
 </div><div id="excelPhotoEditor" hidden aria-label="사진대지 서버 사진과 설명 입력"></div></aside>
   <div class="excel-preview-shell"><div id="excelSheetPreview" class="excel-sheet-preview" aria-label="현재 선택한 엑셀 시트"></div></div></div>
-  <p class="excel-help">공사일보 화면에 들어가면 선택한 날짜의 미리보기를 자동 생성하고, 사진대지를 선택하면 사진은 따로 빠르게 불러옵니다. 미리보기 버튼은 필요할 때만 수동 새로고침하세요.</p>
+  <p class="excel-help">사진대지는 마지막으로 불러온 사진을 먼저 표시합니다. 서버 최신 사진이 필요할 때만 「최신 사진 불러오기」를 눌러 주세요.</p>
 </section>
 <section id="dataPage" class="search-panel" aria-label="업체 인원 장비 담당자 데이터">
   <div class="card data-overview-head">
@@ -8022,15 +8022,19 @@ function selectConstructionExcelSheet(index){
     overlay.appendChild(line);
   }
   sheet.appendChild(overlay);
-  if(model.sheet===2)photoDrawSlots(sheet,colLeft,rowTop);
+  if(model.sheet===2){
+    photoDrawSlots(sheet,colLeft,rowTop);
+    photoAddManualRefreshBox(sheet,colLeft,rowTop); // 사진대지 오른쪽 '금일 작업 내용' 위에만 표시
+  }
   area.appendChild(sheet);
   fitConstructionExcelPreview();
   if(model.sheet===2){
     const ctx=photoContext();
     const fast=photoCaptionNewest(photoCloudCaptions(ctx),photoCaptionMemory.get(photoContextKey(ctx)));
-    photoSyncCaptionEditor(fast); // 사진이 아직 내려오지 않아도 아래 설명은 즉시 표시
-    void loadPhotoSheet(false);
+    photoSyncCaptionEditor(fast); // 사진 설명은 기존 저장 데이터에서 즉시 표시
+    photoShowCachedSheet(); // 화면 전환 때 서버 사진을 재요청하지 않음
     void photoLoadCaptions(false);
+    photoShowRefreshReminder();
   }
 }
 let constructionExcelZoomSteps=0;
@@ -8105,9 +8109,7 @@ async function refreshConstructionExcelPreview(){
   try{
     constructionExcelPreviewDate=$('date').value;
     updateExcelPreviewNavDate();
-    // 사진 서버 조회는 엑셀 양식 생성과 병렬로 시작합니다.
-    // 사용자에게 사진대지가 보일 때까지 목록+사진 왕복을 연달아 기다리지 않도록 합니다.
-    if(typeof photoPrefetchCurrentExcelDay==='function')photoPrefetchCurrentExcelDay();
+    // 미리보기 생성은 사진 서버를 호출하지 않습니다. 사진 갱신은 수동 버튼에서만 수행합니다.
     const blob=await exportConstructionDaily('preview');
     if(!blob)throw new Error('엑셀 생성이 완료되지 않았습니다.');
     const sheets=await parseConstructionExcelForPreview(blob);
@@ -9541,6 +9543,52 @@ const photoRemoteInflight=new Map();
 const photoRemotePartial=new Map();
 const photoMemoryFetchedAt=new Map();
 const PHOTO_CACHE_TTL=90000; // 같은 날짜를 반복해서 열 때 90초 동안 불필요한 서버 요청 생략
+// 엑셀 사진대지 오른쪽 '금일 작업 내용'의 윗부분에 배치합니다.
+// 작업일보 DOM·CSS나 원본 엑셀 서식 및 저장 데이터는 변경하지 않습니다.
+function photoAddManualRefreshBox(sheet,colLeft,rowTop){
+ if(!sheet||sheet.querySelector('.urigong-photo-refresh-box'))return;
+ const rightStart=colLeft[8];
+ const rightWidth=(colLeft[colLeft.length-1]||0)-rightStart;
+ if(rightWidth<140)return; // 우측 작업내용 칸이 없는 예외 양식 보호
+ const title=Array.from(sheet.querySelectorAll('.excel-fixed-cell')).find(cell=>
+    String(cell.textContent||'').replace(/\s/g,'').includes('금일작업내용'));
+ const titleTop=title?parseFloat(title.style.top)||0:0;
+ const top=titleTop>=82?Math.max(6,titleTop-76):7;
+ const height=titleTop>0&&titleTop<82?Math.max(37,titleTop-12):62;
+ const box=document.createElement('div');box.className='urigong-photo-refresh-box';
+ box.style.left=(rightStart+Math.min(18,rightWidth*.03))+'px';
+ box.style.top=top+'px';box.style.height=height+'px';
+ box.style.width=Math.max(120,rightWidth-Math.min(36,rightWidth*.06))+'px';
+ const button=document.createElement('button');button.type='button';button.className='urigong-photo-refresh-button';
+ button.textContent='↻ 최신 사진 불러오기';
+ button.title='현재 날짜·현장의 최신 사진 1~4번을 사진 서버에서 다시 가져옵니다.';
+ button.addEventListener('click',()=>{void loadPhotoSheet(true)});
+ box.appendChild(button);sheet.appendChild(box);
+}
+let photoRefreshReminderTimer=0;
+function photoShowRefreshReminder(){
+ let toast=document.getElementById('urigongPhotoRefreshReminder');
+ if(!toast){toast=document.createElement('div');toast.id='urigongPhotoRefreshReminder';toast.className='urigong-photo-refresh-reminder';toast.setAttribute('role','status');toast.setAttribute('aria-live','polite');document.body.appendChild(toast)}
+ toast.textContent='최신 사진 불러오기를 눌러주세요~';
+ clearTimeout(photoRefreshReminderTimer);
+ toast.classList.add('visible');
+ photoRefreshReminderTimer=setTimeout(()=>toast.classList.remove('visible'),1900);
+}
+function photoShowCachedSheet(){
+ if(constructionExcelSheetIndex!==1)return;
+ const ctx=photoContext(),key=photoContextKey(ctx);
+ photoPendingSheetKey=key;
+ const cached=photoMemory.get(key);
+ if(cached){
+  const current=photoOverlayDrafts(ctx,[...cached]);
+  photoPaintSlots(current);
+  photoStatus(ctx.date+' 마지막으로 불러온 사진 '+current.filter(Boolean).length+'장 표시 · 최신 사진은 버튼을 눌러 확인하세요.');
+ }else{
+  // 새로 연 날짜의 사진을 다른 날짜의 것으로 오해하지 않도록 비워 둡니다.
+  photoPaintSlots(null);
+  photoStatus(ctx.date+' 불러온 사진 없음 · 「최신 사진 불러오기」 버튼을 눌러 주세요.');
+ }
+}
 function photoPrefetchCurrentExcelDay(){
  if(!document.getElementById('excelPage')||document.getElementById('excelPage').style.display==='none')return;
  const ctx=photoContext(),key=photoContextKey(ctx);
@@ -9646,6 +9694,7 @@ function photoLoadingNoticeFinish(seq,error){
 
 async function loadPhotoSheet(force=false){
  if(constructionExcelSheetIndex!==1)return;
+ if(!force){photoShowCachedSheet();return;} // 자동 서버 조회 금지: 수동 버튼 클릭만 최신 사진 요청
  const ctx=photoContext(),key=photoContextKey(ctx);photoPendingSheetKey=key;
  photoInitServerInputs();
  const cached=photoMemory.get(key);
@@ -10136,6 +10185,34 @@ document.getElementById('urigongDiagnosticShade').addEventListener('click',e=>{i
 #urigongPendingSaveDialog #urigongPendingSaveYes{background:#0878f9;border-color:#0878f9;color:white}
 #urigongPendingSaveDialog #urigongPendingSaveDiscard{color:#9a3412;border-color:#f3c4a7}
 #urigongPendingSaveDialog small{display:block;margin-top:12px;color:#64748b;line-height:1.5}
+
+/* 2026-10-20: 사진대지 전용 수동 최신사진 버튼 · 작업일보 카드 CSS 변경 없음 */
+#excelPage .excel-fixed-sheet .urigong-photo-refresh-box{
+  position:absolute;z-index:30;box-sizing:border-box;
+  display:flex;align-items:stretch;justify-content:stretch;
+  padding:7px;border:2px solid #78b3f5;border-radius:11px;
+  background:#eaf4ff;box-shadow:0 3px 11px rgba(17,88,166,.16);
+}
+#excelPage .urigong-photo-refresh-box .urigong-photo-refresh-button{
+  display:flex!important;align-items:center;justify-content:center;gap:7px;
+  width:100%;min-height:39px;padding:10px 15px!important;
+  background:#0878f9!important;color:#fff!important;border:0!important;
+  border-radius:7px!important;font-size:16px!important;font-weight:900!important;
+  line-height:1.25!important;white-space:nowrap!important;cursor:pointer;
+}
+#excelPage .urigong-photo-refresh-box .urigong-photo-refresh-button:hover{background:#0065d3!important}
+#excelPage .urigong-photo-refresh-box .urigong-photo-refresh-button:disabled{opacity:.65;cursor:wait}
+.urigong-photo-refresh-reminder{
+  position:fixed;top:75px;left:50%;transform:translateX(-50%);
+  z-index:100080;max-width:min(94vw,430px);width:max-content;
+  padding:12px 20px;border:1px solid #b6d6f8;border-radius:11px;
+  background:#fff;color:#124270;box-shadow:0 8px 25px rgba(16,47,83,.18);
+  font-weight:800;font-size:14px;text-align:center;line-height:1.45;
+  pointer-events:none;opacity:0;visibility:hidden;transition:opacity .18s ease;
+}
+.urigong-photo-refresh-reminder.visible{opacity:1;visibility:visible}
+@media(max-width:850px){.urigong-photo-refresh-reminder{top:66px;font-size:12px;padding:10px 13px}}
+@media print{#excelPage .urigong-photo-refresh-box,.urigong-photo-refresh-reminder{display:none!important}}
 </style>
 <div id="urigongPendingSaveShade" hidden><div id="urigongPendingSaveDialog" role="dialog" aria-modal="true" aria-labelledby="urigongPendingSaveTitle" tabindex="-1">
 <h3 id="urigongPendingSaveTitle">⚠ 저장하지 않은 변경사항이 있습니다</h3>
