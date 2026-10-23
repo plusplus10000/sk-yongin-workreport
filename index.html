@@ -4410,31 +4410,54 @@ function slackClosingLine(ds){
   if(!names.length)return base;
   return `${base} [연장(~19:30) :${names.join(', ')}]${managers.length?' 근무:'+managers.join(', '):''}`;
 }
+// Slack 본문은 현재 입력 탭과 무관하게 같은 날짜/현장/공종의 주간 자료만 읽습니다.
+// 자료 선택 우선순위는 기존 switchWorkMode() 조회 원칙과 동일하며 저장/수정하지 않습니다.
+function slackWeeklySource(){
+  if(currentWorkType==='weekly'){
+    return {state,start:$('start')?.value,end:$('end')?.value};
+  }
+  const date=$('date')?.value,site=$('site')?.value,trade=$('trade')?.value;
+  if(!date||!site||!trade)return null;
+  const saved=findSavedReport(date,site,trade,'weekly',0);
+  const draft=findModeDraft(date,site,trade,'weekly',0);
+  const savedAt=Date.parse(saved?.editedAt||'')||0;
+  const draftTouchedAt=Date.parse(draft?._dataTouchedAt||'')||0;
+  const lastFinishedSyncAt=Number(getDriveMeta('driveLastFinishedLocalAt')||0);
+  const pendingLocalChanges=getDriveMeta('driveLocalDirty')==='1';
+  const unsynced=!!(draft&&pendingLocalChanges&&draftTouchedAt>savedAt&&draftTouchedAt>lastFinishedSyncAt);
+  const weekly=saved?.closed===true?saved:(unsynced?draft:(saved||draft));
+  return weekly?.state?weekly:null;
+}
 function slackReportText(){
+  const weekly=slackWeeklySource();
+  if(!weekly)return '해당 날짜에 작성된 주간 작업일보가 없습니다.';
+  const weeklyState=weekly.state||{};
+  const weeklyHours=urigongDefaultWorkHours('weekly');
+  const weeklyStart=weekly.start||weeklyHours.start,weeklyEnd=weekly.end||weeklyHours.end;
   enforceFixedWorkHours();
   const date=$('date').value, d=new Date(date+'T00:00:00');
   const days='일월화수목금토';
   const ds=isNaN(d)?date:`${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}(${days[d.getDay()]})`;
   const totals=Object.fromEntries((D.jobs||[]).map(j=>[j,0]));
-  (state.companies||[]).forEach(c=>Object.entries(c.jobs||{}).forEach(([job,n])=>{totals[job]=(totals[job]||0)+(+n||0)}));
+  (weeklyState.companies||[]).forEach(c=>Object.entries(c.jobs||{}).forEach(([job,n])=>{totals[job]=(totals[job]||0)+(+n||0)}));
   const total=Object.values(totals).reduce((sum,n)=>sum+n,0);
   const managerTotal=Object.entries(totals).reduce((n,[job,v])=>n+(/관리자|관리직/.test(job)?v:0),0);
   const workTotal=total-managerTotal;
   const parts=[];
   if(managerTotal)parts.push(`관리자 ${managerTotal}명`);
   if(workTotal){
-    const contractors=(state.companies||[]).map(c=>{
+    const contractors=(weeklyState.companies||[]).map(c=>{
       const count=Object.entries(c.jobs||{}).reduce((n,[job,v])=>n+(/관리자|관리직/.test(job)?0:(+v||0)),0);
       return count>0?`${c.name||'업체'} ${count}명`:'';
     }).filter(Boolean);
     parts.push(`작업자 ${workTotal}명${contractors.length?'('+contractors.join(', ')+')':''}`);
   }
   const lines=[slackClosingLine(ds),'','','',`✅ ${ds} 작업 용인 Y-1 Ph-1 미래이슈물질 고도처리설비`,
-    `1. 작업일시 : ${$('start').value}~${$('end').value}`,
+    `1. 작업일시 : ${weeklyStart}~${weeklyEnd}`,
     `2. 작업인원 : ${parts.join(', ')||'0명'} : 총 ${total}명`,
     '3. 작업내용 :'];
   let idx=0;
-  (state.areas||[]).forEach(a=>{
+  (weeklyState.areas||[]).forEach(a=>{
     const tasks=(a.tasks||[]).map(t=>String(t||'').trim()).filter(Boolean);
     if(!tasks.length)return;
     const zone=String(a.zone||'작업구역').trim();
@@ -4443,7 +4466,7 @@ function slackReportText(){
     tasks.forEach(t=>lines.push(`      - ${t}`));
     idx++;
   });
-  const equipment=(state.equipment||[]).filter(e=>e.name&&Number(e.qty)>0).map(e=>`${e.name} ${e.qty}대`);
+  const equipment=(weeklyState.equipment||[]).filter(e=>e.name&&Number(e.qty)>0).map(e=>`${e.name} ${e.qty}대`);
   lines.push(`4. 사용장비 : ${equipment.length?equipment.join(', ')+', ':''}함마드릴, 진공청소기 등`);
   const risk=$('slackRiskInput')?.value || localStorage.getItem('ugongsan_slack_last_risk') || '낙하물, 협착, 전도, 끼임, 추락';
   const note=$('slackSpecialInput')?.value || '';
