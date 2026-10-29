@@ -4266,19 +4266,12 @@ function renderManagers(){
   <td><input style="width:100%" value="${esc(m[1])}" oninput="state.managers[${i}][1]=this.value;updatePreview()"></td>
   <td><input style="width:100%" value="${esc(m[2])}" oninput="state.managers[${i}][2]=this.value;updatePreview()"></td>
   <td style="white-space:nowrap"><button class="btn" onclick="state.managers.splice(${i},1);renderManagers();updatePreview()">삭제</button></td></tr>`).join('')+`<datalist id="managerList">${(D.managers||[]).map(m=>`<option value="${esc(m[0])}">${esc(m[1]||'')} ${esc(m[2]||'')}</option>`).join('')}</datalist>`;
-  const linked=currentWorkType==='lunch'&&lunchWeeklyManagers()!==null;
-  const card=$('managers')?.closest('.card');
-  const addButton=card?.querySelector('button[onclick="addManager()"]');
-  if(addButton){
-    if(linked){addButton.disabled=true;addButton.dataset.lunchLinked='1';addButton.title='중식OT 담당자는 주간 담당자와 자동으로 연결됩니다.'}
-    else if(addButton.dataset.lunchLinked==='1'){delete addButton.dataset.lunchLinked;addButton.disabled=false;addButton.removeAttribute('title')}
-  }
-  // 중식OT 담당자 주간 연동/입력 잠금은 유지하고 중복 안내 배지만 숨깁니다.
-  if(linked)$('managers').querySelectorAll('button,input').forEach(el=>{el.disabled=true});
+  // 중식OT 담당자도 주간·연장과 같은 방식으로 편집합니다.
+  // 마감·읽기 전용 등 공통 권한 잠금은 applyReportLockUI()가 그대로 처리합니다.
 }
-function selectManager(i,name){if(currentWorkType==='lunch'&&lunchWeeklyManagers()!==null)return;let m=(D.managers||[]).find(x=>x[0]===name);if(m){state.managers[i]=[m[0]||'',m[1]||'',m[2]||'',state.managers[i][3]!==false,state.managers[i][4]===true];renderManagers();updatePreview()}}
-function toggleManager(i){if(currentWorkType==='lunch'&&lunchWeeklyManagers()!==null)return;state.managers[i][3]=state.managers[i][3]===false?true:false;renderManagers();updatePreview()}
-function addManager(){if(currentWorkType==='lunch'&&lunchWeeklyManagers()!==null)return;state.managers.push(['','','',true,false]);renderManagers()}
+function selectManager(i,name){let m=(D.managers||[]).find(x=>x[0]===name);if(m){state.managers[i]=[m[0]||'',m[1]||'',m[2]||'',state.managers[i][3]!==false,state.managers[i][4]===true];renderManagers();updatePreview()}}
+function toggleManager(i){state.managers[i][3]=state.managers[i][3]===false?true:false;renderManagers();updatePreview()}
+function addManager(){state.managers.push(['','','',true,false]);renderManagers()}
 function reportText(){
   const date=$('date').value, site=$('site').value, trade=$('trade').value;
   const d=new Date(date+'T00:00:00'), days='일월화수목금토';
@@ -4373,7 +4366,7 @@ function previewReportSection(tab){
   const record=tab==='weekly'?weekly:(tab==='lunch'?lunch:overtime);
   if(!record?.state)return tab==='weekly'?'해당 날짜에 작성된 주간 작업일보가 없습니다.':(tab==='lunch'?'해당 날짜에 작성된 중식OT 작업일보가 없습니다.':'해당 날짜에 작성된 연장 작업일보가 없습니다.');
   const data=record.state;
-  const managers=tab==='lunch'&&record.closed!==true?(lunchWeeklyManagers(date,site,trade)||data.managers||[]):(data.managers||[]);
+  const managers=data.managers||[];
   const title=tab==='weekly'?'주간작업보고':tab==='lunch'?'중식OT작업보고':currentModeLabel('overtime',record.overtimeNo||overtimeNo)+'작업보고';
   const fallback=urigongDefaultWorkHours(tab);
   const start=record.start||fallback.start;
@@ -6449,7 +6442,8 @@ function newWeeklyFromPreviousDay(target,site,trade){
     state:prepareNewDayState(JSON.parse(JSON.stringify(source.state)),source),slackExtra:source.slackExtra?JSON.parse(JSON.stringify(source.slackExtra)):undefined};
 }
 
-// 중식OT 담당자는 같은 날짜의 주간 자료를 출처로 삼고, 주간 자료 자체는 수정하지 않습니다.
+// 중식OT 신규 생성 시에만 같은 날짜의 주간 자료를 최초 복사합니다.
+// 이미 생성된 중식OT 담당자는 이후 주간 변경과 독립적으로 보존합니다.
 function lunchWeeklySource(date=$('date')?.value,site=$('site')?.value,trade=$('trade')?.value){
   if(!date||!site||!trade)return null;
   const saved=findSavedReport(date,site,trade,'weekly',0);
@@ -6462,11 +6456,9 @@ function lunchWeeklyManagers(date=$('date')?.value,site=$('site')?.value,trade=$
   return JSON.parse(JSON.stringify(source.state.managers));
 }
 function syncLunchManagersInState(){
-  if(currentWorkType!=='lunch'||currentReportLocked)return false;
-  const latest=lunchWeeklyManagers();
-  if(latest===null)return false;
-  state.managers=latest;
-  return true;
+  // 기존 호출과의 호환을 위해 남겨둡니다. 중식OT의 저장된 담당자 명단은 덮어쓰지 않습니다.
+  // 최초 주간 명단 복사는 switchWorkMode()의 중식OT 생성 분기에서만 수행합니다.
+  return false;
 }
 
 function makeCurrentModeDraft(){
@@ -6882,7 +6874,7 @@ function setWorkDateToday(){
 }
 function render(){renderCompanies();renderEquipment();renderAreas();renderTomorrowAreas();renderManagers();updatePreview();applyReportLockUI(currentReportLocked);updateWorkModeTabs()}
 // 주간/중식OT/연장은 각각 별도 보고서이며, 중식OT는 집계 대상이 아닙니다.
-// 중식OT 담당자는 같은 날짜의 주간 명단을 참조합니다.
+// 중식OT 담당자는 최초 생성 시 주간에서 복사하고, 이후에는 중식OT 기록에 보관합니다.
 function reportText(){
   const date=$('date').value, site=$('site').value, trade=$('trade').value;
   const d=new Date(date+'T00:00:00'), days='일월화수목금토';
@@ -6911,7 +6903,7 @@ function reportText(){
     return formatSection(state,state.managers,'주간작업보고',$('start').value,$('end').value);
   }
   if(currentWorkType==='lunch'){
-    const lunchManagers=(currentReportLocked?null:lunchWeeklyManagers(date,site,trade))||state.managers||[];
+    const lunchManagers=state.managers||[];
     return formatSection(state,lunchManagers,'중식OT작업보고',$('start').value,$('end').value);
   }
   return formatSection(state,state.managers,currentModeLabel()+'작업보고',$('start').value,$('end').value);
