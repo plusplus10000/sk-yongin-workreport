@@ -2364,13 +2364,19 @@ window.addEventListener('focus',function(){
  color:#fff!important;background:#0878f9!important;border-color:#0878f9!important;
 }
 #writePage .basic-info-headingbar .copy-prev-date-group>.copy-tomorrow-date{
- display:block;flex:0 0 123px;width:123px!important;max-width:123px!important;min-width:0!important;
+ display:block;position:relative;flex:0 0 32px;width:32px!important;max-width:32px!important;min-width:32px!important;
  height:32px!important;min-height:32px!important;box-sizing:border-box!important;
- padding:3px 4px!important;border:1px solid #9dc5f7!important;border-radius:6px!important;
- background:#fff!important;color:#17365d!important;font-size:11px!important;font-weight:700!important;
- color-scheme:light;cursor:pointer;
+ padding:0!important;border:1px solid #9dc5f7!important;border-radius:6px!important;
+ background:#fff!important;color:transparent!important;font-size:0!important;
+ color-scheme:light;cursor:pointer;overflow:hidden;
 }
-@media(max-width:430px){#writePage .basic-info-headingbar .copy-prev-date-group>.copy-tomorrow-date{width:117px!important;max-width:117px!important;flex-basis:117px!important;}}
+/* 날짜 선택 기능은 그대로 두고 달력 아이콘만 표시합니다. */
+#writePage .basic-info-headingbar .copy-prev-date-group>.copy-tomorrow-date::-webkit-datetime-edit{display:none!important;}
+#writePage .basic-info-headingbar .copy-prev-date-group>.copy-tomorrow-date::-webkit-calendar-picker-indicator{
+ display:block!important;position:absolute;inset:0;width:100%;height:100%;
+ margin:0!important;padding:0!important;opacity:1!important;cursor:pointer;
+ background-position:center;background-repeat:no-repeat;background-size:15px 15px;
+}
 </style>
 <style id="urigong-report-actions-right-and-excel-weekly-status-20261015">
 /* 기본정보(1번) 공통 버튼 정렬: 주간·중식OT·연장 등 모든 작업모드 */
