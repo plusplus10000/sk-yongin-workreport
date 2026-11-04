@@ -2352,6 +2352,26 @@ window.addEventListener('focus',function(){
   #writePage .basic-info-headingbar>.basic-copy-actions>.btn{font-size:12px!important;padding:0 7px!important;}
 }
 </style>
+<style id="urigong-select-date-tomorrow-copy-20261104">
+/* 전일자료 복사와 날짜 달력만 묶어서 배치합니다. 다른 카드 레이아웃은 변경하지 않습니다. */
+#writePage .basic-info-headingbar>.basic-copy-actions{flex-wrap:wrap!important;}
+#writePage .basic-info-headingbar .copy-prev-date-group{display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;white-space:nowrap;}
+#writePage .basic-info-headingbar .copy-prev-date-group>.copy-yesterday-btn{
+ height:32px!important;min-height:32px!important;margin:0!important;padding:0 11px!important;
+ box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 0 auto!important;line-height:1.1!important;white-space:nowrap!important;border-radius:6px!important;
+ font-family:Arial,'Noto Sans KR',sans-serif!important;font-size:12px!important;font-weight:800!important;text-align:center!important;
+ color:#fff!important;background:#0878f9!important;border-color:#0878f9!important;
+}
+#writePage .basic-info-headingbar .copy-prev-date-group>.copy-tomorrow-date{
+ display:block;flex:0 0 123px;width:123px!important;max-width:123px!important;min-width:0!important;
+ height:32px!important;min-height:32px!important;box-sizing:border-box!important;
+ padding:3px 4px!important;border:1px solid #9dc5f7!important;border-radius:6px!important;
+ background:#fff!important;color:#17365d!important;font-size:11px!important;font-weight:700!important;
+ color-scheme:light;cursor:pointer;
+}
+@media(max-width:430px){#writePage .basic-info-headingbar .copy-prev-date-group>.copy-tomorrow-date{width:117px!important;max-width:117px!important;flex-basis:117px!important;}}
+</style>
 <style id="urigong-report-actions-right-and-excel-weekly-status-20261015">
 /* 기본정보(1번) 공통 버튼 정렬: 주간·중식OT·연장 등 모든 작업모드 */
 #writePage .basic-info-headingbar>.basic-actions-row>.basic-status-line{
@@ -2927,7 +2947,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 </div>
 </aside><main>
 <section id="writePage"><div id="reportClosedBanner" class="report-closed-banner">🔒 마감된 보고서입니다. 수정·삭제·저장할 수 없습니다. 마스터가 마감을 해제한 뒤 수정할 수 있습니다.</div><div id="driveQuickBar" class="drive-action-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dbe6f2;border-radius:9px;padding:8px 10px;margin-bottom:8px;box-shadow:0 1px 2px #00000008"><button class="btn primary" type="button" onclick="connectGoogleDrive()">☁ 공용저장소 연결</button><button class="btn" type="button" onclick="saveToDrive()">공용저장소 저장</button><button class="btn" type="button" onclick="loadFromDrive()">공용저장소 불러오기</button><button class="btn public-store-diagnostic-btn" type="button" onclick="diagnosePublicStoreConnection()" title="서버 연결만 확인하고 자료는 저장하거나 변경하지 않습니다.">통신진단</button><button class="btn local-backup-btn" type="button" onclick="openLocalBackupDialog()">로컬백업</button><b id="quickDriveStatus" style="font-size:12px;color:#53657a">상태: 기기 인증 확인 중</b><span id="readOnlyBadge" class="readonly-badge">읽기 전용</span><div class="header-action-buttons"><button class="btn" type="button" onclick="openConstructionExcelPage()">📥 공사일보 엑셀</button></div></div><div class="grid"><div class="input-col left-col">
-<div class="card basic-info-card"><div class="title basic-info-headingbar"><span class="basic-title-name"><span class="n">1</span>기본 정보</span><div class="basic-actions-row"><div class="basic-mode-line"><span id="workModeTabs" class="work-mode-tabs-inline"></span></div><span class="basic-close-wrap basic-status-line"><button id="noWorkDayBtn" class="report-close-btn no-work-action" type="button" onclick="toggleNoWorkDay()">작업없음</button><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span></div><span class="basic-copy-actions"><button class="btn daily-reset-btn" type="button" onclick="resetDailyData()" title="현재 보고서의 인원·장비 수량·금일 작업내용 초기화">당일자료 초기화</button><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><button class="btn primary copy-weekly-btn" type="button" onclick="copySameDayWeeklyData()">주간자료 복사</button></span><span class="basic-action-buttons mobile-basic-actions"><button class="btn" type="button" onclick="openConstructionExcelPage()">📥 공사일보 엑셀</button></span></div><div class="basic-info-grid">
+<div class="card basic-info-card"><div class="title basic-info-headingbar"><span class="basic-title-name"><span class="n">1</span>기본 정보</span><div class="basic-actions-row"><div class="basic-mode-line"><span id="workModeTabs" class="work-mode-tabs-inline"></span></div><span class="basic-close-wrap basic-status-line"><button id="noWorkDayBtn" class="report-close-btn no-work-action" type="button" onclick="toggleNoWorkDay()">작업없음</button><button id="basicReportCloseBtn" class="report-close-btn basic-report-close-btn" type="button" title="현재 보고서 마감/해제" onclick="toggleCurrentReportClosed()">마감</button></span></div><span class="basic-copy-actions"><button class="btn daily-reset-btn" type="button" onclick="resetDailyData()" title="현재 보고서의 인원·장비 수량·금일 작업내용 초기화">당일자료 초기화</button><span class="copy-prev-date-group"><button class="btn primary copy-yesterday-btn" type="button" onclick="copyPreviousDay()">전일자료 복사</button><input id="copyTomorrowSourceDate" class="copy-tomorrow-date" type="date" aria-label="복사할 명일작업내역의 날짜 선택" title="선택한 날짜의 주간 자료 전체를 복사하고, 명일작업내용을 금일작업내용으로 반영" onchange="copySelectedDateTomorrow(this.value)"></span><button class="btn primary copy-weekly-btn" type="button" onclick="copySameDayWeeklyData()">주간자료 복사</button></span><span class="basic-action-buttons mobile-basic-actions"><button class="btn" type="button" onclick="openConstructionExcelPage()">📥 공사일보 엑셀</button></span></div><div class="basic-info-grid">
 <div class="field basic-site"><label>현장</label><select id="site"></select></div>
 <div class="field basic-trade"><label>공종</label><select id="trade"></select></div>
 <div class="field basic-date"><label>작업일</label><div class="date-with-query"><div class="date-nav">
@@ -7008,12 +7028,49 @@ function copySameDayWeeklyData(){
   if(tokenValid())scheduleAutoSync();
   if(typeof selectPreviewTab==='function')selectPreviewTab(currentWorkType==='lunch'?'lunch':'overtime');
 }
+// 전일자료 복사와 날짜선택은 선택한 날의 주간 자료 전체를 현재 작성칸으로 복사합니다.
+// 단 금일 작업은 선택한 날의 '명일 작업내용'을 사용하며, 현재 작업일·작업모드·작업시간은 유지합니다.
+function copyTomorrowWorkIntoToday(sourceDate){
+  if(!canEditActiveProject())return alert('읽기 전용 기기에서는 자료를 복사할 수 없습니다.'),false;
+  if(!requireReportEditable())return false;
+  const targetDate=$('date')?.value,site=$('site')?.value,trade=$('trade')?.value;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(targetDate||'')||!site||!trade)return alert('현재 작업일·현장·공종을 먼저 확인해 주세요.'),false;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(sourceDate||''))return alert('복사할 자료의 날짜를 선택해 주세요.'),false;
+  const source=findSavedReport(sourceDate,site,trade,'weekly',0);
+  if(!source||!source.state)return alert(sourceDate+'에 저장된 주간 보고서가 없습니다.'),false;
+  const rows=Array.isArray(source.state.tomorrowAreas)?source.state.tomorrowAreas:[];
+  const planned=rows.filter(a=>a&&Array.isArray(a.tasks)&&a.tasks.some(t=>String(t??'').trim()));
+  if(!planned.length)return alert(sourceDate+'의 주간 보고서에 명일 작업내용이 없습니다.'),false;
+  const hasExisting=!!(
+    (state.areas||[]).some(a=>a&&(String(a.zone||a.name||'').trim()||String(a.loc||a.location||'').trim()||String(a.note||'').trim()||(a.tasks||[]).some(t=>String(t??'').trim())))||
+    (state.companies||[]).some(c=>(Object.values(c.jobs||{})).some(v=>Number(v)>0))||
+    (state.equipment||[]).some(e=>Number(e.qty)>0&&String(e.name||'').trim())||
+    (state.managers||[]).some(m=>Array.isArray(m)&&m.some(v=>typeof v==='string'&&v.trim()))||
+    (state.tomorrowAreas||[]).some(a=>a&&(a.tasks||[]).some(t=>String(t??'').trim()))
+  );
+  if(hasExisting&&!confirm(sourceDate+'의 주간 자료 전체를 '+targetDate+' 작성칸에 복사할까요?\n현재 인원·장비·담당자·작업내용은 교체되고, 금일 작업내용에는 선택한 날짜의 명일 작업내용이 들어갑니다.'))return false;
+  // 기존 전일자료 복사와 동일하게 전체 state를 복사한 뒤, 금일 작업내용만 명일 작업내용으로 바꿉니다.
+  // 복사 원본과 다른 날짜·근무구분의 보고서 저장자료는 건드리지 않습니다.
+  const copied=JSON.parse(JSON.stringify(source.state));
+  copied.areas=planned.map(a=>({
+    zone:a.zone||a.name||'',loc:a.loc||a.location||'',note:a.note||'',
+    tasks:a.tasks.map(t=>String(t??''))
+  }));
+  state=copied;
+  render();
+  autoSave();
+  markLocalChanged();
+  if(tokenValid())scheduleAutoSync();
+  return true;
+}
 function copyPreviousDay(){
-  if(!canEditActiveProject())return alert('읽기 전용 기기에서는 자료를 복사할 수 없습니다.');
-  if(!requireReportEditable()||!$('date'))return;let currentDate=$('date').value,d=new Date(currentDate+'T00:00:00');if(isNaN(d))return alert('작업일을 먼저 선택해 주세요.');
-  d.setDate(d.getDate()-1);const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'),prev=`${y}-${m}-${day}`;
-  const r=findSavedReport(prev,$('site').value,$('trade').value,'weekly',0);if(!r)return alert('전일 저장된 주간 보고서가 없습니다.');
-  state=JSON.parse(JSON.stringify(r.state));$('date').value=currentDate;render();autoSave();
+  const target=$('date')?.value;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(target||''))return alert('작업일을 먼저 선택해 주세요.');
+  return copyTomorrowWorkIntoToday(previousDayDate(target));
+}
+function copySelectedDateTomorrow(date){
+  if(!date)return;
+  return copyTomorrowWorkIntoToday(date);
 }
 function loadYesterday(){let d=new Date($('date').value+'T00:00:00');d.setDate(d.getDate()-1);let y=d.toISOString().slice(0,10),r=findSavedReport(y,$('site').value,$('trade').value,'weekly',0);if(!r)return alert('전날 저장된 주간 보고서가 없습니다.');state=JSON.parse(JSON.stringify(r.state));render()}
 
