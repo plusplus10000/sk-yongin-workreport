@@ -3180,6 +3180,138 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 <script>
 
+// ===== 서버 우선 업무 저장: 브라우저 용량에 따른 실행 실패 방지 =====
+// 브라우저의 기존 자료는 삭제하지 않습니다. 기존 V3 업무 데이터 및 UI 설정은
+// 실행 중 메모리에서만 작업하고, 변경분은 기존 공용저장소 workModeDrafts에 전달합니다.
+const urigongNativeLocalStorage=window.localStorage;
+const urigongRuntimeData=new Map();
+const urigongCloudHydratedProjects=new Set();
+const urigongClientSettingNames=new Set([
+ 'sidebarCollapsed','previewCollapsed','ugong_excel_editor_width','workReportColumnWidths_v1',
+ 'urigongShortcutsV1','urigong::device-memo-window-geometry-v1','ugongsan_slack_last_risk','urigongPublicStoreUrl'
+]);
+const URIGONG_CLOUD_SETTINGS='__urigongClientPreferencesV1__';
+function urigongMemoryKey(key){
+ const k=String(key);
+ return k.startsWith('projectV3::')||k.startsWith('publicStoreProject::')||
+   k.startsWith('urigong::device-memo::')||k.startsWith('urigongPhotoCaptionBackupV2::')||
+   k.startsWith('ugis_yongin_weather_v1_')||urigongClientSettingNames.has(k);
+}
+function urigongStoreGetRaw(k){
+ try{return urigongNativeLocalStorage.getItem(k)}catch(_){return null}
+}
+function urigongLegacyPreference(k){
+ // 첫 서버 로드 전에는 기존 개인 화면 설정을 읽기만 합니다. 브라우저에 다시 쓰지 않습니다.
+ return urigongClientSettingNames.has(k)?urigongStoreGetRaw(k):null;
+}
+function urigongCloudSettingsChanged(k,value){
+ if(k==='urigongPublicStoreUrl'||!urigongCloudHydratedProjects.has(activeProjectName())||!tokenValid()||!canEditActiveProject())return;
+ const drafts=safeParseJSON(projectGet('workModeDrafts'),{})||{};
+ const preferences={...(drafts[URIGONG_CLOUD_SETTINGS]||{})};
+ preferences[k]={value,changedAt:Date.now()};
+ drafts[URIGONG_CLOUD_SETTINGS]=preferences;
+ projectSet('workModeDrafts',JSON.stringify(drafts));
+ setDriveMeta('driveLocalDirty','1');
+ setDriveMeta('driveLocalUpdatedAt',String(Date.now()));
+ scheduleAutoSync();
+}
+const localStorage={
+ getItem(key){const k=String(key);if(urigongMemoryKey(k))return urigongRuntimeData.has(k)?urigongRuntimeData.get(k):urigongLegacyPreference(k);return urigongNativeLocalStorage.getItem(k)},
+ setItem(key,value){
+   const k=String(key),v=String(value);
+   if(urigongMemoryKey(k)){
+     const old=urigongRuntimeData.get(k);
+     urigongRuntimeData.set(k,v);
+     if(old!==v&&(urigongClientSettingNames.has(k)||k.startsWith('urigong::device-memo::')))urigongCloudSettingsChanged(k,v);
+     return;
+   }
+   urigongNativeLocalStorage.setItem(k,v);
+ },
+ removeItem(key){const k=String(key);if(urigongMemoryKey(k)){urigongRuntimeData.delete(k);return}urigongNativeLocalStorage.removeItem(k)},
+ key(index){
+   const keys=[];for(let i=0;i<urigongNativeLocalStorage.length;i++){
+     const k=urigongNativeLocalStorage.key(i);if(k&&!urigongMemoryKey(k))keys.push(k);
+   }
+   for(const k of urigongRuntimeData.keys())if(!keys.includes(k))keys.push(k);
+   return keys[index]||null;
+ },
+ get length(){let n=urigongRuntimeData.size;for(let i=0;i<urigongNativeLocalStorage.length;i++){
+   const k=urigongNativeLocalStorage.key(i);if(k&&!urigongMemoryKey(k))n++;
+ }return n},
+ clear(){throw new Error('작업일보의 브라우저 자료를 일괄 삭제하지 않습니다.')}
+};
+function urigongClearRuntimeProject(project){
+ const prefix='projectV3::'+project+'::',encoded='projectV3::'+encodeURIComponent(project)+'::';
+ for(const k of Array.from(urigongRuntimeData.keys())){
+   if(k.startsWith(prefix)||k.startsWith(encoded))urigongRuntimeData.delete(k);
+ }
+}
+function urigongApplyCloudUi(project,drafts){
+ if(project!==activeProjectName())return;
+ const remote=drafts?.[URIGONG_CLOUD_SETTINGS]||{};
+ const draftSettings={...remote};let importChanged=false;
+ // 구버전 브라우저에만 있던 작은 사용자 설정/메모는 서버 값이 없을 때만 이관합니다.
+ // 서버 값이 있으면 절대 이전 브라우저 값으로 덮어쓰지 않습니다.
+ if(canEditProject(project)){
+   for(const k of urigongClientSettingNames){
+     if(k==='urigongPublicStoreUrl'||Object.prototype.hasOwnProperty.call(remote,k))continue;
+     const v=urigongStoreGetRaw(k);
+     if(v!==null){draftSettings[k]={value:v,changedAt:Date.now()};importChanged=true}
+   }
+   const oldMemoKey='urigong::device-memo::'+encodeURIComponent(project);
+   if(!Object.prototype.hasOwnProperty.call(remote,oldMemoKey)){
+     const v=urigongStoreGetRaw(oldMemoKey);
+     if(v!==null){draftSettings[oldMemoKey]={value:v,changedAt:Date.now()};importChanged=true}
+   }
+   if(importChanged){
+     const copy={...drafts,[URIGONG_CLOUD_SETTINGS]:draftSettings};
+     projectSet('workModeDrafts',JSON.stringify(copy),project);
+     setDriveMeta('driveLocalDirty','1');setDriveMeta('driveLocalUpdatedAt',String(Date.now()));
+     setTimeout(()=>scheduleAutoSync(),0);
+   }
+ }
+ for(const k of urigongClientSettingNames){
+   const record=draftSettings[k];
+   if(record&&typeof record.value==='string')urigongRuntimeData.set(k,record.value);
+   else {const old=urigongLegacyPreference(k);if(old!==null)urigongRuntimeData.set(k,old)}
+ }
+ const memoKey='urigong::device-memo::'+encodeURIComponent(project),memo=draftSettings[memoKey];
+ if(memo&&typeof memo.value==='string')urigongRuntimeData.set(memoKey,memo.value);
+ else {const old=urigongStoreGetRaw(memoKey);if(old!==null)urigongRuntimeData.set(memoKey,old)}
+ const app=document.getElementById('appShell');if(app)app.classList.toggle('sidebar-collapsed',localStorage.getItem('sidebarCollapsed')==='1');
+ const grid=document.querySelector('#writePage > .grid');if(grid)grid.classList.toggle('preview-collapsed',localStorage.getItem('previewCollapsed')==='1');
+ const b=document.querySelector('.preview-toggle');if(b)b.textContent=grid?.classList.contains('preview-collapsed')?'▶':'◀';
+ const excelWidth=Number(localStorage.getItem('ugong_excel_editor_width'));
+ if(excelWidth>=185&&excelWidth<=950)document.documentElement.style.setProperty('--excel-editor-width',excelWidth+'px');
+ const widths=safeParseJSON(localStorage.getItem('workReportColumnWidths_v1'),null);
+ if(widths&&grid){if(Number.isFinite(widths.preview))grid.style.setProperty('--work-preview-width',widths.preview+'%');if(Number.isFinite(widths.left))grid.style.setProperty('--work-left-width',widths.left+'%')}
+ document.dispatchEvent(new Event('urigong-cloud-preferences'));
+ const memoBody=document.getElementById('appMemoBody');if(memoBody&&document.getElementById('appMemoDialog')?.hidden!==false)memoBody.value=localStorage.getItem(memoKey)||'';
+}
+function urigongRefreshReportFromCloud(){
+ const project=activeProjectName();if(!urigongCloudHydratedProjects.has(project))return;
+ const m=safeParseJSON(projectGet('masters',project),null);
+ if(m){Object.assign(D,m);normalizeZones();applyAppTitle();fillSelects()}
+ const current=safeParseJSON(projectGet('currentDraft',project),null);
+ const dateEl=document.getElementById('date');if(!dateEl)return;
+ const chosenDate=dateEl.value||getTodayLocalDate();
+ if(current){
+   if(current.site!==undefined)document.getElementById('site').value=current.site;
+   if(current.trade!==undefined)document.getElementById('trade').value=current.trade;
+   if(current.state)state=JSON.parse(JSON.stringify(current.state));
+   if(current.start)document.getElementById('start').value=current.start;
+   if(current.end)document.getElementById('end').value=current.end;
+   if(current.bpa!==undefined)document.getElementById('bpa').value=current.bpa;
+ }
+ dateEl.value=chosenDate;
+ lastLoadedWorkDate='';
+ try{loadDateOrBlank()}catch(e){console.warn('서버 자료 화면 반영 보류',e);render()}
+ if(typeof refreshConstructionExcelPreview==='function'&&document.getElementById('excelPage')?.style.display!=='none'){
+   try{refreshConstructionExcelPreview()}catch(_){/* 화면이 열려 있을 때만 재생성 */}
+ }
+}
+// ===== 서버 우선 업무 저장 끝 =====
+
 // ===== 현장 선택 / 현장별 로컬 데이터 분리 =====
 const PROJECTS=['Y1 IECO','EPI','Indiana','청주Ph4','이천TMAH'];
 function safeParseJSON(v,fallback){
@@ -3403,7 +3535,16 @@ function enterProjectPage(name,page){
   sessionStorage.setItem('openProjectAfterReload','1');
   location.reload();
 }
-function goSiteHome(){saveActiveProject();sessionStorage.removeItem('activeProject');sessionStorage.removeItem('openProjectAfterReload');document.body.classList.add('site-home-mode');window.scrollTo(0,0)}
+async function goSiteHome(){
+  saveActiveProject();
+  if(getDriveMeta('driveLocalDirty')==='1'){
+    try{await pushLocal(null,true)}catch(e){alert('서버 저장을 완료하지 못했습니다.\n'+e.message+'\n현재 화면과 입력값은 유지합니다.');return false}
+    if(getDriveMeta('driveLocalDirty')==='1'){alert('서버 저장이 진행 중입니다. 완료 후 현장을 나가 주세요.');return false}
+  }
+  sessionStorage.removeItem('activeProject');sessionStorage.removeItem('openProjectAfterReload');
+  document.body.classList.add('site-home-mode');window.scrollTo(0,0);
+  return true;
+}
 
 function cloneData(v){return JSON.parse(JSON.stringify(v));}
 function sampleProjectJobs(){return ['관리자','기계공','배관공','용접공','유도 및 화기','전기공','일반공','신호수','장비기사'];}
@@ -3728,13 +3869,9 @@ function recoverY1LegacyData(){
 }
 function prepareActiveProjectStore(){
   // 구버전 자료를 새 V3 현장별 서랍으로 딱 1회 이전
-  migrateLegacyProjectStorageOnce();
-
-  // 각 현장의 초기/샘플 데이터도 각 현장 저장소에만 보관
-  seedNonY1SampleProjects();
-  seedNonY1MasterSamplesV2();
-  ensureNonY1SampleReportsV2();
-  applyY1MasterFromUserImageV1();
+  // 구버전 브라우저 자료 이관은 자동 실행하지 않습니다.
+  // 기존 데이터는 브라우저에 남겨두며, 서버 자료가 우선입니다.
+  // 서버에 자료가 전혀 없는 신규 현장만 초기 자료를 별도 생성합니다.
 
   // 이전 자료 복사는 migrateLegacyProjectStorageOnce()에서 딱 1회만 수행한다.
   // 이후에는 5개 V3 현장 서랍만 사용한다.
@@ -5715,7 +5852,7 @@ function updateMobileZeroJobStyles(){
 }
 function changeJob(i,j,d){if(!requireReportEditable())return;const old=+state.companies[i].jobs[j]||0;let v=Math.max(0,Math.min(999999,old+d));if(v===old)return;state.companies[i].jobs[j]=v;renderCompanies();updatePreview();markLocalChanged()}
 function changeEquip(i,d){if(!equipmentEditAllowed())return;state.equipment[i].qty=Math.max(0,Math.min(999,(+state.equipment[i].qty||0)+d));renderEquipment();updatePreview();equipmentChanged()}
-function saveMasters(){
+async function saveMasters(){
   if(!canEditActiveProject())return alert('이 현장의 기준정보 변경 권한이 없습니다.');
   autoSave();
   let split=id=>$(id).value.split(',').map(x=>x.trim()).filter(Boolean);
@@ -5743,10 +5880,18 @@ function saveMasters(){
   renderManagers();
 
   markLocalChanged();
-  if(tokenValid())scheduleAutoSync();
-
-  alert('기준정보를 저장했습니다. 앱 타이틀도 즉시 반영되었습니다.'+
-    (tokenValid()?'\n공용저장소 자동 동기화를 시작했습니다.':''));
+  if(!tokenValid()){
+    alert('서버 연결 또는 기기등록이 필요합니다. 입력값은 현재 화면에 유지됩니다.');
+    return;
+  }
+  try{
+    await pushLocal(null,true);
+    if(getDriveMeta('driveLocalDirty')==='1')throw new Error('다음 서버 동기화를 기다려 주세요.');
+    alert('기준정보를 공용저장소에 저장했습니다. 앱 타이틀도 즉시 반영되었습니다.');
+  }catch(e){
+    console.error(e);
+    alert('기준정보 서버 저장을 확인하지 못했습니다. 입력 내용은 현재 화면에 유지됩니다.\n'+e.message);
+  }
 }
 
 
@@ -6085,7 +6230,7 @@ function sharedDeltaChanges(remote,local){
 }
 function getDeviceId(){let x=localStorage.getItem('driveDeviceId');if(!x){x='dev-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);localStorage.setItem('driveDeviceId',x)}return x}
 function markLocalChanged(){
-  if(applyingRemote||!canEditActiveProject())return;
+  if(applyingRemote||!urigongCloudHydratedProjects.has(currentProjectForAuth())||!canEditActiveProject())return;
   // 보고서 실제 입력/수정만 기록. 단순 화면 갱신과 날짜 이동은 별도이며,
   // 변경분 동기화 후에도 저장본보다 나중에 사용자가 편집한 초안은 보존합니다.
   const page=$('writePage');
@@ -6144,6 +6289,7 @@ function locallyCachedCloudSnapshot_(){
   };
 }
 async function fetchRemote(forceFull=false){
+  if(!urigongCloudHydratedProjects.has(currentProjectForAuth()))forceFull=true;
   const currentRevision=Number(getDriveMeta('driveLastRemoteRevision'))||0;
   const previousStamp=Number(getDriveMeta('driveLastRemoteStamp'))||0;
   const dirty=getDriveMeta('driveLocalDirty')==='1';
@@ -6247,12 +6393,12 @@ async function syncNow(reason='auto'){
       setDriveMeta('driveLocalDirty','0');
       if(!remote.file){setDriveStatus('읽기 전용 · 저장된 공용자료 없음');return}
       const remoteChanged=isRemoteChanged;
-      if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('읽기 전용 · 최신자료 반영');(typeof urigongInitialMarkReload==='function'&&urigongInitialMarkReload(),location.reload())}
+      if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('읽기 전용 · 최신자료 반영');void 0}
       else setDriveStatus('읽기 전용 · 최신 상태');
       return;
     }
     const dirty=getDriveMeta('driveLocalDirty')==='1';
-    if(!remote.file){await pushLocal(null,true,{});return}
+    if(!remote.file){urigongCloudHydratedProjects.add(currentProjectForAuth());await pushLocal(null,true,{});return}
     const remoteChanged=isRemoteChanged;
     if(dirty&&remoteChanged){const useLocal=confirm('PC/휴대폰 양쪽에서 자료가 변경되었습니다.\n\n확인 = 이 기기의 자료를 공용저장소에 저장\n취소 = 공용저장소의 최신 자료를 이 기기에 적용');if(useLocal){
         const merged=sharedMergePayload(remote.data||{},localData());
@@ -6264,8 +6410,8 @@ async function syncNow(reason='auto'){
           sharedItemRestore(merged.workModeDrafts,p);
         }finally{applyingRemote=false}
         await pushLocal(remote.file,true,remote.data)
-      }else{applyRemoteData(remote.data,remote.stamp);setDriveStatus('공용저장소 최신자료 적용 완료');alert('공용저장소의 최신 자료를 적용합니다.');(typeof urigongInitialMarkReload==='function'&&urigongInitialMarkReload(),location.reload())}}
-    else if(dirty){await pushLocal(remote.file,true,remote.data)}else if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('공용저장소 최신자료 자동 반영');(typeof urigongInitialMarkReload==='function'&&urigongInitialMarkReload(),location.reload())}else {
+      }else{applyRemoteData(remote.data,remote.stamp);setDriveStatus('공용저장소 최신자료 적용 완료');alert('공용저장소의 최신 자료를 적용합니다.');void 0}}
+    else if(dirty){await pushLocal(remote.file,true,remote.data)}else if(remoteChanged){applyRemoteData(remote.data,remote.stamp);setDriveStatus('공용저장소 최신자료 자동 반영');void 0}else {
       const shared=(remote.data?.workModeDrafts||{})[SHARED_ITEM_NAMESPACE]||{};
       const hasUnsyncedItem=Object.keys(sharedItemExportDrafts({},currentProjectForAuth())[SHARED_ITEM_NAMESPACE]||{}).some(k=>!(k in shared));
       setDriveStatus(hasUnsyncedItem?'공용저장소 연결됨 · PC Item 기존 자료 공유는 「공용저장소 저장」 필요':'공용저장소 연결됨 · 최신 상태');
@@ -6277,7 +6423,7 @@ async function syncNow(reason='auto'){
 }
 }
 async function saveToDrive(silent=false){if(!canEditActiveProject())return alert('읽기 전용 기기에서는 공용저장소에 저장할 수 없습니다.');if(!requireDrive())return;setDriveMeta('driveLocalDirty','1');try{await pushLocal(null,silent)}catch(e){console.error(e);setDriveStatus(e.message);if(!silent)alert('공용저장소 저장 실패\n'+e.message)}}
-async function loadFromDrive(){if(!canEditActiveProject())return alert('읽기 전용 기기는 자동으로 최신 자료를 조회합니다.');if(!requireDrive())return;try{const remote=await fetchRemote();if(!remote.file)return alert('아직 공용저장소에 저장된 작업일보 데이터가 없습니다.');if(!confirm('공용저장소의 자료로 이 기기의 작업일보 데이터를 갱신할까요?\n현재 로컬 자료는 공용저장소 자료로 바뀝니다.'))return;applyRemoteData(remote.data,remote.stamp);alert('공용저장소 자료를 불러왔습니다.');location.reload()}catch(e){setDriveStatus(e.message);alert('공용저장소 불러오기 실패\n'+e.message)}}
+async function loadFromDrive(){if(!canEditActiveProject())return alert('읽기 전용 기기는 자동으로 최신 자료를 조회합니다.');if(!requireDrive())return;try{const remote=await fetchRemote();if(!remote.file)return alert('아직 공용저장소에 저장된 작업일보 데이터가 없습니다.');if(!confirm('공용저장소의 자료로 이 기기의 작업일보 데이터를 갱신할까요?\n현재 로컬 자료는 공용저장소 자료로 바뀝니다.'))return;applyRemoteData(remote.data,remote.stamp);alert('공용저장소 자료를 불러왔습니다.')}catch(e){setDriveStatus(e.message);alert('공용저장소 불러오기 실패\n'+e.message)}}
 function restoreDriveClientId(){syncPublicStoreSettingsUI();setDriveStatus(tokenValid()?'등록기기 인증 확인 중...':'기기등록 필요')}
 setTimeout(restoreDriveClientId,0);
 
@@ -7263,6 +7409,7 @@ function localData(){
 function applyRemoteData(d,stamp){
   applyingRemote=true;try{
     const activeProject=currentProjectForAuth();
+    urigongClearRuntimeProject(activeProject);
     if(d.masters)projectSet('masters',JSON.stringify(d.masters),activeProject);
     if(Array.isArray(d.reports)){
       const existing=safeParseJSON(projectGet('reports',activeProject),[])||[];
@@ -7297,6 +7444,9 @@ function applyRemoteData(d,stamp){
       received[PHOTO_CAPTION_CLOUD_NAMESPACE]=mergedCaptions;
       projectSet('workModeDrafts',JSON.stringify(received),activeProject);
       sharedItemRestore(received,activeProject);
+      // 이미 서버에 존재하는 Item은 변경하지 않고, 구버전 브라우저 전용 명칭만 1회 이관.
+      urigongImportLegacyItemNames(activeProject,received);
+      urigongApplyCloudUi(activeProject,received);
       if(newerLocalCaption&&canEditActiveProject()){
         setDriveMeta('driveLocalDirty','1');
         setTimeout(()=>scheduleAutoSync(),0);
@@ -7314,6 +7464,8 @@ function applyRemoteData(d,stamp){
     setDriveMeta('driveLocalDirty',keepCaptionDirty?'1':'0');
     setDriveMeta('driveLocalUpdatedAt',String(keepCaptionDirty?Date.now():(stamp||Date.now())));
     setDriveMeta('driveLastFinishedLocalAt',String(Date.now()));
+    urigongCloudHydratedProjects.add(activeProject);
+    if(activeProject===activeProjectName())urigongRefreshReportFromCloud();
   }finally{applyingRemote=false}
 }
 
@@ -7323,7 +7475,29 @@ function applyRemoteData(d,stamp){
 // 별도 이름공간만 추가하며, PC의 기존 로컬 키는 삭제하지 않습니다.
 const SHARED_ITEM_NAMESPACE='__urigongConstructionItemSyncV1__';
 const SHARED_NOWORK_NAMESPACE='__urigongNoWorkDaysSyncV1__';
-const SHARED_ITEM_STORE_TYPES=['constructionProgress','constructionRemarks','constructionRemarksDirectV2'];
+const SHARED_ITEM_STORE_TYPES=['constructionProgress','constructionRemarks','constructionRemarksDirectV2','constructionItemNames'];
+function urigongImportLegacyItemNames(project,drafts){
+ if(!canEditProject(project))return;
+ const bucket={...(drafts[SHARED_ITEM_NAMESPACE]||{})};
+ const prefix='projectV3::'+encodeURIComponent(project)+'::constructionItemNames::';
+ let changed=false;
+ for(let i=0;i<urigongNativeLocalStorage.length;i++){
+   const k=urigongNativeLocalStorage.key(i)||'';
+   if(!k.startsWith(prefix)||!sharedItemOwnedKey(k,project)||Object.prototype.hasOwnProperty.call(bucket,k))continue;
+   try{
+      const raw=urigongNativeLocalStorage.getItem(k),val=JSON.parse(raw||'null');
+      if(!val||typeof val!=='object'||Array.isArray(val))continue;
+      bucket[k]={value:val,changedAt:Date.now()};
+      urigongRuntimeData.set(k,raw);changed=true;
+   }catch(_){/* 오래된 잘못된 자료는 보존만 하고 자동 반영하지 않음 */}
+ }
+ if(!changed)return;
+ drafts[SHARED_ITEM_NAMESPACE]=bucket;
+ projectSet('workModeDrafts',JSON.stringify(drafts),project);
+ setDriveMeta('driveLocalDirty','1');setDriveMeta('driveLocalUpdatedAt',String(Date.now()));
+ setTimeout(()=>scheduleAutoSync(),0);
+}
+
 function sharedItemPrefix(project=activeProjectName()){
   return 'projectV3::'+encodeURIComponent(project)+'::';
 }
@@ -7509,6 +7683,27 @@ function makeFullLocalBackupSnapshot(){
     storage
   };
 }
+async function makeFullServerBackupSnapshot(){
+  if(!tokenValid())throw new Error('서버에 등록된 기기만 서버 백업을 만들 수 있습니다.');
+  if(getDriveMeta('driveLocalDirty')==='1'&&canEditActiveProject()){
+    await pushLocal(null,true);
+    if(getDriveMeta('driveLocalDirty')==='1')throw new Error('작성 중 자료의 서버 전송이 완료되지 않았습니다. 백업을 중단합니다.');
+  }
+  const storage={};
+  for(const project of PROJECTS){
+    if(!canAccessProject(project))continue;
+    const r=await publicPost('load',authPayload({project}));
+    if(!r?.exists||!r.data)continue;
+    const d=r.data;
+    for(const type of ['masters','reports','currentDraft','workModeDrafts','noWorkDays']){
+      if(Object.prototype.hasOwnProperty.call(d,type))storage[projectKey(project,type)]=JSON.stringify(d[type]);
+    }
+  }
+  if(!Object.keys(storage).length)throw new Error('서버에서 백업할 자료를 받지 못했습니다.');
+  return {format:LOCAL_BACKUP_FORMAT,version:1,savedAt:new Date().toISOString(),
+   activeProject:sessionStorage.getItem('activeProject')||'',projects:PROJECTS.slice(),storage};
+}
+
 async function writeLocalBackupSnapshot(dirHandle,snapshot,prefix='우리공일보_백업'){
   const filename=`${prefix}_${localBackupStamp()}.json`;
   const fh=await dirHandle.getFileHandle(filename,{create:true});
@@ -7571,10 +7766,34 @@ async function saveLocalBackupNow(){
   try{
     const dir=await getReadyLocalBackupDir();if(!dir)return;
     setLocalBackupStatus('백업 저장 중...');
-    const filename=await writeLocalBackupSnapshot(dir,makeFullLocalBackupSnapshot(),'우리공일보_백업');
+    const filename=await writeLocalBackupSnapshot(dir,await makeFullServerBackupSnapshot(),'우리공일보_백업');
     setLocalBackupStatus('백업 완료: '+filename);await refreshLocalBackupFolderUI(false);
   }catch(e){console.error(e);setLocalBackupStatus('백업 실패: '+e.message);alert('로컬 백업에 실패했습니다.\n'+e.message)}
 }
+async function restoreBackupSnapshotToServer(snapshot){
+ if(!snapshot||snapshot.format!==LOCAL_BACKUP_FORMAT||!snapshot.storage||typeof snapshot.storage!=='object')throw new Error('백업 파일 형식이 올바르지 않습니다.');
+ const projects=PROJECTS.filter(p=>PROJECT_KEYS.some(k=>Object.prototype.hasOwnProperty.call(snapshot.storage,projectKey(p,k))));
+ if(!projects.length)throw new Error('백업파일에 복원할 현장 데이터가 없습니다.');
+ for(const p of projects)if(!canEditProject(p))throw new Error(p+' 현장의 편집 권한이 없습니다. 복원을 시작하지 않았습니다.');
+ // 서버 접속권은 현장별로 검사한다. 일부 복원이 성공해도 다음 현장에 실패한 사실을 감추지 않는다.
+ let count=0;
+ for(const p of projects){
+   const r=await publicPost('load',authPayload({project:p}));
+   const existing=r?.data||{};
+   const data={...existing};
+   for(const type of ['masters','reports','currentDraft','workModeDrafts','noWorkDays']){
+      const raw=snapshot.storage[projectKey(p,type)];
+      if(typeof raw==='string')data[type]=JSON.parse(raw);
+   }
+   const changes=sharedDeltaChanges(existing,data);
+   if(Object.keys(changes).length){
+     await publicPost('patch',authPayload({project:p,baseRevision:Number(existing.serverRevision)||0,changes}),90000);
+   }
+   count++;
+ }
+ return count;
+}
+
 function applyFullLocalBackupSnapshot(snapshot){
   if(!snapshot||snapshot.format!==LOCAL_BACKUP_FORMAT||!snapshot.storage||typeof snapshot.storage!=='object')throw new Error('우공이산 일보 로컬백업 파일 형식이 아닙니다.');
   const entries=Object.entries(snapshot.storage).filter(([k,v])=>k.startsWith('projectV3::')&&typeof v==='string');
@@ -7595,11 +7814,14 @@ async function restoreSelectedLocalBackup(){
     if(!snapshot||snapshot.format!==LOCAL_BACKUP_FORMAT)throw new Error('우공이산 일보 로컬백업 파일 형식이 아닙니다.');
     if(!confirm(`백업파일을 불러올까요?\n\n${entry.name}\n\n현재 자료는 같은 폴더에 '복구전' 백업으로 먼저 저장한 뒤 불러옵니다.`))return;
     setLocalBackupStatus('현재 자료 안전백업 중...');
-    await writeLocalBackupSnapshot(dir,makeFullLocalBackupSnapshot(),'우리공일보_복구전');
+    await writeLocalBackupSnapshot(dir,await makeFullServerBackupSnapshot(),'우리공일보_복구전');
     setLocalBackupStatus('백업자료 적용 중...');
-    const count=applyFullLocalBackupSnapshot(snapshot);
-    alert(`백업자료를 불러왔습니다. (${count}개 저장항목)\n화면을 새로고침합니다.`);
-    location.reload();
+    const count=await restoreBackupSnapshotToServer(snapshot);
+    setDriveStatus('서버 백업 복원 완료');
+    // 현장 자료를 서버에서 직접 다시 조회하여 RAM에 적용합니다.
+    const remote=await fetchRemote(true);
+    if(remote?.data)applyRemoteData(remote.data,remote.stamp);
+    alert(`백업자료를 공용저장소에 복원했습니다. (${count}개 현장)`);
   }catch(e){console.error(e);setLocalBackupStatus('불러오기 실패: '+e.message);alert('백업 불러오기에 실패했습니다.\n'+e.message)}
 }
 
@@ -7657,7 +7879,7 @@ function constructionItemLabel(row,fallback,date,site,trade){
 function saveConstructionItemLabel(row,value,date,site,trade){
   if(isStoredReportClosed(date,site,trade,'weekly',0)||!canEditActiveProject())return;
   const key=constructionItemLabelKey(date,site,trade);let record={};try{record=JSON.parse(localStorage.getItem(key)||'{}')||{}}catch(e){}
-  record[row]=String(value||'').slice(0,120);localStorage.setItem(key,JSON.stringify(record));markLocalChanged();if(tokenValid())scheduleAutoSync();
+  record[row]=String(value||'').slice(0,120);localStorage.setItem(key,JSON.stringify(record));sharedItemCaptureChange(key,record);markLocalChanged();if(tokenValid())scheduleAutoSync();
   constructionExcelRemarkDirty=true;
   updateConstructionExcelTextCell('B'+row,record[row],date,site,trade);
 }
@@ -10276,10 +10498,10 @@ async function photoAttachToExcelZip(zip,date,site,trade){
 document.addEventListener('DOMContentLoaded',()=>{photoInitServerInputs();setTimeout(()=>{if(tokenValid())photoSharedEnsureReady().then(()=>photoInitServerInputs()).catch(()=>{});},600)});
 </script>
 
-<div id="appMemoDialog" hidden role="dialog" aria-modal="true" aria-label="일자 관계없는 메모장" onclick="if(event.target===this)appMemoClose()"><div id="appMemoPanel"><header><strong>🗒 메모장 · 날짜와 관계없이 마지막 편집 내용</strong><button type="button" class="btn" onclick="appMemoClose()">닫기 ×</button></header><textarea id="appMemoBody" placeholder="일자와 관계없이 마지막으로 입력한 메모가 유지됩니다." oninput="appMemoSave()"></textarea><div class="app-memo-foot" style="font-size:11px;color:#68798a;margin-top:5px">입력 즉시 이 브라우저에 저장됩니다. 다른 PC에는 자동 공유되지 않습니다.</div></div></div>
+<div id="appMemoDialog" hidden role="dialog" aria-modal="true" aria-label="일자 관계없는 메모장" onclick="if(event.target===this)appMemoClose()"><div id="appMemoPanel"><header><strong>🗒 메모장 · 날짜와 관계없이 마지막 편집 내용</strong><button type="button" class="btn" onclick="appMemoClose()">닫기 ×</button></header><textarea id="appMemoBody" placeholder="일자와 관계없이 마지막으로 입력한 메모가 유지됩니다." oninput="appMemoSave()"></textarea><div class="app-memo-foot" style="font-size:11px;color:#68798a;margin-top:5px">입력 내용은 공용저장소에 자동 동기화됩니다. 서버 저장 상태를 확인해 주세요.</div></div></div>
 <script>
 function appMemoKey(){return 'urigong::device-memo::'+encodeURIComponent(typeof activeProjectName==='function'?activeProjectName():'default')}
-function appMemoOpen(){const d=document.getElementById('appMemoDialog'),t=document.getElementById('appMemoBody');if(!d||!t)return;try{t.value=localStorage.getItem(appMemoKey())||''}catch(e){}d.hidden=false;appMemoRestoreGeometry();t.focus({preventScroll:true})}
+function appMemoOpen(){const d=document.getElementById('appMemoDialog'),t=document.getElementById('appMemoBody');if(!d||!t)return;try{t.value=localStorage.getItem(appMemoKey())||''}catch(e){}t.readOnly=!canEditActiveProject()||(typeof siteAccessHasActive==='function'&&siteAccessHasActive()&&siteAccessMode!=='edit');d.hidden=false;appMemoRestoreGeometry();t.focus({preventScroll:true})}
 function appMemoSave(){try{localStorage.setItem(appMemoKey(),document.getElementById('appMemoBody').value)}catch(e){console.warn('메모 자동 저장 실패',e)}}
 function appMemoClose(){document.getElementById('appMemoDialog').hidden=true}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('appMemoDialog')?.hidden)appMemoClose()});
@@ -10531,10 +10753,13 @@ async function urigongSaveReportWorkflow(silent=false){
    }
   }
   const uploaded=await photoFlushStaged();
-  const saved=saveReportWorkData(true);
+   const saved=saveReportWorkData(true);
   if(saved!==true)throw Error('보고서 입력값 저장을 완료하지 못했습니다.');
+   if(!tokenValid())throw Error('서버 기기등록 또는 연결 상태를 확인해 주세요. 화면의 입력 내용은 그대로 유지됩니다.');
+   await pushLocal(null,true);
+   if(getDriveMeta('driveLocalDirty')==='1')throw Error('작업일보의 공용저장소 저장 완료를 확인하지 못했습니다. 다시 저장해 주세요.');
   urigongResetBaseline();
-  if(!silent)alert('보고서 저장 완료'+(uploaded?' · 사진 '+uploaded+'장 서버 반영':'')+(tokenValid()?'\n일반 보고서 공용저장소 자동 동기화 중':'\n현재 기기에 저장됨'));
+   if(!silent)alert('보고서 서버 저장 완료'+(uploaded?' · 사진 '+uploaded+'장 서버 반영':''));
   return true;
  }catch(e){
   photoStatus('미저장 항목이 남아 있습니다 · 보고서 저장 실패: '+e.message);
@@ -10607,8 +10832,9 @@ document.addEventListener('change',function(e){
 },true);
 // 브라우저가 제공하는 표준 확인창: 페이지 새로고침/닫기 시 파일 손실 방지.
 window.addEventListener('beforeunload',function(e){
- if(urigongSkippingDraft||!urigongHasUnsaved())return;
- e.preventDefault();e.returnValue='';
+  if(urigongSkippingDraft)return;
+  if(!urigongHasUnsaved()&&getDriveMeta('driveLocalDirty')!=='1')return;
+  e.preventDefault();e.returnValue='';
 });
 window.addEventListener('DOMContentLoaded',()=>setTimeout(urigongResetBaseline,180));
 </script>
@@ -10685,6 +10911,10 @@ const siteOriginalEnterProjectPage=enterProjectPage;
 enterProjectPage=async function(project,page){
  if(siteAccessBusy)return;
  if(tokenValid()&&!canAccessProject(project)){alert('해당 현장 조회권한이 없습니다.');return}
+ if(siteAccessProject!==project&&getDriveMeta('driveLocalDirty')==='1'){
+   try{await pushLocal(null,true)}catch(e){alert('이전 현장 서버 저장이 완료되지 않아 이동을 중단했습니다.\n'+e.message);return}
+   if(getDriveMeta('driveLocalDirty')==='1'){alert('이전 현장 서버 저장 중입니다. 다시 이동해 주세요.');return}
+ }
  if(siteAccessProject===project&&['edit','readonly'].includes(siteAccessMode)&&siteAccessHasActive())return siteOriginalEnterProjectPage(project,page);
  siteAccessBusy=true;
  try{
@@ -10702,7 +10932,7 @@ enterProjectPage=async function(project,page){
  finally{siteAccessBusy=false}
 };
 const siteOriginalGoSiteHome=goSiteHome;
-goSiteHome=function(){siteOriginalGoSiteHome();siteAccessRender()};
+goSiteHome=async function(){const result=await siteOriginalGoSiteHome();siteAccessRender();return result};
 const siteOriginalCanEdit=canEditActiveProject;
 canEditActiveProject=function(){return siteOriginalCanEdit()&&(!siteAccessHasActive()||(siteAccessMode==='edit'&&siteAccessProject===sessionStorage.getItem('activeProject')))};
 const siteOriginalCanEditProject=canEditProject;
@@ -11127,6 +11357,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
     document.addEventListener('click',e=>{if(!e.target.closest('.urigong-links-control'))closeAll();});
     document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll();});
     window.addEventListener('storage',e=>{if(e.key===KEY){entries=read();render();}});
+    document.addEventListener('urigong-cloud-preferences',()=>{entries=read();render();});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
